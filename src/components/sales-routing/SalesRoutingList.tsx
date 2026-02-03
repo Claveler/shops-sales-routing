@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faTrash, faStore, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faStore, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
@@ -30,11 +30,6 @@ export function SalesRoutingList() {
 
   const handleEdit = (id: string) => {
     navigate(`/products/sales-routing/edit/${id}`);
-  };
-
-  const handleDelete = (id: string) => {
-    // Mock delete - in real app would show confirmation modal
-    console.log('Delete routing:', id);
   };
 
   return (
@@ -132,13 +127,6 @@ export function SalesRoutingList() {
                             title="Edit"
                           >
                             <FontAwesomeIcon icon={faEdit} />
-                          </button>
-                          <button 
-                            className={`${styles.actionBtn} ${styles.danger}`}
-                            onClick={() => handleDelete(routing.id)}
-                            title="Delete"
-                          >
-                            <FontAwesomeIcon icon={faTrash} />
                           </button>
                         </div>
                       </TableCell>
