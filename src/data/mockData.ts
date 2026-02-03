@@ -244,3 +244,22 @@ export function getChannelById(id: string): Channel | undefined {
 export function getSalesRoutingById(id: string): SalesRouting | undefined {
   return salesRoutings.find(sr => sr.id === id);
 }
+
+// Box Office Setups (for onsite routings)
+export interface BoxOfficeSetup {
+  id: string;
+  name: string;
+  salesRoutingId: string;
+  warehouseId: string; // Which warehouse this setup consumes stock from
+}
+
+export const boxOfficeSetups: BoxOfficeSetup[] = [
+  { id: 'bos-001', name: 'Main Entrance POS', salesRoutingId: 'sr-001', warehouseId: 'wh-001' },
+  { id: 'bos-002', name: 'Gift Shop', salesRoutingId: 'sr-001', warehouseId: 'wh-002' },
+  { id: 'bos-003', name: 'VIP Lounge', salesRoutingId: 'sr-001', warehouseId: 'wh-001' },
+  { id: 'bos-004', name: 'Food Court Kiosk', salesRoutingId: 'sr-004', warehouseId: 'wh-004' },
+];
+
+export function getBoxOfficeSetupsByRoutingId(routingId: string): BoxOfficeSetup[] {
+  return boxOfficeSetups.filter(setup => setup.salesRoutingId === routingId);
+}

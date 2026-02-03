@@ -34,6 +34,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  position: relative;
 }
 
 .typeIcon {
@@ -114,4 +115,96 @@
 
 .emptyState p {
   margin-bottom: 16px;
+}
+
+/* Box Office Setup Indicator */
+.setupIndicator {
+  position: relative;
+  margin-left: 8px;
+}
+
+.setupCount {
+  font-size: 10px;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 10px;
+  cursor: help;
+  transition: all var(--fz-transition);
+}
+
+.setupIndicator:hover .setupCount {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.setupTooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  min-width: 220px;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity var(--fz-transition), visibility var(--fz-transition);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.setupTooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #1f2937;
+}
+
+.setupIndicator:hover .setupTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.setupIndicator:hover .setupTooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.tooltipTitle {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #374151;
+}
+
+.tooltipItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 0;
+}
+
+.tooltipItem:not(:last-child) {
+  border-bottom: 1px solid #374151;
+}
+
+.tooltipSetupName {
+  font-size: 12px;
+  font-weight: 500;
+  color: white;
+}
+
+.tooltipWarehouse {
+  font-size: 10px;
+  color: #9ca3af;
 }

@@ -6,7 +6,7 @@ import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { Table, TableHead, TableBody, TableRow, TableCell } from '../common/Table';
 import { Breadcrumb } from '../common/Breadcrumb';
-import { salesRoutings, getEventById, getWarehouseById } from '../../data/mockData';
+import { salesRoutings, getEventById, getWarehouseById, getBoxOfficeSetupsByRoutingId } from '../../data/mockData';
 import type { RoutingStatus, RoutingType } from '../../data/mockData';
 import styles from './SalesRoutingList.module.css';
 
@@ -80,6 +80,7 @@ export function SalesRoutingList() {
                   const event = getEventById(routing.eventId);
                   const warehouses = routing.warehouseIds.map(id => getWarehouseById(id)).filter(Boolean);
                   const typeInfo = typeConfig[routing.type];
+                  const boxOfficeSetups = routing.type === 'onsite' ? getBoxOfficeSetupsByRoutingId(routing.id) : [];
 
                   return (
                     <TableRow key={routing.id}>
@@ -93,6 +94,27 @@ export function SalesRoutingList() {
                         <div className={styles.typeCell}>
                           <FontAwesomeIcon icon={typeInfo.icon} className={styles.typeIcon} />
                           <span>{typeInfo.label}</span>
+                          {routing.type === 'onsite' && boxOfficeSetups.length > 0 && (
+                            <div className={styles.setupIndicator}>
+                              <span className={styles.setupCount}>
+                                {boxOfficeSetups.length} {boxOfficeSetups.length === 1 ? 'setup' : 'setups'}
+                              </span>
+                              <div className={styles.setupTooltip}>
+                                <div className={styles.tooltipTitle}>Box Office Setups</div>
+                                {boxOfficeSetups.map(setup => {
+                                  const warehouse = getWarehouseById(setup.warehouseId);
+                                  return (
+                                    <div key={setup.id} className={styles.tooltipItem}>
+                                      <span className={styles.tooltipSetupName}>{setup.name}</span>
+                                      {warehouse && (
+                                        <span className={styles.tooltipWarehouse}>{warehouse.name}</span>
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </TableCell>
                       <TableCell>
