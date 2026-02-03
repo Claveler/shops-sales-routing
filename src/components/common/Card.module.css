@@ -1,0 +1,63 @@
+.card {
+  background-color: var(--fz-bg-card);
+  border-radius: var(--fz-border-radius-lg);
+  box-shadow: var(--fz-shadow);
+  border: 1px solid var(--fz-border-color);
+}
+
+.padding-none {
+  padding: 0;
+}
+
+.padding-sm {
+  padding: 12px;
+}
+
+.padding-md {
+  padding: 16px;
+}
+
+.padding-lg {
+  padding: 20px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.titleWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  margin: 0;
+}
+
+.body {
+  /* Body content styles */
+}

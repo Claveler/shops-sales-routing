@@ -1,0 +1,113 @@
+.sidebar {
+  position: fixed;
+  top: var(--fz-header-height);
+  left: 0;
+  bottom: 0;
+  width: var(--fz-sidebar-width);
+  background-color: var(--fz-bg-sidebar);
+  display: flex;
+  flex-direction: column;
+  transition: width var(--fz-transition);
+  z-index: 90;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: var(--fz-sidebar-collapsed-width);
+}
+
+.nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--fz-spacing-sm) 0;
+}
+
+.menuList {
+  list-style: none;
+}
+
+.menuItem {
+  margin-bottom: 1px;
+}
+
+.menuLink {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  padding: 8px 14px;
+  color: var(--fz-text-muted);
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: var(--fz-font-size-sm);
+  cursor: pointer;
+  transition: all var(--fz-transition);
+  text-decoration: none;
+}
+
+.menuLink:hover {
+  color: var(--fz-text-light);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.menuLink.active {
+  color: var(--fz-text-light);
+  background-color: rgba(32, 201, 151, 0.15);
+  border-left: 3px solid var(--fz-accent-teal);
+  padding-left: 11px;
+}
+
+.menuIcon {
+  width: 18px;
+  font-size: 12px;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.menuLabel {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.expandIcon {
+  font-size: 8px;
+  opacity: 0.5;
+}
+
+.subMenu {
+  list-style: none;
+  background-color: rgba(0, 0, 0, 0.15);
+}
+
+.subMenuLink {
+  display: block;
+  padding: 8px 14px 8px 40px;
+  color: var(--fz-text-muted);
+  font-size: var(--fz-font-size-sm);
+  transition: all var(--fz-transition);
+  text-decoration: none;
+}
+
+.subMenuLink:hover {
+  color: var(--fz-text-light);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.subMenuLink.active {
+  color: var(--fz-accent-teal);
+  background-color: rgba(32, 201, 151, 0.1);
+}
+
+.sidebar.collapsed .menuLabel,
+.sidebar.collapsed .expandIcon,
+.sidebar.collapsed .subMenu {
+  display: none;
+}
+
+.sidebar.collapsed .menuLink {
+  justify-content: center;
+  padding: 10px;
+}

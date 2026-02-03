@@ -1,0 +1,164 @@
+import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus, faEdit, faTrash, faStore, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
+import { Button } from '../common/Button';
+import { Badge } from '../common/Badge';
+import { Table, TableHead, TableBody, TableRow, TableCell } from '../common/Table';
+import { Breadcrumb } from '../common/Breadcrumb';
+import { salesRoutings, getEventById, getWarehouseById } from '../../data/mockData';
+import type { RoutingStatus, RoutingType } from '../../data/mockData';
+import styles from './SalesRoutingList.module.css';
+
+const statusVariantMap: Record<RoutingStatus, 'success' | 'warning' | 'secondary'> = {
+  active: 'success',
+  draft: 'warning',
+  inactive: 'secondary'
+};
+
+const typeConfig: Record<RoutingType, { icon: typeof faStore; label: string }> = {
+  onsite: { icon: faStore, label: 'Onsite' },
+  online: { icon: faGlobe, label: 'Online' }
+};
+
+export function SalesRoutingList() {
+  const navigate = useNavigate();
+
+  const handleCreateNew = () => {
+    navigate('/products/sales-routing/create');
+  };
+
+  const handleEdit = (id: string) => {
+    navigate(`/products/sales-routing/edit/${id}`);
+  };
+
+  const handleDelete = (id: string) => {
+    // Mock delete - in real app would show confirmation modal
+    console.log('Delete routing:', id);
+  };
+
+  return (
+    <div className={styles.container}>
+      <Breadcrumb 
+        items={[
+          { label: 'Products', path: '/products' },
+          { label: 'Sales routing' }
+        ]} 
+      />
+      
+      <div className={styles.pageHeader}>
+        <h1 className={styles.pageTitle}>Sales routing</h1>
+      </div>
+
+      <Card padding="none">
+        <div className={styles.cardInner}>
+          <CardHeader 
+            actions={
+              <Button 
+                variant="outline" 
+                icon={faPlus}
+                onClick={handleCreateNew}
+              >
+                Create new sales routing
+              </Button>
+            }
+          >
+            <CardTitle subtitle="Configure product availability for events">
+              Sales Routings
+            </CardTitle>
+          </CardHeader>
+
+          <CardBody>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell header>Name</TableCell>
+                  <TableCell header>Type</TableCell>
+                  <TableCell header>Event</TableCell>
+                  <TableCell header>Warehouse(s)</TableCell>
+                  <TableCell header>Status</TableCell>
+                  <TableCell header align="right">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {salesRoutings.map((routing) => {
+                  const event = getEventById(routing.eventId);
+                  const warehouses = routing.warehouseIds.map(id => getWarehouseById(id)).filter(Boolean);
+                  const typeInfo = typeConfig[routing.type];
+
+                  return (
+                    <TableRow key={routing.id}>
+                      <TableCell>
+                        <div className={styles.routingName}>
+                          <span className={styles.routingId}>{routing.id}</span>
+                          <span>{routing.name}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className={styles.typeCell}>
+                          <FontAwesomeIcon icon={typeInfo.icon} className={styles.typeIcon} />
+                          <span>{typeInfo.label}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {event ? (
+                          <div className={styles.eventCell}>
+                            <span className={styles.eventName}>{event.name}</span>
+                            <span className={styles.eventMeta}>{event.venue}, {event.city}</span>
+                          </div>
+                        ) : (
+                          <span className={styles.unknown}>Unknown event</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className={styles.warehouseList}>
+                          {warehouses.map(warehouse => (
+                            <Badge key={warehouse!.id} variant="info" size="sm">
+                              {warehouse!.name}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={statusVariantMap[routing.status]}>
+                          {routing.status.charAt(0).toUpperCase() + routing.status.slice(1)}
+                        </Badge>
+                      </TableCell>
+                      <TableCell align="right">
+                        <div className={styles.actions}>
+                          <button 
+                            className={styles.actionBtn}
+                            onClick={() => handleEdit(routing.id)}
+                            title="Edit"
+                          >
+                            <FontAwesomeIcon icon={faEdit} />
+                          </button>
+                          <button 
+                            className={`${styles.actionBtn} ${styles.danger}`}
+                            onClick={() => handleDelete(routing.id)}
+                            title="Delete"
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+
+            {salesRoutings.length === 0 && (
+              <div className={styles.emptyState}>
+                <p>No sales routings configured yet.</p>
+                <Button variant="primary" icon={faPlus} onClick={handleCreateNew}>
+                  Create your first sales routing
+                </Button>
+              </div>
+            )}
+          </CardBody>
+        </div>
+      </Card>
+    </div>
+  );
+}

@@ -1,0 +1,113 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--fz-header-height);
+  padding: 0 16px;
+  background-color: var(--fz-bg-header);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.leadSide {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.menuToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: none;
+  color: var(--fz-text-light);
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background-color var(--fz-transition);
+}
+
+.menuToggle:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logo img {
+  height: 24px;
+  display: block;
+}
+
+.trailSide {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.createEventBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  color: var(--fz-text-light);
+  font-size: 12px;
+  font-weight: 500;
+  transition: all var(--fz-transition);
+}
+
+.createEventBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--fz-text-light);
+}
+
+.btnIcon {
+  font-size: 10px;
+}
+
+.userMenu {
+  position: relative;
+}
+
+.userButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: transparent;
+  border: none;
+  color: var(--fz-text-light);
+  border-radius: 4px;
+  transition: background-color var(--fz-transition);
+}
+
+.userButton:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.userName {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.userOrg {
+  font-size: 10px;
+  color: var(--fz-text-muted);
+}
+
+.userIcon {
+  font-size: 28px;
+  opacity: 0.7;
+}

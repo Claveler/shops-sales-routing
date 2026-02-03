@@ -1,0 +1,26 @@
+.layout {
+  min-height: 100vh;
+  background-color: var(--fz-bg-dark);
+}
+
+.main {
+  min-height: calc(100vh - var(--fz-header-height));
+  margin-top: var(--fz-header-height);
+  background-color: var(--fz-bg-dark);
+  transition: margin-left var(--fz-transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.main.sidebarOpen {
+  margin-left: var(--fz-sidebar-width);
+}
+
+.main.sidebarCollapsed {
+  margin-left: var(--fz-sidebar-collapsed-width);
+}
+
+.content {
+  flex: 1;
+  padding: 16px 20px;
+}

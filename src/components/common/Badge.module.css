@@ -1,0 +1,56 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* Sizes */
+.sm {
+  padding: 2px 8px;
+  font-size: 10px;
+}
+
+.md {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+/* Variants */
+.default {
+  background-color: #f3f4f6;
+  color: var(--fz-text-primary);
+  border: 1px solid #e5e7eb;
+}
+
+.success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.danger {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.info {
+  background-color: #e0f7fa;
+  color: #0e7490;
+  border: 1px solid #b2ebf2;
+}
+
+.secondary {
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}

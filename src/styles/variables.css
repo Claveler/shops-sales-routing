@@ -1,0 +1,58 @@
+:root {
+  /* Fever Zone Color Palette */
+  --fz-bg-dark: #06232c;
+  --fz-bg-sidebar: #06232c;
+  --fz-bg-header: #06232c;
+  --fz-bg-content: #f5f5f5;
+  --fz-bg-card: #ffffff;
+  --fz-bg-card-dark: #29292f;
+  
+  /* Text Colors */
+  --fz-text-primary: #212529;
+  --fz-text-secondary: #6c757d;
+  --fz-text-light: #ffffff;
+  --fz-text-muted: #9ca3af;
+  
+  /* Accent Colors */
+  --fz-accent-teal: #20c997;
+  --fz-accent-cyan: #17a2b8;
+  --fz-accent-blue: #0d6efd;
+  
+  /* Status Colors */
+  --fz-status-active: #198754;
+  --fz-status-inactive: #6c757d;
+  --fz-status-draft: #ffc107;
+  --fz-status-error: #dc3545;
+  
+  /* Border & Shadow */
+  --fz-border-color: #e5e7eb;
+  --fz-border-radius: 6px;
+  --fz-border-radius-sm: 4px;
+  --fz-border-radius-lg: 8px;
+  --fz-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  --fz-shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.08);
+  
+  /* Spacing */
+  --fz-spacing-xs: 4px;
+  --fz-spacing-sm: 6px;
+  --fz-spacing-md: 12px;
+  --fz-spacing-lg: 20px;
+  --fz-spacing-xl: 24px;
+  
+  /* Layout */
+  --fz-sidebar-width: 200px;
+  --fz-sidebar-collapsed-width: 56px;
+  --fz-header-height: 56px;
+  
+  /* Typography */
+  --fz-font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fz-font-size-xs: 10px;
+  --fz-font-size-sm: 12px;
+  --fz-font-size-md: 13px;
+  --fz-font-size-lg: 14px;
+  --fz-font-size-xl: 18px;
+  --fz-font-size-xxl: 22px;
+  
+  /* Transitions */
+  --fz-transition: 0.26s cubic-bezier(0.1, 0, 0, 1);
+}

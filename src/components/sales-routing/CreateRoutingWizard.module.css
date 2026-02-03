@@ -1,0 +1,114 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: var(--fz-spacing-lg);
+}
+
+.pageTitle {
+  font-size: var(--fz-font-size-xxl);
+  font-weight: 600;
+  color: var(--fz-text-light);
+  margin: 0;
+}
+
+.cardInner {
+  padding: var(--fz-spacing-xl);
+}
+
+/* Progress Bar */
+.progressBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--fz-spacing-xl);
+  padding-bottom: var(--fz-spacing-xl);
+  border-bottom: 1px solid var(--fz-border-color);
+}
+
+.progressStep {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.stepIndicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--fz-bg-content);
+  border: 2px solid var(--fz-border-color);
+  color: var(--fz-text-secondary);
+  font-size: var(--fz-font-size-sm);
+  font-weight: 600;
+  transition: all var(--fz-transition);
+}
+
+.progressStep.active .stepIndicator {
+  background: var(--fz-accent-teal);
+  border-color: var(--fz-accent-teal);
+  color: white;
+}
+
+.progressStep.completed .stepIndicator {
+  background: var(--fz-accent-teal);
+  border-color: var(--fz-accent-teal);
+  color: white;
+}
+
+.stepLabel {
+  margin-left: var(--fz-spacing-sm);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.progressStep.active .stepLabel {
+  color: var(--fz-text-primary);
+}
+
+.progressStep.completed .stepLabel {
+  color: var(--fz-accent-teal);
+}
+
+.stepConnector {
+  width: 60px;
+  height: 2px;
+  background: var(--fz-border-color);
+  margin: 0 var(--fz-spacing-md);
+}
+
+.progressStep.completed .stepConnector {
+  background: var(--fz-accent-teal);
+}
+
+/* Step Content */
+.stepContent {
+  min-height: 400px;
+  padding: var(--fz-spacing-lg) 0;
+}
+
+/* Navigation */
+.navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--fz-spacing-xl);
+  border-top: 1px solid var(--fz-border-color);
+}
+
+.navLeft {
+  display: flex;
+  gap: var(--fz-spacing-sm);
+}
+
+.navRight {
+  display: flex;
+  gap: var(--fz-spacing-sm);
+}

@@ -1,0 +1,117 @@
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.pageHeader {
+  margin-bottom: 12px;
+}
+
+.pageTitle {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fz-text-light);
+  margin: 0;
+}
+
+.cardInner {
+  padding: 20px;
+}
+
+.routingName {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.routingId {
+  font-size: 10px;
+  color: #9ca3af;
+  font-family: 'Courier New', monospace;
+}
+
+.typeCell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.typeIcon {
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.eventCell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eventName {
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.eventMeta {
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+.unknown {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.warehouseList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all var(--fz-transition);
+  font-size: 12px;
+}
+
+.actionBtn:hover {
+  background-color: #f9fafb;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.actionBtn.danger:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  text-align: center;
+  color: #6b7280;
+}
+
+.emptyState p {
+  margin-bottom: 16px;
+}
