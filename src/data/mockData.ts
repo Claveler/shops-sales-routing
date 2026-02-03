@@ -174,7 +174,7 @@ export const salesRoutings: SalesRouting[] = [
     name: 'Candlelight Taylor Swift - Onsite Merch',
     type: 'onsite',
     eventId: 'evt-001',
-    warehouseIds: ['wh-001'],
+    warehouseIds: ['wh-001', 'wh-002'],
     status: 'active',
     createdAt: '2026-01-15T10:30:00Z',
     updatedAt: '2026-01-20T14:45:00Z'
