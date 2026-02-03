@@ -86,6 +86,36 @@
   margin-top: var(--fz-spacing-xs);
 }
 
+.warehouseItem {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-xs);
+}
+
+.priceRefBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(245, 158, 11, 0.15);
+  border-radius: 12px;
+  font-size: var(--fz-font-size-xs);
+  font-weight: 500;
+  color: #d97706;
+}
+
+.priceRefBadge svg {
+  font-size: 10px;
+  color: #f59e0b;
+}
+
+.priceRefNote {
+  margin-top: var(--fz-spacing-sm);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  font-style: italic;
+}
+
 .checkIcon {
   color: var(--fz-primary);
   font-size: 18px;

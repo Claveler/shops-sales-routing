@@ -41,8 +41,29 @@ export function CreateRoutingWizard() {
   const [routingType, setRoutingType] = useState<RoutingType | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedWarehouseIds, setSelectedWarehouseIds] = useState<string[]>([]);
+  const [priceReferenceWarehouseId, setPriceReferenceWarehouseId] = useState<string | null>(null);
   const [channelMapping, setChannelMapping] = useState<Record<string, string[]>>({});
   const [status, setStatus] = useState<RoutingStatus>('draft');
+  
+  // Handle warehouse selection changes and auto-set price reference
+  const handleWarehouseChange = (warehouseIds: string[]) => {
+    setSelectedWarehouseIds(warehouseIds);
+    
+    // Auto-manage price reference for onsite routings
+    if (routingType === 'onsite') {
+      if (warehouseIds.length === 0) {
+        // No warehouses selected, clear price reference
+        setPriceReferenceWarehouseId(null);
+      } else if (warehouseIds.length === 1) {
+        // Single warehouse selected, auto-set as price reference
+        setPriceReferenceWarehouseId(warehouseIds[0]);
+      } else if (!priceReferenceWarehouseId || !warehouseIds.includes(priceReferenceWarehouseId)) {
+        // Multiple warehouses but current reference not in selection, set first one
+        setPriceReferenceWarehouseId(warehouseIds[0]);
+      }
+      // Otherwise keep current price reference
+    }
+  };
   
   // Wizard state
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -85,6 +106,7 @@ export function CreateRoutingWizard() {
       type: routingType,
       eventId: selectedEventId,
       warehouseIds: selectedWarehouseIds,
+      priceReferenceWarehouseId: routingType === 'onsite' && selectedWarehouseIds.length > 1 ? priceReferenceWarehouseId : undefined,
       channelMapping: routingType === 'online' ? channelMapping : undefined,
       status
     });
@@ -116,6 +138,12 @@ export function CreateRoutingWizard() {
               // keep only the first one since online only allows single warehouse
               if (type === 'online' && previousType === 'onsite' && selectedWarehouseIds.length > 1) {
                 setSelectedWarehouseIds([selectedWarehouseIds[0]]);
+                setPriceReferenceWarehouseId(null); // Clear price reference for online
+              }
+              
+              // If switching to online, clear price reference (not used for online)
+              if (type === 'online') {
+                setPriceReferenceWarehouseId(null);
               }
             }} 
           />
@@ -131,8 +159,10 @@ export function CreateRoutingWizard() {
         return (
           <WarehouseSelector 
             value={selectedWarehouseIds} 
-            onChange={setSelectedWarehouseIds}
+            onChange={handleWarehouseChange}
             routingType={routingType!}
+            priceReferenceId={priceReferenceWarehouseId}
+            onPriceReferenceChange={setPriceReferenceWarehouseId}
           />
         );
       case 'channels':
@@ -149,6 +179,7 @@ export function CreateRoutingWizard() {
             type={routingType!}
             eventId={selectedEventId!}
             warehouseIds={selectedWarehouseIds}
+            priceReferenceWarehouseId={priceReferenceWarehouseId}
             channelMapping={channelMapping}
             status={status}
             onStatusChange={setStatus}

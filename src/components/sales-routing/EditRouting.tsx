@@ -42,6 +42,7 @@ export function EditRouting() {
   // Form state
   const [name, setName] = useState('');
   const [selectedWarehouseIds, setSelectedWarehouseIds] = useState<string[]>([]);
+  const [priceReferenceWarehouseId, setPriceReferenceWarehouseId] = useState<string | null>(null);
   const [channelMapping, setChannelMapping] = useState<Record<string, string[]>>({});
   const [status, setStatus] = useState<RoutingStatus>('draft');
   
@@ -57,6 +58,7 @@ export function EditRouting() {
         setRouting(foundRouting);
         setName(foundRouting.name);
         setSelectedWarehouseIds(foundRouting.warehouseIds);
+        setPriceReferenceWarehouseId(foundRouting.priceReferenceWarehouseId || null);
         setChannelMapping(foundRouting.productChannelMapping || {});
         setStatus(foundRouting.status);
       } else {
@@ -72,13 +74,30 @@ export function EditRouting() {
     
     const nameChanged = name !== routing.name;
     const warehousesChanged = JSON.stringify(selectedWarehouseIds.sort()) !== JSON.stringify([...routing.warehouseIds].sort());
+    const priceRefChanged = priceReferenceWarehouseId !== (routing.priceReferenceWarehouseId || null);
     const channelsChanged = JSON.stringify(channelMapping) !== JSON.stringify(routing.productChannelMapping || {});
     const statusChanged = status !== routing.status;
     
-    setHasChanges(nameChanged || warehousesChanged || channelsChanged || statusChanged);
-  }, [routing, name, selectedWarehouseIds, channelMapping, status]);
+    setHasChanges(nameChanged || warehousesChanged || priceRefChanged || channelsChanged || statusChanged);
+  }, [routing, name, selectedWarehouseIds, priceReferenceWarehouseId, channelMapping, status]);
 
   const event = routing ? getEventById(routing.eventId) : null;
+
+  // Handle warehouse selection changes and auto-manage price reference
+  const handleWarehouseChange = (warehouseIds: string[]) => {
+    setSelectedWarehouseIds(warehouseIds);
+    
+    // Auto-manage price reference for onsite routings
+    if (routing?.type === 'onsite') {
+      if (warehouseIds.length === 0) {
+        setPriceReferenceWarehouseId(null);
+      } else if (warehouseIds.length === 1) {
+        setPriceReferenceWarehouseId(warehouseIds[0]);
+      } else if (!priceReferenceWarehouseId || !warehouseIds.includes(priceReferenceWarehouseId)) {
+        setPriceReferenceWarehouseId(warehouseIds[0]);
+      }
+    }
+  };
 
   const handleSave = () => {
     // In a real app, this would make an API call
@@ -86,6 +105,7 @@ export function EditRouting() {
       id: routing?.id,
       name,
       warehouseIds: selectedWarehouseIds,
+      priceReferenceWarehouseId: routing?.type === 'onsite' && selectedWarehouseIds.length > 1 ? priceReferenceWarehouseId : undefined,
       channelMapping: routing?.type === 'online' ? channelMapping : undefined,
       status
     });
@@ -194,8 +214,10 @@ export function EditRouting() {
                 <div className={styles.selectorWrapper}>
                   <WarehouseSelector
                     value={selectedWarehouseIds}
-                    onChange={setSelectedWarehouseIds}
+                    onChange={handleWarehouseChange}
                     routingType={routing.type}
+                    priceReferenceId={priceReferenceWarehouseId}
+                    onPriceReferenceChange={setPriceReferenceWarehouseId}
                   />
                 </div>
               </div>

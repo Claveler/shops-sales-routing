@@ -172,3 +172,66 @@
   font-size: var(--fz-font-size-sm);
   color: var(--fz-primary);
 }
+
+/* Price Reference Styles */
+.priceReferenceHint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fz-spacing-sm);
+  padding: var(--fz-spacing-md);
+  background: rgba(0, 137, 227, 0.08);
+  border: 1px solid rgba(0, 137, 227, 0.2);
+  border-radius: var(--fz-border-radius);
+  margin-bottom: var(--fz-spacing-md);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  line-height: 1.5;
+}
+
+.hintIcon {
+  color: var(--fz-primary);
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+}
+
+.priceReferenceBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--fz-border-radius);
+  cursor: pointer;
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-muted);
+  transition: all var(--fz-transition);
+}
+
+.priceReferenceBtn:hover {
+  color: var(--fz-primary);
+  background: rgba(0, 137, 227, 0.1);
+}
+
+.priceReferenceBtn.active {
+  color: var(--fz-primary);
+  background: rgba(0, 137, 227, 0.15);
+  border-color: rgba(0, 137, 227, 0.3);
+}
+
+.priceReferenceBtn.active svg {
+  color: #f59e0b; /* Amber/gold color for the active star */
+}
+
+.priceRefLabel {
+  font-size: var(--fz-font-size-xs);
+  font-weight: 500;
+  color: var(--fz-primary);
+}

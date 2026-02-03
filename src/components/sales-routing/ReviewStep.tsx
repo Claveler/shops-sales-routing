@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStore, faGlobe, faCalendar, faMapMarkerAlt, faBox, faCheckCircle } from '@fortawesome/free-solid-svg-icons';
+import { faStore, faGlobe, faCalendar, faMapMarkerAlt, faBox, faCheckCircle, faStar } from '@fortawesome/free-solid-svg-icons';
 import { Badge } from '../common/Badge';
 import { 
   getEventById, 
@@ -14,6 +14,7 @@ interface ReviewStepProps {
   type: RoutingType;
   eventId: string;
   warehouseIds: string[];
+  priceReferenceWarehouseId?: string | null;
   channelMapping: Record<string, string[]>;
   status: RoutingStatus;
   onStatusChange: (status: RoutingStatus) => void;
@@ -22,7 +23,8 @@ interface ReviewStepProps {
 export function ReviewStep({ 
   type, 
   eventId, 
-  warehouseIds, 
+  warehouseIds,
+  priceReferenceWarehouseId,
   channelMapping,
   status,
   onStatusChange 
@@ -30,6 +32,7 @@ export function ReviewStep({
   const event = getEventById(eventId);
   const warehouses = warehouseIds.map(id => getWarehouseById(id)).filter(Boolean);
   const products = getProductsByWarehouseIds(warehouseIds);
+  const priceRefWarehouse = priceReferenceWarehouseId ? getWarehouseById(priceReferenceWarehouseId) : null;
   
   const configuredProducts = Object.values(channelMapping).filter(c => c.length > 0).length;
   const selectedChannels = [...new Set(Object.values(channelMapping).flat())];
@@ -99,12 +102,28 @@ export function ReviewStep({
                 : 'Stock will be pulled from this warehouse'}
             </p>
             <div className={styles.warehouseList}>
-              {warehouses.map(warehouse => (
-                <Badge key={warehouse!.id} variant="info" size="sm">
-                  {warehouse!.name} ({warehouse!.productCount} products)
-                </Badge>
-              ))}
+              {warehouses.map(warehouse => {
+                const isPriceRef = priceReferenceWarehouseId === warehouse!.id;
+                return (
+                  <div key={warehouse!.id} className={styles.warehouseItem}>
+                    <Badge variant="info" size="sm">
+                      {warehouse!.name} ({warehouse!.productCount} products)
+                    </Badge>
+                    {isPriceRef && warehouses.length > 1 && (
+                      <span className={styles.priceRefBadge}>
+                        <FontAwesomeIcon icon={faStar} />
+                        Price reference
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
+            {warehouses.length > 1 && priceRefWarehouse && (
+              <p className={styles.priceRefNote}>
+                Product prices will be pulled from <strong>{priceRefWarehouse.name}</strong> in case of conflicts.
+              </p>
+            )}
           </div>
           <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
         </div>

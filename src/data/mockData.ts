@@ -43,6 +43,7 @@ export interface SalesRouting {
   type: RoutingType;
   eventId: string;
   warehouseIds: string[];
+  priceReferenceWarehouseId?: string; // Only for onsite with multiple warehouses
   channelIds?: string[];
   productChannelMapping?: Record<string, string[]>;
   status: RoutingStatus;
@@ -175,6 +176,7 @@ export const salesRoutings: SalesRouting[] = [
     type: 'onsite',
     eventId: 'evt-001',
     warehouseIds: ['wh-001', 'wh-002'],
+    priceReferenceWarehouseId: 'wh-001',
     status: 'active',
     createdAt: '2026-01-15T10:30:00Z',
     updatedAt: '2026-01-20T14:45:00Z'
