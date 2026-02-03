@@ -202,7 +202,7 @@ export const salesRoutings: SalesRouting[] = [
     name: 'Hans Zimmer - VIP Merchandise',
     type: 'online',
     eventId: 'evt-003',
-    warehouseIds: ['wh-001', 'wh-002'],
+    warehouseIds: ['wh-001'],
     channelIds: ['ch-001', 'ch-004', 'ch-005'],
     status: 'draft',
     createdAt: '2026-02-01T11:00:00Z',
