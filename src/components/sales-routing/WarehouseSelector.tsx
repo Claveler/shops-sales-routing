@@ -45,8 +45,8 @@ export function WarehouseSelector({ value, onChange, routingType }: WarehouseSel
 
   const title = isMultiSelect ? 'Select warehouse(s)' : 'Select warehouse';
   const subtitle = isMultiSelect
-    ? 'Choose which warehouses to pull stock from. The specific warehouse used will be configured per plan in the Box Office.'
-    : 'Choose the warehouse to pull stock from for this routing.';
+    ? 'Choose which warehouses to pull stock from. The specific warehouse used will be configured per plan in the Box Office. Warehouses are configured in the Catalog integration tab.'
+    : 'Choose the warehouse to pull stock from for this routing. Warehouses are configured in the Catalog integration tab.';
 
   return (
     <div className={styles.container}>
