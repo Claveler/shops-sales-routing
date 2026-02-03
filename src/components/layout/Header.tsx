@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUserCircle, faPlus, faBars } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faBars } from '@fortawesome/free-solid-svg-icons';
 import styles from './Header.module.css';
 import feverLogo from '../../assets/fever-logo.svg';
 
@@ -24,11 +24,6 @@ export function Header({ onToggleSidebar }: HeaderProps) {
       </div>
       
       <div className={styles.trailSide}>
-        <button className={styles.createEventBtn}>
-          <FontAwesomeIcon icon={faPlus} className={styles.btnIcon} />
-          Create event
-        </button>
-        
         <div className={styles.userMenu}>
           <button className={styles.userButton}>
             <span className={styles.userInfo}>

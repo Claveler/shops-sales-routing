@@ -50,14 +50,14 @@
 }
 
 .progressStep.active .stepIndicator {
-  background: var(--fz-accent-teal);
-  border-color: var(--fz-accent-teal);
+  background: var(--fz-primary);
+  border-color: var(--fz-primary);
   color: white;
 }
 
 .progressStep.completed .stepIndicator {
-  background: var(--fz-accent-teal);
-  border-color: var(--fz-accent-teal);
+  background: var(--fz-primary);
+  border-color: var(--fz-primary);
   color: white;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .progressStep.completed .stepLabel {
-  color: var(--fz-accent-teal);
+  color: var(--fz-primary);
 }
 
 .stepConnector {
@@ -85,7 +85,7 @@
 }
 
 .progressStep.completed .stepConnector {
-  background: var(--fz-accent-teal);
+  background: var(--fz-primary);
 }
 
 /* Step Content */

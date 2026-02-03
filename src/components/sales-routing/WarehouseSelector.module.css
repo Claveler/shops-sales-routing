@@ -59,8 +59,8 @@
 }
 
 .checkbox.checked {
-  background: var(--fz-accent-teal);
-  border-color: var(--fz-accent-teal);
+  background: var(--fz-primary);
+  border-color: var(--fz-primary);
   color: white;
 }
 
@@ -78,14 +78,14 @@
 }
 
 .radio.checked {
-  border-color: var(--fz-accent-teal);
+  border-color: var(--fz-primary);
 }
 
 .radioInner {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--fz-accent-teal);
+  background: var(--fz-primary);
 }
 
 .warehouseList {
@@ -108,13 +108,13 @@
 }
 
 .warehouseItem:hover {
-  border-color: var(--fz-accent-teal);
+  border-color: var(--fz-primary);
   background: var(--fz-bg-content);
 }
 
 .warehouseItem.selected {
-  border-color: var(--fz-accent-teal);
-  background: rgba(32, 201, 151, 0.05);
+  border-color: var(--fz-primary);
+  background: rgba(0, 137, 227, 0.05);
 }
 
 .warehouseContent {
@@ -167,8 +167,8 @@
 .summary {
   margin-top: var(--fz-spacing-lg);
   padding: var(--fz-spacing-md);
-  background: rgba(32, 201, 151, 0.1);
+  background: rgba(0, 137, 227, 0.1);
   border-radius: var(--fz-border-radius);
   font-size: var(--fz-font-size-sm);
-  color: var(--fz-accent-teal);
+  color: var(--fz-primary);
 }

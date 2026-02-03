@@ -59,12 +59,12 @@
 }
 
 .bulkChannelBtn:hover {
-  border-color: var(--fz-accent-teal);
+  border-color: var(--fz-primary);
 }
 
 .bulkChannelBtn.selected {
-  background: var(--fz-accent-teal);
-  border-color: var(--fz-accent-teal);
+  background: var(--fz-primary);
+  border-color: var(--fz-primary);
   color: white;
 }
 
@@ -78,7 +78,7 @@
 
 .applyAllBtn {
   padding: 10px 20px;
-  background: var(--fz-accent-teal);
+  background: var(--fz-primary);
   border: none;
   border-radius: 20px;
   color: white;
@@ -89,7 +89,7 @@
 }
 
 .applyAllBtn:hover:not(:disabled) {
-  background: #1aa881;
+  background: var(--fz-primary-dark);
 }
 
 .applyAllBtn:disabled {
@@ -206,12 +206,12 @@
 }
 
 .channelToggle:hover {
-  border-color: var(--fz-accent-teal);
+  border-color: var(--fz-primary);
 }
 
 .channelToggle.active {
-  background: var(--fz-accent-teal);
-  border-color: var(--fz-accent-teal);
+  background: var(--fz-primary);
+  border-color: var(--fz-primary);
   color: white;
 }
 

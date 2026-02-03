@@ -53,8 +53,8 @@
 
 .menuLink.active {
   color: var(--fz-text-light);
-  background-color: rgba(32, 201, 151, 0.15);
-  border-left: 3px solid var(--fz-accent-teal);
+  background-color: rgba(0, 137, 227, 0.15);
+  border-left: 3px solid var(--fz-primary);
   padding-left: 11px;
 }
 
@@ -97,8 +97,8 @@
 }
 
 .subMenuLink.active {
-  color: var(--fz-accent-teal);
-  background-color: rgba(32, 201, 151, 0.1);
+  color: var(--fz-primary-light);
+  background-color: rgba(0, 137, 227, 0.1);
 }
 
 .sidebar.collapsed .menuLabel,

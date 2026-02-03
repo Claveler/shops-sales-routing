@@ -43,8 +43,8 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: var(--fz-accent-teal);
-  box-shadow: 0 0 0 3px rgba(32, 201, 151, 0.1);
+  border-color: var(--fz-primary);
+  box-shadow: 0 0 0 3px rgba(0, 137, 227, 0.1);
 }
 
 .searchInput::placeholder {
@@ -73,13 +73,13 @@
 }
 
 .eventItem:hover {
-  border-color: var(--fz-accent-teal);
+  border-color: var(--fz-primary);
   background: var(--fz-bg-content);
 }
 
 .eventItem.selected {
-  border-color: var(--fz-accent-teal);
-  background: rgba(32, 201, 151, 0.05);
+  border-color: var(--fz-primary);
+  background: rgba(0, 137, 227, 0.05);
 }
 
 .eventContent {
@@ -126,7 +126,7 @@
 }
 
 .eventItem.selected .checkIndicator {
-  background: var(--fz-accent-teal);
+  background: var(--fz-primary);
   color: white;
 }
 

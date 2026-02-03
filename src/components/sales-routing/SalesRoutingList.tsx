@@ -55,7 +55,7 @@ export function SalesRoutingList() {
           <CardHeader 
             actions={
               <Button 
-                variant="outline" 
+                variant="primary" 
                 icon={faPlus}
                 onClick={handleCreateNew}
               >

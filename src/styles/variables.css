@@ -13,16 +13,20 @@
   --fz-text-light: #ffffff;
   --fz-text-muted: #9ca3af;
   
-  /* Accent Colors */
-  --fz-accent-teal: #20c997;
-  --fz-accent-cyan: #17a2b8;
-  --fz-accent-blue: #0d6efd;
+  /* Primary Colors - Fever Design System */
+  --fz-primary: #0089E3;
+  --fz-primary-light: #73BFF6;
+  --fz-primary-dark: #0068B0;
+  --fz-accent: #6F41D7;
   
-  /* Status Colors */
-  --fz-status-active: #198754;
-  --fz-status-inactive: #6c757d;
-  --fz-status-draft: #ffc107;
-  --fz-status-error: #dc3545;
+  /* Legacy alias for compatibility */
+  --fz-accent-teal: #0089E3;
+  
+  /* Status Colors - Fever Design System */
+  --fz-status-active: #24A865;
+  --fz-status-inactive: #536B75;
+  --fz-status-draft: #FF8C00;
+  --fz-status-error: #EB0052;
   
   /* Border & Shadow */
   --fz-border-color: #e5e7eb;
