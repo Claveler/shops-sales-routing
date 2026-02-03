@@ -75,7 +75,7 @@ export function SalesRoutingList() {
                   <TableCell header>Name</TableCell>
                   <TableCell header>Type</TableCell>
                   <TableCell header>Event</TableCell>
-                  <TableCell header>Warehouse(s)</TableCell>
+                  <TableCell header>Stock Source(s)</TableCell>
                   <TableCell header>Status</TableCell>
                   <TableCell header align="right">Actions</TableCell>
                 </TableRow>

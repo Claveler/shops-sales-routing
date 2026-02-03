@@ -84,15 +84,20 @@ export function ReviewStep({
           <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
         </div>
 
-        {/* Warehouses */}
+        {/* Stock Source */}
         <div className={styles.section}>
           <div className={styles.sectionIcon}>
             <FontAwesomeIcon icon={faBox} />
           </div>
           <div className={styles.sectionContent}>
             <h3 className={styles.sectionTitle}>
-              Warehouse{warehouses.length > 1 ? 's' : ''} ({warehouses.length})
+              Stock Source{warehouses.length > 1 ? 's' : ''}
             </h3>
+            <p className={styles.sectionMeta}>
+              {warehouses.length > 1 
+                ? 'Stock will be pulled from one of these warehouses based on Box Office plan configuration'
+                : 'Stock will be pulled from this warehouse'}
+            </p>
             <div className={styles.warehouseList}>
               {warehouses.map(warehouse => (
                 <Badge key={warehouse!.id} variant="info" size="sm">

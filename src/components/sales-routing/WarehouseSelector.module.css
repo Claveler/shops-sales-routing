@@ -64,6 +64,30 @@
   color: white;
 }
 
+.radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--fz-border-color);
+  border-radius: 50%;
+  background: var(--fz-bg-card);
+  transition: all var(--fz-transition);
+  flex-shrink: 0;
+}
+
+.radio.checked {
+  border-color: var(--fz-accent-teal);
+}
+
+.radioInner {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--fz-accent-teal);
+}
+
 .warehouseList {
   display: flex;
   flex-direction: column;

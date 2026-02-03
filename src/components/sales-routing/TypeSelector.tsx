@@ -25,7 +25,7 @@ export function TypeSelector({ value, onChange }: TypeSelectorProps) {
           <div className={styles.content}>
             <h3 className={styles.optionTitle}>Onsite</h3>
             <p className={styles.optionDescription}>
-              Sell products at physical event locations. Products will be available for purchase at the venue through POS systems.
+              Sell products at physical event locations through POS systems. You can select multiple warehouses to pull stock from; the specific one used will depend on the plan configured in the Box Office.
             </p>
           </div>
           <div className={styles.radioIndicator}>
@@ -43,7 +43,7 @@ export function TypeSelector({ value, onChange }: TypeSelectorProps) {
           <div className={styles.content}>
             <h3 className={styles.optionTitle}>Online</h3>
             <p className={styles.optionDescription}>
-              Sell products through digital channels. You'll be able to select which channels (Fever Marketplace, Whitelabel, OTAs) to publish each product to.
+              Sell products through digital channels (Fever Marketplace, Whitelabel, OTAs). Only one warehouse can be selected per routing to pull stock from.
             </p>
           </div>
           <div className={styles.radioIndicator}>

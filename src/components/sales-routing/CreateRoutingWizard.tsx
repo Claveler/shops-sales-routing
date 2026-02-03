@@ -104,10 +104,18 @@ export function CreateRoutingWizard() {
           <TypeSelector 
             value={routingType} 
             onChange={(type) => {
+              const previousType = routingType;
               setRoutingType(type);
+              
               // Reset channel mapping if switching from online to onsite
               if (type === 'onsite') {
                 setChannelMapping({});
+              }
+              
+              // If switching from onsite to online and multiple warehouses selected,
+              // keep only the first one since online only allows single warehouse
+              if (type === 'online' && previousType === 'onsite' && selectedWarehouseIds.length > 1) {
+                setSelectedWarehouseIds([selectedWarehouseIds[0]]);
               }
             }} 
           />
@@ -123,7 +131,8 @@ export function CreateRoutingWizard() {
         return (
           <WarehouseSelector 
             value={selectedWarehouseIds} 
-            onChange={setSelectedWarehouseIds} 
+            onChange={setSelectedWarehouseIds}
+            routingType={routingType!}
           />
         );
       case 'channels':
