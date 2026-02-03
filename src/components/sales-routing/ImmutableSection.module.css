@@ -1,0 +1,142 @@
+.section {
+  background: #f8f9fa;
+  border: 1px dashed #dee2e6;
+  border-radius: var(--fz-border-radius);
+  padding: var(--fz-spacing-lg);
+  margin-bottom: var(--fz-spacing-lg);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--fz-spacing-md);
+  padding-bottom: var(--fz-spacing-md);
+  border-bottom: 1px solid #e9ecef;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.subtitle {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  margin: 0;
+}
+
+.lockBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: #e9ecef;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #6c757d;
+  cursor: help;
+}
+
+.lockBadge svg {
+  font-size: 10px;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fz-spacing-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fz-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fieldValue {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: var(--fz-spacing-sm);
+}
+
+.typeDisplay {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+}
+
+.typeIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e9ecef;
+  border-radius: 8px;
+  color: #495057;
+  font-size: 14px;
+}
+
+.typeInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.typeName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+}
+
+.typeDescription {
+  font-size: 11px;
+  color: var(--fz-text-secondary);
+}
+
+.eventDisplay {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.eventName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+}
+
+.eventMeta {
+  display: flex;
+  gap: var(--fz-spacing-md);
+  flex-wrap: wrap;
+}
+
+.eventDetail {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+}
+
+.metaIcon {
+  font-size: 10px;
+  color: #adb5bd;
+}

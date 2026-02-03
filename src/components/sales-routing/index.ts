@@ -1,7 +1,10 @@
 export { SalesRoutingList } from './SalesRoutingList';
 export { CreateRoutingWizard } from './CreateRoutingWizard';
+export { EditRouting } from './EditRouting';
 export { TypeSelector } from './TypeSelector';
 export { EventSelector } from './EventSelector';
 export { WarehouseSelector } from './WarehouseSelector';
 export { ChannelProductMapping } from './ChannelProductMapping';
 export { ReviewStep } from './ReviewStep';
+export { ImmutableSection } from './ImmutableSection';
+export { DeleteConfirmModal } from './DeleteConfirmModal';

@@ -240,3 +240,7 @@ export function getProductsByWarehouseIds(warehouseIds: string[]): Product[] {
 export function getChannelById(id: string): Channel | undefined {
   return channels.find(c => c.id === id);
 }
+
+export function getSalesRoutingById(id: string): SalesRouting | undefined {
+  return salesRoutings.find(sr => sr.id === id);
+}

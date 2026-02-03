@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout';
-import { SalesRoutingList, CreateRoutingWizard } from './components/sales-routing';
+import { SalesRoutingList, CreateRoutingWizard, EditRouting } from './components/sales-routing';
 import './styles/global.css';
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
           {/* Sales Routing Routes */}
           <Route path="/products/sales-routing" element={<SalesRoutingList />} />
           <Route path="/products/sales-routing/create" element={<CreateRoutingWizard />} />
-          <Route path="/products/sales-routing/edit/:id" element={<CreateRoutingWizard />} />
+          <Route path="/products/sales-routing/edit/:id" element={<EditRouting />} />
           
           {/* Placeholder for other routes */}
           <Route path="/products/catalog-integration" element={
