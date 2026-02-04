@@ -9,7 +9,24 @@
   flex-direction: column;
   transition: width var(--fz-transition);
   z-index: 90;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-right: 1px solid rgb(83, 107, 117);
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
 .sidebar.collapsed {
@@ -18,7 +35,7 @@
 
 .nav {
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
   padding: var(--fz-spacing-sm) 0;
 }
 
@@ -34,13 +51,13 @@
   display: flex;
   align-items: center;
   gap: var(--fz-spacing-sm);
-  padding: 8px 14px;
-  color: var(--fz-text-muted);
+  padding: 10px 16px;
+  color: var(--fz-text-light);
   background: transparent;
   border: none;
   width: 100%;
   text-align: left;
-  font-size: var(--fz-font-size-sm);
+  font-size: var(--fz-font-size-lg);
   cursor: pointer;
   transition: all var(--fz-transition);
   text-decoration: none;
@@ -53,15 +70,16 @@
 
 .menuLink.active {
   color: var(--fz-text-light);
-  background-color: rgba(0, 137, 227, 0.15);
-  border-left: 3px solid var(--fz-primary);
-  padding-left: 11px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin: 0 8px;
+  padding: 10px 12px;
 }
 
 .menuIcon {
-  width: 18px;
-  font-size: 12px;
-  opacity: 0.7;
+  width: 20px;
+  font-size: 14px;
+  opacity: 1;
   text-align: center;
 }
 
@@ -79,14 +97,13 @@
 
 .subMenu {
   list-style: none;
-  background-color: rgba(0, 0, 0, 0.15);
 }
 
 .subMenuLink {
   display: block;
-  padding: 8px 14px 8px 40px;
-  color: var(--fz-text-muted);
-  font-size: var(--fz-font-size-sm);
+  padding: 10px 16px 10px 44px;
+  color: var(--fz-text-light);
+  font-size: var(--fz-font-size-lg);
   transition: all var(--fz-transition);
   text-decoration: none;
 }
@@ -97,8 +114,11 @@
 }
 
 .subMenuLink.active {
-  color: var(--fz-primary-light);
-  background-color: rgba(0, 137, 227, 0.1);
+  color: var(--fz-text-light);
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  margin: 0 8px;
+  padding: 10px 12px 10px 36px;
 }
 
 .sidebar.collapsed .menuLabel,

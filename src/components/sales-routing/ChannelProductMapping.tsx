@@ -53,13 +53,6 @@ export function ChannelProductMapping({ warehouseIds, value, onChange }: Channel
     return (value[productId] || []).includes(channelId);
   };
 
-  const formatPrice = (price: number, currency: string) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency
-    }).format(price);
-  };
-
   return (
     <div className={styles.container}>
       <h2 className={styles.title}>Configure channel distribution</h2>
@@ -117,10 +110,7 @@ export function ChannelProductMapping({ warehouseIds, value, onChange }: Channel
                 <td className={styles.productCell}>
                   <div className={styles.productInfo}>
                     <span className={styles.productName}>{product.name}</span>
-                    <div className={styles.productMeta}>
-                      <span className={styles.sku}>{product.sku}</span>
-                      <span className={styles.price}>{formatPrice(product.price, product.currency)}</span>
-                    </div>
+                    <span className={styles.sku}>{product.sku}</span>
                   </div>
                 </td>
                 {channels.map(channel => (

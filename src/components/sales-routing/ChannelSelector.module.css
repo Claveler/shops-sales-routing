@@ -1,0 +1,163 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.headerContent {
+  text-align: left;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--fz-text-secondary);
+  margin: 0;
+}
+
+/* Select Suggested Button */
+.selectSuggestedBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  flex-shrink: 0;
+}
+
+.selectSuggestedBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.selectSuggestedBtn:active {
+  transform: translateY(0);
+}
+
+/* Channel list */
+.channelList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.channelItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 16px 20px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.channelItem:hover {
+  border-color: #ced4da;
+  background: #f8f9fa;
+}
+
+.channelItem.selected {
+  border-color: var(--fz-primary);
+  background: rgba(0, 137, 227, 0.05);
+}
+
+.channelItem.selected:hover {
+  background: rgba(0, 137, 227, 0.08);
+}
+
+/* Checkbox */
+.checkbox {
+  width: 22px;
+  height: 22px;
+  border: 2px solid #dee2e6;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  font-size: 12px;
+  color: white;
+}
+
+.checkbox.checked {
+  background: var(--fz-primary);
+  border-color: var(--fz-primary);
+}
+
+/* Channel icon */
+.channelIcon {
+  width: 44px;
+  height: 44px;
+  background: #f3f4f6;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.channelItem.selected .channelIcon {
+  background: rgba(0, 137, 227, 0.1);
+  color: var(--fz-primary);
+}
+
+/* Channel info */
+.channelInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.channelName {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.channelDescription {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+}
+
+/* Note */
+.note {
+  padding: 14px 18px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.note p {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+  margin: 0;
+  text-align: center;
+}

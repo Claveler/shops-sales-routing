@@ -38,24 +38,24 @@
   
   /* Spacing */
   --fz-spacing-xs: 4px;
-  --fz-spacing-sm: 6px;
-  --fz-spacing-md: 12px;
-  --fz-spacing-lg: 20px;
-  --fz-spacing-xl: 24px;
+  --fz-spacing-sm: 8px;
+  --fz-spacing-md: 14px;
+  --fz-spacing-lg: 24px;
+  --fz-spacing-xl: 28px;
   
   /* Layout */
-  --fz-sidebar-width: 200px;
+  --fz-sidebar-width: 240px;
   --fz-sidebar-collapsed-width: 56px;
   --fz-header-height: 56px;
   
   /* Typography */
   --fz-font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --fz-font-size-xs: 10px;
-  --fz-font-size-sm: 12px;
-  --fz-font-size-md: 13px;
-  --fz-font-size-lg: 14px;
-  --fz-font-size-xl: 18px;
-  --fz-font-size-xxl: 22px;
+  --fz-font-size-xs: 11px;
+  --fz-font-size-sm: 14px;
+  --fz-font-size-md: 15px;
+  --fz-font-size-lg: 16px;
+  --fz-font-size-xl: 20px;
+  --fz-font-size-xxl: 24px;
   
   /* Transitions */
   --fz-transition: 0.26s cubic-bezier(0.1, 0, 0, 1);

@@ -1,9 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faBox, faSquare, faStar as faStarSolid } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faBox, faSquare, faStar as faStarSolid, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarOutline } from '@fortawesome/free-regular-svg-icons';
 import { faShopify } from '@fortawesome/free-brands-svg-icons';
 import { Badge } from '../common/Badge';
-import { warehouses } from '../../data/mockData';
+import { useDemo } from '../../context/DemoContext';
+import { warehouses as staticWarehouses } from '../../data/mockData';
+import { DEMO_WAREHOUSE_1_ID, DEMO_WAREHOUSE_2_ID, DEMO_WAREHOUSE_3_ID } from '../../data/productPool';
 import type { RoutingType } from '../../data/mockData';
 import styles from './WarehouseSelector.module.css';
 
@@ -28,6 +30,22 @@ export function WarehouseSelector({
   priceReferenceId,
   onPriceReferenceChange 
 }: WarehouseSelectorProps) {
+  const demo = useDemo();
+  // Use demo warehouses if in reset mode, otherwise use static
+  const warehouses = demo.isResetMode ? demo.getWarehouses() : staticWarehouses;
+  const productWarehouses = demo.getProductWarehouses();
+  
+  // Get product count for a warehouse (from demo context or static)
+  const getProductCount = (warehouseId: string) => {
+    if (demo.isResetMode) {
+      // Count unique products in this warehouse from demo context
+      return productWarehouses.filter(pw => pw.warehouseId === warehouseId).length;
+    }
+    // Use static count from warehouse data
+    const warehouse = warehouses.find(w => w.id === warehouseId);
+    return warehouse?.productCount || 0;
+  };
+  
   const isMultiSelect = routingType === 'onsite';
   const showPriceReference = isMultiSelect && value.length >= 2;
 
@@ -60,6 +78,29 @@ export function WarehouseSelector({
     }
   };
 
+  const handleFillDemoData = () => {
+    if (isMultiSelect) {
+      // Onsite: select Main Store + Gift Shop to demonstrate price reference feature
+      // This leaves Pop-up Store without routing (for "No sales routing" demo)
+      const demoWarehouseIds = warehouses
+        .filter(w => w.id === DEMO_WAREHOUSE_1_ID || w.id === DEMO_WAREHOUSE_2_ID)
+        .map(w => w.id);
+      onChange(demoWarehouseIds);
+      // Set Main Store as price reference
+      if (onPriceReferenceChange && demoWarehouseIds.includes(DEMO_WAREHOUSE_1_ID)) {
+        onPriceReferenceChange(DEMO_WAREHOUSE_1_ID);
+      }
+    } else {
+      // Online: select Pop-up Store
+      // This demonstrates: new products synced to Pop-up Store will show
+      // "Not added to sales routing" because they're not in selectedProductIds
+      const popupStore = warehouses.find(w => w.id === DEMO_WAREHOUSE_3_ID);
+      if (popupStore) {
+        onChange([popupStore.id]);
+      }
+    }
+  };
+
   const title = isMultiSelect ? 'Select warehouse(s)' : 'Select warehouse';
   const subtitle = isMultiSelect
     ? 'Choose which warehouses to pull stock from. The specific warehouse used will be configured per plan in the Box Office. Warehouses are configured in the Catalog integration tab.'
@@ -67,8 +108,18 @@ export function WarehouseSelector({
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>{title}</h2>
-      <p className={styles.subtitle}>{subtitle}</p>
+      <div className={styles.header}>
+        <div>
+          <h2 className={styles.title}>{title}</h2>
+          <p className={styles.subtitle}>{subtitle}</p>
+        </div>
+        {demo.isResetMode && warehouses.length > 0 && (
+          <button className={styles.fillDemoBtn} onClick={handleFillDemoData}>
+            <FontAwesomeIcon icon={faMagicWandSparkles} />
+            Select suggested
+          </button>
+        )}
+      </div>
 
       {showPriceReference && (
         <div className={styles.priceReferenceHint}>
@@ -143,7 +194,7 @@ export function WarehouseSelector({
                 <div className={styles.warehouseMeta}>
                   <span className={styles.productCount}>
                     <FontAwesomeIcon icon={faBox} />
-                    {warehouse.productCount} products
+                    {getProductCount(warehouse.id)} products
                   </span>
                   <span className={styles.catalogId}>
                     ID: {warehouse.masterCatalogId.substring(0, 20)}...
@@ -158,9 +209,7 @@ export function WarehouseSelector({
       {value.length > 0 && (
         <div className={styles.summary}>
           <strong>Total products:</strong>{' '}
-          {warehouses
-            .filter(w => value.includes(w.id))
-            .reduce((sum, w) => sum + w.productCount, 0)
+          {value.reduce((sum, warehouseId) => sum + getProductCount(warehouseId), 0)
           } from {value.length} warehouse{value.length > 1 ? 's' : ''}
         </div>
       )}

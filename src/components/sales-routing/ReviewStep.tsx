@@ -1,10 +1,11 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStore, faGlobe, faCalendar, faMapMarkerAlt, faBox, faCheckCircle, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faStore, faGlobe, faCalendar, faMapMarkerAlt, faBox, faCheckCircle, faStar, faTag, faBullhorn, faMagicWandSparkles, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { Badge } from '../common/Badge';
+import { useDemo } from '../../context/DemoContext';
 import { 
   getEventById, 
   getWarehouseById, 
-  getProductsByWarehouseIds,
+  getProductById,
   channels 
 } from '../../data/mockData';
 import type { RoutingType, RoutingStatus } from '../../data/mockData';
@@ -15,9 +16,12 @@ interface ReviewStepProps {
   eventId: string;
   warehouseIds: string[];
   priceReferenceWarehouseId?: string | null;
-  channelMapping: Record<string, string[]>;
+  selectedProductIds?: string[];
+  channelIds?: string[];
   status: RoutingStatus;
   onStatusChange: (status: RoutingStatus) => void;
+  name: string;
+  onNameChange: (name: string) => void;
 }
 
 export function ReviewStep({ 
@@ -25,17 +29,31 @@ export function ReviewStep({
   eventId, 
   warehouseIds,
   priceReferenceWarehouseId,
-  channelMapping,
+  selectedProductIds = [],
+  channelIds = [],
   status,
-  onStatusChange 
+  onStatusChange,
+  name,
+  onNameChange
 }: ReviewStepProps) {
+  const demo = useDemo();
   const event = getEventById(eventId);
+  
+  // Generate a suggested name based on event
+  const handleFillDemoName = () => {
+    if (event) {
+      const suffix = type === 'onsite' ? 'Box Office' : 'Online Store';
+      onNameChange(`${event.name} - ${suffix}`);
+    }
+  };
   const warehouses = warehouseIds.map(id => getWarehouseById(id)).filter(Boolean);
-  const products = getProductsByWarehouseIds(warehouseIds);
   const priceRefWarehouse = priceReferenceWarehouseId ? getWarehouseById(priceReferenceWarehouseId) : null;
   
-  const configuredProducts = Object.values(channelMapping).filter(c => c.length > 0).length;
-  const selectedChannels = [...new Set(Object.values(channelMapping).flat())];
+  // Get selected products (for online routings)
+  const selectedProducts = selectedProductIds.map(id => getProductById(id)).filter(Boolean);
+  
+  // Get selected channels (for online routings)
+  const selectedChannels = channels.filter(c => channelIds.includes(c.id));
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -51,6 +69,37 @@ export function ReviewStep({
     <div className={styles.container}>
       <h2 className={styles.title}>Review your sales routing</h2>
       <p className={styles.subtitle}>Confirm the details before creating</p>
+
+      {/* Name Input */}
+      <div className={styles.nameSection}>
+        <div className={styles.nameHeader}>
+          <label htmlFor="routing-name" className={styles.nameLabel}>
+            <FontAwesomeIcon icon={faEdit} />
+            Routing Name
+          </label>
+          {demo.isResetMode && (
+            <button 
+              type="button"
+              className={styles.fillDemoBtn}
+              onClick={handleFillDemoName}
+            >
+              <FontAwesomeIcon icon={faMagicWandSparkles} />
+              Fill demo data
+            </button>
+          )}
+        </div>
+        <input
+          id="routing-name"
+          type="text"
+          className={styles.nameInput}
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          placeholder="Enter a name for this routing..."
+        />
+        <p className={styles.nameHint}>
+          A descriptive name helps identify this routing in lists and reports
+        </p>
+      </div>
 
       <div className={styles.sections}>
         {/* Type */}
@@ -128,25 +177,51 @@ export function ReviewStep({
           <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
         </div>
 
-        {/* Channels (Online only) */}
-        {type === 'online' && (
+        {/* Products (Online only) */}
+        {type === 'online' && selectedProducts.length > 0 && (
           <div className={styles.section}>
             <div className={styles.sectionIcon}>
-              <FontAwesomeIcon icon={faGlobe} />
+              <FontAwesomeIcon icon={faTag} />
             </div>
             <div className={styles.sectionContent}>
-              <h3 className={styles.sectionTitle}>Channel Distribution</h3>
+              <h3 className={styles.sectionTitle}>Products to Publish</h3>
               <p className={styles.sectionValue}>
-                {configuredProducts} of {products.length} products configured
+                {selectedProducts.length} product{selectedProducts.length !== 1 ? 's' : ''} selected
+              </p>
+              <div className={styles.productPreview}>
+                {selectedProducts.slice(0, 3).map(product => (
+                  <Badge key={product!.id} variant="info" size="sm">
+                    {product!.name}
+                  </Badge>
+                ))}
+                {selectedProducts.length > 3 && (
+                  <span className={styles.moreText}>
+                    +{selectedProducts.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+            <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
+          </div>
+        )}
+
+        {/* Channels (Online only) */}
+        {type === 'online' && selectedChannels.length > 0 && (
+          <div className={styles.section}>
+            <div className={styles.sectionIcon}>
+              <FontAwesomeIcon icon={faBullhorn} />
+            </div>
+            <div className={styles.sectionContent}>
+              <h3 className={styles.sectionTitle}>Sales Channels</h3>
+              <p className={styles.sectionValue}>
+                Publishing to {selectedChannels.length} channel{selectedChannels.length !== 1 ? 's' : ''}
               </p>
               <div className={styles.channelList}>
-                {channels
-                  .filter(c => selectedChannels.includes(c.id))
-                  .map(channel => (
-                    <Badge key={channel.id} variant="secondary" size="sm">
-                      {channel.name}
-                    </Badge>
-                  ))}
+                {selectedChannels.map(channel => (
+                  <Badge key={channel.id} variant="secondary" size="sm">
+                    {channel.name}
+                  </Badge>
+                ))}
               </div>
             </div>
             <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />

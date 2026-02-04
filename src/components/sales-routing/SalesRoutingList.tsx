@@ -6,7 +6,9 @@ import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { Table, TableHead, TableBody, TableRow, TableCell } from '../common/Table';
 import { Breadcrumb } from '../common/Breadcrumb';
-import { salesRoutings, getEventById, getWarehouseById, getBoxOfficeSetupsByRoutingId } from '../../data/mockData';
+import { SalesRoutingEmptyState } from './SalesRoutingEmptyState';
+import { useDemo } from '../../context/DemoContext';
+import { getEventById, getWarehouseById, getBoxOfficeSetupsByRoutingId } from '../../data/mockData';
 import type { RoutingStatus, RoutingType } from '../../data/mockData';
 import styles from './SalesRoutingList.module.css';
 
@@ -23,6 +25,16 @@ const typeConfig: Record<RoutingType, { icon: typeof faStore; label: string }> =
 
 export function SalesRoutingList() {
   const navigate = useNavigate();
+  const demo = useDemo();
+  const salesRoutings = demo.getSalesRoutings();
+  const demoWarehouses = demo.getWarehouses();
+  const integration = demo.getIntegration();
+
+  // Helper to get warehouse by ID - use demo context first, then static data
+  const getWarehouse = (id: string) => {
+    const demoWarehouse = demoWarehouses.find(w => w.id === id);
+    return demoWarehouse || getWarehouseById(id);
+  };
 
   const handleCreateNew = () => {
     navigate('/products/sales-routing/create');
@@ -31,6 +43,34 @@ export function SalesRoutingList() {
   const handleEdit = (id: string) => {
     navigate(`/products/sales-routing/edit/${id}`);
   };
+
+  const handleGoToIntegration = () => {
+    navigate('/products/catalog-integration');
+  };
+
+  // Show empty state if no routings
+  if (salesRoutings.length === 0) {
+    return (
+      <div className={styles.container}>
+        <Breadcrumb 
+          items={[
+            { label: 'Products', path: '/products' },
+            { label: 'Sales routing' }
+          ]} 
+        />
+        
+        <div className={styles.pageHeader}>
+          <h1 className={styles.pageTitle}>Sales routing</h1>
+        </div>
+
+        <SalesRoutingEmptyState 
+          hasIntegration={!!integration}
+          onCreateNew={handleCreateNew}
+          onGoToIntegration={handleGoToIntegration}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -78,7 +118,7 @@ export function SalesRoutingList() {
               <TableBody>
                 {salesRoutings.map((routing) => {
                   const event = getEventById(routing.eventId);
-                  const warehouses = routing.warehouseIds.map(id => getWarehouseById(id)).filter(Boolean);
+                  const warehouses = routing.warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
                   const typeInfo = typeConfig[routing.type];
                   const boxOfficeSetups = routing.type === 'onsite' ? getBoxOfficeSetupsByRoutingId(routing.id) : [];
 
@@ -102,7 +142,7 @@ export function SalesRoutingList() {
                               <div className={styles.setupTooltip}>
                                 <div className={styles.tooltipTitle}>Box Office Setups</div>
                                 {boxOfficeSetups.map(setup => {
-                                  const warehouse = getWarehouseById(setup.warehouseId);
+                                  const warehouse = getWarehouse(setup.warehouseId);
                                   return (
                                     <div key={setup.id} className={styles.tooltipItem}>
                                       <span className={styles.tooltipSetupName}>{setup.name}</span>
@@ -157,15 +197,6 @@ export function SalesRoutingList() {
                 })}
               </TableBody>
             </Table>
-
-            {salesRoutings.length === 0 && (
-              <div className={styles.emptyState}>
-                <p>No sales routings configured yet.</p>
-                <Button variant="primary" icon={faPlus} onClick={handleCreateNew}>
-                  Create your first sales routing
-                </Button>
-              </div>
-            )}
           </CardBody>
         </div>
       </Card>

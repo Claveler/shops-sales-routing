@@ -8,8 +8,10 @@ import { Badge } from '../common/Badge';
 import { Breadcrumb } from '../common/Breadcrumb';
 import { ImmutableSection } from './ImmutableSection';
 import { WarehouseSelector } from './WarehouseSelector';
-import { ChannelProductMapping } from './ChannelProductMapping';
+import { ProductSelector } from './ProductSelector';
+import { ChannelSelector } from './ChannelSelector';
 import { DeleteConfirmModal } from './DeleteConfirmModal';
+import { useDemo } from '../../context/DemoContext';
 import { 
   getSalesRoutingById, 
   getEventById,
@@ -33,6 +35,7 @@ const statusVariantMap: Record<RoutingStatus, 'success' | 'warning' | 'secondary
 export function EditRouting() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const demo = useDemo();
   
   // Load routing data
   const [routing, setRouting] = useState<SalesRouting | null>(null);
@@ -43,7 +46,8 @@ export function EditRouting() {
   const [name, setName] = useState('');
   const [selectedWarehouseIds, setSelectedWarehouseIds] = useState<string[]>([]);
   const [priceReferenceWarehouseId, setPriceReferenceWarehouseId] = useState<string | null>(null);
-  const [channelMapping, setChannelMapping] = useState<Record<string, string[]>>({});
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
   const [status, setStatus] = useState<RoutingStatus>('draft');
   
   // UI state
@@ -53,20 +57,28 @@ export function EditRouting() {
   // Load routing data on mount
   useEffect(() => {
     if (id) {
-      const foundRouting = getSalesRoutingById(id);
+      // Check demo context first, then fall back to static data
+      let foundRouting: SalesRouting | undefined;
+      if (demo.isResetMode) {
+        foundRouting = demo.getSalesRoutings().find(r => r.id === id);
+      } else {
+        foundRouting = getSalesRoutingById(id);
+      }
+      
       if (foundRouting) {
         setRouting(foundRouting);
         setName(foundRouting.name);
         setSelectedWarehouseIds(foundRouting.warehouseIds);
         setPriceReferenceWarehouseId(foundRouting.priceReferenceWarehouseId || null);
-        setChannelMapping(foundRouting.productChannelMapping || {});
+        setSelectedProductIds(foundRouting.selectedProductIds || []);
+        setSelectedChannelIds(foundRouting.channelIds || []);
         setStatus(foundRouting.status);
       } else {
         setNotFound(true);
       }
     }
     setLoading(false);
-  }, [id]);
+  }, [id, demo.isResetMode, demo]);
 
   // Track changes
   useEffect(() => {
@@ -75,11 +87,12 @@ export function EditRouting() {
     const nameChanged = name !== routing.name;
     const warehousesChanged = JSON.stringify(selectedWarehouseIds.sort()) !== JSON.stringify([...routing.warehouseIds].sort());
     const priceRefChanged = priceReferenceWarehouseId !== (routing.priceReferenceWarehouseId || null);
-    const channelsChanged = JSON.stringify(channelMapping) !== JSON.stringify(routing.productChannelMapping || {});
+    const productsChanged = JSON.stringify([...selectedProductIds].sort()) !== JSON.stringify([...(routing.selectedProductIds || [])].sort());
+    const channelsChanged = JSON.stringify([...selectedChannelIds].sort()) !== JSON.stringify([...(routing.channelIds || [])].sort());
     const statusChanged = status !== routing.status;
     
-    setHasChanges(nameChanged || warehousesChanged || priceRefChanged || channelsChanged || statusChanged);
-  }, [routing, name, selectedWarehouseIds, priceReferenceWarehouseId, channelMapping, status]);
+    setHasChanges(nameChanged || warehousesChanged || priceRefChanged || productsChanged || channelsChanged || statusChanged);
+  }, [routing, name, selectedWarehouseIds, priceReferenceWarehouseId, selectedProductIds, selectedChannelIds, status]);
 
   const event = routing ? getEventById(routing.eventId) : null;
 
@@ -106,7 +119,8 @@ export function EditRouting() {
       name,
       warehouseIds: selectedWarehouseIds,
       priceReferenceWarehouseId: routing?.type === 'onsite' && selectedWarehouseIds.length > 1 ? priceReferenceWarehouseId : undefined,
-      channelMapping: routing?.type === 'online' ? channelMapping : undefined,
+      selectedProductIds: routing?.type === 'online' ? selectedProductIds : undefined,
+      channelIds: routing?.type === 'online' ? selectedChannelIds : undefined,
       status
     });
     
@@ -222,15 +236,29 @@ export function EditRouting() {
                 </div>
               </div>
 
-              {/* Channel Mapping (Online only) */}
-              {routing.type === 'online' && (
+              {/* Product Selection (Online only) */}
+              {routing.type === 'online' && selectedWarehouseIds.length > 0 && (
                 <div className={styles.formGroup}>
-                  <label className={styles.label}>Channel Distribution</label>
+                  <label className={styles.label}>Published Products</label>
                   <div className={styles.selectorWrapper}>
-                    <ChannelProductMapping
-                      warehouseIds={selectedWarehouseIds}
-                      value={channelMapping}
-                      onChange={setChannelMapping}
+                    <ProductSelector
+                      warehouseId={selectedWarehouseIds[0]}
+                      selectedProductIds={selectedProductIds}
+                      onChange={setSelectedProductIds}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Channel Selection (Online only) */}
+              {routing.type === 'online' && selectedProductIds.length > 0 && (
+                <div className={styles.formGroup}>
+                  <label className={styles.label}>Sales Channels</label>
+                  <div className={styles.selectorWrapper}>
+                    <ChannelSelector
+                      selectedChannelIds={selectedChannelIds}
+                      onChange={setSelectedChannelIds}
+                      productCount={selectedProductIds.length}
                     />
                   </div>
                 </div>
@@ -263,7 +291,12 @@ export function EditRouting() {
               <Button 
                 variant="primary" 
                 onClick={handleSave}
-                disabled={!hasChanges || !name.trim() || selectedWarehouseIds.length === 0}
+                disabled={
+                  !hasChanges || 
+                  !name.trim() || 
+                  selectedWarehouseIds.length === 0 ||
+                  (routing.type === 'online' && (selectedProductIds.length === 0 || selectedChannelIds.length === 0))
+                }
               >
                 Save changes
               </Button>

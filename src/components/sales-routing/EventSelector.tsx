@@ -1,16 +1,29 @@
 import { useState, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faCalendar, faMapMarkerAlt, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faCalendar, faMapMarkerAlt, faCheck, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+import { useDemo } from '../../context/DemoContext';
 import { events } from '../../data/mockData';
+import type { RoutingType } from '../../data/mockData';
 import styles from './EventSelector.module.css';
+
+// Demo event IDs for different routing types
+const DEMO_ONSITE_EVENT_ID = 'evt-001'; // Candlelight: Tribute to Taylor Swift
+const DEMO_ONLINE_EVENT_ID = 'evt-002'; // Van Gogh: The Immersive Experience
 
 interface EventSelectorProps {
   value: string | null;
   onChange: (eventId: string) => void;
+  routingType?: RoutingType | null;
 }
 
-export function EventSelector({ value, onChange }: EventSelectorProps) {
+export function EventSelector({ value, onChange, routingType }: EventSelectorProps) {
   const [searchQuery, setSearchQuery] = useState('');
+  const demo = useDemo();
+
+  const handleFillDemoData = () => {
+    const eventId = routingType === 'online' ? DEMO_ONLINE_EVENT_ID : DEMO_ONSITE_EVENT_ID;
+    onChange(eventId);
+  };
 
   const filteredEvents = useMemo(() => {
     if (!searchQuery.trim()) return events;
@@ -34,8 +47,18 @@ export function EventSelector({ value, onChange }: EventSelectorProps) {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Select event</h2>
-      <p className={styles.subtitle}>Choose the event where products will be available</p>
+      <div className={styles.header}>
+        <div>
+          <h2 className={styles.title}>Select event</h2>
+          <p className={styles.subtitle}>Choose the event where products will be available</p>
+        </div>
+        {demo.isResetMode && (
+          <button className={styles.fillDemoBtn} onClick={handleFillDemoData}>
+            <FontAwesomeIcon icon={faMagicWandSparkles} />
+            Select suggested
+          </button>
+        )}
+      </div>
 
       <div className={styles.searchWrapper}>
         <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />

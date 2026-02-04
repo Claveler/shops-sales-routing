@@ -1,0 +1,60 @@
+.popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 100;
+  min-width: 280px;
+  max-width: 350px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.header {
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+}
+
+.list {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f3f4;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.warehouseName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+  margin-bottom: 6px;
+}
+
+.details {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+}
+
+.price {
+  font-weight: 600;
+  color: var(--fz-text-primary);
+}
+
+.stock {
+  color: var(--fz-text-secondary);
+}

@@ -1,13 +1,16 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout';
 import { SalesRoutingList, CreateRoutingWizard, EditRouting } from './components/sales-routing';
+import { CatalogIntegrationPage, CreateIntegrationWizard } from './components/catalog-integration';
+import { DemoProvider } from './context/DemoContext';
 import './styles/global.css';
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
-        <Routes>
+    <DemoProvider>
+      <BrowserRouter>
+        <Layout>
+          <Routes>
           {/* Redirect root to sales routing */}
           <Route path="/" element={<Navigate to="/products/sales-routing" replace />} />
           
@@ -16,16 +19,16 @@ function App() {
           <Route path="/products/sales-routing/create" element={<CreateRoutingWizard />} />
           <Route path="/products/sales-routing/edit/:id" element={<EditRouting />} />
           
-          {/* Placeholder for other routes */}
-          <Route path="/products/catalog-integration" element={
-            <PlaceholderPage title="Catalog Integration" description="Manage warehouse connections and product catalogs" />
-          } />
+          {/* Catalog Integration Routes */}
+          <Route path="/products/catalog-integration" element={<CatalogIntegrationPage />} />
+          <Route path="/products/catalog-integration/create" element={<CreateIntegrationWizard />} />
           
           {/* Catch all - redirect to sales routing */}
           <Route path="*" element={<Navigate to="/products/sales-routing" replace />} />
         </Routes>
-      </Layout>
-    </BrowserRouter>
+        </Layout>
+      </BrowserRouter>
+    </DemoProvider>
   );
 }
 

@@ -1,0 +1,494 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Integration Header */
+.integrationHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.providerIcon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+
+.providerIcon.square {
+  background: #000000;
+  color: white;
+}
+
+.providerIcon.shopify {
+  background: #96bf48;
+  color: white;
+}
+
+.providerLabel {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.providerLabel.square {
+  background: #000000;
+  color: white;
+}
+
+.providerLabel.shopify {
+  background: #96bf48;
+  color: white;
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.headerTop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.integrationName {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  margin: 0;
+}
+
+.headerMeta {
+  display: flex;
+  gap: 20px;
+}
+
+.metaItem {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+}
+
+.metaItem strong {
+  color: var(--fz-text-primary);
+  font-weight: 500;
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Warehouse Table */
+.warehouseName {
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.locationId {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all var(--fz-transition);
+  font-size: 12px;
+}
+
+.actionBtn:hover {
+  background-color: #f9fafb;
+  color: #374151;
+  border-color: #d1d5db;
+}
+
+.actionBtn.danger:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+/* Empty Warehouses */
+.emptyWarehouses {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  text-align: center;
+  color: var(--fz-text-secondary);
+}
+
+.emptyWarehouses p {
+  margin: 0 0 16px 0;
+}
+
+/* Add Warehouse Form */
+.addWarehouseForm {
+  padding: 20px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.formGroup {
+  flex: 1;
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fz-text-secondary);
+  margin-bottom: 6px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all var(--fz-transition);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--fz-primary);
+  box-shadow: 0 0 0 3px rgba(0, 137, 227, 0.1);
+}
+
+.input::placeholder {
+  color: #adb5bd;
+}
+
+.formActions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* Danger Zone */
+.dangerZone {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--fz-spacing-lg);
+  padding: var(--fz-spacing-lg);
+  background: #fde8ef;
+  border-radius: 8px;
+  margin: 16px;
+}
+
+.dangerContent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fz-spacing-md);
+}
+
+.dangerIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  color: var(--fz-status-error);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.dangerInfo {
+  flex: 1;
+}
+
+.dangerTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  margin: 0 0 4px 0;
+}
+
+.dangerDescription {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Products Section */
+.productImage {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f3f4f6;
+}
+
+.productImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imagePlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 18px;
+}
+
+.productName {
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.sku {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  background: #f3f4f6;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+/* Warehouse Cell */
+.warehouseCell {
+  position: relative;
+  display: inline-block;
+}
+
+.warehouseBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: rgba(107, 114, 128, 0.1);
+  color: #4b5563;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: default;
+  transition: all 0.15s ease;
+  border-bottom: 1px dashed #9ca3af;
+}
+
+.warehouseCell:hover .warehouseBadge {
+  background: rgba(107, 114, 128, 0.2);
+}
+
+/* Publication Badge (clickable) */
+.publicationBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  background: rgba(0, 137, 227, 0.1);
+  color: var(--fz-primary);
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.publicationBadge:hover {
+  background: rgba(0, 137, 227, 0.2);
+}
+
+/* Empty Products */
+.emptyProducts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 48px;
+  text-align: center;
+  color: var(--fz-text-secondary);
+}
+
+.emptyProducts p {
+  margin: 0;
+}
+
+/* Filter Container */
+.filterContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filterLabel {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+  white-space: nowrap;
+}
+
+.filterSelect {
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  background: white;
+  color: var(--fz-text-primary);
+  cursor: pointer;
+  min-width: 180px;
+  transition: all var(--fz-transition);
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--fz-primary);
+  box-shadow: 0 0 0 3px rgba(0, 137, 227, 0.1);
+}
+
+.filterSelect:hover {
+  border-color: #ced4da;
+}
+
+/* New Product Row Highlight */
+.newProductRow {
+  background: rgba(0, 137, 227, 0.06);
+  animation: fadeHighlight 8s ease-out forwards;
+}
+
+@keyframes fadeHighlight {
+  0% { background: rgba(0, 137, 227, 0.06); }
+  70% { background: rgba(0, 137, 227, 0.06); }
+  100% { background: transparent; }
+}
+
+/* Product Name Cell */
+.productNameCell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* New Badge */
+.newBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--fz-primary);
+  color: white;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+/* Unpublished Warning Styles */
+.unpublishedWarning {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.unpublishedHint {
+  font-size: 11px;
+  color: #6b7280;
+  line-height: 1.3;
+  max-width: 200px;
+}
+
+.unpublishedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.unpublishedBadge svg {
+  font-size: 10px;
+}
+
+/* Type A: Not selected in online routing - amber/warning */
+.unpublishedBadge.notSelected {
+  background: rgba(245, 158, 11, 0.15);
+  color: #b45309;
+}
+
+/* Type B: No routing configured - gray/muted */
+.unpublishedBadge.noRouting {
+  background: rgba(107, 114, 128, 0.15);
+  color: #4b5563;
+}
+
+/* Action buttons for unpublished states */
+.addToRoutingBtn,
+.createRoutingBtn {
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--fz-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: opacity 0.15s ease;
+}
+
+.addToRoutingBtn:hover,
+.createRoutingBtn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.createRoutingBtn {
+  color: #6b7280;
+}
+
+/* Toast Container */
+.toastContainer {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 1000;
+}

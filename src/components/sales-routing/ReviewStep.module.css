@@ -16,6 +16,86 @@
   margin-bottom: var(--fz-spacing-xl);
 }
 
+/* Name Section */
+.nameSection {
+  background: var(--fz-bg-card);
+  border: 1px solid var(--fz-border-color);
+  border-radius: var(--fz-border-radius);
+  padding: var(--fz-spacing-lg);
+  margin-bottom: var(--fz-spacing-xl);
+}
+
+.nameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--fz-spacing-sm);
+}
+
+.nameLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  font-size: var(--fz-font-size-md);
+  font-weight: 600;
+  color: var(--fz-text-primary);
+}
+
+.nameLabel svg {
+  color: var(--fz-text-secondary);
+}
+
+.fillDemoBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.fillDemoBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.fillDemoBtn:active {
+  transform: translateY(0);
+}
+
+.nameInput {
+  width: 100%;
+  padding: var(--fz-spacing-sm) var(--fz-spacing-md);
+  border: 1px solid var(--fz-border-color);
+  border-radius: var(--fz-border-radius);
+  font-size: var(--fz-font-size-md);
+  color: var(--fz-text-primary);
+  background: var(--fz-bg-content);
+  transition: border-color var(--fz-transition);
+}
+
+.nameInput:focus {
+  outline: none;
+  border-color: var(--fz-primary);
+}
+
+.nameInput::placeholder {
+  color: var(--fz-text-secondary);
+}
+
+.nameHint {
+  margin-top: var(--fz-spacing-xs);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+}
+
 .sections {
   display: flex;
   flex-direction: column;
@@ -79,11 +159,19 @@
 }
 
 .warehouseList,
-.channelList {
+.channelList,
+.productPreview {
   display: flex;
   flex-wrap: wrap;
   gap: var(--fz-spacing-xs);
   margin-top: var(--fz-spacing-xs);
+}
+
+.moreText {
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  font-style: italic;
+  align-self: center;
 }
 
 .warehouseItem {

@@ -3,17 +3,20 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
   faCalendar, 
-  faCheckCircle, 
-  faDollarSign, 
+  faCircleCheck, 
   faBookmark,
+  faAddressCard,
+  faHeart,
+  faClock,
+  faSquare
+} from '@fortawesome/free-regular-svg-icons';
+import { 
+  faDollarSign, 
   faBullhorn,
   faUsers,
-  faIdCard,
-  faHeart,
   faTag,
   faQrcode,
   faChartBar,
-  faClock,
   faBox,
   faCog,
   faReceipt,
@@ -39,12 +42,12 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   { icon: faCalendar, label: 'Events', path: '/events' },
   { icon: faCube, label: 'Asset-Based con...', path: '/assets' },
-  { icon: faCheckCircle, label: 'Validation', path: '/validation' },
+  { icon: faCircleCheck, label: 'Validation', path: '/validation' },
   { icon: faDollarSign, label: 'Orders', path: '/orders' },
   { icon: faBookmark, label: 'Reservations', path: '/reservations' },
   { icon: faBullhorn, label: 'Marketing', path: '/marketing' },
   { icon: faUsers, label: 'Affiliations', path: '/affiliations' },
-  { icon: faIdCard, label: 'Memberships', path: '/memberships' },
+  { icon: faAddressCard, label: 'Memberships', path: '/memberships' },
   { icon: faHeart, label: 'Fundraising', path: '/fundraising' },
   { icon: faTag, label: 'Box Office', path: '/box-office' },
   { icon: faQrcode, label: 'Ticketing', path: '/ticketing' },

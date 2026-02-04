@@ -8,8 +8,10 @@ import { Breadcrumb } from '../common/Breadcrumb';
 import { TypeSelector } from './TypeSelector';
 import { EventSelector } from './EventSelector';
 import { WarehouseSelector } from './WarehouseSelector';
-import { ChannelProductMapping } from './ChannelProductMapping';
+import { ProductSelector } from './ProductSelector';
+import { ChannelSelector } from './ChannelSelector';
 import { ReviewStep } from './ReviewStep';
+import { useDemo } from '../../context/DemoContext';
 import type { RoutingType, RoutingStatus } from '../../data/mockData';
 import styles from './CreateRoutingWizard.module.css';
 
@@ -30,19 +32,23 @@ const onlineSteps: WizardStep[] = [
   { id: 'type', title: 'Type' },
   { id: 'event', title: 'Event' },
   { id: 'warehouse', title: 'Warehouse' },
+  { id: 'products', title: 'Products' },
   { id: 'channels', title: 'Channels' },
   { id: 'review', title: 'Review' },
 ];
 
 export function CreateRoutingWizard() {
   const navigate = useNavigate();
+  const demo = useDemo();
   
   // Form state
+  const [routingName, setRoutingName] = useState<string>('');
   const [routingType, setRoutingType] = useState<RoutingType | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [selectedWarehouseIds, setSelectedWarehouseIds] = useState<string[]>([]);
   const [priceReferenceWarehouseId, setPriceReferenceWarehouseId] = useState<string | null>(null);
-  const [channelMapping, setChannelMapping] = useState<Record<string, string[]>>({});
+  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
   const [status, setStatus] = useState<RoutingStatus>('draft');
   
   // Handle warehouse selection changes and auto-set price reference
@@ -79,8 +85,10 @@ export function CreateRoutingWizard() {
         return selectedEventId !== null;
       case 'warehouse':
         return selectedWarehouseIds.length > 0;
+      case 'products':
+        return selectedProductIds.length > 0;
       case 'channels':
-        return true; // Optional, can proceed without configuring all
+        return selectedChannelIds.length > 0;
       case 'review':
         return true;
       default:
@@ -101,15 +109,23 @@ export function CreateRoutingWizard() {
   };
   
   const handleCreate = () => {
-    // In a real app, this would make an API call
-    console.log('Creating routing:', {
-      type: routingType,
-      eventId: selectedEventId,
+    // In demo mode, save to context; otherwise just log
+    const routingData = {
+      name: routingName || `${routingType === 'onsite' ? 'Onsite' : 'Online'} Routing`,
+      type: routingType!,
+      eventId: selectedEventId!,
       warehouseIds: selectedWarehouseIds,
       priceReferenceWarehouseId: routingType === 'onsite' && selectedWarehouseIds.length > 1 ? priceReferenceWarehouseId : undefined,
-      channelMapping: routingType === 'online' ? channelMapping : undefined,
-      status
-    });
+      selectedProductIds: routingType === 'online' ? selectedProductIds : undefined,
+      channelIds: routingType === 'online' ? selectedChannelIds : undefined,
+      status,
+    };
+
+    if (demo.isResetMode) {
+      demo.createRouting(routingData);
+    }
+    
+    console.log('Created routing:', routingData);
     
     // Navigate back to list
     navigate('/products/sales-routing');
@@ -129,9 +145,10 @@ export function CreateRoutingWizard() {
               const previousType = routingType;
               setRoutingType(type);
               
-              // Reset channel mapping if switching from online to onsite
+              // Reset online-specific state if switching to onsite
               if (type === 'onsite') {
-                setChannelMapping({});
+                setSelectedProductIds([]);
+                setSelectedChannelIds([]);
               }
               
               // If switching from onsite to online and multiple warehouses selected,
@@ -152,7 +169,8 @@ export function CreateRoutingWizard() {
         return (
           <EventSelector 
             value={selectedEventId} 
-            onChange={setSelectedEventId} 
+            onChange={setSelectedEventId}
+            routingType={routingType}
           />
         );
       case 'warehouse':
@@ -165,12 +183,20 @@ export function CreateRoutingWizard() {
             onPriceReferenceChange={setPriceReferenceWarehouseId}
           />
         );
+      case 'products':
+        return (
+          <ProductSelector 
+            warehouseId={selectedWarehouseIds[0]}
+            selectedProductIds={selectedProductIds}
+            onChange={setSelectedProductIds}
+          />
+        );
       case 'channels':
         return (
-          <ChannelProductMapping 
-            warehouseIds={selectedWarehouseIds}
-            value={channelMapping}
-            onChange={setChannelMapping}
+          <ChannelSelector 
+            selectedChannelIds={selectedChannelIds}
+            onChange={setSelectedChannelIds}
+            productCount={selectedProductIds.length}
           />
         );
       case 'review':
@@ -180,9 +206,12 @@ export function CreateRoutingWizard() {
             eventId={selectedEventId!}
             warehouseIds={selectedWarehouseIds}
             priceReferenceWarehouseId={priceReferenceWarehouseId}
-            channelMapping={channelMapping}
+            selectedProductIds={selectedProductIds}
+            channelIds={selectedChannelIds}
             status={status}
             onStatusChange={setStatus}
+            name={routingName}
+            onNameChange={setRoutingName}
           />
         );
       default:

@@ -16,15 +16,25 @@ export function Card({ children, className, padding = 'lg' }: CardProps) {
 }
 
 interface CardHeaderProps {
-  children: ReactNode;
+  children?: ReactNode;
   actions?: ReactNode;
+  title?: string;
+  subtitle?: string;
+  action?: ReactNode;
 }
 
-export function CardHeader({ children, actions }: CardHeaderProps) {
+export function CardHeader({ children, actions, title, subtitle, action }: CardHeaderProps) {
   return (
     <div className={styles.header}>
-      <div className={styles.headerContent}>{children}</div>
-      {actions && <div className={styles.headerActions}>{actions}</div>}
+      <div className={styles.headerContent}>
+        {title ? (
+          <div className={styles.titleWrapper}>
+            <h3 className={styles.title}>{title}</h3>
+            {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+          </div>
+        ) : children}
+      </div>
+      {(actions || action) && <div className={styles.headerActions}>{actions || action}</div>}
     </div>
   );
 }
@@ -45,8 +55,10 @@ export function CardTitle({ children, subtitle }: CardTitleProps) {
 
 interface CardBodyProps {
   children: ReactNode;
+  padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
-export function CardBody({ children }: CardBodyProps) {
-  return <div className={styles.body}>{children}</div>;
+export function CardBody({ children, padding }: CardBodyProps) {
+  const paddingClass = padding ? styles[`body-padding-${padding}`] : '';
+  return <div className={`${styles.body} ${paddingClass}`}>{children}</div>;
 }

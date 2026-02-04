@@ -4,6 +4,8 @@ export { EditRouting } from './EditRouting';
 export { TypeSelector } from './TypeSelector';
 export { EventSelector } from './EventSelector';
 export { WarehouseSelector } from './WarehouseSelector';
+export { ProductSelector } from './ProductSelector';
+export { ChannelSelector } from './ChannelSelector';
 export { ChannelProductMapping } from './ChannelProductMapping';
 export { ReviewStep } from './ReviewStep';
 export { ImmutableSection } from './ImmutableSection';

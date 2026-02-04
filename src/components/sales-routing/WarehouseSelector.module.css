@@ -3,6 +3,13 @@
   margin: 0 auto;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--fz-spacing-lg);
+}
+
 .title {
   font-size: var(--fz-font-size-xl);
   font-weight: 600;
@@ -13,7 +20,34 @@
 .subtitle {
   color: var(--fz-text-secondary);
   font-size: var(--fz-font-size-md);
-  margin-bottom: var(--fz-spacing-lg);
+  margin: 0;
+}
+
+/* Fill Demo Button */
+.fillDemoBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  flex-shrink: 0;
+}
+
+.fillDemoBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.fillDemoBtn:active {
+  transform: translateY(0);
 }
 
 .selectAllWrapper {

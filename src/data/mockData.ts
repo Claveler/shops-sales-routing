@@ -8,23 +8,41 @@ export interface Event {
   status: 'active' | 'draft' | 'ended';
 }
 
+export type IntegrationProvider = 'square' | 'shopify';
+
+export interface CatalogIntegration {
+  id: string;
+  name: string;
+  provider: IntegrationProvider;
+  externalAccountId: string;
+  createdAt: string;
+}
+
 export interface Warehouse {
   id: string;
   name: string;
   integration: 'Square' | 'Shopify' | 'Manual';
+  externalLocationId: string;
   productCount: number;
   masterCatalogId: string;
 }
 
+// Products belong to the catalog integration, not individual warehouses
 export interface Product {
   id: string;
   name: string;
   sku: string;
+  imageUrl?: string;
+  pendingSync?: boolean; // If true, product is hidden until "Sync" is clicked
+}
+
+// ProductWarehouse links products to warehouses with warehouse-specific attributes
+export interface ProductWarehouse {
+  productId: string;
+  warehouseId: string;
   price: number;
   currency: string;
   stock: number;
-  imageUrl?: string;
-  warehouseId: string;
 }
 
 export interface Channel {
@@ -44,8 +62,9 @@ export interface SalesRouting {
   eventId: string;
   warehouseIds: string[];
   priceReferenceWarehouseId?: string; // Only for onsite with multiple warehouses
-  channelIds?: string[];
-  productChannelMapping?: Record<string, string[]>;
+  selectedProductIds?: string[]; // For online: which products to publish
+  channelIds?: string[]; // For online: which channels (applies to all selected products)
+  productChannelMapping?: Record<string, string[]>; // DEPRECATED: kept for backwards compat
   status: RoutingStatus;
   createdAt: string;
   updatedAt: string;
@@ -103,12 +122,22 @@ export const events: Event[] = [
   }
 ];
 
+// Mock Catalog Integration (one per partner, or null if none exists)
+export const catalogIntegration: CatalogIntegration | null = {
+  id: 'ci-001',
+  name: 'ES - Shops',
+  provider: 'square',
+  externalAccountId: 'sq_acc_12345',
+  createdAt: '2025-11-15'
+};
+
 // Mock Warehouses
 export const warehouses: Warehouse[] = [
   {
     id: 'wh-001',
     name: 'ES - Shops Square Testing',
     integration: 'Square',
+    externalLocationId: 'LOC_SQ_001',
     productCount: 45,
     masterCatalogId: 'sq0idp-X1_ry5W0fWF9BfDZ5uEPw'
   },
@@ -116,6 +145,7 @@ export const warehouses: Warehouse[] = [
     id: 'wh-002',
     name: 'ES - Shops Shopify Testing',
     integration: 'Shopify',
+    externalLocationId: 'LOC_SHOP_001',
     productCount: 32,
     masterCatalogId: 'b08wxf-pi.myshopify.com'
   },
@@ -123,6 +153,7 @@ export const warehouses: Warehouse[] = [
     id: 'wh-003',
     name: 'Deprecated',
     integration: 'Square',
+    externalLocationId: 'LOC_SQ_002',
     productCount: 18,
     masterCatalogId: 'sq0idp-z_n59C027k5_B1_C66_7DQ'
   },
@@ -130,32 +161,88 @@ export const warehouses: Warehouse[] = [
     id: 'wh-004',
     name: 'Barcelona Merchandise',
     integration: 'Shopify',
+    externalLocationId: 'LOC_SHOP_002',
     productCount: 67,
     masterCatalogId: 'bcn-merch.myshopify.com'
+  },
+  {
+    id: 'wh-005',
+    name: 'New Arrivals (No Routing)',
+    integration: 'Square',
+    externalLocationId: 'LOC_SQ_003',
+    productCount: 5,
+    masterCatalogId: 'sq0idp-new-arrivals'
+  },
+  {
+    id: 'wh-006',
+    name: 'Online-Only Merchandise',
+    integration: 'Square',
+    externalLocationId: 'LOC_SQ_004',
+    productCount: 12,
+    masterCatalogId: 'sq0idp-online-merch'
   }
 ];
 
-// Mock Products
+// Mock Products - catalog-level (same across all warehouses)
 export const products: Product[] = [
-  // Products from wh-001
-  { id: 'p-001', name: 'Candlelight T-Shirt (Black)', sku: 'TSH-BLK-001', price: 29.99, currency: 'EUR', stock: 150, warehouseId: 'wh-001' },
-  { id: 'p-002', name: 'Candlelight T-Shirt (White)', sku: 'TSH-WHT-001', price: 29.99, currency: 'EUR', stock: 120, warehouseId: 'wh-001' },
-  { id: 'p-003', name: 'Concert Poster (A2)', sku: 'POS-A2-001', price: 15.00, currency: 'EUR', stock: 200, warehouseId: 'wh-001' },
-  { id: 'p-004', name: 'Vinyl Record - Classical Hits', sku: 'VNL-CLS-001', price: 34.99, currency: 'EUR', stock: 50, warehouseId: 'wh-001' },
-  { id: 'p-005', name: 'Scented Candle Set (3 pack)', sku: 'CND-SET-001', price: 24.99, currency: 'EUR', stock: 80, warehouseId: 'wh-001' },
-  { id: 'p-006', name: 'Tote Bag - Candlelight Design', sku: 'BAG-TOT-001', price: 19.99, currency: 'EUR', stock: 100, warehouseId: 'wh-001' },
+  { id: 'p-001', name: 'Candlelight T-Shirt (Black)', sku: 'TSH-BLK-001' },
+  { id: 'p-002', name: 'Candlelight T-Shirt (White)', sku: 'TSH-WHT-001' },
+  { id: 'p-003', name: 'Concert Poster (A2)', sku: 'POS-A2-001' },
+  { id: 'p-004', name: 'Vinyl Record - Classical Hits', sku: 'VNL-CLS-001' },
+  { id: 'p-005', name: 'Scented Candle Set (3 pack)', sku: 'CND-SET-001' },
+  { id: 'p-006', name: 'Tote Bag - Candlelight Design', sku: 'BAG-TOT-001' },
+  { id: 'p-007', name: 'Van Gogh Starry Night Print', sku: 'VG-PRT-001' },
+  { id: 'p-008', name: 'Van Gogh Sunflowers Mug', sku: 'VG-MUG-001' },
+  { id: 'p-009', name: 'Art Book - Van Gogh Collection', sku: 'VG-BK-001' },
+  { id: 'p-010', name: 'Puzzle - Starry Night (1000pc)', sku: 'VG-PZL-001' },
+  { id: 'p-011', name: 'VR Headset Rental', sku: 'VG-VR-001' },
+  { id: 'p-012', name: 'Barcelona City Map Poster', sku: 'BCN-MAP-001' },
+  { id: 'p-013', name: 'Tapas Recipe Book', sku: 'BCN-BK-001' },
+  { id: 'p-014', name: 'Wine Tasting Set', sku: 'BCN-WINE-001' }, // In wh-005 (no routing) - unpublished
   
-  // Products from wh-002
-  { id: 'p-007', name: 'Van Gogh Starry Night Print', sku: 'VG-PRT-001', price: 45.00, currency: 'EUR', stock: 75, warehouseId: 'wh-002' },
-  { id: 'p-008', name: 'Van Gogh Sunflowers Mug', sku: 'VG-MUG-001', price: 18.00, currency: 'EUR', stock: 200, warehouseId: 'wh-002' },
-  { id: 'p-009', name: 'Art Book - Van Gogh Collection', sku: 'VG-BK-001', price: 39.99, currency: 'EUR', stock: 40, warehouseId: 'wh-002' },
-  { id: 'p-010', name: 'Puzzle - Starry Night (1000pc)', sku: 'VG-PZL-001', price: 22.00, currency: 'EUR', stock: 60, warehouseId: 'wh-002' },
-  { id: 'p-011', name: 'VR Headset Rental', sku: 'VG-VR-001', price: 10.00, currency: 'EUR', stock: 30, warehouseId: 'wh-002' },
+  // Pending sync products - hidden until "Sync products" is clicked
+  // p-new-001: In wh-001 (has onsite routing) → auto-published after sync
+  // p-new-002: In wh-002 (has online routing sr-002) but not in selectedProductIds → "Not in online routing"
+  // p-new-003: In wh-005 (no routing) → "No routing configured"
+  { id: 'p-new-001', name: 'Limited Edition Poster', sku: 'LTD-POST-001', pendingSync: true },
+  { id: 'p-new-002', name: 'VIP Experience Package', sku: 'VIP-EXP-001', pendingSync: true },
+  { id: 'p-new-003', name: 'Exclusive Vinyl Record', sku: 'VINYL-EXC-001', pendingSync: true },
+];
+
+// Mock ProductWarehouses - warehouse-specific stock and prices
+// A product can exist in multiple warehouses with different stock/price
+export const productWarehouses: ProductWarehouse[] = [
+  // Products in wh-001 (ES - Shops Square Testing)
+  { productId: 'p-001', warehouseId: 'wh-001', price: 29.99, currency: 'EUR', stock: 150 },
+  { productId: 'p-002', warehouseId: 'wh-001', price: 29.99, currency: 'EUR', stock: 120 },
+  { productId: 'p-003', warehouseId: 'wh-001', price: 15.00, currency: 'EUR', stock: 200 },
+  { productId: 'p-004', warehouseId: 'wh-001', price: 34.99, currency: 'EUR', stock: 50 },
+  { productId: 'p-005', warehouseId: 'wh-001', price: 24.99, currency: 'EUR', stock: 80 },
+  { productId: 'p-006', warehouseId: 'wh-001', price: 19.99, currency: 'EUR', stock: 100 },
   
-  // Products from wh-004
-  { id: 'p-012', name: 'Barcelona City Map Poster', sku: 'BCN-MAP-001', price: 12.00, currency: 'EUR', stock: 150, warehouseId: 'wh-004' },
-  { id: 'p-013', name: 'Tapas Recipe Book', sku: 'BCN-BK-001', price: 28.00, currency: 'EUR', stock: 45, warehouseId: 'wh-004' },
-  { id: 'p-014', name: 'Wine Tasting Set', sku: 'BCN-WINE-001', price: 55.00, currency: 'EUR', stock: 25, warehouseId: 'wh-004' },
+  // Some products also in wh-003 (Deprecated) - with different prices/stock
+  { productId: 'p-001', warehouseId: 'wh-003', price: 27.99, currency: 'EUR', stock: 45 },
+  { productId: 'p-002', warehouseId: 'wh-003', price: 27.99, currency: 'EUR', stock: 30 },
+  { productId: 'p-004', warehouseId: 'wh-003', price: 32.99, currency: 'EUR', stock: 20 },
+  
+  // Products in wh-002 (ES - Shops Shopify Testing)
+  { productId: 'p-007', warehouseId: 'wh-002', price: 45.00, currency: 'EUR', stock: 75 },
+  { productId: 'p-008', warehouseId: 'wh-002', price: 18.00, currency: 'EUR', stock: 200 },
+  { productId: 'p-009', warehouseId: 'wh-002', price: 39.99, currency: 'EUR', stock: 40 },
+  { productId: 'p-010', warehouseId: 'wh-002', price: 22.00, currency: 'EUR', stock: 60 },
+  { productId: 'p-011', warehouseId: 'wh-002', price: 10.00, currency: 'EUR', stock: 30 },
+  
+  // Products in wh-004 (Barcelona Merchandise)
+  { productId: 'p-012', warehouseId: 'wh-004', price: 12.00, currency: 'EUR', stock: 150 },
+  { productId: 'p-013', warehouseId: 'wh-004', price: 28.00, currency: 'EUR', stock: 45 },
+  
+  // Products in wh-005 (New Arrivals - NO ROUTING configured)
+  { productId: 'p-014', warehouseId: 'wh-005', price: 55.00, currency: 'EUR', stock: 25 }, // Wine Tasting Set - unpublished
+  
+  // Pending sync products - warehouse assignments
+  { productId: 'p-new-001', warehouseId: 'wh-001', price: 25.00, currency: 'EUR', stock: 100 }, // → auto-published via sr-001 (onsite)
+  { productId: 'p-new-002', warehouseId: 'wh-006', price: 89.00, currency: 'EUR', stock: 50 },  // → wh-006 has online routing sr-005, but not in selectedProductIds
+  { productId: 'p-new-003', warehouseId: 'wh-005', price: 42.00, currency: 'EUR', stock: 30 },  // → wh-005 has no routing
 ];
 
 // Mock Channels
@@ -187,14 +274,8 @@ export const salesRoutings: SalesRouting[] = [
     type: 'online',
     eventId: 'evt-002',
     warehouseIds: ['wh-002'],
+    selectedProductIds: ['p-007', 'p-008', 'p-009', 'p-010', 'p-011'],
     channelIds: ['ch-001', 'ch-002'],
-    productChannelMapping: {
-      'p-007': ['ch-001', 'ch-002'],
-      'p-008': ['ch-001', 'ch-002'],
-      'p-009': ['ch-001'],
-      'p-010': ['ch-001', 'ch-002'],
-      'p-011': ['ch-002'],
-    },
     status: 'active',
     createdAt: '2026-01-10T09:00:00Z',
     updatedAt: '2026-01-25T16:20:00Z'
@@ -205,6 +286,7 @@ export const salesRoutings: SalesRouting[] = [
     type: 'online',
     eventId: 'evt-003',
     warehouseIds: ['wh-001'],
+    selectedProductIds: ['p-001', 'p-002', 'p-004'],
     channelIds: ['ch-001', 'ch-004', 'ch-005'],
     status: 'draft',
     createdAt: '2026-02-01T11:00:00Z',
@@ -220,6 +302,18 @@ export const salesRoutings: SalesRouting[] = [
     createdAt: '2025-12-20T08:30:00Z',
     updatedAt: '2026-01-05T10:00:00Z'
   },
+  {
+    id: 'sr-005',
+    name: 'Stranger Things - Online Add-ons',
+    type: 'online',
+    eventId: 'evt-005',
+    warehouseIds: ['wh-006'],
+    selectedProductIds: [], // Empty - no products selected yet
+    channelIds: ['ch-001', 'ch-002'],
+    status: 'active',
+    createdAt: '2026-01-28T09:00:00Z',
+    updatedAt: '2026-01-28T09:00:00Z'
+  },
 ];
 
 // Helper functions
@@ -231,12 +325,60 @@ export function getWarehouseById(id: string): Warehouse | undefined {
   return warehouses.find(w => w.id === id);
 }
 
-export function getProductsByWarehouseId(warehouseId: string): Product[] {
-  return products.filter(p => p.warehouseId === warehouseId);
+export function getProductById(id: string): Product | undefined {
+  return products.find(p => p.id === id);
 }
 
+// Get all products in the catalog
+export function getAllProducts(): Product[] {
+  return products;
+}
+
+// Get products that exist in a specific warehouse
+export function getProductsByWarehouseId(warehouseId: string): Product[] {
+  const productIds = productWarehouses
+    .filter(pw => pw.warehouseId === warehouseId)
+    .map(pw => pw.productId);
+  return products.filter(p => productIds.includes(p.id));
+}
+
+// Get products that exist in any of the given warehouses
 export function getProductsByWarehouseIds(warehouseIds: string[]): Product[] {
-  return products.filter(p => warehouseIds.includes(p.warehouseId));
+  const productIds = productWarehouses
+    .filter(pw => warehouseIds.includes(pw.warehouseId))
+    .map(pw => pw.productId);
+  // Remove duplicates
+  const uniqueProductIds = [...new Set(productIds)];
+  return products.filter(p => uniqueProductIds.includes(p.id));
+}
+
+// Get all warehouses that contain a specific product
+export interface ProductWarehouseDetails {
+  warehouse: Warehouse;
+  price: number;
+  currency: string;
+  stock: number;
+}
+
+export function getWarehousesForProduct(productId: string): ProductWarehouseDetails[] {
+  return productWarehouses
+    .filter(pw => pw.productId === productId)
+    .map(pw => {
+      const warehouse = getWarehouseById(pw.warehouseId);
+      if (!warehouse) return null;
+      return {
+        warehouse,
+        price: pw.price,
+        currency: pw.currency,
+        stock: pw.stock,
+      };
+    })
+    .filter((item): item is ProductWarehouseDetails => item !== null);
+}
+
+// Get warehouse-specific details for a product
+export function getProductWarehouseDetails(productId: string, warehouseId: string): ProductWarehouse | undefined {
+  return productWarehouses.find(pw => pw.productId === productId && pw.warehouseId === warehouseId);
 }
 
 export function getChannelById(id: string): Channel | undefined {
@@ -255,6 +397,13 @@ export interface BoxOfficeSetup {
   warehouseId: string; // Which warehouse this setup consumes stock from
 }
 
+// Product Publications - links products to session types via sales routings
+export interface ProductPublication {
+  productId: string;
+  salesRoutingId: string;
+  sessionTypeId: string; // 8-digit ID in Fever's system
+}
+
 export const boxOfficeSetups: BoxOfficeSetup[] = [
   { id: 'bos-001', name: 'Main Entrance POS', salesRoutingId: 'sr-001', warehouseId: 'wh-001' },
   { id: 'bos-002', name: 'Gift Shop', salesRoutingId: 'sr-001', warehouseId: 'wh-002' },
@@ -264,4 +413,153 @@ export const boxOfficeSetups: BoxOfficeSetup[] = [
 
 export function getBoxOfficeSetupsByRoutingId(routingId: string): BoxOfficeSetup[] {
   return boxOfficeSetups.filter(setup => setup.salesRoutingId === routingId);
+}
+
+// Catalog Integration helpers
+export function getCatalogIntegration(): CatalogIntegration | null {
+  return catalogIntegration;
+}
+
+export function getWarehousesByIntegration(provider: IntegrationProvider): Warehouse[] {
+  const providerName = provider === 'square' ? 'Square' : 'Shopify';
+  return warehouses.filter(w => w.integration === providerName);
+}
+
+// Mock Product Publications
+// These are created when a sales routing is set up - each product gets a session type in the event
+export const productPublications: ProductPublication[] = [
+  // Products from wh-001 published via sr-001 (Candlelight Taylor Swift - Onsite)
+  { productId: 'p-001', salesRoutingId: 'sr-001', sessionTypeId: '10234567' },
+  { productId: 'p-002', salesRoutingId: 'sr-001', sessionTypeId: '10234568' },
+  { productId: 'p-003', salesRoutingId: 'sr-001', sessionTypeId: '10234569' },
+  { productId: 'p-004', salesRoutingId: 'sr-001', sessionTypeId: '10234570' },
+  { productId: 'p-005', salesRoutingId: 'sr-001', sessionTypeId: '10234571' },
+  { productId: 'p-006', salesRoutingId: 'sr-001', sessionTypeId: '10234572' },
+  
+  // Products from wh-001 also published via sr-003 (Hans Zimmer - VIP Merchandise)
+  { productId: 'p-001', salesRoutingId: 'sr-003', sessionTypeId: '30567891' },
+  { productId: 'p-002', salesRoutingId: 'sr-003', sessionTypeId: '30567892' },
+  { productId: 'p-004', salesRoutingId: 'sr-003', sessionTypeId: '30567893' },
+  
+  // Products from wh-002 published via sr-001 (Candlelight Taylor Swift - uses both warehouses)
+  { productId: 'p-007', salesRoutingId: 'sr-001', sessionTypeId: '10234580' },
+  { productId: 'p-008', salesRoutingId: 'sr-001', sessionTypeId: '10234581' },
+  
+  // Products from wh-002 published via sr-002 (Van Gogh Experience - Online Store)
+  { productId: 'p-007', salesRoutingId: 'sr-002', sessionTypeId: '20456789' },
+  { productId: 'p-008', salesRoutingId: 'sr-002', sessionTypeId: '20456790' },
+  { productId: 'p-009', salesRoutingId: 'sr-002', sessionTypeId: '20456791' },
+  { productId: 'p-010', salesRoutingId: 'sr-002', sessionTypeId: '20456792' },
+  { productId: 'p-011', salesRoutingId: 'sr-002', sessionTypeId: '20456793' },
+  
+  // Products from wh-004 published via sr-004 (Tapas Tour - Food & Gifts)
+  { productId: 'p-012', salesRoutingId: 'sr-004', sessionTypeId: '40123456' },
+  { productId: 'p-013', salesRoutingId: 'sr-004', sessionTypeId: '40123457' },
+  // Note: p-014 (Wine Tasting Set) is NOT published - in wh-005 which has no routing
+  
+  // Pending sync product p-new-001 - auto-published via onsite routing sr-001
+  // (Hidden until sync because product has pendingSync: true)
+  { productId: 'p-new-001', salesRoutingId: 'sr-001', sessionTypeId: '10234599' },
+];
+
+// Get all publications for a product with resolved data
+export interface ResolvedProductPublication {
+  sessionTypeId: string;
+  salesRouting: SalesRouting;
+  event: Event;
+}
+
+export function getProductPublications(productId: string): ResolvedProductPublication[] {
+  return productPublications
+    .filter(pub => pub.productId === productId)
+    .map(pub => {
+      const salesRouting = getSalesRoutingById(pub.salesRoutingId);
+      const event = salesRouting ? getEventById(salesRouting.eventId) : undefined;
+      
+      if (!salesRouting || !event) return null;
+      
+      return {
+        sessionTypeId: pub.sessionTypeId,
+        salesRouting,
+        event,
+      };
+    })
+    .filter((pub): pub is ResolvedProductPublication => pub !== null);
+}
+
+// Publication status helpers
+export type UnpublishedReason = 
+  | { type: 'no-routing' }  // Warehouse has no routing at all
+  | { type: 'not-selected'; routings: SalesRouting[] };  // Online routing exists but product not selected
+
+/**
+ * Check if a product is published anywhere.
+ * - Onsite routings: all products in warehouse are automatically published
+ * - Online routings: only products in selectedProductIds are published
+ */
+export function isProductPublished(productId: string): boolean {
+  // Get warehouses this product is in
+  const productWarehouseIds = productWarehouses
+    .filter(pw => pw.productId === productId)
+    .map(pw => pw.warehouseId);
+  
+  return salesRoutings.some(routing => {
+    // Check if this routing uses any of the product's warehouses
+    const routingUsesProductWarehouse = routing.warehouseIds.some(whId => 
+      productWarehouseIds.includes(whId)
+    );
+    
+    if (!routingUsesProductWarehouse) return false;
+    
+    if (routing.type === 'onsite') {
+      // Onsite: all products in warehouse are automatically published
+      return true;
+    }
+    
+    if (routing.type === 'online') {
+      // Online: only products in selectedProductIds are published
+      return routing.selectedProductIds?.includes(productId) ?? false;
+    }
+    
+    return false;
+  });
+}
+
+/**
+ * Returns the reason why a product is unpublished, or null if published.
+ * Distinguishes between:
+ * - 'no-routing': No sales routing exists for the product's warehouses
+ * - 'not-selected': Online routing(s) exist but product isn't in selectedProductIds
+ */
+export function getUnpublishedReason(productId: string): UnpublishedReason | null {
+  if (isProductPublished(productId)) return null;
+  
+  // Get warehouses this product is in
+  const productWarehouseIds = productWarehouses
+    .filter(pw => pw.productId === productId)
+    .map(pw => pw.warehouseId);
+  
+  // Find online routings for these warehouses where product could be added
+  const availableOnlineRoutings = salesRoutings.filter(routing => 
+    routing.type === 'online' && 
+    routing.warehouseIds.some(whId => productWarehouseIds.includes(whId))
+  );
+  
+  if (availableOnlineRoutings.length > 0) {
+    // Product could be added to these routings
+    return { type: 'not-selected', routings: availableOnlineRoutings };
+  }
+  
+  // No routing exists for this product's warehouses
+  return { type: 'no-routing' };
+}
+
+/**
+ * Get all unpublished products (excluding pending sync products)
+ */
+export function getUnpublishedProducts(includePendingSync = false): Product[] {
+  return products.filter(p => {
+    if (!includePendingSync && p.pendingSync) return false;
+    return !isProductPublished(p.id);
+  });
 }
