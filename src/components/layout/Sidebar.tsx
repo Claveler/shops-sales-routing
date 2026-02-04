@@ -58,7 +58,8 @@ const menuItems: MenuItem[] = [
     label: 'Products',
     children: [
       { label: 'Catalog integration', path: '/products/catalog-integration' },
-      { label: 'Sales routing', path: '/products/sales-routing' }
+      { label: 'Sales routing', path: '/products/sales-routing' },
+      { label: 'Channels', path: '/products/channels' }
     ]
   },
   { icon: faCog, label: 'Settings', path: '/settings' },

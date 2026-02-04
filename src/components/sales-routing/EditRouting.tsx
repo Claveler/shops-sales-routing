@@ -119,6 +119,7 @@ export function EditRouting() {
   const availableWarehouses = demoWarehouses.filter(w => !warehouseIds.includes(w.id));
   const selectedChannels = channels.filter(c => channelIds.includes(c.id));
   const hasBoxOffice = channelIds.some(id => isBoxOfficeChannel(id));
+  const isMultiWarehouse = hasBoxOffice;
   const warehouses = warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
   const onlineChannels = selectedChannels.filter(c => !isBoxOfficeChannel(c.id));
   const priceRefWarehouse = priceRefId ? getWarehouse(priceRefId) : null;
@@ -133,6 +134,24 @@ export function EditRouting() {
       }
     }
     setShowAddWarehouse(false);
+  };
+
+  const handleSwapWarehouse = (newWarehouseId: string) => {
+    if (newWarehouseId && warehouseIds.length === 1) {
+      const oldWarehouseId = warehouseIds[0];
+      setWarehouseIds([newWarehouseId]);
+      setPriceRefId(newWarehouseId);
+      // Update all channel mappings to use the new warehouse
+      const updatedMapping: Record<string, string> = {};
+      for (const channelId of Object.keys(channelMapping)) {
+        if (channelMapping[channelId] === oldWarehouseId) {
+          updatedMapping[channelId] = newWarehouseId;
+        } else {
+          updatedMapping[channelId] = channelMapping[channelId];
+        }
+      }
+      setChannelMapping(updatedMapping);
+    }
   };
 
   const handlePriceRefChange = (warehouseId: string) => {
@@ -160,14 +179,15 @@ export function EditRouting() {
   );
 
   const handleSave = () => {
-    console.log('Saving routing:', {
-      id: routing?.id,
-      warehouseIds,
-      priceReferenceWarehouseId: priceRefId,
-      channelIds,
-      channelWarehouseMapping: channelMapping,
-      status
-    });
+    if (routing?.id) {
+      demo.updateRouting(routing.id, {
+        warehouseIds,
+        priceReferenceWarehouseId: priceRefId,
+        channelIds,
+        channelWarehouseMapping: channelMapping,
+        status
+      });
+    }
     navigate('/products/sales-routing');
   };
 
@@ -228,36 +248,54 @@ export function EditRouting() {
           {/* Warehouses Section */}
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
-              <span className={styles.sectionLabel}>Warehouses</span>
-              {availableWarehouses.length > 0 && !showAddWarehouse && (
+              <span className={styles.sectionLabel}>Warehouse{isMultiWarehouse ? 's' : ''}</span>
+              {isMultiWarehouse && availableWarehouses.length > 0 && !showAddWarehouse && (
                 <Button variant="ghost" size="sm" onClick={() => setShowAddWarehouse(true)}>
                   <FontAwesomeIcon icon={faPlus} /> Add
                 </Button>
               )}
             </div>
-            <p className={styles.sectionHint}>Select which warehouse provides the price reference for Fever sessions.</p>
+            <p className={styles.sectionHint}>
+              {isMultiWarehouse 
+                ? 'Select which warehouse provides the price reference for Fever sessions.'
+                : 'Select which warehouse provides stock and prices for this routing.'}
+            </p>
             
-            <div className={styles.warehouseList}>
-              {warehouses.map(warehouse => (
-                <label key={warehouse!.id} className={styles.warehouseItem}>
-                  <input
-                    type="radio"
-                    name="priceRef"
-                    checked={priceRefId === warehouse!.id}
-                    onChange={() => handlePriceRefChange(warehouse!.id)}
-                    className={styles.priceRefRadio}
-                  />
-                  <span className={styles.warehouseName}>{warehouse!.name}</span>
-                  {priceRefId === warehouse!.id && (
-                    <span className={styles.priceRefBadge}>
-                      <FontAwesomeIcon icon={faStar} /> Price Ref
-                    </span>
-                  )}
-                </label>
-              ))}
-            </div>
+            {isMultiWarehouse ? (
+              <div className={styles.warehouseList}>
+                {warehouses.map(warehouse => (
+                  <label key={warehouse!.id} className={styles.warehouseItem}>
+                    <input
+                      type="radio"
+                      name="priceRef"
+                      checked={priceRefId === warehouse!.id}
+                      onChange={() => handlePriceRefChange(warehouse!.id)}
+                      className={styles.priceRefRadio}
+                    />
+                    <span className={styles.warehouseName}>{warehouse!.name}</span>
+                    {priceRefId === warehouse!.id && (
+                      <span className={styles.priceRefBadge}>
+                        <FontAwesomeIcon icon={faStar} /> Price Ref
+                      </span>
+                    )}
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.warehouseSwap}>
+                <select
+                  className={styles.selectInput}
+                  value={warehouseIds[0] || ''}
+                  onChange={(e) => handleSwapWarehouse(e.target.value)}
+                >
+                  {demoWarehouses.map(wh => (
+                    <option key={wh.id} value={wh.id}>{wh.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
-            {showAddWarehouse && (
+            {isMultiWarehouse && showAddWarehouse && (
               <div className={styles.addRow}>
                 <select
                   className={styles.selectInput}
