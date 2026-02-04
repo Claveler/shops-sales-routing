@@ -150,7 +150,7 @@ export function PublicationModal({
                   </span>
                   <div className={styles.listItemInfo}>
                     <span className={styles.listEventName}>{pub.event.name}</span>
-                    <span className={styles.listRoutingName}>{pub.salesRouting.name}</span>
+                    <span className={styles.listRoutingName}>via {pub.salesRouting.name}</span>
                   </div>
                 </button>
               );
