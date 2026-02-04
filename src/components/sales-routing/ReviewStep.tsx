@@ -46,8 +46,21 @@ export function ReviewStep({
       onNameChange(`${event.name} - ${suffix}`);
     }
   };
-  const warehouses = warehouseIds.map(id => getWarehouseById(id)).filter(Boolean);
-  const priceRefWarehouse = priceReferenceWarehouseId ? getWarehouseById(priceReferenceWarehouseId) : null;
+
+  // Helper to look up warehouse - check demo context first, then static data
+  const getWarehouse = (id: string) => {
+    const demoWarehouse = demo.getWarehouses().find(w => w.id === id);
+    return demoWarehouse || getWarehouseById(id);
+  };
+
+  // Get actual product count for a warehouse from product-warehouse relationships
+  const getWarehouseProductCount = (warehouseId: string) => {
+    const productWarehouses = demo.getProductWarehouses();
+    return productWarehouses.filter(pw => pw.warehouseId === warehouseId).length;
+  };
+
+  const warehouses = warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
+  const priceRefWarehouse = priceReferenceWarehouseId ? getWarehouse(priceReferenceWarehouseId) : null;
   
   // Get selected products (for online routings)
   const selectedProducts = selectedProductIds.map(id => getProductById(id)).filter(Boolean);
@@ -69,37 +82,6 @@ export function ReviewStep({
     <div className={styles.container}>
       <h2 className={styles.title}>Review your sales routing</h2>
       <p className={styles.subtitle}>Confirm the details before creating</p>
-
-      {/* Name Input */}
-      <div className={styles.nameSection}>
-        <div className={styles.nameHeader}>
-          <label htmlFor="routing-name" className={styles.nameLabel}>
-            <FontAwesomeIcon icon={faEdit} />
-            Routing Name
-          </label>
-          {demo.isResetMode && (
-            <button 
-              type="button"
-              className={styles.fillDemoBtn}
-              onClick={handleFillDemoName}
-            >
-              <FontAwesomeIcon icon={faMagicWandSparkles} />
-              Fill demo data
-            </button>
-          )}
-        </div>
-        <input
-          id="routing-name"
-          type="text"
-          className={styles.nameInput}
-          value={name}
-          onChange={(e) => onNameChange(e.target.value)}
-          placeholder="Enter a name for this routing..."
-        />
-        <p className={styles.nameHint}>
-          A descriptive name helps identify this routing in lists and reports
-        </p>
-      </div>
 
       <div className={styles.sections}>
         {/* Type */}
@@ -156,7 +138,7 @@ export function ReviewStep({
                 return (
                   <div key={warehouse!.id} className={styles.warehouseItem}>
                     <Badge variant="info" size="sm">
-                      {warehouse!.name} ({warehouse!.productCount} products)
+                      {warehouse!.name} ({getWarehouseProductCount(warehouse!.id)} products)
                     </Badge>
                     {isPriceRef && warehouses.length > 1 && (
                       <span className={styles.priceRefBadge}>
@@ -251,6 +233,37 @@ export function ReviewStep({
             <span>Activate immediately</span>
           </button>
         </div>
+      </div>
+
+      {/* Name Input - positioned near create button */}
+      <div className={styles.nameSection}>
+        <div className={styles.nameHeader}>
+          <label htmlFor="routing-name" className={styles.nameLabel}>
+            <FontAwesomeIcon icon={faEdit} />
+            Routing Name <span className={styles.required}>*</span>
+          </label>
+          {demo.isResetMode && (
+            <button 
+              type="button"
+              className={styles.fillDemoBtn}
+              onClick={handleFillDemoName}
+            >
+              <FontAwesomeIcon icon={faMagicWandSparkles} />
+              Fill demo data
+            </button>
+          )}
+        </div>
+        <input
+          id="routing-name"
+          type="text"
+          className={`${styles.nameInput} ${!name.trim() ? styles.inputRequired : ''}`}
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          placeholder="Enter a name for this routing..."
+        />
+        <p className={styles.nameHint}>
+          A descriptive name helps identify this routing in lists and reports
+        </p>
       </div>
     </div>
   );

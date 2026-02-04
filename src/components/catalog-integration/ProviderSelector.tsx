@@ -1,6 +1,3 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSquare } from '@fortawesome/free-solid-svg-icons';
-import { faShopify } from '@fortawesome/free-brands-svg-icons';
 import type { IntegrationProvider } from '../../data/mockData';
 import styles from './ProviderSelector.module.css';
 
@@ -9,17 +6,17 @@ interface ProviderSelectorProps {
   onChange: (provider: IntegrationProvider) => void;
 }
 
-const providers: { id: IntegrationProvider; name: string; icon: typeof faSquare; description: string }[] = [
+const providers: { id: IntegrationProvider; name: string; logo: string; description: string }[] = [
   {
     id: 'square',
     name: 'Square',
-    icon: faSquare,
+    logo: '/square-logo.png',
     description: 'Connect your Square catalog to import products and manage inventory from your Square POS system.'
   },
   {
     id: 'shopify',
     name: 'Shopify',
-    icon: faShopify,
+    logo: '/shopify-logo.png',
     description: 'Connect your Shopify store to import products and sync inventory with your e-commerce platform.'
   }
 ];
@@ -38,7 +35,7 @@ export function ProviderSelector({ value, onChange }: ProviderSelectorProps) {
             onClick={() => onChange(provider.id)}
           >
             <div className={styles.providerIcon}>
-              <FontAwesomeIcon icon={provider.icon} />
+              <img src={provider.logo} alt={provider.name} className={styles.providerLogo} />
             </div>
             <div className={styles.providerContent}>
               <h3 className={styles.providerName}>{provider.name}</h3>

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faPlus, faTrash, faExclamationTriangle, faSquare, faImage, faSync, faSpinner, faCheck } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faPlus, faTrash, faExclamationTriangle, faSquare, faImage, faSync, faSpinner, faCheck, faSearch } from '@fortawesome/free-solid-svg-icons';
 import { faShopify } from '@fortawesome/free-brands-svg-icons';
 import { Card, CardHeader, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
@@ -42,6 +42,9 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
   } | null>(null);
   const [warehouseFilter, setWarehouseFilter] = useState<string>('all');
   const [publishedFilter, setPublishedFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [eventFilter, setEventFilter] = useState<string>('all');
+  const [routingFilter, setRoutingFilter] = useState<string>('all');
   
   // Local sync UI state
   const [isSyncing, setIsSyncing] = useState(false);
@@ -146,25 +149,83 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     
     return publications;
   };
+
+  // Derive available events for filter dropdown
+  const availableEvents = useMemo(() => {
+    const eventMap = new Map<string, NonNullable<ReturnType<typeof getEventById>>>();
+    allProducts.forEach(product => {
+      const pubs = demo.isResetMode 
+        ? getPublicationsFromRoutings(product.id)
+        : getStaticProductPublications(product.id);
+      pubs.forEach(pub => {
+        if (pub.event && !eventMap.has(pub.event.id)) {
+          eventMap.set(pub.event.id, pub.event);
+        }
+      });
+    });
+    return Array.from(eventMap.values());
+  }, [allProducts, demo.isResetMode, productWarehouses]);
+
+  // Derive available routings for filter dropdown
+  const availableRoutings = useMemo(() => {
+    return demo.getSalesRoutings();
+  }, [demo]);
   
-  // Apply warehouse and publication filters
+  // Apply all filters
   const filteredProducts = useMemo(() => {
     let products = allProducts;
     
-    // Filter by warehouse
-    if (warehouseFilter !== 'all') {
-      products = getProductsByWarehouse(warehouseFilter);
+    // 1. Text search (name or SKU)
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      products = products.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.sku.toLowerCase().includes(q)
+      );
     }
     
-    // Filter by publication status
+    // 2. Filter by warehouse
+    if (warehouseFilter !== 'all') {
+      products = getProductsByWarehouse(warehouseFilter);
+      // Re-apply search filter after warehouse filter
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        products = products.filter(p => 
+          p.name.toLowerCase().includes(q) || 
+          p.sku.toLowerCase().includes(q)
+        );
+      }
+    }
+    
+    // 3. Filter by publication status
     if (publishedFilter === 'unpublished') {
       products = products.filter(p => !demo.isProductPublished(p.id));
     } else if (publishedFilter === 'published') {
       products = products.filter(p => demo.isProductPublished(p.id));
     }
     
+    // 4. Filter by event
+    if (eventFilter !== 'all') {
+      products = products.filter(p => {
+        const pubs = demo.isResetMode 
+          ? getPublicationsFromRoutings(p.id)
+          : getStaticProductPublications(p.id);
+        return pubs.some(pub => pub.event?.id === eventFilter);
+      });
+    }
+    
+    // 5. Filter by sales routing
+    if (routingFilter !== 'all') {
+      products = products.filter(p => {
+        const pubs = demo.isResetMode 
+          ? getPublicationsFromRoutings(p.id)
+          : getStaticProductPublications(p.id);
+        return pubs.some(pub => pub.salesRouting?.id === routingFilter);
+      });
+    }
+    
     return products;
-  }, [allProducts, warehouseFilter, publishedFilter, productWarehouses]);
+  }, [allProducts, searchQuery, warehouseFilter, publishedFilter, eventFilter, routingFilter, productWarehouses, demo.isResetMode]);
   
   const providerIcon = integration.provider === 'square' ? faSquare : faShopify;
   const providerClass = integration.provider === 'square' ? styles.square : styles.shopify;
@@ -482,36 +543,70 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
         <CardHeader 
           title="Products" 
           subtitle={`All products from your ${providerName} catalog`}
-          action={
-            <div className={styles.filterContainer}>
-              <div className={styles.filterDropdown}>
-                <span className={styles.filterDropdownLabel}>Warehouse</span>
-                <select 
-                  className={styles.filterSelect}
-                  value={warehouseFilter}
-                  onChange={(e) => setWarehouseFilter(e.target.value)}
-                >
-                  <option value="all">All</option>
-                  {integrationWarehouses.map(wh => (
-                    <option key={wh.id} value={wh.id}>{wh.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className={styles.filterDropdown}>
-                <span className={styles.filterDropdownLabel}>Status</span>
-                <select 
-                  className={styles.filterSelect}
-                  value={publishedFilter}
-                  onChange={(e) => setPublishedFilter(e.target.value)}
-                >
-                  <option value="all">All</option>
-                  <option value="published">Published</option>
-                  <option value="unpublished">Unpublished</option>
-                </select>
-              </div>
-            </div>
-          }
         />
+        <div className={styles.filterBar}>
+          <div className={styles.searchWrapper}>
+            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <input
+              type="text"
+              className={styles.searchInput}
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className={styles.filterDropdown}>
+            <span className={styles.filterDropdownLabel}>Warehouse</span>
+            <select 
+              className={styles.filterSelect}
+              value={warehouseFilter}
+              onChange={(e) => setWarehouseFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              {integrationWarehouses.map(wh => (
+                <option key={wh.id} value={wh.id}>{wh.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterDropdown}>
+            <span className={styles.filterDropdownLabel}>Status</span>
+            <select 
+              className={styles.filterSelect}
+              value={publishedFilter}
+              onChange={(e) => setPublishedFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="published">Published</option>
+              <option value="unpublished">Unpublished</option>
+            </select>
+          </div>
+          <div className={styles.filterDropdown}>
+            <span className={styles.filterDropdownLabel}>Event</span>
+            <select 
+              className={styles.filterSelect}
+              value={eventFilter}
+              onChange={(e) => setEventFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              {availableEvents.map(evt => (
+                <option key={evt.id} value={evt.id}>{evt.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className={styles.filterDropdown}>
+            <span className={styles.filterDropdownLabel}>Sales Routing</span>
+            <select 
+              className={styles.filterSelect}
+              value={routingFilter}
+              onChange={(e) => setRoutingFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              {availableRoutings.map(routing => (
+                <option key={routing.id} value={routing.id}>{routing.name}</option>
+              ))}
+            </select>
+          </div>
+        </div>
         <CardBody padding="none">
           {filteredProducts.length > 0 ? (
             <Table>

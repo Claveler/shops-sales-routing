@@ -45,6 +45,11 @@
   color: var(--fz-text-secondary);
 }
 
+.required {
+  color: #dc2626;
+  margin-left: 2px;
+}
+
 .fillDemoBtn {
   display: flex;
   align-items: center;
@@ -88,6 +93,14 @@
 
 .nameInput::placeholder {
   color: var(--fz-text-secondary);
+}
+
+.nameInput.inputRequired {
+  border-color: #fca5a5;
+}
+
+.nameInput.inputRequired:focus {
+  border-color: #dc2626;
 }
 
 .nameHint {

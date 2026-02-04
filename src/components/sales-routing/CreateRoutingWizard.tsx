@@ -111,7 +111,7 @@ export function CreateRoutingWizard() {
   const handleCreate = () => {
     // In demo mode, save to context; otherwise just log
     const routingData = {
-      name: routingName || `${routingType === 'onsite' ? 'Onsite' : 'Online'} Routing`,
+      name: routingName.trim(),
       type: routingType!,
       eventId: selectedEventId!,
       warehouseIds: selectedWarehouseIds,
@@ -284,7 +284,7 @@ export function CreateRoutingWizard() {
                   variant="primary"
                   icon={faCheck}
                   onClick={handleCreate}
-                  disabled={!canProceed()}
+                  disabled={!canProceed() || !routingName.trim()}
                 >
                   Create routing
                 </Button>
