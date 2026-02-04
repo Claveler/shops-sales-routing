@@ -41,6 +41,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     publications: ReturnType<typeof getStaticProductPublications>;
   } | null>(null);
   const [warehouseFilter, setWarehouseFilter] = useState<string>('all');
+  const [publishedFilter, setPublishedFilter] = useState<string>('all');
   
   // Local sync UI state
   const [isSyncing, setIsSyncing] = useState(false);
@@ -151,14 +152,19 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     let products = allProducts;
     
     // Filter by warehouse
-    if (warehouseFilter === 'unpublished') {
-      products = products.filter(p => !demo.isProductPublished(p.id));
-    } else if (warehouseFilter !== 'all') {
+    if (warehouseFilter !== 'all') {
       products = getProductsByWarehouse(warehouseFilter);
     }
     
+    // Filter by publication status
+    if (publishedFilter === 'unpublished') {
+      products = products.filter(p => !demo.isProductPublished(p.id));
+    } else if (publishedFilter === 'published') {
+      products = products.filter(p => demo.isProductPublished(p.id));
+    }
+    
     return products;
-  }, [allProducts, warehouseFilter, productWarehouses]);
+  }, [allProducts, warehouseFilter, publishedFilter, productWarehouses]);
   
   const providerIcon = integration.provider === 'square' ? faSquare : faShopify;
   const providerClass = integration.provider === 'square' ? styles.square : styles.shopify;
@@ -478,20 +484,31 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
           subtitle={`All products from your ${providerName} catalog`}
           action={
             <div className={styles.filterContainer}>
-              <label className={styles.filterLabel}>Filter:</label>
-              <select 
-                className={styles.filterSelect}
-                value={warehouseFilter}
-                onChange={(e) => setWarehouseFilter(e.target.value)}
-              >
-                <option value="all">All products</option>
-                <option value="unpublished">Unpublished only</option>
-                <optgroup label="By warehouse">
+              <div className={styles.filterDropdown}>
+                <span className={styles.filterDropdownLabel}>Warehouse</span>
+                <select 
+                  className={styles.filterSelect}
+                  value={warehouseFilter}
+                  onChange={(e) => setWarehouseFilter(e.target.value)}
+                >
+                  <option value="all">All</option>
                   {integrationWarehouses.map(wh => (
                     <option key={wh.id} value={wh.id}>{wh.name}</option>
                   ))}
-                </optgroup>
-              </select>
+                </select>
+              </div>
+              <div className={styles.filterDropdown}>
+                <span className={styles.filterDropdownLabel}>Status</span>
+                <select 
+                  className={styles.filterSelect}
+                  value={publishedFilter}
+                  onChange={(e) => setPublishedFilter(e.target.value)}
+                >
+                  <option value="all">All</option>
+                  <option value="published">Published</option>
+                  <option value="unpublished">Unpublished</option>
+                </select>
+              </div>
             </div>
           }
         />
@@ -574,9 +591,13 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
           ) : (
             <div className={styles.emptyProducts}>
               <p>
-                {warehouseFilter === 'all' 
-                  ? 'No products in the catalog yet.' 
-                  : 'No products in this warehouse.'}
+                {warehouseFilter === 'all' && publishedFilter === 'all'
+                  ? 'No products in the catalog yet.'
+                  : warehouseFilter !== 'all' && publishedFilter !== 'all'
+                    ? 'No products match the selected filters.'
+                    : warehouseFilter !== 'all'
+                      ? 'No products in this warehouse.'
+                      : 'No products with this status.'}
               </p>
             </div>
           )}
