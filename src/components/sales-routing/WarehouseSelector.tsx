@@ -5,7 +5,7 @@ import { faShopify } from '@fortawesome/free-brands-svg-icons';
 import { Badge } from '../common/Badge';
 import { useDemo } from '../../context/DemoContext';
 import { warehouses as staticWarehouses, hasBoxOfficeChannel, hasOnlineChannels } from '../../data/mockData';
-import { DEMO_WAREHOUSE_1_ID, DEMO_WAREHOUSE_2_ID, DEMO_WAREHOUSE_3_ID } from '../../data/productPool';
+import { DEMO_WAREHOUSE_1_ID, DEMO_WAREHOUSE_2_ID } from '../../data/productPool';
 import styles from './WarehouseSelector.module.css';
 
 interface WarehouseSelectorProps {
