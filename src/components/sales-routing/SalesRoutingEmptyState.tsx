@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRoute, faPlus, faLink, faStore, faGlobe, faBoxes } from '@fortawesome/free-solid-svg-icons';
+import { faRoute, faPlus, faLink, faStore, faGlobe } from '@fortawesome/free-solid-svg-icons';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import styles from './SalesRoutingEmptyState.module.css';

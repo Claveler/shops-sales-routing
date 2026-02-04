@@ -115,7 +115,7 @@ export function CreateRoutingWizard() {
       type: routingType!,
       eventId: selectedEventId!,
       warehouseIds: selectedWarehouseIds,
-      priceReferenceWarehouseId: routingType === 'onsite' && selectedWarehouseIds.length > 1 ? priceReferenceWarehouseId : undefined,
+      priceReferenceWarehouseId: routingType === 'onsite' && selectedWarehouseIds.length > 1 ? (priceReferenceWarehouseId || undefined) : undefined,
       selectedProductIds: routingType === 'online' ? selectedProductIds : undefined,
       channelIds: routingType === 'online' ? selectedChannelIds : undefined,
       status,

@@ -11,10 +11,9 @@ import { Toast } from '../common/Toast';
 import { DeleteIntegrationModal } from './DeleteIntegrationModal';
 import { PublicationModal } from './PublicationModal';
 import { WarehousePopover } from './WarehousePopover';
-import { useDemo, events } from '../../context/DemoContext';
+import { useDemo } from '../../context/DemoContext';
 import { 
   getProductPublications as getStaticProductPublications,
-  getSalesRoutingById as getStaticSalesRoutingById,
   getEventById,
   type Product,
   type CatalogIntegration,
@@ -31,7 +30,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
   
   // UI state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [editingWarehouse, setEditingWarehouse] = useState<string | null>(null);
+  const [, setEditingWarehouse] = useState<string | null>(null);
   const [showAddWarehouse, setShowAddWarehouse] = useState(false);
   const [newWarehouseName, setNewWarehouseName] = useState('');
   const [newWarehouseLocationId, setNewWarehouseLocationId] = useState('');
@@ -100,7 +99,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     const publications: Array<{
       sessionTypeId: string;
       salesRouting: typeof routings[0];
-      event: ReturnType<typeof getEventById>;
+      event: NonNullable<ReturnType<typeof getEventById>>;
     }> = [];
     
     // Generate a deterministic 8-digit session type ID from routing + product
@@ -253,7 +252,6 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     if (unpublishedReason.type === 'not-selected') {
       // Actionable: can add to existing online sales routing(s)
       const routing = unpublishedReason.routings[0];
-      const event = getEventById(routing.eventId);
       return (
         <div className={styles.unpublishedWarning}>
           <div className={`${styles.unpublishedBadge} ${styles.notSelected}`}>
@@ -512,7 +510,6 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
               <TableBody>
                 {filteredProducts.map((product) => {
                   const productWarehouseDetails = getWarehousesForProductLocal(product.id);
-                  const isPublished = demo.isProductPublished(product.id);
                   const isNew = localSyncedProductIds.includes(product.id) || demo.syncedProductIds.includes(product.id);
                   const unpublishedReason = demo.getUnpublishedReason(product.id);
                   

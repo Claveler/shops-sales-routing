@@ -16,8 +16,6 @@ import {
   type SalesRouting,
   type ProductPublication,
   type BoxOfficeSetup,
-  type RoutingType,
-  type RoutingStatus,
 } from '../data/mockData';
 import { DEMO_PRODUCTS, DEMO_PRODUCT_WAREHOUSES, SECOND_SYNC_PRODUCTS, SECOND_SYNC_PRODUCT_WAREHOUSES } from '../data/productPool';
 

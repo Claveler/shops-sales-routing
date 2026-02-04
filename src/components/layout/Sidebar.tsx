@@ -7,8 +7,7 @@ import {
   faBookmark,
   faAddressCard,
   faHeart,
-  faClock,
-  faSquare
+  faClock
 } from '@fortawesome/free-regular-svg-icons';
 import { 
   faDollarSign, 
