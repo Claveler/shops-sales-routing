@@ -34,6 +34,7 @@ export interface Product {
   sku: string;
   imageUrl?: string;
   pendingSync?: boolean; // If true, product is hidden until "Sync" is clicked
+  syncedAt?: string; // Timestamp when product was synced
 }
 
 // ProductWarehouse links products to warehouses with warehouse-specific attributes

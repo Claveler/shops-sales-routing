@@ -92,23 +92,27 @@ export function WarehouseSelector({
   };
 
   const handleFillDemoData = () => {
+    const routingCount = demo.getSalesRoutings().length;
+    
     if (allowMultiple) {
-      // Multi-select: select Main Store + Gift Shop to demonstrate price reference feature
+      // Hans Zimmer (has Box Office): both warehouses + price ref
       const demoWarehouseIds = warehouses
         .filter(w => w.id === DEMO_WAREHOUSE_1_ID || w.id === DEMO_WAREHOUSE_2_ID)
         .map(w => w.id);
       onChange(demoWarehouseIds);
-      // Set Main Store as price reference
       if (onPriceReferenceChange && demoWarehouseIds.includes(DEMO_WAREHOUSE_1_ID)) {
         onPriceReferenceChange(DEMO_WAREHOUSE_1_ID);
       }
     } else {
-      // Single-select: select Pop-up Store (for online-only routing demo)
-      const popupStore = warehouses.find(w => w.id === DEMO_WAREHOUSE_3_ID);
-      if (popupStore) {
-        onChange([popupStore.id]);
-      } else if (warehouses.length > 0) {
-        onChange([warehouses[0].id]);
+      // Single warehouse - vary for demo variety
+      if (routingCount === 0) {
+        // Taylor Swift: Square warehouse
+        const squareWarehouse = warehouses.find(w => w.id === DEMO_WAREHOUSE_1_ID);
+        onChange([squareWarehouse?.id || warehouses[0]?.id].filter(Boolean) as string[]);
+      } else {
+        // Van Gogh: Shopify warehouse
+        const shopifyWarehouse = warehouses.find(w => w.id === DEMO_WAREHOUSE_2_ID);
+        onChange([shopifyWarehouse?.id || warehouses[0]?.id].filter(Boolean) as string[]);
       }
     }
   };

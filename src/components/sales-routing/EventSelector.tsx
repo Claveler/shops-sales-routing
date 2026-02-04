@@ -5,10 +5,10 @@ import { useDemo } from '../../context/DemoContext';
 import { events } from '../../data/mockData';
 import styles from './EventSelector.module.css';
 
-// Demo event IDs for the demo flow (3 routings with different channel configurations)
-const DEMO_EVENT_1_ID = 'evt-001'; // Candlelight: Tribute to Taylor Swift - Onsite + Online
-const DEMO_EVENT_2_ID = 'evt-002'; // Van Gogh: The Immersive Experience - Onsite only
-const DEMO_EVENT_3_ID = 'evt-003'; // Candlelight: Best of Hans Zimmer - Online only
+// Demo event IDs - visual order (1st, 2nd, 3rd in list) with increasing complexity
+const DEMO_EVENT_1_ID = 'evt-001'; // Taylor Swift - Marketplace only (simplest)
+const DEMO_EVENT_2_ID = 'evt-002'; // Van Gogh - Marketplace + Whitelabel (medium)
+const DEMO_EVENT_3_ID = 'evt-003'; // Hans Zimmer - Box Office + Marketplace (complex)
 
 interface EventSelectorProps {
   value: string | null;

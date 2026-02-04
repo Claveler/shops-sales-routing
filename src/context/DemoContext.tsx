@@ -145,9 +145,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     let newProductIds: string[] = [];
 
     setState(prev => {
+      const syncTimestamp = new Date().toISOString();
+      
       if (!prev.hasSynced) {
-        // First sync - add initial products
-        newProducts = DEMO_PRODUCTS;
+        // First sync - add initial products with syncedAt timestamp
+        newProducts = DEMO_PRODUCTS.map(p => ({ ...p, syncedAt: syncTimestamp }));
         newProductWarehouses = DEMO_PRODUCT_WAREHOUSES.filter(pw => 
           prev.warehouses.some(w => w.id === pw.warehouseId)
         );
@@ -168,8 +170,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
           syncedProductIds: newProductIds,
         };
       } else if (!prev.secondSyncDone) {
-        // Second sync - add more products
-        newProducts = SECOND_SYNC_PRODUCTS;
+        // Second sync - add more products with syncedAt timestamp
+        newProducts = SECOND_SYNC_PRODUCTS.map(p => ({ ...p, syncedAt: syncTimestamp }));
         newProductWarehouses = SECOND_SYNC_PRODUCT_WAREHOUSES.filter(pw => 
           prev.warehouses.some(w => w.id === pw.warehouseId)
         );

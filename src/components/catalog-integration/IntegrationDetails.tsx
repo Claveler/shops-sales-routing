@@ -57,7 +57,11 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
 
   // Get data from demo context
   const allWarehouses = demo.getWarehouses();
-  const allProducts = demo.getProducts();
+  const allProducts = demo.getProducts()
+    .sort((a, b) => {
+      if (!a.syncedAt || !b.syncedAt) return 0;
+      return new Date(b.syncedAt).getTime() - new Date(a.syncedAt).getTime();
+    });
   const productWarehouses = demo.getProductWarehouses();
 
   // Filter warehouses by integration provider
@@ -313,7 +317,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             publications
           })}
         >
-          Distributed through {publications.length} event{publications.length > 1 ? 's' : ''}
+          {publications.length} event{publications.length > 1 ? 's' : ''}
         </button>
       );
     }

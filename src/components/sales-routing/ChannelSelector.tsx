@@ -43,20 +43,20 @@ export function ChannelSelector({ selectedChannelIds, onChange }: ChannelSelecto
     }
   };
 
-  // Context-aware suggested channels based on demo flow:
-  // Routing 1: Box Office + Marketplace (onsite + online)
-  // Routing 2: Box Office only (onsite only)
-  // Routing 3: Marketplace + Whitelabel (online only, multiple channels)
+  // Demo flow - simple to complex (matches visual event order):
+  // Routing 1 (Taylor Swift): Marketplace only (simplest)
+  // Routing 2 (Van Gogh): Marketplace + Whitelabel (medium)
+  // Routing 3 (Hans Zimmer): Box Office + Marketplace (complex hybrid)
   const handleSelectSuggested = () => {
     if (routingCount === 0) {
-      // First routing: onsite + online
-      onChange([BOX_OFFICE_ID, MARKETPLACE_ID]);
+      // First routing: single online channel
+      onChange([MARKETPLACE_ID]);
     } else if (routingCount === 1) {
-      // Second routing: onsite only
-      onChange([BOX_OFFICE_ID]);
-    } else {
-      // Third routing: online only with multiple channels
+      // Second routing: multiple online channels
       onChange([MARKETPLACE_ID, WHITELABEL_ID]);
+    } else {
+      // Third routing: hybrid onsite + online
+      onChange([BOX_OFFICE_ID, MARKETPLACE_ID]);
     }
   };
 

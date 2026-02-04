@@ -29,7 +29,8 @@ const channelTypeIcons: Record<string, typeof faGlobe> = {
 export function SalesRoutingList() {
   const navigate = useNavigate();
   const demo = useDemo();
-  const salesRoutings = demo.getSalesRoutings();
+  const salesRoutings = demo.getSalesRoutings()
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   const demoWarehouses = demo.getWarehouses();
   const integration = demo.getIntegration();
   

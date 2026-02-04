@@ -12,7 +12,8 @@ This is a high-fidelity front-end mockup of new functionality for the **Fever Zo
 ### Scope
 A new **Products** section in the left sidebar containing:
 - **Catalog Integration** - Connect external product catalogs (Square, Shopify)
-- **Sales Routing** - Configure how products are made available for sale
+- **Sales Routing** - Configure how products are made available for sale at events
+- **Channels** - (Placeholder) Configure per-product channel visibility
 
 ### Target Users
 - Fever operations staff
@@ -36,8 +37,10 @@ A connection to an external system (Square or Shopify) that allows importing pro
 Represent product inventory locations. Each warehouse maps 1:1 to a location in the external system (e.g., a Square location). Products exist in warehouses with location-specific prices and stock levels.
 
 ### Sales Routing (RetailPlan)
-Configuration that makes products available for sale at specific events through selected channels. Combines:
-- Event selection
+Configuration that makes products available for sale at specific events through selected channels. **There is a 1:1 relationship between events and sales routings** - each event can have at most one routing, and the routing is identified by the event name (no separate routing name).
+
+Combines:
+- Event selection (becomes the routing identifier)
 - Channel selection (where products will be sold)
 - Warehouse selection (where stock comes from)
 - Channel-warehouse mapping (which warehouse serves which channel)
@@ -86,8 +89,9 @@ Physical POS device configuration for onsite sales. Multiple setups can use the 
 │ id                  │       │ id                  │
 │ name                │       │ name                │
 │ retailSetupId       │       │ sku                 │
-│ externalLocationId  │       │ imageUrl            │
-└─────────┬───────────┘       └─────────┬───────────┘
+│ externalLocationId  │       │ category            │
+└─────────┬───────────┘       │ imageUrl            │
+                              └─────────┬───────────┘
           │                             │
           │         N:M                 │
           └──────────┬──────────────────┘
@@ -103,22 +107,23 @@ Physical POS device configuration for onsite sales. Multiple setups can use the 
           └─────────────────────┘
 
 ┌─────────────────────┐       ┌─────────────────────┐
-│   RetailPlan        │       │       Event         │
+│   RetailPlan        │  1:1  │       Event         │
 │  (SalesRouting)     │       │─────────────────────│
 │─────────────────────│──────▶│ id                  │
 │ id                  │       │ name                │
-│ name                │       │ venue               │
-│ eventId             │       │ city                │
-│ channelIds[]        │       │ date                │
-│ warehouseIds[]      │       └─────────────────────┘
-│ priceReferenceId    │
-│ channelWarehouse-   │       ┌─────────────────────┐
-│   Mapping{}         │       │      Channel        │
-│ status              │       │─────────────────────│
-└─────────────────────┘       │ id                  │
-                              │ name                │
-┌─────────────────────┐       │ type (onsite/online)│
-│   BoxOfficeSetup    │       └─────────────────────┘
+│ eventId             │       │ venue               │
+│ channelIds[]        │       │ city                │
+│ warehouseIds[]      │       │ date                │
+│ priceReferenceId    │       │ thumbnailUrl        │
+│ channelWarehouse-   │       └─────────────────────┘
+│   Mapping{}         │
+│ status              │       ┌─────────────────────┐
+└─────────────────────┘       │      Channel        │
+                              │─────────────────────│
+┌─────────────────────┐       │ id                  │
+│   BoxOfficeSetup    │       │ name                │
+│─────────────────────│       │ type (onsite/online)│
+│ id                  │       └─────────────────────┘
 │─────────────────────│
 │ id                  │
 │ name                │
@@ -135,6 +140,7 @@ Physical POS device configuration for onsite sales. Multiple setups can use the 
 3. **A product can exist in multiple warehouses** with different prices/stock
 4. **SalesRouting references channels and warehouses** with explicit channel-warehouse mapping
 5. **BoxOfficeSetup determines stock source** for onsite sales when multiple warehouses exist
+6. **Price Reference determines pricing** for SessionTypes; channel-warehouse mapping determines stock source only
 
 ---
 
@@ -142,46 +148,67 @@ Physical POS device configuration for onsite sales. Multiple setups can use the 
 
 ### Channel-Based Warehouse Selection Rules
 
-| Channels Selected | Warehouse Rule | Price Reference |
-|-------------------|----------------|-----------------|
-| Box Office only | Multiple allowed | Required if >1 warehouse |
-| Online only | Single warehouse | N/A |
-| Both Box Office + Online | Multiple allowed | Required if >1 warehouse |
+| Channels Selected | Warehouse Rule | Price Reference | Edit Behavior |
+|-------------------|----------------|-----------------|---------------|
+| Box Office only | Multiple allowed | Required if >1 warehouse | Can add warehouses |
+| Online only | Single warehouse | N/A (only 1 warehouse) | Can only swap warehouse |
+| Both Box Office + Online | Multiple allowed | Required if >1 warehouse | Can add warehouses |
 
-**Why these rules?**
-- **Box Office** needs multiple warehouses because different POS devices (e.g., main entrance vs gift shop) may pull from different stock locations
-- **Online channels** need single warehouse for consistent pricing and inventory management
-- **Mixed** follows Box Office rules since it includes onsite
+**Why these rules? The Price Reference is the key factor.**
 
-### Channel-Warehouse Mapping
+Sales routings create **SessionTypes and Sessions** in Fever plans. Each SessionType has exactly ONE price. The **price reference warehouse** determines which prices are used for all SessionTypes, regardless of which warehouse the stock comes from.
 
-Each channel in a sales routing maps to exactly one warehouse. This determines:
-- Where stock is consumed when a sale occurs
-- Which price is used for that channel
+- **Box Office** requires multiple warehouses (different POS devices pull from different stock locations). This necessitates a price reference to unify pricing. Once a price reference exists, there's no additional complexity in allowing online channels to also pick from multiple warehouses.
 
-Example configuration:
+- **Online-only** is restricted to a single warehouse to avoid introducing price reference complexity for simple use cases. With one warehouse, it serves as both the price source AND stock source - no ambiguity.
+
+- **Mixed (Box Office + Online)** already has a price reference (required by Box Office), so online channels can freely map to any available warehouse for stock without affecting pricing.
+
+**Edit constraints:**
+- Routings with Box Office (multi-warehouse): Users can add new warehouses
+- Online-only routings (single-warehouse): Users can only swap the warehouse for a different one; this automatically updates all channel mappings
+
+### Price Reference vs Channel-Warehouse Mapping
+
+These serve different purposes:
+
+| Concept | Purpose | Affects |
+|---------|---------|---------|
+| **Price Reference** | Determines which warehouse's prices are used for SessionTypes | Pricing across ALL channels |
+| **Channel-Warehouse Mapping** | Determines where stock is consumed when a sale occurs | Inventory only |
+
+**Example:**
 ```
 Channels: [Box Office, Fever Marketplace]
-Warehouses: [Main Store, Gift Shop]
+Warehouses: [Main Store ($10), Gift Shop ($12)]
+Price Reference: Main Store
 Mapping:
-  - Box Office → Main Store (individual POS configs can override)
+  - Box Office → All warehouses (POS devices choose individually)
   - Fever Marketplace → Gift Shop
+
+Result:
+  - All products priced at $10 (Main Store's prices)
+  - Box Office sales decrement Main Store or Gift Shop stock (per POS config)
+  - Marketplace sales decrement Gift Shop stock
 ```
 
-### Publication Rules
+### Distribution Rules
 
-A product is considered **published** if its warehouse is mapped to at least one channel in an active routing:
+A product is considered **distributed** if its warehouse is mapped to at least one channel in an active routing:
 
 ```
 FOR each routing:
   mappedWarehouses = values(routing.channelWarehouseMapping)
+  // For Box Office, all warehouseIds are implicitly mapped
+  IF routing has Box Office:
+    mappedWarehouses = mappedWarehouses + routing.warehouseIds
   IF product's warehouse is in mappedWarehouses:
-    product is PUBLISHED
+    product is DISTRIBUTED
 ```
 
-### Unpublished Product Warnings
+### Undistributed Product Warnings
 
-After syncing new products, the system identifies unpublished items and categorizes them:
+After syncing new products, the system identifies undistributed items and categorizes them:
 
 | Warning Type | Condition | Actionability |
 |--------------|-----------|---------------|
@@ -219,10 +246,10 @@ Event → Channels → Warehouses → Channel Routing → Review
 - Box Office note: "POS devices can be configured individually later"
 
 #### Step 5: Review & Create
-- Summary of all selections
-- Status selection (Draft/Active)
-- Routing name (required)
+- Summary of all selections (event, channels, warehouses, mappings)
+- Status selection (Draft/Active/Inactive)
 - Create button
+- Note: Routing is identified by the event name (no separate name field due to 1:1 relationship)
 
 ---
 
@@ -252,28 +279,44 @@ The mockup supports a full end-to-end demo starting from a blank slate.
 2. ~20 products are imported across the 3 warehouses
 3. All products show as "Unpublished" (no routings yet)
 
-#### Step 3: Create Box Office + Online Routing
+#### Step 3: Create Single-Channel Online Routing (Taylor Swift) - Simplest
 1. Navigate to Products → Sales Routing
 2. Click "Create new sales routing"
-3. Select event: **Candlelight: Tribute to Taylor Swift**
-4. Select channels: **Box Office** + **Fever Marketplace**
-5. Select warehouses: **Main Store** + **Gift Shop**
-6. Set price reference: **Main Store**
-7. Map channels:
-   - Box Office → Main Store
-   - Fever Marketplace → Gift Shop
-8. Enter name: "Taylor Swift Candlelight - All Channels"
-9. Create routing
+3. Select event: **Candlelight: Tribute to Taylor Swift** (1st in list - St. James Church, Madrid)
+4. Select channel: **Fever Marketplace** (single online channel)
+5. Select warehouse: **ES - Shops Square Testing** (only one warehouse needed)
+6. Create routing
 
-#### Step 4: Second Product Sync
+**Concept introduced:** Basic flow - products from one warehouse sold online at one event.
+
+#### Step 4: Create Multi-Channel Online Routing (Van Gogh) - Medium
+1. Create another routing for **Van Gogh: The Immersive Experience** (2nd in list - Exhibition Hall, Barcelona)
+2. Select channels: **Fever Marketplace** + **Whitelabel** (two online channels)
+3. Select single warehouse: **ES - Shops Shopify Testing** (online-only = single warehouse)
+4. Warehouse auto-assigned to both channels
+5. Create routing
+
+**Concept introduced:** Multiple online channels can share the same warehouse/stock source.
+
+#### Step 5: Create Hybrid Routing with Box Office (Hans Zimmer) - Complex
+1. Create routing for **Candlelight: Best of Hans Zimmer** (3rd in list - Teatro Real, Madrid)
+2. Select channels: **Box Office** + **Fever Marketplace** (hybrid: onsite + online)
+3. Box Office unlocks multi-warehouse selection
+4. Select warehouses: **ES - Shops Square Testing** + **ES - Shops Shopify Testing**
+5. Set price reference: **ES - Shops Square Testing** (determines pricing for all SessionTypes)
+6. Map channels:
+   - Box Office → All warehouses (each POS device chooses individually)
+   - Fever Marketplace → ES - Shops Shopify Testing (stock source only; uses price ref pricing)
+7. Create routing
+
+**Concepts introduced:** Box Office, multi-warehouse, price reference, channel-warehouse mapping for stock source.
+
+#### Step 6: Second Product Sync
 1. Return to Catalog Integration
 2. Click "Sync new products"
-3. 5 new products are imported:
-   - 2 to Main Store (auto-published via channel mapping)
-   - 1 to Gift Shop (auto-published via channel mapping)
-   - 2 to Pop-up Store (NOT published - no routing for this warehouse)
-4. Toast notification shows warning about unpublished products
-5. Products table shows differentiated warnings
+3. New products are imported and auto-distributed based on channel mappings
+4. Products in mapped warehouses show as "Distributed"
+5. Products in unmapped warehouses show warnings
 
 ---
 
@@ -281,18 +324,35 @@ The mockup supports a full end-to-end demo starting from a blank slate.
 
 ### Sales Routing List
 - Table showing all configured routings
-- Columns: Name, Channels, Event, Warehouse(s), Status
-- Price reference indicator (star icon) for multi-warehouse routings
+- Columns: Event (name + venue), Status, Distribution (expandable), Actions
+- Expandable rows show channel-warehouse mappings:
+  - Box Office channels group warehouses together (label shown once)
+  - Online channels show individual warehouse assignments
+  - Price reference indicator (star icon) for multi-warehouse routings
 - "Create new sales routing" CTA
-- Click row to edit
+- Events with existing routings are disabled in the creation wizard (1:1 relationship)
+- Click edit button to modify routing
 
 ### Create Routing Wizard
 See Section 5 for detailed flow.
 
 ### Edit Routing
-- **Immutable fields**: Channels, Event (shown as locked card)
-- **Editable fields**: Name, Channel-Warehouse Mapping, Status
-- **Delete** button with confirmation modal
+Single-page layout with all configuration in one scrollable view.
+
+**Immutable:**
+- Event (cannot be changed; routing is tied to event)
+
+**Editable:**
+- **Warehouses**: Can add new warehouses (if multi-warehouse/Box Office) or swap warehouse (if single/online-only)
+- **Price Reference**: Can change which warehouse provides the price reference
+- **Channels**: Can add new channels
+- **Channel-Warehouse Mapping**: Can change which warehouse serves each channel
+- **Status**: Draft / Active / Inactive
+
+**Constraints:**
+- Nothing can be deleted (warehouses, channels, or channel-warehouse relationships)
+- Routings cannot be deleted, only deactivated (set to Inactive status)
+- When swapping a single warehouse (online-only routing), all channel mappings auto-update
 
 ### Catalog Integration Page
 
@@ -309,15 +369,23 @@ See Section 5 for detailed flow.
 ### Product Filters
 - **Search**: Text search by name or SKU
 - **Warehouse**: Filter by specific warehouse
-- **Status**: All / Published / Unpublished
-- **Event**: Filter by event where published
-- **Sales Routing**: Filter by specific routing
+- **Distribution Status**: All / Distributed / Not distributed
+- **Event**: Filter by event where distributed
+- **Channel**: Filter by sales channel
+- **Category**: Filter by product category (imported from external system)
 
-### Publication Modal
+### Distribution Modal
+Renamed from "Publication Modal" for consistency with Sales Routing terminology.
+
 - Master-detail layout
-- Left: List of events where product is published
-- Right: Publication details (routing name, channels, stock source, session type ID)
+- Left sidebar: List of events where product is distributed
+- Right panel: Distribution details per event:
+  - Stock source (warehouse)
+  - Channels (with icons: Box Office, Online, or both)
+  - Box Office setups (if applicable)
+  - Session Type ID
 - First event auto-expanded
+- Channel icons displayed as small badges below venue name
 
 ---
 
@@ -346,15 +414,17 @@ src/
 │   │   ├── CatalogIntegrationPage.tsx
 │   │   ├── IntegrationDetails.tsx
 │   │   ├── CreateIntegrationWizard.tsx
-│   │   └── PublicationModal.tsx
-│   └── sales-routing/
-│       ├── SalesRoutingList.tsx
-│       ├── CreateRoutingWizard.tsx
-│       ├── EditRouting.tsx
-│       ├── ChannelSelector.tsx
-│       ├── WarehouseSelector.tsx
-│       ├── ChannelRoutingStep.tsx
-│       └── ReviewStep.tsx
+│   │   └── PublicationModal.tsx  # (Distribution details)
+│   ├── sales-routing/
+│   │   ├── SalesRoutingList.tsx
+│   │   ├── CreateRoutingWizard.tsx
+│   │   ├── EditRouting.tsx
+│   │   ├── ChannelSelector.tsx
+│   │   ├── WarehouseSelector.tsx
+│   │   ├── ChannelRoutingStep.tsx
+│   │   └── ReviewStep.tsx
+│   └── channels/
+│       └── ChannelsPage.tsx      # Placeholder for future feature
 ```
 
 ---
@@ -377,18 +447,26 @@ src/
 
 ## 10. Future Considerations
 
+### Channels Page (Placeholder Added)
+A placeholder page has been added at **Products → Channels** for future implementation of per-product channel visibility. This will allow:
+- Selecting a sales channel to configure
+- Choosing which products to show or hide per channel
+- Fine-tuning visibility per event if needed
+
+This is analogous to the ticket-type channel visibility feature in Fever Zone's Events section.
+
 ### Not in Current Scope
 - Multiple catalog integrations per partner
-- Product channel visibility (configuring which products appear in which channels)
+- Full product channel visibility implementation (placeholder exists)
 - Automated channel assignment rules
 - Inventory sync back to external systems
 - Real API integration
 
 ### Potential Enhancements
-- Per-product channel visibility configuration
-- Product category filters
+- Complete Channels page with product visibility configuration
 - Sales analytics per routing
 - Warehouse transfer functionality
+- Bulk product operations
 
 ---
 
@@ -402,9 +480,13 @@ src/
 | **Warehouse** | Product location with inventory |
 | **Channel** | Sales point (Box Office, Marketplace, etc.) |
 | **Channel-Warehouse Mapping** | Configuration linking each channel to a warehouse |
-| **Box Office** | Physical POS system for onsite sales |
-| **Price Reference** | Designated warehouse for resolving price conflicts |
-| **Session Type ID** | Internal Fever identifier for a product publication |
+| **Box Office** | Physical POS system for onsite sales (only onsite channel) |
+| **Price Reference** | Designated warehouse whose prices are used for ALL SessionTypes in the routing (stock can come from other warehouses) |
+| **Distribution** | Making a product available for sale through channels (formerly "Publication") |
+| **Session Type ID** | Internal Fever identifier for a product distribution |
+| **Multi-warehouse Routing** | Routing with Box Office channel, allowing multiple warehouses |
+| **Single-warehouse Routing** | Online-only routing, restricted to one warehouse |
+| **Category** | Product categorization imported from external system (Square/Shopify) |
 
 ---
 
