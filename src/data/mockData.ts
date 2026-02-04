@@ -48,22 +48,24 @@ export interface ProductWarehouse {
 export interface Channel {
   id: string;
   name: string;
-  type: 'marketplace' | 'whitelabel' | 'kiosk' | 'ota';
+  type: 'onsite' | 'marketplace' | 'whitelabel' | 'kiosk' | 'ota';
   icon?: string;
 }
 
+// DEPRECATED: Keeping for backwards compatibility during migration
 export type RoutingType = 'onsite' | 'online';
 export type RoutingStatus = 'active' | 'inactive' | 'draft';
 
 export interface SalesRouting {
   id: string;
-  name: string;
-  type: RoutingType;
+  name?: string; // DEPRECATED: Use event name instead (1:1 relationship)
+  type?: RoutingType; // DEPRECATED: No longer used in new data model
   eventId: string;
   warehouseIds: string[];
-  priceReferenceWarehouseId?: string; // Only for onsite with multiple warehouses
-  selectedProductIds?: string[]; // For online: which products to publish
-  channelIds?: string[]; // For online: which channels (applies to all selected products)
+  priceReferenceWarehouseId?: string; // Required when Box-Office channel selected with multiple warehouses
+  channelIds: string[]; // All selected channels (including Box-Office)
+  channelWarehouseMapping: Record<string, string>; // Maps each channel to one warehouse
+  selectedProductIds?: string[]; // DEPRECATED: Product visibility handled separately
   productChannelMapping?: Record<string, string[]>; // DEPRECATED: kept for backwards compat
   status: RoutingStatus;
   createdAt: string;
@@ -245,8 +247,9 @@ export const productWarehouses: ProductWarehouse[] = [
   { productId: 'p-new-003', warehouseId: 'wh-005', price: 42.00, currency: 'EUR', stock: 30 },  // → wh-005 has no routing
 ];
 
-// Mock Channels
+// Mock Channels - Box-Office is a special onsite channel
 export const channels: Channel[] = [
+  { id: 'box-office', name: 'Box Office', type: 'onsite' },
   { id: 'ch-001', name: 'Fever Marketplace', type: 'marketplace' },
   { id: 'ch-002', name: 'Whitelabel', type: 'whitelabel' },
   { id: 'ch-003', name: 'Kiosk', type: 'kiosk' },
@@ -255,61 +258,85 @@ export const channels: Channel[] = [
   { id: 'ch-006', name: 'Tiqets', type: 'ota' },
 ];
 
-// Mock Sales Routings
+// Helper to check if a channel is the Box Office (onsite)
+export function isBoxOfficeChannel(channelId: string): boolean {
+  return channelId === 'box-office';
+}
+
+// Helper to check if any selected channels are online (not Box Office)
+export function hasOnlineChannels(channelIds: string[]): boolean {
+  return channelIds.some(id => id !== 'box-office');
+}
+
+// Helper to check if Box Office is selected
+export function hasBoxOfficeChannel(channelIds: string[]): boolean {
+  return channelIds.includes('box-office');
+}
+
+// Mock Sales Routings - Updated to new data model with channelWarehouseMapping
 export const salesRoutings: SalesRouting[] = [
   {
     id: 'sr-001',
-    name: 'Candlelight Taylor Swift - Onsite Merch',
-    type: 'onsite',
     eventId: 'evt-001',
     warehouseIds: ['wh-001', 'wh-002'],
     priceReferenceWarehouseId: 'wh-001',
+    channelIds: ['box-office', 'ch-001'],
+    channelWarehouseMapping: {
+      'box-office': 'wh-001', // Box Office uses wh-001 (configured per setup later)
+      'ch-001': 'wh-002', // Fever Marketplace uses wh-002
+    },
     status: 'active',
     createdAt: '2026-01-15T10:30:00Z',
     updatedAt: '2026-01-20T14:45:00Z'
   },
   {
     id: 'sr-002',
-    name: 'Van Gogh Experience - Online Store',
-    type: 'online',
     eventId: 'evt-002',
     warehouseIds: ['wh-002'],
-    selectedProductIds: ['p-007', 'p-008', 'p-009', 'p-010', 'p-011'],
     channelIds: ['ch-001', 'ch-002'],
+    channelWarehouseMapping: {
+      'ch-001': 'wh-002',
+      'ch-002': 'wh-002',
+    },
     status: 'active',
     createdAt: '2026-01-10T09:00:00Z',
     updatedAt: '2026-01-25T16:20:00Z'
   },
   {
     id: 'sr-003',
-    name: 'Hans Zimmer - VIP Merchandise',
-    type: 'online',
     eventId: 'evt-003',
     warehouseIds: ['wh-001'],
-    selectedProductIds: ['p-001', 'p-002', 'p-004'],
     channelIds: ['ch-001', 'ch-004', 'ch-005'],
+    channelWarehouseMapping: {
+      'ch-001': 'wh-001',
+      'ch-004': 'wh-001',
+      'ch-005': 'wh-001',
+    },
     status: 'draft',
     createdAt: '2026-02-01T11:00:00Z',
     updatedAt: '2026-02-01T11:00:00Z'
   },
   {
     id: 'sr-004',
-    name: 'Tapas Tour - Food & Gifts',
-    type: 'onsite',
     eventId: 'evt-004',
     warehouseIds: ['wh-004'],
+    channelIds: ['box-office'],
+    channelWarehouseMapping: {
+      'box-office': 'wh-004',
+    },
     status: 'inactive',
     createdAt: '2025-12-20T08:30:00Z',
     updatedAt: '2026-01-05T10:00:00Z'
   },
   {
     id: 'sr-005',
-    name: 'Stranger Things - Online Add-ons',
-    type: 'online',
     eventId: 'evt-005',
     warehouseIds: ['wh-006'],
-    selectedProductIds: [], // Empty - no products selected yet
     channelIds: ['ch-001', 'ch-002'],
+    channelWarehouseMapping: {
+      'ch-001': 'wh-006',
+      'ch-002': 'wh-006',
+    },
     status: 'active',
     createdAt: '2026-01-28T09:00:00Z',
     updatedAt: '2026-01-28T09:00:00Z'
@@ -490,12 +517,11 @@ export function getProductPublications(productId: string): ResolvedProductPublic
 // Publication status helpers
 export type UnpublishedReason = 
   | { type: 'no-routing' }  // Warehouse has no routing at all
-  | { type: 'not-selected'; routings: SalesRouting[] };  // Online routing exists but product not selected
+  | { type: 'not-selected'; routings: SalesRouting[] };  // Routing exists but product not in selected channels
 
 /**
  * Check if a product is published anywhere.
- * - Onsite routings: all products in warehouse are automatically published
- * - Online routings: only products in selectedProductIds are published
+ * A product is published if it's in a warehouse that's mapped to at least one channel.
  */
 export function isProductPublished(productId: string): boolean {
   // Get warehouses this product is in
@@ -504,24 +530,10 @@ export function isProductPublished(productId: string): boolean {
     .map(pw => pw.warehouseId);
   
   return salesRoutings.some(routing => {
-    // Check if this routing uses any of the product's warehouses
-    const routingUsesProductWarehouse = routing.warehouseIds.some(whId => 
-      productWarehouseIds.includes(whId)
+    // Check if any of the product's warehouses is used in this routing's channel mappings
+    return Object.values(routing.channelWarehouseMapping).some(warehouseId => 
+      productWarehouseIds.includes(warehouseId)
     );
-    
-    if (!routingUsesProductWarehouse) return false;
-    
-    if (routing.type === 'onsite') {
-      // Onsite: all products in warehouse are automatically published
-      return true;
-    }
-    
-    if (routing.type === 'online') {
-      // Online: only products in selectedProductIds are published
-      return routing.selectedProductIds?.includes(productId) ?? false;
-    }
-    
-    return false;
   });
 }
 
@@ -529,7 +541,7 @@ export function isProductPublished(productId: string): boolean {
  * Returns the reason why a product is unpublished, or null if published.
  * Distinguishes between:
  * - 'no-routing': No sales routing exists for the product's warehouses
- * - 'not-selected': Online routing(s) exist but product isn't in selectedProductIds
+ * - 'not-selected': Routing(s) exist for warehouse but product not in channel mapping
  */
 export function getUnpublishedReason(productId: string): UnpublishedReason | null {
   if (isProductPublished(productId)) return null;
@@ -539,15 +551,14 @@ export function getUnpublishedReason(productId: string): UnpublishedReason | nul
     .filter(pw => pw.productId === productId)
     .map(pw => pw.warehouseId);
   
-  // Find online routings for these warehouses where product could be added
-  const availableOnlineRoutings = salesRoutings.filter(routing => 
-    routing.type === 'online' && 
+  // Find routings that use any of this product's warehouses
+  const availableRoutings = salesRoutings.filter(routing => 
     routing.warehouseIds.some(whId => productWarehouseIds.includes(whId))
   );
   
-  if (availableOnlineRoutings.length > 0) {
-    // Product could be added to these routings
-    return { type: 'not-selected', routings: availableOnlineRoutings };
+  if (availableRoutings.length > 0) {
+    // Routing exists but product's warehouse isn't mapped to any channel
+    return { type: 'not-selected', routings: availableRoutings };
   }
   
   // No routing exists for this product's warehouses

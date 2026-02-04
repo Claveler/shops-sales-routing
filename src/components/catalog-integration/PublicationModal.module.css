@@ -119,25 +119,18 @@
   box-shadow: inset 3px 0 0 var(--fz-primary);
 }
 
-.typeIcon {
+/* Event Thumbnail - List Item */
+.eventThumbnail {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 6px;
+  background: #e9ecef;
+  color: #adb5bd;
   font-size: 12px;
   flex-shrink: 0;
-}
-
-.typeIcon.onsite {
-  background: rgba(139, 92, 246, 0.15);
-  color: #7c3aed;
-}
-
-.typeIcon.online {
-  background: rgba(0, 137, 227, 0.15);
-  color: var(--fz-primary);
 }
 
 .listItemInfo {
@@ -149,6 +142,9 @@
 }
 
 .listEventName {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 13px;
   font-weight: 500;
   color: var(--fz-text-primary);
@@ -156,6 +152,12 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.boxOfficeIndicator {
+  font-size: 10px;
+  color: #7c3aed;
+  flex-shrink: 0;
 }
 
 .listRoutingName {
@@ -186,25 +188,18 @@
   border-bottom: 1px solid #e9ecef;
 }
 
-.detailTypeIcon {
+/* Event Thumbnail - Detail Header */
+.detailThumbnail {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #e9ecef;
+  color: #adb5bd;
   font-size: 18px;
   flex-shrink: 0;
-}
-
-.detailTypeIcon.onsite {
-  background: rgba(139, 92, 246, 0.15);
-  color: #7c3aed;
-}
-
-.detailTypeIcon.online {
-  background: rgba(0, 137, 227, 0.15);
-  color: var(--fz-primary);
 }
 
 .detailHeaderInfo {
@@ -285,6 +280,13 @@
 .priceRef {
   font-size: 12px;
   color: #7c3aed;
+  font-style: italic;
+}
+
+/* Empty state message */
+.emptyMessage {
+  font-size: 13px;
+  color: #9ca3af;
   font-style: italic;
 }
 

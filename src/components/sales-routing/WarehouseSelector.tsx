@@ -1,20 +1,20 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faBox, faSquare, faStar as faStarSolid, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faBox, faSquare, faStar as faStarSolid, faMagicWandSparkles, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faStarOutline } from '@fortawesome/free-regular-svg-icons';
 import { faShopify } from '@fortawesome/free-brands-svg-icons';
 import { Badge } from '../common/Badge';
 import { useDemo } from '../../context/DemoContext';
-import { warehouses as staticWarehouses } from '../../data/mockData';
+import { warehouses as staticWarehouses, hasBoxOfficeChannel, hasOnlineChannels } from '../../data/mockData';
 import { DEMO_WAREHOUSE_1_ID, DEMO_WAREHOUSE_2_ID, DEMO_WAREHOUSE_3_ID } from '../../data/productPool';
-import type { RoutingType } from '../../data/mockData';
 import styles from './WarehouseSelector.module.css';
 
 interface WarehouseSelectorProps {
   value: string[];
   onChange: (warehouseIds: string[]) => void;
-  routingType: RoutingType;
+  allowMultiple: boolean;
   priceReferenceId?: string | null;
   onPriceReferenceChange?: (warehouseId: string) => void;
+  selectedChannelIds: string[];
 }
 
 const integrationIcons: Record<string, typeof faSquare> = {
@@ -26,9 +26,10 @@ const integrationIcons: Record<string, typeof faSquare> = {
 export function WarehouseSelector({ 
   value, 
   onChange, 
-  routingType,
+  allowMultiple,
   priceReferenceId,
-  onPriceReferenceChange 
+  onPriceReferenceChange,
+  selectedChannelIds
 }: WarehouseSelectorProps) {
   const demo = useDemo();
   // Use demo warehouses if in reset mode, otherwise use static
@@ -46,19 +47,31 @@ export function WarehouseSelector({
     return warehouse?.productCount || 0;
   };
   
-  const isMultiSelect = routingType === 'onsite';
-  const showPriceReference = isMultiSelect && value.length >= 2;
+  const showPriceReference = allowMultiple && value.length >= 2;
+
+  // Determine explanation text based on channel selection
+  const hasBoxOffice = hasBoxOfficeChannel(selectedChannelIds);
+  const hasOnline = hasOnlineChannels(selectedChannelIds);
+  
+  let explanationText = '';
+  if (hasBoxOffice && hasOnline) {
+    explanationText = 'Box Office channel allows multiple warehouses. You\'ll configure which warehouse serves each channel in the next step.';
+  } else if (hasBoxOffice && !hasOnline) {
+    explanationText = 'For Box Office, you can select multiple warehouses. Individual POS devices can pull stock from different warehouses (configured separately).';
+  } else if (!hasBoxOffice && hasOnline) {
+    explanationText = 'Online channels require a single warehouse to ensure consistent pricing and stock tracking.';
+  }
 
   const handleSelect = (warehouseId: string) => {
-    if (isMultiSelect) {
-      // Multi-select for onsite
+    if (allowMultiple) {
+      // Multi-select
       if (value.includes(warehouseId)) {
         onChange(value.filter(id => id !== warehouseId));
       } else {
         onChange([...value, warehouseId]);
       }
     } else {
-      // Single-select for online
+      // Single-select
       onChange([warehouseId]);
     }
   };
@@ -79,9 +92,8 @@ export function WarehouseSelector({
   };
 
   const handleFillDemoData = () => {
-    if (isMultiSelect) {
-      // Onsite: select Main Store + Gift Shop to demonstrate price reference feature
-      // This leaves Pop-up Store without routing (for "No sales routing" demo)
+    if (allowMultiple) {
+      // Multi-select: select Main Store + Gift Shop to demonstrate price reference feature
       const demoWarehouseIds = warehouses
         .filter(w => w.id === DEMO_WAREHOUSE_1_ID || w.id === DEMO_WAREHOUSE_2_ID)
         .map(w => w.id);
@@ -91,20 +103,20 @@ export function WarehouseSelector({
         onPriceReferenceChange(DEMO_WAREHOUSE_1_ID);
       }
     } else {
-      // Online: select Pop-up Store
-      // This demonstrates: new products synced to Pop-up Store will show
-      // "Not added to sales routing" because they're not in selectedProductIds
+      // Single-select: select Pop-up Store (for online-only routing demo)
       const popupStore = warehouses.find(w => w.id === DEMO_WAREHOUSE_3_ID);
       if (popupStore) {
         onChange([popupStore.id]);
+      } else if (warehouses.length > 0) {
+        onChange([warehouses[0].id]);
       }
     }
   };
 
-  const title = isMultiSelect ? 'Select warehouse(s)' : 'Select warehouse';
-  const subtitle = isMultiSelect
-    ? 'Choose which warehouses to pull stock from. The specific warehouse used will be configured per plan in the Box Office. Warehouses are configured in the Catalog integration tab.'
-    : 'Choose the warehouse to pull stock from for this routing. Warehouses are configured in the Catalog integration tab.';
+  const title = allowMultiple ? 'Select warehouse(s)' : 'Select warehouse';
+  const subtitle = allowMultiple
+    ? 'Choose which warehouses to include in this sales routing.'
+    : 'Choose the warehouse to use for this sales routing.';
 
   return (
     <div className={styles.container}>
@@ -121,6 +133,13 @@ export function WarehouseSelector({
         )}
       </div>
 
+      {explanationText && (
+        <div className={styles.explanationBox}>
+          <FontAwesomeIcon icon={faInfoCircle} className={styles.explanationIcon} />
+          <span>{explanationText}</span>
+        </div>
+      )}
+
       {showPriceReference && (
         <div className={styles.priceReferenceHint}>
           <FontAwesomeIcon icon={faStarSolid} className={styles.hintIcon} />
@@ -131,7 +150,7 @@ export function WarehouseSelector({
         </div>
       )}
 
-      {isMultiSelect && (
+      {allowMultiple && (
         <div className={styles.selectAllWrapper}>
           <button 
             className={styles.selectAllBtn}
@@ -159,9 +178,9 @@ export function WarehouseSelector({
               className={`${styles.warehouseItem} ${isSelected ? styles.selected : ''}`}
               onClick={() => handleSelect(warehouse.id)}
             >
-              <div className={`${isMultiSelect ? styles.checkbox : styles.radio} ${isSelected ? styles.checked : ''}`}>
+              <div className={`${allowMultiple ? styles.checkbox : styles.radio} ${isSelected ? styles.checked : ''}`}>
                 {isSelected && (
-                  isMultiSelect 
+                  allowMultiple 
                     ? <FontAwesomeIcon icon={faCheck} />
                     : <div className={styles.radioInner} />
                 )}
@@ -213,6 +232,10 @@ export function WarehouseSelector({
           } from {value.length} warehouse{value.length > 1 ? 's' : ''}
         </div>
       )}
+
+      <div className={styles.configNote}>
+        <p>Warehouses are configured in the <strong>Catalog integration</strong> tab.</p>
+      </div>
     </div>
   );
 }

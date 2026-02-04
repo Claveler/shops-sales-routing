@@ -273,3 +273,50 @@
   border-color: var(--fz-primary);
   background: rgba(0, 137, 227, 0.05);
 }
+
+/* Channel Icon in Badge */
+.channelIcon {
+  margin-right: 4px;
+  font-size: 10px;
+}
+
+/* Channel-Warehouse Mapping List */
+.mappingList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fz-spacing-sm);
+  margin-top: var(--fz-spacing-sm);
+}
+
+.mappingItem {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  padding: var(--fz-spacing-sm) var(--fz-spacing-md);
+  background: var(--fz-bg-content);
+  border-radius: var(--fz-border-radius);
+  font-size: var(--fz-font-size-sm);
+}
+
+.mappingChannel {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-xs);
+  color: var(--fz-text-primary);
+  font-weight: 500;
+  min-width: 160px;
+}
+
+.mappingChannel svg {
+  color: var(--fz-text-secondary);
+  font-size: 12px;
+}
+
+.mappingArrow {
+  color: var(--fz-text-muted);
+  font-size: 10px;
+}
+
+.mappingWarehouse {
+  color: var(--fz-text-secondary);
+}

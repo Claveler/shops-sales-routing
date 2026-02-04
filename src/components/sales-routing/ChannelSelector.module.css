@@ -55,6 +55,22 @@
   transform: translateY(0);
 }
 
+/* Section */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--fz-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
 /* Channel list */
 .channelList {
   display: flex;
@@ -88,6 +104,32 @@
 
 .channelItem.selected:hover {
   background: rgba(0, 137, 227, 0.08);
+}
+
+/* Box Office special styling */
+.channelItem.boxOffice {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.channelItem.boxOffice:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);
+  border-color: rgba(245, 158, 11, 0.5);
+}
+
+.channelItem.boxOffice.selected {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(245, 158, 11, 0.08) 100%);
+}
+
+.boxOfficeIcon {
+  background: rgba(245, 158, 11, 0.15) !important;
+  color: #d97706 !important;
+}
+
+.channelItem.boxOffice.selected .checkbox.checked {
+  background: #f59e0b;
+  border-color: #f59e0b;
 }
 
 /* Checkbox */
@@ -153,11 +195,18 @@
   padding: 14px 18px;
   background: #f8f9fa;
   border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .note p {
   font-size: 13px;
   color: var(--fz-text-secondary);
   margin: 0;
-  text-align: center;
+  line-height: 1.5;
+}
+
+.note p strong {
+  color: var(--fz-text-primary);
 }

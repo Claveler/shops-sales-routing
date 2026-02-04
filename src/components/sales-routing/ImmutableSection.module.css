@@ -108,6 +108,60 @@
 .typeDescription {
   font-size: 11px;
   color: var(--fz-text-secondary);
+  margin-top: 4px;
+}
+
+.channelList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.channelBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.channelBadge svg {
+  font-size: 10px;
+  color: #6b7280;
+}
+
+.channelBadge.boxOffice {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.channelBadge.boxOffice svg {
+  color: #f59e0b;
+}
+
+.warehouseList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.warehouseBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 4px;
+  font-size: 12px;
+  color: #3b82f6;
+}
+
+.warehouseBadge svg {
+  font-size: 10px;
+  color: #60a5fa;
 }
 
 .eventDisplay {

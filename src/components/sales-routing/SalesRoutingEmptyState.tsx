@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRoute, faPlus, faLink, faStore, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faRoute, faPlus, faLink } from '@fortawesome/free-solid-svg-icons';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import styles from './SalesRoutingEmptyState.module.css';
@@ -64,28 +64,22 @@ export function SalesRoutingEmptyState({
         <h2 className={styles.title}>No sales routings configured</h2>
         
         <p className={styles.description}>
-          Sales routings connect your product catalog to events, making products available 
-          for sale either at physical locations (Box Office) or through online channels.
+          Sales routings connect your product catalog to events. Choose which channels to sell 
+          through — Box Office for physical POS terminals, or online channels like Marketplace and Whitelabel.
         </p>
         
         <div className={styles.features}>
           <div className={styles.feature}>
-            <span className={`${styles.featureIconType} ${styles.onsite}`}>
-              <FontAwesomeIcon icon={faStore} />
-            </span>
-            <div className={styles.featureContent}>
-              <span className={styles.featureTitle}>Onsite routing</span>
-              <span className={styles.featureDesc}>Sell products at Box Office terminals during events</span>
-            </div>
+            <span className={styles.featureIcon}>1</span>
+            <span className={styles.featureText}>Select an event to publish products to</span>
           </div>
           <div className={styles.feature}>
-            <span className={`${styles.featureIconType} ${styles.online}`}>
-              <FontAwesomeIcon icon={faGlobe} />
-            </span>
-            <div className={styles.featureContent}>
-              <span className={styles.featureTitle}>Online routing</span>
-              <span className={styles.featureDesc}>Publish products to Marketplace, Whitelabel, or OTAs</span>
-            </div>
+            <span className={styles.featureIcon}>2</span>
+            <span className={styles.featureText}>Choose your sales channels (Box Office, Marketplace, etc.)</span>
+          </div>
+          <div className={styles.feature}>
+            <span className={styles.featureIcon}>3</span>
+            <span className={styles.featureText}>Connect warehouses to each channel</span>
           </div>
         </div>
         

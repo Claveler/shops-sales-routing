@@ -5,14 +5,14 @@ import { faArrowLeft, faArrowRight, faCheck } from '@fortawesome/free-solid-svg-
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { Breadcrumb } from '../common/Breadcrumb';
-import { TypeSelector } from './TypeSelector';
 import { EventSelector } from './EventSelector';
 import { WarehouseSelector } from './WarehouseSelector';
-import { ProductSelector } from './ProductSelector';
 import { ChannelSelector } from './ChannelSelector';
+import { ChannelRoutingStep } from './ChannelRoutingStep';
 import { ReviewStep } from './ReviewStep';
 import { useDemo } from '../../context/DemoContext';
-import type { RoutingType, RoutingStatus } from '../../data/mockData';
+import { hasBoxOfficeChannel, isBoxOfficeChannel } from '../../data/mockData';
+import type { RoutingStatus } from '../../data/mockData';
 import styles from './CreateRoutingWizard.module.css';
 
 interface WizardStep {
@@ -21,19 +21,12 @@ interface WizardStep {
   isOptional?: boolean;
 }
 
-const baseSteps: WizardStep[] = [
-  { id: 'type', title: 'Type' },
+// Unified wizard steps for all routing types
+const wizardSteps: WizardStep[] = [
   { id: 'event', title: 'Event' },
-  { id: 'warehouse', title: 'Warehouse' },
-  { id: 'review', title: 'Review' },
-];
-
-const onlineSteps: WizardStep[] = [
-  { id: 'type', title: 'Type' },
-  { id: 'event', title: 'Event' },
-  { id: 'warehouse', title: 'Warehouse' },
-  { id: 'products', title: 'Products' },
   { id: 'channels', title: 'Channels' },
+  { id: 'warehouse', title: 'Warehouses' },
+  { id: 'channel-routing', title: 'Routing' },
   { id: 'review', title: 'Review' },
 ];
 
@@ -42,62 +35,94 @@ export function CreateRoutingWizard() {
   const demo = useDemo();
   
   // Form state
-  const [routingName, setRoutingName] = useState<string>('');
-  const [routingType, setRoutingType] = useState<RoutingType | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
   const [selectedWarehouseIds, setSelectedWarehouseIds] = useState<string[]>([]);
   const [priceReferenceWarehouseId, setPriceReferenceWarehouseId] = useState<string | null>(null);
-  const [selectedProductIds, setSelectedProductIds] = useState<string[]>([]);
-  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
+  const [channelWarehouseMapping, setChannelWarehouseMapping] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<RoutingStatus>('draft');
-  
-  // Handle warehouse selection changes and auto-set price reference
-  const handleWarehouseChange = (warehouseIds: string[]) => {
-    setSelectedWarehouseIds(warehouseIds);
-    
-    // Auto-manage price reference for onsite routings
-    if (routingType === 'onsite') {
-      if (warehouseIds.length === 0) {
-        // No warehouses selected, clear price reference
-        setPriceReferenceWarehouseId(null);
-      } else if (warehouseIds.length === 1) {
-        // Single warehouse selected, auto-set as price reference
-        setPriceReferenceWarehouseId(warehouseIds[0]);
-      } else if (!priceReferenceWarehouseId || !warehouseIds.includes(priceReferenceWarehouseId)) {
-        // Multiple warehouses but current reference not in selection, set first one
-        setPriceReferenceWarehouseId(warehouseIds[0]);
-      }
-      // Otherwise keep current price reference
-    }
-  };
   
   // Wizard state
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   
-  const steps = routingType === 'online' ? onlineSteps : baseSteps;
-  const currentStep = steps[currentStepIndex];
+  // Derived state based on channel selection
+  const hasBoxOffice = hasBoxOfficeChannel(selectedChannelIds);
+  
+  // Warehouse selection rules:
+  // - Box-Office only: multiple warehouses allowed, price ref needed if >1
+  // - Online only: single warehouse only
+  // - Both: multiple warehouses allowed, price ref needed if >1
+  const allowMultipleWarehouses = hasBoxOffice;
+  const requiresPriceReference = hasBoxOffice && selectedWarehouseIds.length > 1;
+  
+  // Handle warehouse selection changes
+  const handleWarehouseChange = (warehouseIds: string[]) => {
+    // If online-only and trying to select multiple, keep only first
+    if (!allowMultipleWarehouses && warehouseIds.length > 1) {
+      setSelectedWarehouseIds([warehouseIds[warehouseIds.length - 1]]);
+      return;
+    }
+    
+    setSelectedWarehouseIds(warehouseIds);
+    
+    // Auto-manage price reference
+    if (warehouseIds.length === 0) {
+      setPriceReferenceWarehouseId(null);
+    } else if (warehouseIds.length === 1) {
+      setPriceReferenceWarehouseId(warehouseIds[0]);
+    } else if (!priceReferenceWarehouseId || !warehouseIds.includes(priceReferenceWarehouseId)) {
+      setPriceReferenceWarehouseId(warehouseIds[0]);
+    }
+    
+    // Reset channel-warehouse mapping when warehouses change
+    setChannelWarehouseMapping({});
+  };
+  
+  // Handle channel selection changes
+  const handleChannelChange = (channelIds: string[]) => {
+    setSelectedChannelIds(channelIds);
+    
+    // If switching from Box-Office to online-only, limit warehouses to 1
+    const newHasBoxOffice = hasBoxOfficeChannel(channelIds);
+    if (!newHasBoxOffice && selectedWarehouseIds.length > 1) {
+      setSelectedWarehouseIds([selectedWarehouseIds[0]]);
+      setPriceReferenceWarehouseId(null);
+    }
+    
+    // Reset channel-warehouse mapping when channels change
+    setChannelWarehouseMapping({});
+  };
+  
+  const currentStep = wizardSteps[currentStepIndex];
   
   const canProceed = () => {
     switch (currentStep.id) {
-      case 'type':
-        return routingType !== null;
       case 'event':
         return selectedEventId !== null;
-      case 'warehouse':
-        return selectedWarehouseIds.length > 0;
-      case 'products':
-        return selectedProductIds.length > 0;
       case 'channels':
         return selectedChannelIds.length > 0;
-      case 'review':
+      case 'warehouse':
+        if (selectedWarehouseIds.length === 0) return false;
+        if (requiresPriceReference && !priceReferenceWarehouseId) return false;
         return true;
+      case 'channel-routing':
+        // Only online channels need warehouse mapping (Box Office is configured in Box Office Setup)
+        const onlineChannelIds = selectedChannelIds.filter(id => !isBoxOfficeChannel(id));
+        // If there are no online channels, we can proceed
+        if (onlineChannelIds.length === 0) return true;
+        return onlineChannelIds.every(channelId => 
+          channelWarehouseMapping[channelId] && 
+          selectedWarehouseIds.includes(channelWarehouseMapping[channelId])
+        );
+      case 'review':
+        return true; // Review step is always ready
       default:
         return false;
     }
   };
   
   const handleNext = () => {
-    if (currentStepIndex < steps.length - 1) {
+    if (currentStepIndex < wizardSteps.length - 1) {
       setCurrentStepIndex(currentStepIndex + 1);
     }
   };
@@ -109,15 +134,12 @@ export function CreateRoutingWizard() {
   };
   
   const handleCreate = () => {
-    // In demo mode, save to context; otherwise just log
     const routingData = {
-      name: routingName.trim(),
-      type: routingType!,
       eventId: selectedEventId!,
       warehouseIds: selectedWarehouseIds,
-      priceReferenceWarehouseId: routingType === 'onsite' && selectedWarehouseIds.length > 1 ? (priceReferenceWarehouseId || undefined) : undefined,
-      selectedProductIds: routingType === 'online' ? selectedProductIds : undefined,
-      channelIds: routingType === 'online' ? selectedChannelIds : undefined,
+      channelIds: selectedChannelIds,
+      channelWarehouseMapping,
+      priceReferenceWarehouseId: requiresPriceReference ? (priceReferenceWarehouseId || undefined) : undefined,
       status,
     };
 
@@ -137,40 +159,18 @@ export function CreateRoutingWizard() {
   
   const renderStep = () => {
     switch (currentStep.id) {
-      case 'type':
-        return (
-          <TypeSelector 
-            value={routingType} 
-            onChange={(type) => {
-              const previousType = routingType;
-              setRoutingType(type);
-              
-              // Reset online-specific state if switching to onsite
-              if (type === 'onsite') {
-                setSelectedProductIds([]);
-                setSelectedChannelIds([]);
-              }
-              
-              // If switching from onsite to online and multiple warehouses selected,
-              // keep only the first one since online only allows single warehouse
-              if (type === 'online' && previousType === 'onsite' && selectedWarehouseIds.length > 1) {
-                setSelectedWarehouseIds([selectedWarehouseIds[0]]);
-                setPriceReferenceWarehouseId(null); // Clear price reference for online
-              }
-              
-              // If switching to online, clear price reference (not used for online)
-              if (type === 'online') {
-                setPriceReferenceWarehouseId(null);
-              }
-            }} 
-          />
-        );
       case 'event':
         return (
           <EventSelector 
             value={selectedEventId} 
             onChange={setSelectedEventId}
-            routingType={routingType}
+          />
+        );
+      case 'channels':
+        return (
+          <ChannelSelector 
+            selectedChannelIds={selectedChannelIds}
+            onChange={handleChannelChange}
           />
         );
       case 'warehouse':
@@ -178,40 +178,31 @@ export function CreateRoutingWizard() {
           <WarehouseSelector 
             value={selectedWarehouseIds} 
             onChange={handleWarehouseChange}
-            routingType={routingType!}
+            allowMultiple={allowMultipleWarehouses}
             priceReferenceId={priceReferenceWarehouseId}
             onPriceReferenceChange={setPriceReferenceWarehouseId}
-          />
-        );
-      case 'products':
-        return (
-          <ProductSelector 
-            warehouseId={selectedWarehouseIds[0]}
-            selectedProductIds={selectedProductIds}
-            onChange={setSelectedProductIds}
-          />
-        );
-      case 'channels':
-        return (
-          <ChannelSelector 
             selectedChannelIds={selectedChannelIds}
-            onChange={setSelectedChannelIds}
-            productCount={selectedProductIds.length}
+          />
+        );
+      case 'channel-routing':
+        return (
+          <ChannelRoutingStep
+            selectedChannelIds={selectedChannelIds}
+            selectedWarehouseIds={selectedWarehouseIds}
+            channelWarehouseMapping={channelWarehouseMapping}
+            onChange={setChannelWarehouseMapping}
           />
         );
       case 'review':
         return (
           <ReviewStep 
-            type={routingType!}
             eventId={selectedEventId!}
+            channelIds={selectedChannelIds}
             warehouseIds={selectedWarehouseIds}
             priceReferenceWarehouseId={priceReferenceWarehouseId}
-            selectedProductIds={selectedProductIds}
-            channelIds={selectedChannelIds}
+            channelWarehouseMapping={channelWarehouseMapping}
             status={status}
             onStatusChange={setStatus}
-            name={routingName}
-            onNameChange={setRoutingName}
           />
         );
       default:
@@ -219,7 +210,7 @@ export function CreateRoutingWizard() {
     }
   };
   
-  const isLastStep = currentStepIndex === steps.length - 1;
+  const isLastStep = currentStepIndex === wizardSteps.length - 1;
   
   return (
     <div className={styles.container}>
@@ -239,7 +230,7 @@ export function CreateRoutingWizard() {
         <div className={styles.cardInner}>
           {/* Progress Steps */}
           <div className={styles.progressBar}>
-            {steps.map((step, index) => (
+            {wizardSteps.map((step, index) => (
               <div 
                 key={step.id}
                 className={`${styles.progressStep} ${index <= currentStepIndex ? styles.active : ''} ${index < currentStepIndex ? styles.completed : ''}`}
@@ -252,7 +243,7 @@ export function CreateRoutingWizard() {
                   )}
                 </div>
                 <span className={styles.stepLabel}>{step.title}</span>
-                {index < steps.length - 1 && <div className={styles.stepConnector} />}
+                {index < wizardSteps.length - 1 && <div className={styles.stepConnector} />}
               </div>
             ))}
           </div>
@@ -284,7 +275,7 @@ export function CreateRoutingWizard() {
                   variant="primary"
                   icon={faCheck}
                   onClick={handleCreate}
-                  disabled={!canProceed() || !routingName.trim()}
+                  disabled={!canProceed()}
                 >
                   Create routing
                 </Button>

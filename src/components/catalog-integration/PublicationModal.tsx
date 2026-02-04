@@ -6,17 +6,18 @@ import {
   faExternalLinkAlt, 
   faCopy, 
   faCheck, 
-  faStore, 
   faGlobe, 
-  faBoxes, 
-  faShoppingCart 
+  faBoxes,
+  faCashRegister,
+  faImage
 } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
 import { 
   getProductWarehouseDetails, 
   getWarehouseById as getStaticWarehouseById, 
   getBoxOfficeSetupsByRoutingId, 
-  getChannelById 
+  getChannelById,
+  hasBoxOfficeChannel
 } from '../../data/mockData';
 import type { ResolvedProductPublication } from '../../data/mockData';
 import styles from './PublicationModal.module.css';
@@ -31,8 +32,8 @@ interface PublicationModalProps {
 
 // Get the price warehouse for a sales routing
 function getPriceWarehouseId(salesRouting: ResolvedProductPublication['salesRouting']): string {
-  // For onsite with multiple warehouses, use price reference warehouse
-  if (salesRouting.type === 'onsite' && salesRouting.priceReferenceWarehouseId) {
+  // For Box Office with multiple warehouses, use price reference warehouse
+  if (salesRouting.priceReferenceWarehouseId) {
     return salesRouting.priceReferenceWarehouseId;
   }
   // Otherwise, use the first (or only) warehouse
@@ -95,7 +96,7 @@ export function PublicationModal({
   const selectedPub = publications[selectedIndex];
   const priceWarehouseId = getPriceWarehouseId(selectedPub.salesRouting);
   const priceDetails = getProductWarehouseDetailsLocal(productId, priceWarehouseId);
-  const isOnsite = selectedPub.salesRouting.type === 'onsite';
+  const hasBoxOffice = hasBoxOfficeChannel(selectedPub.salesRouting.channelIds);
   
   // Get warehouse names
   const warehouseNames = selectedPub.salesRouting.warehouseIds
@@ -105,11 +106,13 @@ export function PublicationModal({
     ? getWarehouseById(selectedPub.salesRouting.priceReferenceWarehouseId)?.name 
     : null;
   
-  // Get selling locations
-  const boxOfficeSetups = isOnsite 
+  // Get Box Office setups
+  const boxOfficeSetups = hasBoxOffice 
     ? getBoxOfficeSetupsByRoutingId(selectedPub.salesRouting.id) 
     : [];
-  const channels = !isOnsite && selectedPub.salesRouting.channelIds
+  
+  // Get ALL channel names for the Channels card
+  const allChannelNames = selectedPub.salesRouting.channelIds
     ? selectedPub.salesRouting.channelIds
         .map(id => getChannelById(id)?.name)
         .filter(Boolean)
@@ -123,7 +126,7 @@ export function PublicationModal({
           <div className={styles.headerContent}>
             <h2 className={styles.productName}>{productName}</h2>
             <span className={styles.subtitle}>
-              Published in {publications.length} event{publications.length > 1 ? 's' : ''}
+              Distributed to {publications.length} event{publications.length > 1 ? 's' : ''}
             </span>
           </div>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
@@ -136,8 +139,8 @@ export function PublicationModal({
           {/* Left column - List */}
           <div className={styles.listColumn}>
             {publications.map((pub, index) => {
-              const pubIsOnsite = pub.salesRouting.type === 'onsite';
               const isSelected = index === selectedIndex;
+              const pubHasBoxOffice = hasBoxOfficeChannel(pub.salesRouting.channelIds);
               
               return (
                 <button
@@ -145,12 +148,17 @@ export function PublicationModal({
                   className={`${styles.listItem} ${isSelected ? styles.active : ''}`}
                   onClick={() => setSelectedIndex(index)}
                 >
-                  <span className={`${styles.typeIcon} ${pubIsOnsite ? styles.onsite : styles.online}`}>
-                    <FontAwesomeIcon icon={pubIsOnsite ? faStore : faGlobe} />
+                  <span className={styles.eventThumbnail}>
+                    <FontAwesomeIcon icon={faImage} />
                   </span>
                   <div className={styles.listItemInfo}>
-                    <span className={styles.listEventName}>{pub.event.name}</span>
-                    <span className={styles.listRoutingName}>via {pub.salesRouting.name}</span>
+                    <span className={styles.listEventName}>
+                      {pubHasBoxOffice && (
+                        <FontAwesomeIcon icon={faCashRegister} className={styles.boxOfficeIndicator} />
+                      )}
+                      {pub.event.name}
+                    </span>
+                    <span className={styles.listRoutingName}>{pub.event.venue}</span>
                   </div>
                 </button>
               );
@@ -161,12 +169,12 @@ export function PublicationModal({
           <div className={styles.detailColumn}>
             {/* Detail Header */}
             <div className={styles.detailHeader}>
-              <span className={`${styles.detailTypeIcon} ${isOnsite ? styles.onsite : styles.online}`}>
-                <FontAwesomeIcon icon={isOnsite ? faStore : faGlobe} />
+              <span className={styles.detailThumbnail}>
+                <FontAwesomeIcon icon={faImage} />
               </span>
               <div className={styles.detailHeaderInfo}>
                 <h3 className={styles.detailEventName}>{selectedPub.event.name}</h3>
-                <span className={styles.detailRoutingName}>via {selectedPub.salesRouting.name}</span>
+                <span className={styles.detailRoutingName}>{selectedPub.event.venue}, {selectedPub.event.city}</span>
               </div>
               {priceDetails && (
                 <span className={styles.detailPrice}>
@@ -177,7 +185,7 @@ export function PublicationModal({
 
             {/* Detail Cards */}
             <div className={styles.detailCards}>
-              {/* Warehouse sources */}
+              {/* Stock From */}
               <div className={styles.detailCard}>
                 <div className={styles.cardHeader}>
                   <FontAwesomeIcon icon={faBoxes} className={styles.cardIcon} />
@@ -191,28 +199,39 @@ export function PublicationModal({
                 </div>
               </div>
 
-              {/* Selling locations */}
+              {/* Channels */}
               <div className={styles.detailCard}>
                 <div className={styles.cardHeader}>
-                  <FontAwesomeIcon 
-                    icon={isOnsite ? faShoppingCart : faGlobe} 
-                    className={styles.cardIcon} 
-                  />
-                  <span className={styles.cardLabel}>
-                    {isOnsite ? 'Sold at' : 'Channels'}
-                  </span>
+                  <FontAwesomeIcon icon={faGlobe} className={styles.cardIcon} />
+                  <span className={styles.cardLabel}>Channels</span>
                 </div>
                 <div className={styles.cardContent}>
                   <span className={styles.cardValue}>
-                    {isOnsite 
-                      ? (boxOfficeSetups.length > 0 
-                          ? boxOfficeSetups.map(s => s.name).join(', ')
-                          : 'No Box Office setups configured')
-                      : (channels.length > 0 
-                          ? channels.join(', ')
-                          : 'No channels configured')
-                    }
+                    {allChannelNames.length > 0 
+                      ? allChannelNames.join(', ')
+                      : 'No channels configured'}
                   </span>
+                </div>
+              </div>
+
+              {/* Box Office Setups */}
+              <div className={styles.detailCard}>
+                <div className={styles.cardHeader}>
+                  <FontAwesomeIcon icon={faCashRegister} className={styles.cardIcon} />
+                  <span className={styles.cardLabel}>Box Office Setups</span>
+                </div>
+                <div className={styles.cardContent}>
+                  {hasBoxOffice ? (
+                    <span className={styles.cardValue}>
+                      {boxOfficeSetups.length > 0 
+                        ? boxOfficeSetups.map(s => s.name).join(', ')
+                        : 'Box Office channel configured (no setups assigned)'}
+                    </span>
+                  ) : (
+                    <span className={styles.emptyMessage}>
+                      Not distributed via Box Office
+                    </span>
+                  )}
                 </div>
               </div>
 

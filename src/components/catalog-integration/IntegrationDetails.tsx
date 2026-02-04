@@ -15,6 +15,8 @@ import { useDemo } from '../../context/DemoContext';
 import { 
   getProductPublications as getStaticProductPublications,
   getEventById,
+  isBoxOfficeChannel,
+  channels,
   type Product,
   type CatalogIntegration,
 } from '../../data/mockData';
@@ -27,6 +29,9 @@ interface IntegrationDetailsProps {
 export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
   const navigate = useNavigate();
   const demo = useDemo();
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'products' | 'warehouses'>('products');
   
   // UI state
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -44,7 +49,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
   const [publishedFilter, setPublishedFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [eventFilter, setEventFilter] = useState<string>('all');
-  const [routingFilter, setRoutingFilter] = useState<string>('all');
+  const [channelFilter, setChannelFilter] = useState<string>('all');
   
   // Local sync UI state
   const [isSyncing, setIsSyncing] = useState(false);
@@ -130,15 +135,15 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       const event = getEventById(routing.eventId);
       if (!event) return;
       
-      if (routing.type === 'onsite') {
-        // Onsite: all products in warehouse are auto-published
-        publications.push({
-          sessionTypeId: generateSessionTypeId(routing.id, productId),
-          salesRouting: routing,
-          event,
-        });
-      } else if (routing.type === 'online' && routing.selectedProductIds?.includes(productId)) {
-        // Online: only selected products are published
+      // New logic: Check channels instead of deprecated type field
+      const hasBoxOffice = routing.channelIds.some(id => isBoxOfficeChannel(id));
+      const mappedWarehouseIds = Object.values(routing.channelWarehouseMapping);
+      const isInOnlineChannel = mappedWarehouseIds.some(whId => productWarehouseIds.includes(whId));
+      
+      // Product is published if:
+      // 1. Routing has Box Office and product's warehouse is in the routing
+      // 2. Product's warehouse is mapped to an online channel
+      if (hasBoxOffice || isInOnlineChannel) {
         publications.push({
           sessionTypeId: generateSessionTypeId(routing.id, productId),
           salesRouting: routing,
@@ -166,9 +171,12 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     return Array.from(eventMap.values());
   }, [allProducts, demo.isResetMode, productWarehouses]);
 
-  // Derive available routings for filter dropdown
-  const availableRoutings = useMemo(() => {
-    return demo.getSalesRoutings();
+  // Derive available channels for filter dropdown (from all routings)
+  const availableChannels = useMemo(() => {
+    const routings = demo.getSalesRoutings();
+    const channelIds = new Set<string>();
+    routings.forEach(r => r.channelIds.forEach(id => channelIds.add(id)));
+    return channels.filter(c => channelIds.has(c.id));
   }, [demo]);
   
   // Apply all filters
@@ -214,18 +222,18 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       });
     }
     
-    // 5. Filter by sales routing
-    if (routingFilter !== 'all') {
+    // 5. Filter by channel
+    if (channelFilter !== 'all') {
       products = products.filter(p => {
         const pubs = demo.isResetMode 
           ? getPublicationsFromRoutings(p.id)
           : getStaticProductPublications(p.id);
-        return pubs.some(pub => pub.salesRouting?.id === routingFilter);
+        return pubs.some(pub => pub.salesRouting?.channelIds.includes(channelFilter));
       });
     }
     
     return products;
-  }, [allProducts, searchQuery, warehouseFilter, publishedFilter, eventFilter, routingFilter, productWarehouses, demo.isResetMode]);
+  }, [allProducts, searchQuery, warehouseFilter, publishedFilter, eventFilter, channelFilter, productWarehouses, demo.isResetMode]);
   
   const providerIcon = integration.provider === 'square' ? faSquare : faShopify;
   const providerClass = integration.provider === 'square' ? styles.square : styles.shopify;
@@ -288,11 +296,11 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     }, 1500);
   };
 
-  // Helper to render publication status with differentiated warnings
+  // Helper to render publication status
   const renderPublicationStatus = (
     product: Product,
     publications: ReturnType<typeof getStaticProductPublications>,
-    unpublishedReason: ReturnType<typeof demo.getUnpublishedReason>
+    _unpublishedReason: ReturnType<typeof demo.getUnpublishedReason>
   ) => {
     // If published, show clickable badge
     if (publications.length > 0) {
@@ -305,40 +313,12 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             publications
           })}
         >
-          Published in {publications.length} event{publications.length > 1 ? 's' : ''}
+          Distributed to {publications.length} event{publications.length > 1 ? 's' : ''}
         </button>
       );
     }
 
-    // Not published - show differentiated warning
-    if (!unpublishedReason) {
-      // Edge case: should not happen if logic is correct
-      return <Badge variant="secondary" size="sm">Not published</Badge>;
-    }
-
-    if (unpublishedReason.type === 'not-selected') {
-      // Actionable: can add to existing online sales routing(s)
-      const routing = unpublishedReason.routings[0];
-      return (
-        <div className={styles.unpublishedWarning}>
-          <div className={`${styles.unpublishedBadge} ${styles.notSelected}`}>
-            <FontAwesomeIcon icon={faExclamationTriangle} />
-            Not added to sales routing
-          </div>
-          <div className={styles.unpublishedHint}>
-            Product can be added to an existing online sales routing
-          </div>
-          <button 
-            className={styles.addToRoutingBtn}
-            onClick={() => navigate(`/products/sales-routing/edit/${routing.id}`)}
-          >
-            Add to "{routing.name}" →
-          </button>
-        </div>
-      );
-    }
-
-    // No sales routing configured for this warehouse
+    // Not published - warehouse has no sales routing configured
     return (
       <div className={styles.unpublishedWarning}>
         <div className={`${styles.unpublishedBadge} ${styles.noRouting}`}>
@@ -403,6 +383,10 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
                 <span className={styles.metaItem}>
                   <strong>Created:</strong> {new Date(integration.createdAt).toLocaleDateString()}
                 </span>
+                <span className={styles.metaSeparator}>·</span>
+                <span className={styles.metaStat}>{allProducts.length} products</span>
+                <span className={styles.metaSeparator}>·</span>
+                <span className={styles.metaStat}>{integrationWarehouses.length} warehouses</span>
               </div>
             </div>
           </div>
@@ -427,8 +411,26 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
         </div>
       </Card>
 
-      {/* Warehouses Card */}
+      {/* Tabs + Content Card */}
       <Card padding="none">
+        <div className={styles.tabBar}>
+          <button 
+            className={`${styles.tab} ${activeTab === 'products' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('products')}
+          >
+            Products
+          </button>
+          <button 
+            className={`${styles.tab} ${activeTab === 'warehouses' ? styles.activeTab : ''}`}
+            onClick={() => setActiveTab('warehouses')}
+          >
+            Warehouses
+          </button>
+        </div>
+
+        {/* Warehouses Tab Content */}
+        {activeTab === 'warehouses' && (
+        <>
         <CardHeader 
           title="Warehouses" 
           subtitle={`Manage warehouses linked to your ${providerName} account`}
@@ -536,10 +538,12 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             </div>
           )}
         </CardBody>
-      </Card>
+        </>
+        )}
 
-      {/* Products Card */}
-      <Card padding="none">
+        {/* Products Tab Content */}
+        {activeTab === 'products' && (
+        <>
         <CardHeader 
           title="Products" 
           subtitle={`All products from your ${providerName} catalog`}
@@ -576,8 +580,8 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
               onChange={(e) => setPublishedFilter(e.target.value)}
             >
               <option value="all">All</option>
-              <option value="published">Published</option>
-              <option value="unpublished">Unpublished</option>
+              <option value="published">Distributed</option>
+              <option value="unpublished">Not distributed</option>
             </select>
           </div>
           <div className={styles.filterDropdown}>
@@ -594,15 +598,17 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             </select>
           </div>
           <div className={styles.filterDropdown}>
-            <span className={styles.filterDropdownLabel}>Sales Routing</span>
+            <span className={styles.filterDropdownLabel}>Channel</span>
             <select 
               className={styles.filterSelect}
-              value={routingFilter}
-              onChange={(e) => setRoutingFilter(e.target.value)}
+              value={channelFilter}
+              onChange={(e) => setChannelFilter(e.target.value)}
             >
               <option value="all">All</option>
-              {availableRoutings.map(routing => (
-                <option key={routing.id} value={routing.id}>{routing.name}</option>
+              {availableChannels.map(channel => (
+                <option key={channel.id} value={channel.id}>
+                  {channel.name}
+                </option>
               ))}
             </select>
           </div>
@@ -616,7 +622,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
                   <TableCell>Name</TableCell>
                   <TableCell>SKU</TableCell>
                   <TableCell>Warehouses</TableCell>
-                  <TableCell>Published</TableCell>
+                  <TableCell>Distribution</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -697,6 +703,8 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             </div>
           )}
         </CardBody>
+        </>
+        )}
       </Card>
 
       {/* Danger Zone */}

@@ -1,15 +1,15 @@
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faStore, faGlobe, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faCashRegister, faGlobe, faChevronDown, faChevronRight, faStar, faArrowRight, faDesktop, faStore, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
-import { Table, TableHead, TableBody, TableRow, TableCell } from '../common/Table';
 import { Breadcrumb } from '../common/Breadcrumb';
 import { SalesRoutingEmptyState } from './SalesRoutingEmptyState';
 import { useDemo } from '../../context/DemoContext';
-import { getEventById, getWarehouseById, getBoxOfficeSetupsByRoutingId } from '../../data/mockData';
-import type { RoutingStatus, RoutingType } from '../../data/mockData';
+import { getEventById, getWarehouseById, channels, hasBoxOfficeChannel, isBoxOfficeChannel } from '../../data/mockData';
+import type { RoutingStatus } from '../../data/mockData';
 import styles from './SalesRoutingList.module.css';
 
 const statusVariantMap: Record<RoutingStatus, 'success' | 'warning' | 'secondary'> = {
@@ -18,9 +18,12 @@ const statusVariantMap: Record<RoutingStatus, 'success' | 'warning' | 'secondary
   inactive: 'secondary'
 };
 
-const typeConfig: Record<RoutingType, { icon: typeof faStore; label: string }> = {
-  onsite: { icon: faStore, label: 'Onsite' },
-  online: { icon: faGlobe, label: 'Online' }
+const channelTypeIcons: Record<string, typeof faGlobe> = {
+  onsite: faCashRegister,
+  marketplace: faGlobe,
+  whitelabel: faDesktop,
+  kiosk: faStore,
+  ota: faExternalLinkAlt
 };
 
 export function SalesRoutingList() {
@@ -29,11 +32,33 @@ export function SalesRoutingList() {
   const salesRoutings = demo.getSalesRoutings();
   const demoWarehouses = demo.getWarehouses();
   const integration = demo.getIntegration();
+  
+  // State for expanded rows - first routing expanded by default
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+  
+  // Initialize with first routing expanded
+  useEffect(() => {
+    if (salesRoutings.length > 0 && expandedIds.size === 0) {
+      setExpandedIds(new Set([salesRoutings[0].id]));
+    }
+  }, [salesRoutings]);
 
   // Helper to get warehouse by ID - use demo context first, then static data
   const getWarehouse = (id: string) => {
     const demoWarehouse = demoWarehouses.find(w => w.id === id);
     return demoWarehouse || getWarehouseById(id);
+  };
+  
+  const toggleExpanded = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
   const handleCreateNew = () => {
@@ -104,111 +129,151 @@ export function SalesRoutingList() {
           </CardHeader>
 
           <CardBody>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell header>Name</TableCell>
-                  <TableCell header>Type</TableCell>
-                  <TableCell header>Event</TableCell>
-                  <TableCell header>Warehouse(s)</TableCell>
-                  <TableCell header>Status</TableCell>
-                  <TableCell header align="right">Actions</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {salesRoutings.map((routing) => {
-                  const event = getEventById(routing.eventId);
-                  const warehouses = routing.warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
-                  const typeInfo = typeConfig[routing.type];
-                  const boxOfficeSetups = routing.type === 'onsite' ? getBoxOfficeSetupsByRoutingId(routing.id) : [];
+            {/* Table Header */}
+            <div className={styles.tableHeader}>
+              <div className={styles.headerCell} style={{ flex: 2 }}>Event</div>
+              <div className={styles.headerCell} style={{ flex: 3 }}>Distribution</div>
+              <div className={styles.headerCell} style={{ width: 100 }}>Status</div>
+              <div className={styles.headerCell} style={{ width: 80, textAlign: 'right' }}>Actions</div>
+            </div>
 
-                  return (
-                    <TableRow key={routing.id}>
-                      <TableCell>
-                        <div className={styles.routingName}>
-                          <span className={styles.routingId}>{routing.id}</span>
-                          <span>{routing.name}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className={styles.typeCell}>
-                          <FontAwesomeIcon icon={typeInfo.icon} className={styles.typeIcon} />
-                          <span>{typeInfo.label}</span>
-                          {routing.type === 'onsite' && boxOfficeSetups.length > 0 && (
-                            <div className={styles.setupIndicator}>
-                              <span className={styles.setupCount}>
-                                {boxOfficeSetups.length} {boxOfficeSetups.length === 1 ? 'setup' : 'setups'}
-                              </span>
-                              <div className={styles.setupTooltip}>
-                                <div className={styles.tooltipTitle}>Box Office Setups</div>
-                                {boxOfficeSetups.map(setup => {
-                                  const warehouse = getWarehouse(setup.warehouseId);
-                                  return (
-                                    <div key={setup.id} className={styles.tooltipItem}>
-                                      <span className={styles.tooltipSetupName}>{setup.name}</span>
-                                      {warehouse && (
-                                        <span className={styles.tooltipWarehouse}>{warehouse.name}</span>
-                                      )}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
+            {/* Collapsible Rows */}
+            <div className={styles.routingList}>
+              {salesRoutings.map((routing) => {
+                const event = getEventById(routing.eventId);
+                const isExpanded = expandedIds.has(routing.id);
+                const hasBoxOffice = hasBoxOfficeChannel(routing.channelIds);
+                const onlineChannelIds = routing.channelIds.filter(id => !isBoxOfficeChannel(id));
+                const onlineChannelObjects = channels.filter(c => onlineChannelIds.includes(c.id));
+                const boxOfficeWarehouses = routing.warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
+
+                return (
+                  <div key={routing.id} className={`${styles.routingRow} ${isExpanded ? styles.expanded : ''}`}>
+                    {/* Main Row */}
+                    <div className={styles.mainRow} onClick={() => toggleExpanded(routing.id)}>
+                      <div className={styles.expandToggle}>
+                        <FontAwesomeIcon icon={isExpanded ? faChevronDown : faChevronRight} />
+                      </div>
+                      <div className={styles.rowContent}>
+                        <div className={styles.eventCell} style={{ flex: 2 }}>
+                          {event ? (
+                            <>
+                              <span className={styles.eventName}>{event.name}</span>
+                              <span className={styles.eventMeta}>{event.venue}, {event.city}</span>
+                            </>
+                          ) : (
+                            <span className={styles.unknown}>Unknown event</span>
                           )}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        {event ? (
-                          <div className={styles.eventCell}>
-                            <span className={styles.eventName}>{event.name}</span>
-                            <span className={styles.eventMeta}>{event.venue}, {event.city}</span>
-                          </div>
-                        ) : (
-                          <span className={styles.unknown}>Unknown event</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className={styles.warehouseList}>
-                          {warehouses.map(warehouse => {
-                            const isPriceRef = routing.type === 'onsite' && 
-                                               warehouses.length > 1 && 
-                                               routing.priceReferenceWarehouseId === warehouse!.id;
-                            return (
-                              <div key={warehouse!.id} className={styles.warehouseItem}>
-                                <Badge variant="info" size="sm">
-                                  {warehouse!.name}
-                                </Badge>
-                                {isPriceRef && (
-                                  <span className={styles.priceRefIndicator}>
-                                    <FontAwesomeIcon icon={faStar} />
-                                  </span>
-                                )}
-                              </div>
-                            );
-                          })}
+                        <div className={styles.distributionPreview} style={{ flex: 3 }}>
+                          {hasBoxOffice && (
+                            <span className={styles.previewTag}>
+                              <FontAwesomeIcon icon={faCashRegister} />
+                              Box Office ({boxOfficeWarehouses.length})
+                            </span>
+                          )}
+                          {onlineChannelObjects.length > 0 && (
+                            <span className={styles.previewTag}>
+                              <FontAwesomeIcon icon={faGlobe} />
+                              {onlineChannelObjects.length} online channel{onlineChannelObjects.length !== 1 ? 's' : ''}
+                            </span>
+                          )}
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={statusVariantMap[routing.status]}>
-                          {routing.status.charAt(0).toUpperCase() + routing.status.slice(1)}
-                        </Badge>
-                      </TableCell>
-                      <TableCell align="right">
-                        <div className={styles.actions}>
+                        <div style={{ width: 100 }}>
+                          <Badge variant={statusVariantMap[routing.status]}>
+                            {routing.status.charAt(0).toUpperCase() + routing.status.slice(1)}
+                          </Badge>
+                        </div>
+                        <div className={styles.actions} style={{ width: 80 }}>
                           <button 
                             className={styles.actionBtn}
-                            onClick={() => handleEdit(routing.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEdit(routing.id);
+                            }}
                             title="Edit"
                           >
                             <FontAwesomeIcon icon={faEdit} />
                           </button>
                         </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                      </div>
+                    </div>
+
+                    {/* Expandable Detail Section */}
+                    <div className={`${styles.detailSection} ${isExpanded ? styles.visible : ''}`}>
+                      <div className={styles.detailContent}>
+                        {/* Box Office Section */}
+                        {hasBoxOffice && boxOfficeWarehouses.length > 0 && (
+                          <div className={styles.channelSection}>
+                            <div className={styles.sectionHeader}>
+                              <FontAwesomeIcon icon={faCashRegister} className={styles.sectionIcon} />
+                              <span className={styles.sectionTitle}>Box Office</span>
+                              <Badge variant="secondary" size="sm">
+                                {boxOfficeWarehouses.length} warehouse{boxOfficeWarehouses.length !== 1 ? 's' : ''}
+                              </Badge>
+                            </div>
+                            <div className={styles.sectionBody}>
+                              <p className={styles.sectionHint}>
+                                Warehouse selection configured per POS device in Box Office Setup
+                              </p>
+                              <div className={styles.warehouseList}>
+                                {boxOfficeWarehouses.map(warehouse => (
+                                  <div key={warehouse?.id} className={styles.warehouseItem}>
+                                    <span className={styles.warehouseName}>{warehouse?.name}</span>
+                                    {routing.priceReferenceWarehouseId === warehouse?.id && (
+                                      <span className={styles.priceRef}>
+                                        <FontAwesomeIcon icon={faStar} />
+                                        Price Reference
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Online Channels Section */}
+                        {onlineChannelObjects.length > 0 && (
+                          <div className={styles.channelSection}>
+                            <div className={styles.sectionHeader}>
+                              <FontAwesomeIcon icon={faGlobe} className={styles.sectionIcon} />
+                              <span className={styles.sectionTitle}>Online Channels</span>
+                              <Badge variant="secondary" size="sm">
+                                {onlineChannelObjects.length} channel{onlineChannelObjects.length !== 1 ? 's' : ''}
+                              </Badge>
+                            </div>
+                            <div className={styles.sectionBody}>
+                              <div className={styles.channelMappingList}>
+                                {onlineChannelObjects.map(channel => {
+                                  const warehouseId = routing.channelWarehouseMapping[channel.id];
+                                  const warehouse = warehouseId ? getWarehouse(warehouseId) : null;
+                                  return (
+                                    <div key={channel.id} className={styles.channelMappingItem}>
+                                      <div className={styles.channelInfo}>
+                                        <FontAwesomeIcon 
+                                          icon={channelTypeIcons[channel.type] || faGlobe} 
+                                          className={styles.channelIcon}
+                                        />
+                                        <span className={styles.channelName}>{channel.name}</span>
+                                      </div>
+                                      <FontAwesomeIcon icon={faArrowRight} className={styles.arrow} />
+                                      <span className={styles.warehouseTarget}>
+                                        {warehouse?.name || 'Not configured'}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </CardBody>
         </div>
       </Card>

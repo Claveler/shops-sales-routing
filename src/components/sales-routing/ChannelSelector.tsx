@@ -1,19 +1,21 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheck, faGlobe, faDesktop, faStore, faExternalLinkAlt, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faGlobe, faDesktop, faStore, faExternalLinkAlt, faMagicWandSparkles, faCashRegister } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
-import { channels } from '../../data/mockData';
+import { channels, isBoxOfficeChannel } from '../../data/mockData';
 import styles from './ChannelSelector.module.css';
 
-// Suggested channels for demo: Fever Marketplace and Whitelabel
-const SUGGESTED_CHANNEL_IDS = ['ch-001', 'ch-002'];
+// Channel IDs for demo
+const BOX_OFFICE_ID = 'box-office';
+const MARKETPLACE_ID = 'ch-001'; // Fever Marketplace
+const WHITELABEL_ID = 'ch-002';  // Whitelabel
 
 interface ChannelSelectorProps {
   selectedChannelIds: string[];
   onChange: (channelIds: string[]) => void;
-  productCount: number;
 }
 
 const channelIcons: Record<string, typeof faGlobe> = {
+  onsite: faCashRegister,
   marketplace: faGlobe,
   whitelabel: faDesktop,
   kiosk: faStore,
@@ -21,14 +23,17 @@ const channelIcons: Record<string, typeof faGlobe> = {
 };
 
 const channelDescriptions: Record<string, string> = {
+  onsite: 'Physical POS at event venues',
   marketplace: 'Fever app and website',
   whitelabel: 'Partner branded checkout',
   kiosk: 'Self-service kiosks at venues',
   ota: 'Online Travel Agency partner'
 };
 
-export function ChannelSelector({ selectedChannelIds, onChange, productCount }: ChannelSelectorProps) {
+export function ChannelSelector({ selectedChannelIds, onChange }: ChannelSelectorProps) {
   const demo = useDemo();
+  const existingRoutings = demo.getSalesRoutings();
+  const routingCount = existingRoutings.length;
 
   const handleToggleChannel = (channelId: string) => {
     if (selectedChannelIds.includes(channelId)) {
@@ -38,17 +43,34 @@ export function ChannelSelector({ selectedChannelIds, onChange, productCount }: 
     }
   };
 
+  // Context-aware suggested channels based on demo flow:
+  // Routing 1: Box Office + Marketplace (onsite + online)
+  // Routing 2: Box Office only (onsite only)
+  // Routing 3: Marketplace + Whitelabel (online only, multiple channels)
   const handleSelectSuggested = () => {
-    onChange(SUGGESTED_CHANNEL_IDS);
+    if (routingCount === 0) {
+      // First routing: onsite + online
+      onChange([BOX_OFFICE_ID, MARKETPLACE_ID]);
+    } else if (routingCount === 1) {
+      // Second routing: onsite only
+      onChange([BOX_OFFICE_ID]);
+    } else {
+      // Third routing: online only with multiple channels
+      onChange([MARKETPLACE_ID, WHITELABEL_ID]);
+    }
   };
+
+  // Separate Box Office from other channels for better organization
+  const boxOfficeChannel = channels.find(c => isBoxOfficeChannel(c.id));
+  const onlineChannels = channels.filter(c => !isBoxOfficeChannel(c.id));
 
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.headerContent}>
-          <h2 className={styles.title}>Select channels</h2>
+          <h2 className={styles.title}>Select sales channels</h2>
           <p className={styles.subtitle}>
-            Where should {productCount === 1 ? 'this product' : `these ${productCount} products`} be available for purchase?
+            Choose where products will be available for purchase
           </p>
         </div>
         {demo.isResetMode && (
@@ -59,35 +81,71 @@ export function ChannelSelector({ selectedChannelIds, onChange, productCount }: 
         )}
       </div>
 
-      <div className={styles.channelList}>
-        {channels.map(channel => {
-          const isSelected = selectedChannelIds.includes(channel.id);
-          
-          return (
+      {/* Box Office Section */}
+      {boxOfficeChannel && (
+        <div className={styles.section}>
+          <h3 className={styles.sectionTitle}>Onsite Sales</h3>
+          <div className={styles.channelList}>
             <button
-              key={channel.id}
-              className={`${styles.channelItem} ${isSelected ? styles.selected : ''}`}
-              onClick={() => handleToggleChannel(channel.id)}
+              className={`${styles.channelItem} ${styles.boxOffice} ${selectedChannelIds.includes(boxOfficeChannel.id) ? styles.selected : ''}`}
+              onClick={() => handleToggleChannel(boxOfficeChannel.id)}
             >
-              <div className={`${styles.checkbox} ${isSelected ? styles.checked : ''}`}>
-                {isSelected && <FontAwesomeIcon icon={faCheck} />}
+              <div className={`${styles.checkbox} ${selectedChannelIds.includes(boxOfficeChannel.id) ? styles.checked : ''}`}>
+                {selectedChannelIds.includes(boxOfficeChannel.id) && <FontAwesomeIcon icon={faCheck} />}
               </div>
-              <div className={styles.channelIcon}>
-                <FontAwesomeIcon icon={channelIcons[channel.type]} />
+              <div className={`${styles.channelIcon} ${styles.boxOfficeIcon}`}>
+                <FontAwesomeIcon icon={channelIcons[boxOfficeChannel.type]} />
               </div>
               <div className={styles.channelInfo}>
-                <span className={styles.channelName}>{channel.name}</span>
+                <span className={styles.channelName}>{boxOfficeChannel.name}</span>
                 <span className={styles.channelDescription}>
-                  {channelDescriptions[channel.type]}
+                  {channelDescriptions[boxOfficeChannel.type]}
                 </span>
               </div>
             </button>
-          );
-        })}
+          </div>
+        </div>
+      )}
+
+      {/* Online Channels Section */}
+      <div className={styles.section}>
+        <h3 className={styles.sectionTitle}>Online Channels</h3>
+        <div className={styles.channelList}>
+          {onlineChannels.map(channel => {
+            const isSelected = selectedChannelIds.includes(channel.id);
+            
+            return (
+              <button
+                key={channel.id}
+                className={`${styles.channelItem} ${isSelected ? styles.selected : ''}`}
+                onClick={() => handleToggleChannel(channel.id)}
+              >
+                <div className={`${styles.checkbox} ${isSelected ? styles.checked : ''}`}>
+                  {isSelected && <FontAwesomeIcon icon={faCheck} />}
+                </div>
+                <div className={styles.channelIcon}>
+                  <FontAwesomeIcon icon={channelIcons[channel.type]} />
+                </div>
+                <div className={styles.channelInfo}>
+                  <span className={styles.channelName}>{channel.name}</span>
+                  <span className={styles.channelDescription}>
+                    {channelDescriptions[channel.type]}
+                  </span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className={styles.note}>
-        <p>All selected products will be published to these channels.</p>
+        <p>
+          <strong>Box Office:</strong> Allows multiple warehouses with a price reference. 
+          Individual POS devices can be configured later.
+        </p>
+        <p>
+          <strong>Online channels:</strong> Require a single warehouse for consistent pricing and stock.
+        </p>
       </div>
     </div>
   );

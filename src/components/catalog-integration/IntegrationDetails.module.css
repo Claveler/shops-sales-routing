@@ -91,6 +91,17 @@
   font-weight: 500;
 }
 
+.metaSeparator {
+  color: #d1d5db;
+  font-size: 13px;
+}
+
+.metaStat {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+  font-weight: 500;
+}
+
 .headerActions {
   display: flex;
   gap: 8px;
@@ -563,4 +574,44 @@
   top: 80px;
   right: 24px;
   z-index: 1000;
+}
+
+/* Tab Bar */
+.tabBar {
+  display: flex;
+  gap: 24px;
+  padding: 0 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: white;
+  border-radius: 8px 8px 0 0;
+}
+
+.tab {
+  padding: 14px 4px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  position: relative;
+  transition: color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--fz-text-primary);
+}
+
+.tab.activeTab {
+  color: var(--fz-primary);
+}
+
+.tab.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--fz-primary);
 }

@@ -9,6 +9,7 @@ import {
   boxOfficeSetups as staticBoxOfficeSetups,
   events,
   channels,
+  isBoxOfficeChannel,
   type CatalogIntegration,
   type Warehouse,
   type Product,
@@ -65,7 +66,7 @@ interface DemoContextValue extends DemoState {
   
   // Helper to check if product is published
   isProductPublished: (productId: string) => boolean;
-  getUnpublishedReason: (productId: string) => { type: 'no-routing' } | { type: 'not-selected'; routings: SalesRouting[] } | null;
+  getUnpublishedReason: (productId: string) => { type: 'no-routing' } | null;
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -149,7 +150,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         );
         newProductIds = newProducts.map(p => p.id);
         
-        // Also create publications for products that are auto-published via onsite routing
+        // Also create publications for products that are in mapped warehouses
         const newPublications: ProductPublication[] = [];
         newProducts.forEach(product => {
           const productWarehouseIds = newProductWarehouses
@@ -157,15 +158,16 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             .map(pw => pw.warehouseId);
           
           prev.salesRoutings.forEach(routing => {
-            if (routing.type === 'onsite') {
-              const isInRouting = routing.warehouseIds.some(whId => productWarehouseIds.includes(whId));
-              if (isInRouting) {
-                newPublications.push({
-                  productId: product.id,
-                  salesRoutingId: routing.id,
-                  sessionTypeId: String(Math.floor(10000000 + Math.random() * 90000000)),
-                });
-              }
+            // Check if any of the product's warehouses is mapped to a channel in this routing
+            const mappedWarehouseIds = Object.values(routing.channelWarehouseMapping);
+            const isInRouting = mappedWarehouseIds.some(whId => productWarehouseIds.includes(whId));
+            
+            if (isInRouting) {
+              newPublications.push({
+                productId: product.id,
+                salesRoutingId: routing.id,
+                sessionTypeId: String(Math.floor(10000000 + Math.random() * 90000000)),
+              });
             }
           });
         });
@@ -198,32 +200,26 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 
     setState(prev => {
       // Create publications for products in this routing
+      // Products are published if their warehouse is mapped to at least one channel
       const newPublications: ProductPublication[] = [];
       
-      if (newRouting.type === 'onsite') {
-        // Onsite: create publications for ALL products in the warehouses
-        const warehouseProductIds = prev.productWarehouses
-          .filter(pw => newRouting.warehouseIds.includes(pw.warehouseId))
-          .map(pw => pw.productId);
-        const uniqueProductIds = [...new Set(warehouseProductIds)];
-        
-        uniqueProductIds.forEach(productId => {
-          newPublications.push({
-            productId,
-            salesRoutingId: newRouting.id,
-            sessionTypeId: String(Math.floor(10000000 + Math.random() * 90000000)),
-          });
+      // Get all warehouse IDs that are used in the channel mapping
+      const mappedWarehouseIds = Object.values(newRouting.channelWarehouseMapping);
+      const uniqueMappedWarehouseIds = [...new Set(mappedWarehouseIds)];
+      
+      // Get all products in the mapped warehouses
+      const warehouseProductIds = prev.productWarehouses
+        .filter(pw => uniqueMappedWarehouseIds.includes(pw.warehouseId))
+        .map(pw => pw.productId);
+      const uniqueProductIds = [...new Set(warehouseProductIds)];
+      
+      uniqueProductIds.forEach(productId => {
+        newPublications.push({
+          productId,
+          salesRoutingId: newRouting.id,
+          sessionTypeId: String(Math.floor(10000000 + Math.random() * 90000000)),
         });
-      } else if (newRouting.type === 'online' && newRouting.selectedProductIds) {
-        // Online: create publications only for selected products
-        newRouting.selectedProductIds.forEach(productId => {
-          newPublications.push({
-            productId,
-            salesRoutingId: newRouting.id,
-            sessionTypeId: String(Math.floor(10000000 + Math.random() * 90000000)),
-          });
-        });
-      }
+      });
 
       return {
         ...prev,
@@ -297,46 +293,26 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       .map(pw => pw.warehouseId);
 
     return routings.some(routing => {
-      const routingUsesProductWarehouse = routing.warehouseIds.some(whId => 
-        productWarehouseIds.includes(whId)
-      );
+      // Check if any of the product's warehouses is used in online channel mappings
+      const mappedWarehouseIds = Object.values(routing.channelWarehouseMapping);
+      const isInOnlineChannel = mappedWarehouseIds.some(warehouseId => productWarehouseIds.includes(warehouseId));
       
-      if (!routingUsesProductWarehouse) return false;
+      // Check if product is available via Box Office
+      // Box Office uses routing.warehouseIds directly (configured per POS in Box Office Setup)
+      const hasBoxOffice = routing.channelIds.some(id => isBoxOfficeChannel(id));
+      const isInBoxOfficeRouting = hasBoxOffice && routing.warehouseIds.some(whId => productWarehouseIds.includes(whId));
       
-      if (routing.type === 'onsite') {
-        return true;
-      }
-      
-      if (routing.type === 'online') {
-        return routing.selectedProductIds?.includes(productId) ?? false;
-      }
-      
-      return false;
+      return isInOnlineChannel || isInBoxOfficeRouting;
     });
   }, [state.isResetMode, state.salesRoutings, state.productWarehouses]);
 
   // Get reason why product is unpublished
+  // With the new model, all products in a mapped warehouse are automatically published
+  // So the only reason for being unpublished is having no routing at all
   const getUnpublishedReason = useCallback((productId: string) => {
     if (isProductPublished(productId)) return null;
-    
-    const routings = state.isResetMode ? state.salesRoutings : staticSalesRoutings;
-    const productWhs = state.isResetMode ? state.productWarehouses : staticProductWarehouses;
-    
-    const productWarehouseIds = productWhs
-      .filter(pw => pw.productId === productId)
-      .map(pw => pw.warehouseId);
-    
-    const availableOnlineRoutings = routings.filter(routing => 
-      routing.type === 'online' && 
-      routing.warehouseIds.some(whId => productWarehouseIds.includes(whId))
-    );
-    
-    if (availableOnlineRoutings.length > 0) {
-      return { type: 'not-selected' as const, routings: availableOnlineRoutings };
-    }
-    
     return { type: 'no-routing' as const };
-  }, [state.isResetMode, state.salesRoutings, state.productWarehouses, isProductPublished]);
+  }, [isProductPublished]);
 
   const value = useMemo<DemoContextValue>(() => ({
     ...state,

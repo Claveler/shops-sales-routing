@@ -269,3 +269,44 @@
   font-weight: 500;
   color: var(--fz-primary);
 }
+
+/* Explanation Box */
+.explanationBox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fz-spacing-sm);
+  padding: var(--fz-spacing-md);
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--fz-border-radius);
+  margin-bottom: var(--fz-spacing-md);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  line-height: 1.5;
+}
+
+.explanationIcon {
+  color: #3b82f6;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Config Note */
+.configNote {
+  margin-top: var(--fz-spacing-lg);
+  padding: var(--fz-spacing-md);
+  background: #f8f9fa;
+  border-radius: var(--fz-border-radius);
+}
+
+.configNote p {
+  margin: 0;
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  text-align: center;
+}
+
+.configNote strong {
+  color: var(--fz-text-primary);
+}

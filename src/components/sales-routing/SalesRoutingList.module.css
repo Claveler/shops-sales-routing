@@ -18,39 +18,92 @@
   padding: 20px;
 }
 
-.routingName {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.routingId {
-  font-size: 11px;
-  color: #9ca3af;
-  font-family: 'Courier New', monospace;
-}
-
-.typeCell {
+/* Table Header */
+.tableHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  position: relative;
+  padding: 12px 16px 12px 44px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 8px 8px 0 0;
 }
 
-.typeIcon {
+.headerCell {
+  font-size: 12px;
+  font-weight: 600;
   color: #6b7280;
-  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* Routing List */
+.routingList {
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+/* Collapsible Row */
+.routingRow {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.routingRow:last-child {
+  border-bottom: none;
+}
+
+.routingRow.expanded {
+  background: #fafbfc;
+}
+
+/* Main Row */
+.mainRow {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  transition: background-color var(--fz-transition);
+}
+
+.mainRow:hover {
+  background: #f9fafb;
+}
+
+.expandToggle {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.routingRow.expanded .expandToggle {
+  color: var(--fz-primary);
+}
+
+.rowContent {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Event Cell */
 .eventCell {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .eventName {
   font-weight: 500;
   font-size: 14px;
+  color: var(--fz-text-primary);
 }
 
 .eventMeta {
@@ -63,23 +116,30 @@
   font-style: italic;
 }
 
-.warehouseList {
+/* Distribution Preview */
+.distributionPreview {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 8px;
 }
 
-.warehouseItem {
+.previewTag {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #4b5563;
 }
 
-.priceRefIndicator {
-  color: #f59e0b;
-  font-size: 10px;
+.previewTag svg {
+  font-size: 11px;
+  color: #6b7280;
 }
 
+/* Actions */
 .actions {
   display: flex;
   align-items: center;
@@ -108,12 +168,157 @@
   border-color: #d1d5db;
 }
 
-.actionBtn.danger:hover {
-  background-color: #fee2e2;
-  color: #dc2626;
-  border-color: #fecaca;
+/* Detail Section */
+.detailSection {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
 }
 
+.detailSection.visible {
+  max-height: 500px;
+  transition: max-height 0.4s ease-in;
+}
+
+.detailContent {
+  padding: 0 16px 20px 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Channel Section */
+.channelSection {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.sectionIcon {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  flex: 1;
+}
+
+.sectionBody {
+  padding: 12px 16px;
+}
+
+.sectionHint {
+  font-size: 12px;
+  color: #9ca3af;
+  font-style: italic;
+  margin: 0 0 12px 0;
+}
+
+/* Warehouse List */
+.warehouseList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.warehouseItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.warehouseName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.priceRef {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #f59f00;
+  background: #fff9db;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.priceRef svg {
+  font-size: 10px;
+}
+
+/* Channel Mapping List */
+.channelMappingList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.channelMappingItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #f9fafb;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+}
+
+.channelInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.channelIcon {
+  font-size: 12px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.channelName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arrow {
+  font-size: 10px;
+  color: #adb5bd;
+  flex-shrink: 0;
+}
+
+.warehouseTarget {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+  white-space: nowrap;
+}
+
+/* Empty State */
 .emptyState {
   display: flex;
   flex-direction: column;
@@ -140,96 +345,4 @@
   color: var(--fz-text-secondary);
   max-width: 400px;
   line-height: 1.5;
-}
-
-/* Box Office Setup Indicator */
-.setupIndicator {
-  position: relative;
-  margin-left: 8px;
-}
-
-.setupCount {
-  font-size: 12px;
-  color: #6b7280;
-  background: #f3f4f6;
-  padding: 3px 8px;
-  border-radius: 10px;
-  cursor: help;
-  transition: all var(--fz-transition);
-}
-
-.setupIndicator:hover .setupCount {
-  background: #e5e7eb;
-  color: #374151;
-}
-
-.setupTooltip {
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: #1f2937;
-  color: white;
-  padding: 12px;
-  border-radius: 8px;
-  min-width: 220px;
-  z-index: 9999;
-  opacity: 0;
-  visibility: hidden;
-  pointer-events: none;
-  transition: opacity var(--fz-transition), visibility var(--fz-transition);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.setupTooltip::before {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  transform: translateX(-50%);
-  border: 6px solid transparent;
-  border-top-color: #1f2937;
-}
-
-.setupIndicator:hover .setupTooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-.setupIndicator:hover .setupTooltip {
-  opacity: 1;
-  visibility: visible;
-}
-
-.tooltipTitle {
-  font-size: 12px;
-  font-weight: 600;
-  color: #9ca3af;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #374151;
-}
-
-.tooltipItem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 6px 0;
-}
-
-.tooltipItem:not(:last-child) {
-  border-bottom: 1px solid #374151;
-}
-
-.tooltipSetupName {
-  font-size: 13px;
-  font-weight: 500;
-  color: white;
-}
-
-.tooltipWarehouse {
-  font-size: 11px;
-  color: #9ca3af;
 }

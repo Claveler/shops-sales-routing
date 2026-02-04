@@ -1,0 +1,219 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--fz-spacing-md);
+}
+
+.modal {
+  background: white;
+  border-radius: 12px;
+  max-width: 520px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: #6c757d;
+  cursor: pointer;
+  transition: all var(--fz-transition);
+  z-index: 1;
+}
+
+.closeBtn:hover {
+  background: #f8f9fa;
+  color: #212529;
+}
+
+.header {
+  padding: var(--fz-spacing-lg) var(--fz-spacing-lg) var(--fz-spacing-md);
+  border-bottom: 1px solid #e9ecef;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  margin: 0 0 var(--fz-spacing-sm) 0;
+}
+
+.eventInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.eventName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.eventVenue {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+}
+
+.content {
+  padding: var(--fz-spacing-md) var(--fz-spacing-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.section {
+  margin-bottom: var(--fz-spacing-lg);
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  margin-bottom: var(--fz-spacing-sm);
+}
+
+.sectionIcon {
+  font-size: 14px;
+  color: var(--fz-text-secondary);
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  flex: 1;
+}
+
+.sectionContent {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: var(--fz-spacing-md);
+}
+
+.sectionDescription {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  margin: 0 0 var(--fz-spacing-sm) 0;
+  font-style: italic;
+}
+
+.warehouseList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.warehouseItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.warehouseName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.priceRef {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #f59f00;
+  background: #fff9db;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.priceRef svg {
+  font-size: 10px;
+}
+
+.channelMappingList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.channelMappingItem {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+.channelInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.channelIcon {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  flex-shrink: 0;
+}
+
+.channelName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.arrow {
+  font-size: 10px;
+  color: #adb5bd;
+  flex-shrink: 0;
+}
+
+.warehouseTarget {
+  font-size: 13px;
+  color: var(--fz-text-secondary);
+  white-space: nowrap;
+}
+
+.footer {
+  padding: var(--fz-spacing-md) var(--fz-spacing-lg);
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  justify-content: flex-end;
+}

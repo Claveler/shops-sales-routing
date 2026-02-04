@@ -1,51 +1,45 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStore, faGlobe, faCalendar, faMapMarkerAlt, faBox, faCheckCircle, faStar, faTag, faBullhorn, faMagicWandSparkles, faEdit } from '@fortawesome/free-solid-svg-icons';
+import { faStore, faGlobe, faCalendar, faMapMarkerAlt, faBox, faCheckCircle, faStar, faBullhorn, faArrowRight, faCashRegister, faDesktop, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { Badge } from '../common/Badge';
 import { useDemo } from '../../context/DemoContext';
 import { 
   getEventById, 
   getWarehouseById, 
-  getProductById,
-  channels 
+  channels,
+  isBoxOfficeChannel
 } from '../../data/mockData';
-import type { RoutingType, RoutingStatus } from '../../data/mockData';
+import type { RoutingStatus } from '../../data/mockData';
 import styles from './ReviewStep.module.css';
 
 interface ReviewStepProps {
-  type: RoutingType;
   eventId: string;
+  channelIds: string[];
   warehouseIds: string[];
   priceReferenceWarehouseId?: string | null;
-  selectedProductIds?: string[];
-  channelIds?: string[];
+  channelWarehouseMapping: Record<string, string>;
   status: RoutingStatus;
   onStatusChange: (status: RoutingStatus) => void;
-  name: string;
-  onNameChange: (name: string) => void;
 }
 
+const channelIcons: Record<string, typeof faGlobe> = {
+  onsite: faCashRegister,
+  marketplace: faGlobe,
+  whitelabel: faDesktop,
+  kiosk: faStore,
+  ota: faExternalLinkAlt
+};
+
 export function ReviewStep({ 
-  type, 
   eventId, 
+  channelIds,
   warehouseIds,
   priceReferenceWarehouseId,
-  selectedProductIds = [],
-  channelIds = [],
+  channelWarehouseMapping,
   status,
-  onStatusChange,
-  name,
-  onNameChange
+  onStatusChange
 }: ReviewStepProps) {
   const demo = useDemo();
   const event = getEventById(eventId);
-  
-  // Generate a suggested name based on event
-  const handleFillDemoName = () => {
-    if (event) {
-      const suffix = type === 'onsite' ? 'Box Office' : 'Online Store';
-      onNameChange(`${event.name} - ${suffix}`);
-    }
-  };
 
   // Helper to look up warehouse - check demo context first, then static data
   const getWarehouse = (id: string) => {
@@ -62,10 +56,7 @@ export function ReviewStep({
   const warehouses = warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
   const priceRefWarehouse = priceReferenceWarehouseId ? getWarehouse(priceReferenceWarehouseId) : null;
   
-  // Get selected products (for online routings)
-  const selectedProducts = selectedProductIds.map(id => getProductById(id)).filter(Boolean);
-  
-  // Get selected channels (for online routings)
+  // Get selected channels
   const selectedChannels = channels.filter(c => channelIds.includes(c.id));
 
   const formatDate = (dateStr: string) => {
@@ -84,20 +75,6 @@ export function ReviewStep({
       <p className={styles.subtitle}>Confirm the details before creating</p>
 
       <div className={styles.sections}>
-        {/* Type */}
-        <div className={styles.section}>
-          <div className={styles.sectionIcon}>
-            <FontAwesomeIcon icon={type === 'onsite' ? faStore : faGlobe} />
-          </div>
-          <div className={styles.sectionContent}>
-            <h3 className={styles.sectionTitle}>Routing Type</h3>
-            <p className={styles.sectionValue}>
-              {type === 'onsite' ? 'Onsite' : 'Online'} sales
-            </p>
-          </div>
-          <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
-        </div>
-
         {/* Event */}
         <div className={styles.section}>
           <div className={styles.sectionIcon}>
@@ -118,6 +95,32 @@ export function ReviewStep({
           <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
         </div>
 
+        {/* Channels */}
+        <div className={styles.section}>
+          <div className={styles.sectionIcon}>
+            <FontAwesomeIcon icon={faBullhorn} />
+          </div>
+          <div className={styles.sectionContent}>
+            <h3 className={styles.sectionTitle}>Sales Channels</h3>
+            <p className={styles.sectionValue}>
+              {selectedChannels.length} channel{selectedChannels.length !== 1 ? 's' : ''} selected
+            </p>
+            <div className={styles.channelList}>
+              {selectedChannels.map(channel => (
+                <Badge 
+                  key={channel.id} 
+                  variant={isBoxOfficeChannel(channel.id) ? 'warning' : 'secondary'} 
+                  size="sm"
+                >
+                  <FontAwesomeIcon icon={channelIcons[channel.type] || faGlobe} className={styles.channelIcon} />
+                  {channel.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
+        </div>
+
         {/* Stock Source */}
         <div className={styles.section}>
           <div className={styles.sectionIcon}>
@@ -127,11 +130,6 @@ export function ReviewStep({
             <h3 className={styles.sectionTitle}>
               Stock Source{warehouses.length > 1 ? 's' : ''}
             </h3>
-            <p className={styles.sectionMeta}>
-              {warehouses.length > 1 
-                ? 'Stock will be pulled from one of these warehouses based on Box Office plan configuration'
-                : 'Stock will be pulled from this warehouse'}
-            </p>
             <div className={styles.warehouseList}>
               {warehouses.map(warehouse => {
                 const isPriceRef = priceReferenceWarehouseId === warehouse!.id;
@@ -159,56 +157,39 @@ export function ReviewStep({
           <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
         </div>
 
-        {/* Products (Online only) */}
-        {type === 'online' && selectedProducts.length > 0 && (
-          <div className={styles.section}>
-            <div className={styles.sectionIcon}>
-              <FontAwesomeIcon icon={faTag} />
-            </div>
-            <div className={styles.sectionContent}>
-              <h3 className={styles.sectionTitle}>Products to Publish</h3>
-              <p className={styles.sectionValue}>
-                {selectedProducts.length} product{selectedProducts.length !== 1 ? 's' : ''} selected
-              </p>
-              <div className={styles.productPreview}>
-                {selectedProducts.slice(0, 3).map(product => (
-                  <Badge key={product!.id} variant="info" size="sm">
-                    {product!.name}
-                  </Badge>
-                ))}
-                {selectedProducts.length > 3 && (
-                  <span className={styles.moreText}>
-                    +{selectedProducts.length - 3} more
-                  </span>
-                )}
-              </div>
-            </div>
-            <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
+        {/* Channel-Warehouse Mapping */}
+        <div className={styles.section}>
+          <div className={styles.sectionIcon}>
+            <FontAwesomeIcon icon={faArrowRight} />
           </div>
-        )}
-
-        {/* Channels (Online only) */}
-        {type === 'online' && selectedChannels.length > 0 && (
-          <div className={styles.section}>
-            <div className={styles.sectionIcon}>
-              <FontAwesomeIcon icon={faBullhorn} />
+          <div className={styles.sectionContent}>
+            <h3 className={styles.sectionTitle}>Channel Routing</h3>
+            <p className={styles.sectionMeta}>
+              How channels are mapped to warehouses
+            </p>
+            <div className={styles.mappingList}>
+              {Object.entries(channelWarehouseMapping).map(([channelId, warehouseId]) => {
+                const channel = channels.find(c => c.id === channelId);
+                const warehouse = getWarehouse(warehouseId);
+                if (!channel || !warehouse) return null;
+                
+                return (
+                  <div key={channelId} className={styles.mappingItem}>
+                    <span className={styles.mappingChannel}>
+                      <FontAwesomeIcon icon={channelIcons[channel.type] || faGlobe} />
+                      {channel.name}
+                    </span>
+                    <FontAwesomeIcon icon={faArrowRight} className={styles.mappingArrow} />
+                    <span className={styles.mappingWarehouse}>
+                      {warehouse.name}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
-            <div className={styles.sectionContent}>
-              <h3 className={styles.sectionTitle}>Sales Channels</h3>
-              <p className={styles.sectionValue}>
-                Publishing to {selectedChannels.length} channel{selectedChannels.length !== 1 ? 's' : ''}
-              </p>
-              <div className={styles.channelList}>
-                {selectedChannels.map(channel => (
-                  <Badge key={channel.id} variant="secondary" size="sm">
-                    {channel.name}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-            <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
           </div>
-        )}
+          <FontAwesomeIcon icon={faCheckCircle} className={styles.checkIcon} />
+        </div>
       </div>
 
       {/* Status Selection */}
@@ -233,37 +214,6 @@ export function ReviewStep({
             <span>Activate immediately</span>
           </button>
         </div>
-      </div>
-
-      {/* Name Input - positioned near create button */}
-      <div className={styles.nameSection}>
-        <div className={styles.nameHeader}>
-          <label htmlFor="routing-name" className={styles.nameLabel}>
-            <FontAwesomeIcon icon={faEdit} />
-            Routing Name <span className={styles.required}>*</span>
-          </label>
-          {demo.isResetMode && (
-            <button 
-              type="button"
-              className={styles.fillDemoBtn}
-              onClick={handleFillDemoName}
-            >
-              <FontAwesomeIcon icon={faMagicWandSparkles} />
-              Fill demo data
-            </button>
-          )}
-        </div>
-        <input
-          id="routing-name"
-          type="text"
-          className={`${styles.nameInput} ${!name.trim() ? styles.inputRequired : ''}`}
-          value={name}
-          onChange={(e) => onNameChange(e.target.value)}
-          placeholder="Enter a name for this routing..."
-        />
-        <p className={styles.nameHint}>
-          A descriptive name helps identify this routing in lists and reports
-        </p>
       </div>
     </div>
   );

@@ -78,6 +78,17 @@
   margin-bottom: 8px;
 }
 
+.labelWithAction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.labelWithAction .label {
+  margin-bottom: 0;
+}
+
 .input {
   width: 100%;
   padding: 10px 12px;
@@ -102,6 +113,179 @@
   border: 1px solid #e9ecef;
   border-radius: 8px;
   padding: var(--fz-spacing-md);
+}
+
+.fieldDescription {
+  font-size: 12px;
+  color: var(--fz-text-secondary);
+  margin: 0 0 var(--fz-spacing-sm) 0;
+}
+
+/* Channel-Warehouse Mapping */
+.mappingList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fz-spacing-sm);
+}
+
+.mappingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-md);
+  padding: var(--fz-spacing-md);
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+}
+
+.channelInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  min-width: 180px;
+  font-size: 14px;
+  color: var(--fz-text-primary);
+  font-weight: 500;
+}
+
+.channelIcon {
+  color: var(--fz-text-secondary);
+  font-size: 14px;
+}
+
+.mappingArrow {
+  color: var(--fz-text-muted);
+  font-size: 12px;
+}
+
+.warehouseSelect {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 14px;
+  color: var(--fz-text-primary);
+  background: white;
+  cursor: pointer;
+  transition: border-color var(--fz-transition);
+}
+
+.warehouseSelect:focus {
+  outline: none;
+  border-color: var(--fz-primary);
+}
+
+.warehouseSelect:hover {
+  border-color: var(--fz-primary);
+}
+
+/* Add Channel UI */
+.addChannelWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.addChannelBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--fz-primary);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--fz-transition);
+}
+
+.addChannelBtn:hover {
+  background: #0077c8;
+}
+
+.addChannelDropdown {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.addChannelSelect {
+  padding: 6px 10px;
+  border: 1px solid var(--fz-primary);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--fz-text-primary);
+  background: white;
+  cursor: pointer;
+  min-width: 160px;
+}
+
+.addChannelSelect:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 137, 227, 0.2);
+}
+
+.cancelAddBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 4px;
+  color: var(--fz-text-secondary);
+  cursor: pointer;
+  transition: all var(--fz-transition);
+}
+
+.cancelAddBtn:hover {
+  background: #e5e7eb;
+  color: var(--fz-text-primary);
+}
+
+/* Remove Channel Button */
+.removeChannelBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--fz-text-muted);
+  cursor: pointer;
+  transition: all var(--fz-transition);
+  flex-shrink: 0;
+}
+
+.removeChannelBtn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+/* Box Office Row Styling */
+.mappingRow.boxOfficeRow {
+  background: rgba(245, 158, 11, 0.05);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.channelIcon.boxOfficeIcon {
+  color: #d97706;
+}
+
+/* Validation Warning */
+.validationWarning {
+  margin-top: var(--fz-spacing-sm);
+  padding: 8px 12px;
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #92400e;
 }
 
 .statusOptions {

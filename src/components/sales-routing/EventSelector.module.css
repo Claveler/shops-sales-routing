@@ -116,6 +116,34 @@
   background: rgba(0, 137, 227, 0.05);
 }
 
+.eventItem.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background: #f9fafb;
+}
+
+.eventItem.disabled:hover {
+  border-color: var(--fz-border-color);
+  background: #f9fafb;
+}
+
+.disabledBadge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #6b7280;
+  background: #e5e7eb;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.disabledBadge svg {
+  font-size: 10px;
+}
+
 .eventContent {
   flex: 1;
 }

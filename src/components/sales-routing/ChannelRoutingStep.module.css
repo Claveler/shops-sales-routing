@@ -1,0 +1,205 @@
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--fz-spacing-xl);
+}
+
+.title {
+  font-size: var(--fz-font-size-xl);
+  font-weight: 600;
+  color: var(--fz-text-primary);
+  margin-bottom: var(--fz-spacing-xs);
+}
+
+.subtitle {
+  color: var(--fz-text-secondary);
+  font-size: var(--fz-font-size-md);
+  margin: 0;
+}
+
+.fillDemoBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  flex-shrink: 0;
+}
+
+.fillDemoBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.fillDemoBtn:active {
+  transform: translateY(0);
+}
+
+.mappingList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fz-spacing-md);
+}
+
+.mappingRow {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-md);
+  padding: var(--fz-spacing-lg);
+  background: var(--fz-bg-card);
+  border: 1px solid var(--fz-border-color);
+  border-radius: var(--fz-border-radius);
+  transition: border-color var(--fz-transition);
+}
+
+.mappingRow:hover {
+  border-color: var(--fz-primary);
+}
+
+.mappingRow.boxOffice {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.channelInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-md);
+  flex: 1;
+  min-width: 0;
+}
+
+.channelIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--fz-bg-content);
+  border-radius: var(--fz-border-radius);
+  color: var(--fz-text-secondary);
+  flex-shrink: 0;
+}
+
+.channelIcon.boxOfficeIcon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.channelDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.channelName {
+  font-size: var(--fz-font-size-md);
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.channelHint {
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+}
+
+.arrow {
+  color: var(--fz-text-secondary);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.warehouseSelect {
+  flex: 1;
+  min-width: 200px;
+  max-width: 250px;
+}
+
+.select {
+  width: 100%;
+  padding: var(--fz-spacing-sm) var(--fz-spacing-md);
+  border: 1px solid var(--fz-border-color);
+  border-radius: var(--fz-border-radius);
+  font-size: var(--fz-font-size-md);
+  color: var(--fz-text-primary);
+  background: white;
+  cursor: pointer;
+  transition: border-color var(--fz-transition);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--fz-primary);
+}
+
+.select:hover {
+  border-color: var(--fz-primary);
+}
+
+.autoSelected {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--fz-spacing-sm) var(--fz-spacing-md);
+  background: var(--fz-bg-content);
+  border-radius: var(--fz-border-radius);
+}
+
+.boxOfficeConfig {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  padding: var(--fz-spacing-sm) var(--fz-spacing-md);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.4);
+  border-radius: var(--fz-border-radius);
+}
+
+.configIcon {
+  color: #d97706;
+  font-size: 12px;
+}
+
+.configuredElsewhere {
+  font-size: var(--fz-font-size-sm);
+  color: #92400e;
+  font-style: italic;
+}
+
+.warehouseName {
+  font-size: var(--fz-font-size-md);
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.autoLabel {
+  font-size: var(--fz-font-size-xs);
+  color: var(--fz-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.note {
+  margin-top: var(--fz-spacing-xl);
+  padding: var(--fz-spacing-md);
+  background: rgba(0, 137, 227, 0.05);
+  border-radius: var(--fz-border-radius);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  line-height: 1.5;
+}
