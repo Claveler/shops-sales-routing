@@ -187,108 +187,52 @@
   gap: 16px;
 }
 
-/* Channel Section */
-.channelSection {
-  background: white;
+/* Channel-Warehouse Table */
+.channelWarehouseTable {
+  margin: 12px 16px 20px 44px;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
+  background: #fff;
 }
 
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+.subTableHeader {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   background: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
+  padding: 10px 16px;
 }
 
-.sectionIcon {
-  font-size: 14px;
-  color: #6b7280;
-}
-
-.sectionTitle {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--fz-text-primary);
-  flex: 1;
-}
-
-.sectionBody {
-  padding: 12px 16px;
-}
-
-.sectionHint {
-  font-size: 12px;
-  color: #9ca3af;
-  font-style: italic;
-  margin: 0 0 12px 0;
-}
-
-/* Warehouse List */
-.warehouseList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.warehouseItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  background: #f9fafb;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-}
-
-.warehouseName {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--fz-text-primary);
-}
-
-.priceRef {
-  display: flex;
-  align-items: center;
-  gap: 4px;
+.columnHeader {
   font-size: 11px;
-  color: #f59f00;
-  background: #fff9db;
-  padding: 3px 8px;
-  border-radius: 4px;
-  font-weight: 500;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.priceRef svg {
-  font-size: 10px;
+.tableRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-/* Channel Mapping List */
-.channelMappingList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.tableRow:last-child {
+  border-bottom: none;
 }
 
-.channelMappingItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  background: #f9fafb;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
+.tableRow.noBorder {
+  border-bottom: none;
 }
 
-.channelInfo {
+.channelCell {
   display: flex;
   align-items: center;
   gap: 8px;
-  flex: 1;
-  min-width: 0;
+  font-size: 13px;
+  color: var(--fz-text-primary);
 }
 
 .channelIcon {
@@ -297,25 +241,24 @@
   flex-shrink: 0;
 }
 
-.channelName {
+.warehouseCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-size: 13px;
-  font-weight: 500;
   color: var(--fz-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
-.arrow {
+.priceRefBadge {
+  font-size: 11px;
+  color: #f59e0b;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priceRefBadge svg {
   font-size: 10px;
-  color: #adb5bd;
-  flex-shrink: 0;
-}
-
-.warehouseTarget {
-  font-size: 13px;
-  color: var(--fz-text-secondary);
-  white-space: nowrap;
 }
 
 /* Empty State */

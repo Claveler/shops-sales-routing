@@ -7,7 +7,6 @@ import { Card, CardHeader, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { Table, TableHead, TableBody, TableRow, TableCell } from '../common/Table';
-import { Toast } from '../common/Toast';
 import { DeleteIntegrationModal } from './DeleteIntegrationModal';
 import { PublicationModal } from './PublicationModal';
 import { WarehousePopover } from './WarehousePopover';
@@ -50,14 +49,11 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [eventFilter, setEventFilter] = useState<string>('all');
   const [channelFilter, setChannelFilter] = useState<string>('all');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   
   // Local sync UI state
   const [isSyncing, setIsSyncing] = useState(false);
   const [localSyncedProductIds, setLocalSyncedProductIds] = useState<string[]>([]);
-  
-  // Toast state
-  const [showSyncToast, setShowSyncToast] = useState(false);
-  const [syncResult, setSyncResult] = useState<{ newCount: number; unpublishedCount: number } | null>(null);
 
   // Get data from demo context
   const allWarehouses = demo.getWarehouses();
@@ -179,6 +175,11 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     return channels.filter(c => channelIds.has(c.id));
   }, [demo]);
   
+  // Derive available categories for filter dropdown
+  const availableCategories = useMemo(() => {
+    return demo.getHierarchyElements().filter(he => he.parentId === null); // Root categories only for cleaner UI
+  }, [demo]);
+  
   // Apply all filters
   const filteredProducts = useMemo(() => {
     let products = allProducts;
@@ -232,8 +233,18 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       });
     }
     
+    // 6. Filter by category
+    if (categoryFilter !== 'all') {
+      products = products.filter(p => {
+        const category = demo.getProductCategory(p.id);
+        if (!category) return false;
+        // Match if category is the selected one, or if parent is the selected one
+        return category.id === categoryFilter || category.parentId === categoryFilter;
+      });
+    }
+    
     return products;
-  }, [allProducts, searchQuery, warehouseFilter, publishedFilter, eventFilter, channelFilter, productWarehouses, demo.isResetMode]);
+  }, [allProducts, searchQuery, warehouseFilter, publishedFilter, eventFilter, channelFilter, categoryFilter, productWarehouses, demo.isResetMode]);
   
   const providerIcon = integration.provider === 'square' ? faSquare : faShopify;
   const providerClass = integration.provider === 'square' ? styles.square : styles.shopify;
@@ -272,24 +283,13 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     setTimeout(() => {
       if (demo.isResetMode) {
         // Use demo context sync
-        const { newCount, newProductIds } = demo.syncProducts();
-        const unpublishedCount = newProductIds.filter(id => !demo.isProductPublished(id)).length;
-        
+        const { newProductIds } = demo.syncProducts();
         setLocalSyncedProductIds(newProductIds);
-        setSyncResult({ newCount, unpublishedCount });
-        setShowSyncToast(newCount > 0);
       } else {
         // Use static data sync for pending products
         const pendingProducts = allProducts.filter(p => p.pendingSync);
         const newProductIds = pendingProducts.map(p => p.id);
-        const unpublishedCount = pendingProducts.filter(p => !demo.isProductPublished(p.id)).length;
-        
         setLocalSyncedProductIds(newProductIds);
-        setSyncResult({
-          newCount: pendingProducts.length,
-          unpublishedCount
-        });
-        setShowSyncToast(pendingProducts.length > 0);
       }
       
       setIsSyncing(false);
@@ -313,7 +313,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             publications
           })}
         >
-          Distributed to {publications.length} event{publications.length > 1 ? 's' : ''}
+          Distributed through {publications.length} event{publications.length > 1 ? 's' : ''}
         </button>
       );
     }
@@ -612,6 +612,21 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
               ))}
             </select>
           </div>
+          <div className={styles.filterDropdown}>
+            <span className={styles.filterDropdownLabel}>Category</span>
+            <select 
+              className={styles.filterSelect}
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              {availableCategories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <CardBody padding="none">
           {filteredProducts.length > 0 ? (
@@ -621,6 +636,7 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
                   <TableCell>Image</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>SKU</TableCell>
+                  <TableCell>Category</TableCell>
                   <TableCell>Warehouses</TableCell>
                   <TableCell>Distribution</TableCell>
                 </TableRow>
@@ -657,6 +673,11 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
                       </TableCell>
                       <TableCell>
                         <code className={styles.sku}>{product.sku}</code>
+                      </TableCell>
+                      <TableCell>
+                        <span className={styles.categoryText}>
+                          {demo.getProductCategoryPath(product.id)}
+                        </span>
                       </TableCell>
                       <TableCell>
                         {productWarehouseDetails.length === 0 ? (
@@ -749,27 +770,6 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
         />
       )}
 
-      {/* Sync Toast Notification */}
-      {showSyncToast && syncResult && (
-        <div className={styles.toastContainer}>
-          <Toast
-            variant={syncResult.unpublishedCount > 0 ? 'warning' : 'success'}
-            title={`Synced ${syncResult.newCount} new product${syncResult.newCount !== 1 ? 's' : ''}`}
-            message={
-              syncResult.unpublishedCount > 0 
-                ? `${syncResult.unpublishedCount} product${syncResult.unpublishedCount !== 1 ? 's are' : ' is'} not published to any sales channel`
-                : 'All products are published'
-            }
-            actionLabel={syncResult.unpublishedCount > 0 ? 'View unpublished' : undefined}
-            onAction={() => {
-              setWarehouseFilter('unpublished');
-              setShowSyncToast(false);
-            }}
-            onDismiss={() => setShowSyncToast(false)}
-            autoDismiss={15000}
-          />
-        </div>
-      )}
     </div>
   );
 }

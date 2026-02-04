@@ -8,6 +8,5 @@ export { ChannelSelector } from './ChannelSelector';
 export { ChannelRoutingStep } from './ChannelRoutingStep';
 export { ChannelProductMapping } from './ChannelProductMapping';
 export { ReviewStep } from './ReviewStep';
-export { ImmutableSection } from './ImmutableSection';
 export { DeleteConfirmModal } from './DeleteConfirmModal';
 export { DistributionDetailsModal } from './DistributionDetailsModal';

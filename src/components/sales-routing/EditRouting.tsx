@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExclamationTriangle, faTrash, faGlobe, faCashRegister, faStore, faDesktop, faExternalLinkAlt, faArrowRight, faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
+import { 
+  faPlus, 
+  faTimes, 
+  faGlobe, 
+  faCashRegister, 
+  faStore, 
+  faDesktop, 
+  faExternalLinkAlt, 
+  faStar
+} from '@fortawesome/free-solid-svg-icons';
+import { Card, CardBody, CardHeader, CardTitle } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { Breadcrumb } from '../common/Breadcrumb';
-import { ImmutableSection } from './ImmutableSection';
-import { DeleteConfirmModal } from './DeleteConfirmModal';
 import { useDemo } from '../../context/DemoContext';
 import { 
   getSalesRoutingById, 
@@ -51,15 +58,17 @@ export function EditRouting() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   
-  // Form state
-  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
-  const [channelWarehouseMapping, setChannelWarehouseMapping] = useState<Record<string, string>>({});
+  // Editable state (initialized from routing)
   const [status, setStatus] = useState<RoutingStatus>('draft');
+  const [warehouseIds, setWarehouseIds] = useState<string[]>([]);
+  const [priceRefId, setPriceRefId] = useState<string>('');
+  const [channelIds, setChannelIds] = useState<string[]>([]);
+  const [channelMapping, setChannelMapping] = useState<Record<string, string>>({});
   
   // UI state
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   const [showAddChannel, setShowAddChannel] = useState(false);
+  const [showAddWarehouse, setShowAddWarehouse] = useState(false);
 
   // Helper to get warehouse by ID
   const getWarehouse = (warehouseId: string) => {
@@ -70,7 +79,6 @@ export function EditRouting() {
   // Load routing data on mount
   useEffect(() => {
     if (id) {
-      // Check demo context first, then fall back to static data
       let foundRouting: SalesRouting | undefined;
       if (demo.isResetMode) {
         foundRouting = demo.getSalesRoutings().find(r => r.id === id);
@@ -80,9 +88,11 @@ export function EditRouting() {
       
       if (foundRouting) {
         setRouting(foundRouting);
-        setSelectedChannelIds(foundRouting.channelIds || []);
-        setChannelWarehouseMapping(foundRouting.channelWarehouseMapping || {});
         setStatus(foundRouting.status);
+        setWarehouseIds(foundRouting.warehouseIds || []);
+        setPriceRefId(foundRouting.priceReferenceWarehouseId || '');
+        setChannelIds(foundRouting.channelIds || []);
+        setChannelMapping(foundRouting.channelWarehouseMapping || {});
       } else {
         setNotFound(true);
       }
@@ -90,111 +100,97 @@ export function EditRouting() {
     setLoading(false);
   }, [id, demo.isResetMode, demo]);
 
-  // Track changes
+  // Track changes across all editable fields
   useEffect(() => {
     if (!routing) return;
-    
-    const channelsChanged = JSON.stringify([...selectedChannelIds].sort()) !== JSON.stringify([...(routing.channelIds || [])].sort());
-    const mappingChanged = JSON.stringify(channelWarehouseMapping) !== JSON.stringify(routing.channelWarehouseMapping || {});
     const statusChanged = status !== routing.status;
+    const warehousesChanged = JSON.stringify(warehouseIds) !== JSON.stringify(routing.warehouseIds);
+    const priceRefChanged = priceRefId !== routing.priceReferenceWarehouseId;
+    const channelsChanged = JSON.stringify(channelIds) !== JSON.stringify(routing.channelIds);
+    const mappingChanged = JSON.stringify(channelMapping) !== JSON.stringify(routing.channelWarehouseMapping || {});
     
-    setHasChanges(channelsChanged || mappingChanged || statusChanged);
-  }, [routing, selectedChannelIds, channelWarehouseMapping, status]);
+    setHasChanges(statusChanged || warehousesChanged || priceRefChanged || channelsChanged || mappingChanged);
+  }, [routing, status, warehouseIds, priceRefId, channelIds, channelMapping]);
 
   const event = routing ? getEventById(routing.eventId) : null;
 
-  // Get channels that can be added (not already selected)
-  const availableChannels = channels.filter(c => !selectedChannelIds.includes(c.id));
+  // Derive data from editable state
+  const availableChannels = channels.filter(c => !channelIds.includes(c.id));
+  const availableWarehouses = demoWarehouses.filter(w => !warehouseIds.includes(w.id));
+  const selectedChannels = channels.filter(c => channelIds.includes(c.id));
+  const hasBoxOffice = channelIds.some(id => isBoxOfficeChannel(id));
+  const warehouses = warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
+  const onlineChannels = selectedChannels.filter(c => !isBoxOfficeChannel(c.id));
+  const priceRefWarehouse = priceRefId ? getWarehouse(priceRefId) : null;
 
-  // Get the selected channel objects
-  const selectedChannels = channels.filter(c => selectedChannelIds.includes(c.id));
-
-  // Handle channel-warehouse mapping changes
-  const handleMappingChange = (channelId: string, warehouseId: string) => {
-    setChannelWarehouseMapping(prev => ({
-      ...prev,
-      [channelId]: warehouseId
-    }));
+  // Handlers for editable fields
+  const handleAddWarehouse = (warehouseId: string) => {
+    if (warehouseId && !warehouseIds.includes(warehouseId)) {
+      setWarehouseIds(prev => [...prev, warehouseId]);
+      // If this is the first warehouse, make it the price reference
+      if (warehouseIds.length === 0) {
+        setPriceRefId(warehouseId);
+      }
+    }
+    setShowAddWarehouse(false);
   };
 
-  // Add a new channel
+  const handlePriceRefChange = (warehouseId: string) => {
+    setPriceRefId(warehouseId);
+  };
+
   const handleAddChannel = (channelId: string) => {
-    setSelectedChannelIds(prev => [...prev, channelId]);
-    // Set default warehouse if only one available
-    if (routing && routing.warehouseIds.length === 1) {
-      setChannelWarehouseMapping(prev => ({
-        ...prev,
-        [channelId]: routing.warehouseIds[0]
-      }));
+    if (channelId && !channelIds.includes(channelId)) {
+      setChannelIds(prev => [...prev, channelId]);
+      // For online channels, default to first warehouse
+      if (!isBoxOfficeChannel(channelId) && warehouseIds.length > 0) {
+        setChannelMapping(prev => ({ ...prev, [channelId]: warehouseIds[0] }));
+      }
     }
     setShowAddChannel(false);
   };
 
-  // Remove a channel
-  const handleRemoveChannel = (channelId: string) => {
-    // Don't allow removing the last channel
-    if (selectedChannelIds.length <= 1) return;
-    
-    setSelectedChannelIds(prev => prev.filter(id => id !== channelId));
-    // Also remove the warehouse mapping
-    setChannelWarehouseMapping(prev => {
-      const newMapping = { ...prev };
-      delete newMapping[channelId];
-      return newMapping;
-    });
+  const handleMappingChange = (channelId: string, warehouseId: string) => {
+    setChannelMapping(prev => ({ ...prev, [channelId]: warehouseId }));
   };
 
-  // Check if all channels have warehouse assigned
-  const allChannelsHaveWarehouse = selectedChannelIds.every(
-    channelId => channelWarehouseMapping[channelId] && channelWarehouseMapping[channelId].trim() !== ''
+  // Validation: all online channels must have a warehouse assigned
+  const allMappingsValid = onlineChannels.every(c => 
+    channelMapping[c.id] && channelMapping[c.id].trim() !== ''
   );
 
   const handleSave = () => {
     console.log('Saving routing:', {
       id: routing?.id,
-      channelIds: selectedChannelIds,
-      channelWarehouseMapping,
+      warehouseIds,
+      priceReferenceWarehouseId: priceRefId,
+      channelIds,
+      channelWarehouseMapping: channelMapping,
       status
     });
-    
     navigate('/products/sales-routing');
   };
 
-  const handleCancel = () => {
-    navigate('/products/sales-routing');
-  };
-
-  const handleDelete = () => {
-    console.log('Deleting routing:', routing?.id);
-    navigate('/products/sales-routing');
-  };
+  const handleCancel = () => navigate('/products/sales-routing');
 
   if (loading) {
-    return (
-      <div className={styles.container}>
-        <div className={styles.loading}>Loading...</div>
-      </div>
-    );
+    return <div className={styles.container}><div className={styles.loading}>Loading...</div></div>;
   }
 
   if (notFound || !routing || !event) {
     return (
       <div className={styles.container}>
-        <Breadcrumb 
-          items={[
-            { label: 'Products', path: '/products' },
-            { label: 'Sales routing', path: '/products/sales-routing' },
-            { label: 'Not found' }
-          ]} 
-        />
+        <Breadcrumb items={[
+          { label: 'Products', path: '/products' },
+          { label: 'Sales routing', path: '/products/sales-routing' },
+          { label: 'Not found' }
+        ]} />
         <Card>
           <CardBody>
             <div className={styles.notFound}>
               <h2>Sales routing not found</h2>
               <p>The sales routing you're looking for doesn't exist or has been deleted.</p>
-              <Button variant="primary" onClick={() => navigate('/products/sales-routing')}>
-                Back to list
-              </Button>
+              <Button variant="primary" onClick={() => navigate('/products/sales-routing')}>Back to list</Button>
             </div>
           </CardBody>
         </Card>
@@ -204,205 +200,196 @@ export function EditRouting() {
 
   return (
     <div className={styles.container}>
-      <Breadcrumb 
-        items={[
-          { label: 'Products', path: '/products' },
-          { label: 'Sales routing', path: '/products/sales-routing' },
-          { label: 'Edit' }
-        ]} 
-      />
+      <Breadcrumb items={[
+        { label: 'Products', path: '/products' },
+        { label: 'Sales routing', path: '/products/sales-routing' },
+        { label: 'Edit' }
+      ]} />
       
+      {/* Page Header */}
       <div className={styles.pageHeader}>
-        <div className={styles.pageHeaderContent}>
-          <h1 className={styles.pageTitle}>Edit sales routing</h1>
-          <Badge variant={statusVariantMap[routing.status]} size="md">
-            {routing.status.charAt(0).toUpperCase() + routing.status.slice(1)}
-          </Badge>
+        <div className={styles.headerLeft}>
+          <h1 className={styles.pageTitle}>{event.name}</h1>
+          <span className={styles.headerMeta}>{event.venue}, {event.city}</span>
         </div>
+        <Badge variant={statusVariantMap[routing.status]} size="md">
+          {routing.status.charAt(0).toUpperCase() + routing.status.slice(1)}
+        </Badge>
       </div>
 
+      {/* Main Card - Single Page Layout */}
       <Card padding="none">
-        <div className={styles.cardInner}>
-          <CardHeader>
-            <CardTitle subtitle={event ? `${event.venue}, ${event.city}` : `ID: ${routing.id}`}>
-              {event?.name || 'Unknown Event'}
-            </CardTitle>
-          </CardHeader>
-
-          <CardBody>
-            {/* Immutable Configuration Section - now shows warehouses */}
-            <ImmutableSection warehouseIds={routing.warehouseIds} event={event} />
-
-            {/* Editable Settings Section */}
-            <div className={styles.editableSection}>
-              <h3 className={styles.sectionTitle}>Operational Settings</h3>
-              <p className={styles.sectionSubtitle}>
-                These settings can be modified at any time.
-              </p>
-
-              {/* Sales Channels Section */}
-              <div className={styles.formGroup}>
-                <div className={styles.labelWithAction}>
-                  <label className={styles.label}>Sales Channels</label>
-                  {availableChannels.length > 0 && (
-                    <div className={styles.addChannelWrapper}>
-                      {showAddChannel ? (
-                        <div className={styles.addChannelDropdown}>
-                          <select
-                            className={styles.addChannelSelect}
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                handleAddChannel(e.target.value);
-                              }
-                            }}
-                            defaultValue=""
-                          >
-                            <option value="" disabled>Select channel...</option>
-                            {availableChannels.map(channel => (
-                              <option key={channel.id} value={channel.id}>
-                                {channel.name}
-                              </option>
-                            ))}
-                          </select>
-                          <button 
-                            className={styles.cancelAddBtn}
-                            onClick={() => setShowAddChannel(false)}
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </button>
-                        </div>
-                      ) : (
-                        <button 
-                          className={styles.addChannelBtn}
-                          onClick={() => setShowAddChannel(true)}
-                        >
-                          <FontAwesomeIcon icon={faPlus} />
-                          Add channel
-                        </button>
-                      )}
-                    </div>
+        <CardHeader>
+          <CardTitle subtitle="Edit warehouses, channels, and stock routing.">
+            Configuration
+          </CardTitle>
+        </CardHeader>
+        <CardBody padding="lg">
+          {/* Warehouses Section */}
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionLabel}>Warehouses</span>
+              {availableWarehouses.length > 0 && !showAddWarehouse && (
+                <Button variant="ghost" size="sm" onClick={() => setShowAddWarehouse(true)}>
+                  <FontAwesomeIcon icon={faPlus} /> Add
+                </Button>
+              )}
+            </div>
+            <p className={styles.sectionHint}>Select which warehouse provides the price reference for Fever sessions.</p>
+            
+            <div className={styles.warehouseList}>
+              {warehouses.map(warehouse => (
+                <label key={warehouse!.id} className={styles.warehouseItem}>
+                  <input
+                    type="radio"
+                    name="priceRef"
+                    checked={priceRefId === warehouse!.id}
+                    onChange={() => handlePriceRefChange(warehouse!.id)}
+                    className={styles.priceRefRadio}
+                  />
+                  <span className={styles.warehouseName}>{warehouse!.name}</span>
+                  {priceRefId === warehouse!.id && (
+                    <span className={styles.priceRefBadge}>
+                      <FontAwesomeIcon icon={faStar} /> Price Ref
+                    </span>
                   )}
-                </div>
-                <p className={styles.fieldDescription}>
-                  Configure which channels this routing serves and assign warehouses
-                </p>
-                <div className={styles.mappingList}>
-                  {selectedChannels.map(channel => {
-                    const currentWarehouseId = channelWarehouseMapping[channel.id] || '';
-                    const isBoxOffice = isBoxOfficeChannel(channel.id);
-                    
-                    return (
-                      <div key={channel.id} className={`${styles.mappingRow} ${isBoxOffice ? styles.boxOfficeRow : ''}`}>
-                        <div className={styles.channelInfo}>
-                          <FontAwesomeIcon 
-                            icon={channelIcons[channel.type] || faGlobe} 
-                            className={`${styles.channelIcon} ${isBoxOffice ? styles.boxOfficeIcon : ''}`}
-                          />
-                          <span>{channel.name}</span>
-                        </div>
-                        <FontAwesomeIcon icon={faArrowRight} className={styles.mappingArrow} />
-                        <select
-                          className={styles.warehouseSelect}
-                          value={currentWarehouseId}
-                          onChange={(e) => handleMappingChange(channel.id, e.target.value)}
-                        >
-                          <option value="">Select warehouse...</option>
-                          {routing.warehouseIds.map(whId => {
-                            const wh = getWarehouse(whId);
-                            return wh ? (
-                              <option key={wh.id} value={wh.id}>
-                                {wh.name}
-                              </option>
-                            ) : null;
-                          })}
-                        </select>
-                        {selectedChannelIds.length > 1 && (
-                          <button
-                            className={styles.removeChannelBtn}
-                            onClick={() => handleRemoveChannel(channel.id)}
-                            title="Remove channel"
-                          >
-                            <FontAwesomeIcon icon={faTimes} />
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                {!allChannelsHaveWarehouse && (
-                  <p className={styles.validationWarning}>
-                    All channels must have a warehouse assigned
-                  </p>
-                )}
-              </div>
+                </label>
+              ))}
+            </div>
 
-              {/* Status Selection */}
-              <div className={styles.formGroup}>
-                <label className={styles.label}>Status</label>
-                <div className={styles.statusOptions}>
-                  {statusOptions.map(option => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      className={`${styles.statusOption} ${status === option.value ? styles.selected : ''}`}
-                      onClick={() => setStatus(option.value)}
-                    >
-                      <span className={styles.statusLabel}>{option.label}</span>
-                      <span className={styles.statusDescription}>{option.description}</span>
-                    </button>
+            {showAddWarehouse && (
+              <div className={styles.addRow}>
+                <select
+                  className={styles.selectInput}
+                  onChange={(e) => { if (e.target.value) handleAddWarehouse(e.target.value); }}
+                  defaultValue=""
+                >
+                  <option value="" disabled>Select warehouse...</option>
+                  {availableWarehouses.map(wh => (
+                    <option key={wh.id} value={wh.id}>{wh.name}</option>
                   ))}
-                </div>
+                </select>
+                <button className={styles.cancelBtn} onClick={() => setShowAddWarehouse(false)}>
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
               </div>
+            )}
+          </div>
+
+          {/* Channel Routing Section */}
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionLabel}>Channel Routing</span>
+              {availableChannels.length > 0 && !showAddChannel && (
+                <Button variant="ghost" size="sm" onClick={() => setShowAddChannel(true)}>
+                  <FontAwesomeIcon icon={faPlus} /> Add Channel
+                </Button>
+              )}
+            </div>
+            <p className={styles.sectionHint}>Configure which warehouse serves each sales channel.</p>
+
+            <div className={styles.routingTable}>
+              <div className={styles.routingHeader}>
+                <span>Channel</span>
+                <span>Warehouse</span>
+              </div>
+              
+              {/* Box Office row */}
+              {hasBoxOffice && (
+                <div className={styles.routingRow}>
+                  <div className={styles.routingChannel}>
+                    <FontAwesomeIcon icon={faCashRegister} className={styles.channelIcon} />
+                    <span>Box Office</span>
+                  </div>
+                  <div className={styles.routingWarehouse}>
+                    <span className={styles.allWarehouses}>All warehouses</span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Online channel rows - editable */}
+              {onlineChannels.map(channel => (
+                <div key={channel.id} className={styles.routingRow}>
+                  <div className={styles.routingChannel}>
+                    <FontAwesomeIcon icon={channelIcons[channel.type] || faGlobe} className={styles.channelIcon} />
+                    <span>{channel.name}</span>
+                  </div>
+                  <div className={styles.routingWarehouse}>
+                    <select
+                      className={styles.selectInput}
+                      value={channelMapping[channel.id] || ''}
+                      onChange={(e) => handleMappingChange(channel.id, e.target.value)}
+                    >
+                      <option value="">Select warehouse...</option>
+                      {warehouseIds.map(whId => {
+                        const wh = getWarehouse(whId);
+                        return wh ? <option key={wh.id} value={wh.id}>{wh.name}</option> : null;
+                      })}
+                    </select>
+                  </div>
+                </div>
+              ))}
+
+              {/* Add channel row */}
+              {showAddChannel && (
+                <div className={styles.addChannelRow}>
+                  <select
+                    className={styles.selectInput}
+                    onChange={(e) => { if (e.target.value) handleAddChannel(e.target.value); }}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Select channel...</option>
+                    {availableChannels.map(channel => (
+                      <option key={channel.id} value={channel.id}>{channel.name}</option>
+                    ))}
+                  </select>
+                  <button className={styles.cancelBtn} onClick={() => setShowAddChannel(false)}>
+                    <FontAwesomeIcon icon={faTimes} />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Actions */}
-            <div className={styles.actions}>
-              <Button variant="ghost" onClick={handleCancel}>
-                Cancel
-              </Button>
-              <Button 
-                variant="primary" 
-                onClick={handleSave}
-                disabled={!hasChanges || !allChannelsHaveWarehouse || selectedChannelIds.length === 0}
-              >
-                Save changes
-              </Button>
-            </div>
+            {!allMappingsValid && onlineChannels.length > 0 && (
+              <p className={styles.warning}>All online channels must have a warehouse assigned</p>
+            )}
 
-            {/* Danger Zone */}
-            <div className={styles.dangerZone}>
-              <div className={styles.dangerContent}>
-                <div className={styles.dangerIcon}>
-                  <FontAwesomeIcon icon={faExclamationTriangle} />
-                </div>
-                <div className={styles.dangerInfo}>
-                  <h4 className={styles.dangerTitle}>Delete this sales routing</h4>
-                  <p className={styles.dangerDescription}>
-                    Once deleted, this routing cannot be recovered. All configuration will be permanently removed.
-                  </p>
-                </div>
-              </div>
-              <Button 
-                variant="danger" 
-                icon={faTrash}
-                onClick={() => setShowDeleteModal(true)}
-              >
-                Delete routing
-              </Button>
+            {priceRefWarehouse && (
+              <p className={styles.priceRefNote}>
+                <FontAwesomeIcon icon={faStar} /> Product prices in Fever are based on <strong>{priceRefWarehouse.name}</strong>
+              </p>
+            )}
+          </div>
+
+          {/* Status Section */}
+          <div className={styles.section}>
+            <div className={styles.sectionHeader}>
+              <span className={styles.sectionLabel}>Status</span>
             </div>
-          </CardBody>
-        </div>
+            <div className={styles.statusOptions}>
+              {statusOptions.map(option => (
+                <button
+                  key={option.value}
+                  type="button"
+                  className={`${styles.statusOption} ${status === option.value ? styles.selected : ''}`}
+                  onClick={() => setStatus(option.value)}
+                >
+                  <span className={styles.statusLabel}>{option.label}</span>
+                  <span className={styles.statusDescription}>{option.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className={styles.actions}>
+            <Button variant="ghost" onClick={handleCancel}>Cancel</Button>
+            <Button variant="primary" onClick={handleSave} disabled={!hasChanges || !allMappingsValid}>
+              Save changes
+            </Button>
+          </div>
+        </CardBody>
       </Card>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <DeleteConfirmModal
-          routingName={event?.name || 'Unknown Event'}
-          routingStatus={routing.status}
-          onConfirm={handleDelete}
-          onCancel={() => setShowDeleteModal(false)}
-        />
-      )}
     </div>
   );
 }

@@ -126,7 +126,7 @@ export function PublicationModal({
           <div className={styles.headerContent}>
             <h2 className={styles.productName}>{productName}</h2>
             <span className={styles.subtitle}>
-              Distributed to {publications.length} event{publications.length > 1 ? 's' : ''}
+              Distributed through {publications.length} event{publications.length > 1 ? 's' : ''}
             </span>
           </div>
           <button className={styles.closeBtn} onClick={onClose} aria-label="Close">
@@ -141,6 +141,7 @@ export function PublicationModal({
             {publications.map((pub, index) => {
               const isSelected = index === selectedIndex;
               const pubHasBoxOffice = hasBoxOfficeChannel(pub.salesRouting.channelIds);
+              const pubHasOnlineChannels = pub.salesRouting.channelIds.some(id => id !== 'box-office');
               
               return (
                 <button
@@ -153,12 +154,23 @@ export function PublicationModal({
                   </span>
                   <div className={styles.listItemInfo}>
                     <span className={styles.listEventName}>
-                      {pubHasBoxOffice && (
-                        <FontAwesomeIcon icon={faCashRegister} className={styles.boxOfficeIndicator} />
-                      )}
                       {pub.event.name}
                     </span>
                     <span className={styles.listRoutingName}>{pub.event.venue}</span>
+                    <div className={styles.channelBadges}>
+                      {pubHasBoxOffice && (
+                        <span className={styles.channelBadge}>
+                          <FontAwesomeIcon icon={faCashRegister} />
+                          Box Office
+                        </span>
+                      )}
+                      {pubHasOnlineChannels && (
+                        <span className={`${styles.channelBadge} ${styles.onlineBadge}`}>
+                          <FontAwesomeIcon icon={faGlobe} />
+                          Online
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               );

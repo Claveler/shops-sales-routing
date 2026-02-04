@@ -52,6 +52,26 @@ export interface Channel {
   icon?: string;
 }
 
+// Product categorization (imported from Square categories)
+export interface Hierarchy {
+  id: string;
+  name: string;
+  retailSetupId: string; // FK to CatalogIntegration
+}
+
+export interface HierarchyElement {
+  id: string;
+  hierarchyId: string;
+  parentId: string | null; // null = root category
+  name: string;
+  externalId?: string; // Square's category_id
+}
+
+export interface HierarchyElementProduct {
+  hierarchyElementId: string;
+  productId: string;
+}
+
 // DEPRECATED: Keeping for backwards compatibility during migration
 export type RoutingType = 'onsite' | 'online';
 export type RoutingStatus = 'active' | 'inactive' | 'draft';
@@ -271,6 +291,99 @@ export function hasOnlineChannels(channelIds: string[]): boolean {
 // Helper to check if Box Office is selected
 export function hasBoxOfficeChannel(channelIds: string[]): boolean {
   return channelIds.includes('box-office');
+}
+
+// Mock Hierarchy (Product Categories) - imported from Square
+export const hierarchies: Hierarchy[] = [
+  { id: 'hier-001', name: 'Square Categories', retailSetupId: 'ci-001' }
+];
+
+export const hierarchyElements: HierarchyElement[] = [
+  // Root categories
+  { id: 'he-001', hierarchyId: 'hier-001', parentId: null, name: 'Apparel', externalId: 'SQ_CAT_APPAREL' },
+  { id: 'he-002', hierarchyId: 'hier-001', parentId: null, name: 'Art & Prints', externalId: 'SQ_CAT_ART' },
+  { id: 'he-003', hierarchyId: 'hier-001', parentId: null, name: 'Music', externalId: 'SQ_CAT_MUSIC' },
+  { id: 'he-004', hierarchyId: 'hier-001', parentId: null, name: 'Home & Living', externalId: 'SQ_CAT_HOME' },
+  { id: 'he-005', hierarchyId: 'hier-001', parentId: null, name: 'Books', externalId: 'SQ_CAT_BOOKS' },
+  { id: 'he-006', hierarchyId: 'hier-001', parentId: null, name: 'Experiences', externalId: 'SQ_CAT_EXP' },
+  { id: 'he-007', hierarchyId: 'hier-001', parentId: null, name: 'Food & Wine', externalId: 'SQ_CAT_FOOD' },
+  
+  // Subcategories under Apparel
+  { id: 'he-001-1', hierarchyId: 'hier-001', parentId: 'he-001', name: 'T-Shirts', externalId: 'SQ_CAT_TSHIRTS' },
+  { id: 'he-001-2', hierarchyId: 'hier-001', parentId: 'he-001', name: 'Bags', externalId: 'SQ_CAT_BAGS' },
+  
+  // Subcategories under Home & Living
+  { id: 'he-004-1', hierarchyId: 'hier-001', parentId: 'he-004', name: 'Candles', externalId: 'SQ_CAT_CANDLES' },
+  { id: 'he-004-2', hierarchyId: 'hier-001', parentId: 'he-004', name: 'Mugs', externalId: 'SQ_CAT_MUGS' },
+  { id: 'he-004-3', hierarchyId: 'hier-001', parentId: 'he-004', name: 'Puzzles', externalId: 'SQ_CAT_PUZZLES' },
+];
+
+// Product-Category assignments
+export const hierarchyElementProducts: HierarchyElementProduct[] = [
+  // Apparel > T-Shirts
+  { hierarchyElementId: 'he-001-1', productId: 'p-001' }, // Candlelight T-Shirt (Black)
+  { hierarchyElementId: 'he-001-1', productId: 'p-002' }, // Candlelight T-Shirt (White)
+  // Apparel > Bags
+  { hierarchyElementId: 'he-001-2', productId: 'p-006' }, // Tote Bag
+  
+  // Art & Prints
+  { hierarchyElementId: 'he-002', productId: 'p-003' },   // Concert Poster
+  { hierarchyElementId: 'he-002', productId: 'p-007' },   // Van Gogh Starry Night Print
+  { hierarchyElementId: 'he-002', productId: 'p-012' },   // Barcelona City Map Poster
+  { hierarchyElementId: 'he-002', productId: 'p-new-001' }, // Limited Edition Poster
+  
+  // Music
+  { hierarchyElementId: 'he-003', productId: 'p-004' },   // Vinyl Record - Classical Hits
+  { hierarchyElementId: 'he-003', productId: 'p-new-003' }, // Exclusive Vinyl Record
+  
+  // Home & Living > Candles
+  { hierarchyElementId: 'he-004-1', productId: 'p-005' }, // Scented Candle Set
+  // Home & Living > Mugs
+  { hierarchyElementId: 'he-004-2', productId: 'p-008' }, // Van Gogh Sunflowers Mug
+  // Home & Living > Puzzles
+  { hierarchyElementId: 'he-004-3', productId: 'p-010' }, // Puzzle - Starry Night
+  
+  // Books
+  { hierarchyElementId: 'he-005', productId: 'p-009' },   // Art Book - Van Gogh Collection
+  { hierarchyElementId: 'he-005', productId: 'p-013' },   // Tapas Recipe Book
+  
+  // Experiences
+  { hierarchyElementId: 'he-006', productId: 'p-011' },   // VR Headset Rental
+  { hierarchyElementId: 'he-006', productId: 'p-new-002' }, // VIP Experience Package
+  
+  // Food & Wine
+  { hierarchyElementId: 'he-007', productId: 'p-014' },   // Wine Tasting Set
+];
+
+// Helper to get category for a product
+export function getProductCategory(productId: string): HierarchyElement | null {
+  const assignment = hierarchyElementProducts.find(hep => hep.productId === productId);
+  if (!assignment) return null;
+  return hierarchyElements.find(he => he.id === assignment.hierarchyElementId) || null;
+}
+
+// Helper to get full category path (e.g., "Apparel > T-Shirts")
+export function getProductCategoryPath(productId: string): string {
+  const category = getProductCategory(productId);
+  if (!category) return 'Uncategorized';
+  
+  if (category.parentId) {
+    const parent = hierarchyElements.find(he => he.id === category.parentId);
+    if (parent) {
+      return `${parent.name} > ${category.name}`;
+    }
+  }
+  return category.name;
+}
+
+// Helper to get root categories only
+export function getRootCategories(): HierarchyElement[] {
+  return hierarchyElements.filter(he => he.parentId === null);
+}
+
+// Helper to get all categories (flat list for filter dropdown)
+export function getAllCategories(): HierarchyElement[] {
+  return hierarchyElements;
 }
 
 // Mock Sales Routings - Updated to new data model with channelWarehouseMapping

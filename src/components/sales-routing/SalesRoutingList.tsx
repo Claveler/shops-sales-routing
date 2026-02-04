@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faCashRegister, faGlobe, faChevronDown, faChevronRight, faStar, faArrowRight, faDesktop, faStore, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faCashRegister, faGlobe, faChevronDown, faChevronRight, faStar, faDesktop, faStore, faExternalLinkAlt } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
@@ -201,73 +201,51 @@ export function SalesRoutingList() {
 
                     {/* Expandable Detail Section */}
                     <div className={`${styles.detailSection} ${isExpanded ? styles.visible : ''}`}>
-                      <div className={styles.detailContent}>
-                        {/* Box Office Section */}
-                        {hasBoxOffice && boxOfficeWarehouses.length > 0 && (
-                          <div className={styles.channelSection}>
-                            <div className={styles.sectionHeader}>
-                              <FontAwesomeIcon icon={faCashRegister} className={styles.sectionIcon} />
-                              <span className={styles.sectionTitle}>Box Office</span>
-                              <Badge variant="secondary" size="sm">
-                                {boxOfficeWarehouses.length} warehouse{boxOfficeWarehouses.length !== 1 ? 's' : ''}
-                              </Badge>
+                      <div className={styles.channelWarehouseTable}>
+                        <div className={styles.subTableHeader}>
+                          <span className={styles.columnHeader}>Channel</span>
+                          <span className={styles.columnHeader}>Warehouse</span>
+                        </div>
+                        {/* Box Office rows */}
+                        {hasBoxOffice && boxOfficeWarehouses.map((warehouse, index) => (
+                          <div key={`box-office-${warehouse?.id}`} className={`${styles.tableRow} ${index < boxOfficeWarehouses.length - 1 ? styles.noBorder : ''}`}>
+                            <div className={styles.channelCell}>
+                              {index === 0 && (
+                                <>
+                                  <FontAwesomeIcon icon={faCashRegister} className={styles.channelIcon} />
+                                  <span>Box Office</span>
+                                </>
+                              )}
                             </div>
-                            <div className={styles.sectionBody}>
-                              <p className={styles.sectionHint}>
-                                Warehouse selection configured per POS device in Box Office Setup
-                              </p>
-                              <div className={styles.warehouseList}>
-                                {boxOfficeWarehouses.map(warehouse => (
-                                  <div key={warehouse?.id} className={styles.warehouseItem}>
-                                    <span className={styles.warehouseName}>{warehouse?.name}</span>
-                                    {routing.priceReferenceWarehouseId === warehouse?.id && (
-                                      <span className={styles.priceRef}>
-                                        <FontAwesomeIcon icon={faStar} />
-                                        Price Reference
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
+                            <div className={styles.warehouseCell}>
+                              <span>{warehouse?.name}</span>
+                              {routing.priceReferenceWarehouseId === warehouse?.id && (
+                                <span className={styles.priceRefBadge}>
+                                  <FontAwesomeIcon icon={faStar} /> Price Ref
+                                </span>
+                              )}
                             </div>
                           </div>
-                        )}
-
-                        {/* Online Channels Section */}
-                        {onlineChannelObjects.length > 0 && (
-                          <div className={styles.channelSection}>
-                            <div className={styles.sectionHeader}>
-                              <FontAwesomeIcon icon={faGlobe} className={styles.sectionIcon} />
-                              <span className={styles.sectionTitle}>Online Channels</span>
-                              <Badge variant="secondary" size="sm">
-                                {onlineChannelObjects.length} channel{onlineChannelObjects.length !== 1 ? 's' : ''}
-                              </Badge>
-                            </div>
-                            <div className={styles.sectionBody}>
-                              <div className={styles.channelMappingList}>
-                                {onlineChannelObjects.map(channel => {
-                                  const warehouseId = routing.channelWarehouseMapping[channel.id];
-                                  const warehouse = warehouseId ? getWarehouse(warehouseId) : null;
-                                  return (
-                                    <div key={channel.id} className={styles.channelMappingItem}>
-                                      <div className={styles.channelInfo}>
-                                        <FontAwesomeIcon 
-                                          icon={channelTypeIcons[channel.type] || faGlobe} 
-                                          className={styles.channelIcon}
-                                        />
-                                        <span className={styles.channelName}>{channel.name}</span>
-                                      </div>
-                                      <FontAwesomeIcon icon={faArrowRight} className={styles.arrow} />
-                                      <span className={styles.warehouseTarget}>
-                                        {warehouse?.name || 'Not configured'}
-                                      </span>
-                                    </div>
-                                  );
-                                })}
+                        ))}
+                        {/* Online channel rows */}
+                        {onlineChannelObjects.map(channel => {
+                          const warehouseId = routing.channelWarehouseMapping[channel.id];
+                          const warehouse = warehouseId ? getWarehouse(warehouseId) : null;
+                          return (
+                            <div key={channel.id} className={styles.tableRow}>
+                              <div className={styles.channelCell}>
+                                <FontAwesomeIcon 
+                                  icon={channelTypeIcons[channel.type] || faGlobe} 
+                                  className={styles.channelIcon}
+                                />
+                                <span>{channel.name}</span>
+                              </div>
+                              <div className={styles.warehouseCell}>
+                                <span>{warehouse?.name || 'Not configured'}</span>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

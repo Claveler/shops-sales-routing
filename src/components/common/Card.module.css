@@ -66,3 +66,15 @@
 .body-padding-none {
   padding: 0;
 }
+
+.body-padding-sm {
+  padding: 12px;
+}
+
+.body-padding-md {
+  padding: 16px;
+}
+
+.body-padding-lg {
+  padding: 20px;
+}

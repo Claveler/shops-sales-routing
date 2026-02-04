@@ -154,18 +154,38 @@
   white-space: nowrap;
 }
 
-.boxOfficeIndicator {
-  font-size: 10px;
-  color: #7c3aed;
-  flex-shrink: 0;
-}
-
 .listRoutingName {
   font-size: 11px;
   color: var(--fz-text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.channelBadges {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.channelBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f3e8ff;
+  color: #7c3aed;
+}
+
+.channelBadge svg {
+  font-size: 9px;
+}
+
+.onlineBadge {
+  background: #e0f2fe;
+  color: #0ea5e9;
 }
 
 /* Right column - Details */

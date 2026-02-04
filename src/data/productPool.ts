@@ -1,4 +1,4 @@
-import type { Product, ProductWarehouse } from './mockData';
+import type { Product, ProductWarehouse, HierarchyElementProduct } from './mockData';
 
 // Demo warehouse IDs (created during integration wizard)
 export const DEMO_WAREHOUSE_1_ID = 'wh-demo-main';
@@ -109,6 +109,56 @@ export const SUGGESTED_ONLINE_PRODUCT_IDS = [
   'demo-p-003', // Premium Hoodie - in Pop-up Store
   'demo-p-007', // Canvas Tote Bag - in Pop-up Store
   'demo-p-011', // Concert Poster - in Pop-up Store
+];
+
+// Category assignments for demo products
+// Uses same category IDs from mockData.ts hierarchyElements
+export const DEMO_HIERARCHY_ELEMENT_PRODUCTS: HierarchyElementProduct[] = [
+  // Apparel > T-Shirts (he-001-1)
+  { hierarchyElementId: 'he-001-1', productId: 'demo-p-001' }, // Event T-Shirt (Black)
+  { hierarchyElementId: 'he-001-1', productId: 'demo-p-002' }, // Event T-Shirt (White)
+  { hierarchyElementId: 'he-001-1', productId: 'demo-p-021' }, // Anniversary Edition T-Shirt
+  // Apparel (he-001) - other apparel
+  { hierarchyElementId: 'he-001', productId: 'demo-p-003' }, // Premium Hoodie
+  { hierarchyElementId: 'he-001', productId: 'demo-p-004' }, // Vintage Cap
+  { hierarchyElementId: 'he-001', productId: 'demo-p-005' }, // Concert Jacket
+  { hierarchyElementId: 'he-001', productId: 'demo-p-006' }, // Limited Edition Beanie
+  
+  // Apparel > Bags (he-001-2)
+  { hierarchyElementId: 'he-001-2', productId: 'demo-p-007' }, // Canvas Tote Bag
+  
+  // Art & Prints (he-002)
+  { hierarchyElementId: 'he-002', productId: 'demo-p-011' }, // Concert Poster
+  { hierarchyElementId: 'he-002', productId: 'demo-p-013' }, // Art Print Collection
+  { hierarchyElementId: 'he-002', productId: 'demo-p-022' }, // Exclusive Poster Bundle
+  
+  // Music (he-003)
+  { hierarchyElementId: 'he-003', productId: 'demo-p-015' }, // Vinyl Record
+  { hierarchyElementId: 'he-003', productId: 'demo-p-025' }, // Digital Download Card
+  
+  // Home & Living > Candles (he-004-1)
+  { hierarchyElementId: 'he-004-1', productId: 'demo-p-012' }, // Scented Candle Set
+  
+  // Books (he-005)
+  { hierarchyElementId: 'he-005', productId: 'demo-p-014' }, // Photo Book
+  
+  // Experiences (he-006)
+  { hierarchyElementId: 'he-006', productId: 'demo-p-023' }, // VIP Experience Add-on
+  
+  // Food & Wine (he-007)
+  { hierarchyElementId: 'he-007', productId: 'demo-p-018' }, // Gourmet Chocolate Box
+  { hierarchyElementId: 'he-007', productId: 'demo-p-019' }, // Premium Coffee Blend
+  { hierarchyElementId: 'he-007', productId: 'demo-p-020' }, // Wine Tasting Set
+  
+  // Accessories (no specific category, use root)
+  { hierarchyElementId: 'he-001', productId: 'demo-p-008' }, // Enamel Pin Set
+  { hierarchyElementId: 'he-001', productId: 'demo-p-009' }, // Wristband Pack
+  { hierarchyElementId: 'he-001', productId: 'demo-p-010' }, // Lanyard
+  
+  // Collectibles - put under Music for now
+  { hierarchyElementId: 'he-003', productId: 'demo-p-016' }, // Commemorative Coin
+  { hierarchyElementId: 'he-002', productId: 'demo-p-017' }, // Signed Photograph
+  { hierarchyElementId: 'he-003', productId: 'demo-p-024' }, // Collector's Box Set
 ];
 
 // Demo data for auto-fill buttons

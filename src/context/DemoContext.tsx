@@ -7,9 +7,13 @@ import {
   salesRoutings as staticSalesRoutings,
   productPublications as staticProductPublications,
   boxOfficeSetups as staticBoxOfficeSetups,
+  hierarchyElements as staticHierarchyElements,
+  hierarchyElementProducts as staticHierarchyElementProducts,
   events,
   channels,
   isBoxOfficeChannel,
+  getRootCategories,
+  getAllCategories,
   type CatalogIntegration,
   type Warehouse,
   type Product,
@@ -17,8 +21,10 @@ import {
   type SalesRouting,
   type ProductPublication,
   type BoxOfficeSetup,
+  type HierarchyElement,
+  type HierarchyElementProduct,
 } from '../data/mockData';
-import { DEMO_PRODUCTS, DEMO_PRODUCT_WAREHOUSES, SECOND_SYNC_PRODUCTS, SECOND_SYNC_PRODUCT_WAREHOUSES } from '../data/productPool';
+import { DEMO_PRODUCTS, DEMO_PRODUCT_WAREHOUSES, SECOND_SYNC_PRODUCTS, SECOND_SYNC_PRODUCT_WAREHOUSES, DEMO_HIERARCHY_ELEMENT_PRODUCTS } from '../data/productPool';
 
 interface DemoState {
   // Mode
@@ -32,6 +38,8 @@ interface DemoState {
   salesRoutings: SalesRouting[];
   productPublications: ProductPublication[];
   boxOfficeSetups: BoxOfficeSetup[];
+  hierarchyElements: HierarchyElement[];
+  hierarchyElementProducts: HierarchyElementProduct[];
   
   // Sync state
   hasSynced: boolean;
@@ -63,6 +71,12 @@ interface DemoContextValue extends DemoState {
   getSalesRoutings: () => SalesRouting[];
   getProductPublications: () => ProductPublication[];
   getBoxOfficeSetups: () => BoxOfficeSetup[];
+  getHierarchyElements: () => HierarchyElement[];
+  getHierarchyElementProducts: () => HierarchyElementProduct[];
+  
+  // Category helpers
+  getProductCategory: (productId: string) => HierarchyElement | null;
+  getProductCategoryPath: (productId: string) => string;
   
   // Helper to check if product is published
   isProductPublished: (productId: string) => boolean;
@@ -81,6 +95,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     salesRoutings: [],
     productPublications: [],
     boxOfficeSetups: [],
+    hierarchyElements: [],
+    hierarchyElementProducts: [],
     hasSynced: false,
     secondSyncDone: false,
     syncedProductIds: [],
@@ -97,6 +113,8 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       salesRoutings: [],
       productPublications: [],
       boxOfficeSetups: [],
+      hierarchyElements: [],
+      hierarchyElementProducts: [],
       hasSynced: false,
       secondSyncDone: false,
       syncedProductIds: [],
@@ -135,10 +153,17 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         );
         newProductIds = newProducts.map(p => p.id);
         
+        // Filter category assignments for synced products
+        const newHierarchyElementProducts = DEMO_HIERARCHY_ELEMENT_PRODUCTS.filter(hep =>
+          newProductIds.includes(hep.productId)
+        );
+        
         return {
           ...prev,
           products: newProducts,
           productWarehouses: newProductWarehouses,
+          hierarchyElements: staticHierarchyElements, // Use static categories
+          hierarchyElementProducts: newHierarchyElementProducts,
           hasSynced: true,
           syncedProductIds: newProductIds,
         };
@@ -150,6 +175,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         );
         newProductIds = newProducts.map(p => p.id);
         
+        // Filter category assignments for new products
+        const newHierarchyElementProducts = DEMO_HIERARCHY_ELEMENT_PRODUCTS.filter(hep =>
+          newProductIds.includes(hep.productId)
+        );
+        
         // Also create publications for products that are in mapped warehouses
         const newPublications: ProductPublication[] = [];
         newProducts.forEach(product => {
@@ -158,11 +188,15 @@ export function DemoProvider({ children }: { children: ReactNode }) {
             .map(pw => pw.warehouseId);
           
           prev.salesRoutings.forEach(routing => {
-            // Check if any of the product's warehouses is mapped to a channel in this routing
+            // Check online channels (via channelWarehouseMapping)
             const mappedWarehouseIds = Object.values(routing.channelWarehouseMapping);
-            const isInRouting = mappedWarehouseIds.some(whId => productWarehouseIds.includes(whId));
+            const isInOnlineChannel = mappedWarehouseIds.some(whId => productWarehouseIds.includes(whId));
             
-            if (isInRouting) {
+            // Check Box Office (via warehouseIds)
+            const hasBoxOffice = routing.channelIds.includes('box-office');
+            const isInBoxOfficeRouting = hasBoxOffice && routing.warehouseIds.some(whId => productWarehouseIds.includes(whId));
+            
+            if (isInOnlineChannel || isInBoxOfficeRouting) {
               newPublications.push({
                 productId: product.id,
                 salesRoutingId: routing.id,
@@ -177,6 +211,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
           products: [...prev.products, ...newProducts],
           productWarehouses: [...prev.productWarehouses, ...newProductWarehouses],
           productPublications: [...prev.productPublications, ...newPublications],
+          hierarchyElementProducts: [...prev.hierarchyElementProducts, ...newHierarchyElementProducts],
           secondSyncDone: true,
           syncedProductIds: newProductIds,
         };
@@ -203,13 +238,19 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       // Products are published if their warehouse is mapped to at least one channel
       const newPublications: ProductPublication[] = [];
       
-      // Get all warehouse IDs that are used in the channel mapping
+      // Get warehouses from online channel mapping
       const mappedWarehouseIds = Object.values(newRouting.channelWarehouseMapping);
-      const uniqueMappedWarehouseIds = [...new Set(mappedWarehouseIds)];
+      const onlineWarehouseIds = [...new Set(mappedWarehouseIds)].filter(id => id && id !== '');
       
-      // Get all products in the mapped warehouses
+      // Also include Box Office warehouses if Box Office channel selected
+      const hasBoxOffice = newRouting.channelIds.includes('box-office');
+      const allRelevantWarehouseIds = hasBoxOffice 
+        ? [...new Set([...onlineWarehouseIds, ...newRouting.warehouseIds])]
+        : onlineWarehouseIds;
+      
+      // Get all products in the relevant warehouses
       const warehouseProductIds = prev.productWarehouses
-        .filter(pw => uniqueMappedWarehouseIds.includes(pw.warehouseId))
+        .filter(pw => allRelevantWarehouseIds.includes(pw.warehouseId))
         .map(pw => pw.productId);
       const uniqueProductIds = [...new Set(warehouseProductIds)];
       
@@ -283,6 +324,45 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     return state.isResetMode ? state.boxOfficeSetups : staticBoxOfficeSetups;
   }, [state.isResetMode, state.boxOfficeSetups]);
 
+  const getHierarchyElements = useCallback(() => {
+    // Categories are synced with products, use static for now (same in both modes)
+    return state.isResetMode ? state.hierarchyElements : staticHierarchyElements;
+  }, [state.isResetMode, state.hierarchyElements]);
+
+  const getHierarchyElementProducts = useCallback(() => {
+    return state.isResetMode ? state.hierarchyElementProducts : staticHierarchyElementProducts;
+  }, [state.isResetMode, state.hierarchyElementProducts]);
+
+  // Get category for a product
+  const getProductCategory = useCallback((productId: string): HierarchyElement | null => {
+    const heps = state.isResetMode ? state.hierarchyElementProducts : staticHierarchyElementProducts;
+    const hes = state.isResetMode ? state.hierarchyElements : staticHierarchyElements;
+    
+    const assignment = heps.find(hep => hep.productId === productId);
+    if (!assignment) return null;
+    return hes.find(he => he.id === assignment.hierarchyElementId) || null;
+  }, [state.isResetMode, state.hierarchyElementProducts, state.hierarchyElements]);
+
+  // Get full category path (e.g., "Apparel > T-Shirts")
+  const getProductCategoryPath = useCallback((productId: string): string => {
+    const heps = state.isResetMode ? state.hierarchyElementProducts : staticHierarchyElementProducts;
+    const hes = state.isResetMode ? state.hierarchyElements : staticHierarchyElements;
+    
+    const assignment = heps.find(hep => hep.productId === productId);
+    if (!assignment) return 'Uncategorized';
+    
+    const category = hes.find(he => he.id === assignment.hierarchyElementId);
+    if (!category) return 'Uncategorized';
+    
+    if (category.parentId) {
+      const parent = hes.find(he => he.id === category.parentId);
+      if (parent) {
+        return `${parent.name} > ${category.name}`;
+      }
+    }
+    return category.name;
+  }, [state.isResetMode, state.hierarchyElementProducts, state.hierarchyElements]);
+
   // Check if product is published
   const isProductPublished = useCallback((productId: string) => {
     const routings = state.isResetMode ? state.salesRoutings : staticSalesRoutings;
@@ -330,6 +410,10 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     getSalesRoutings,
     getProductPublications,
     getBoxOfficeSetups,
+    getHierarchyElements,
+    getHierarchyElementProducts,
+    getProductCategory,
+    getProductCategoryPath,
     isProductPublished,
     getUnpublishedReason,
   }), [
@@ -348,6 +432,10 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     getSalesRoutings,
     getProductPublications,
     getBoxOfficeSetups,
+    getHierarchyElements,
+    getHierarchyElementProducts,
+    getProductCategory,
+    getProductCategoryPath,
     isProductPublished,
     getUnpublishedReason,
   ]);
@@ -368,4 +456,4 @@ export function useDemo() {
 }
 
 // Re-export static data that doesn't change
-export { events, channels };
+export { events, channels, getRootCategories, getAllCategories };
