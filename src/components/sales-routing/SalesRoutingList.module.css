@@ -69,6 +69,17 @@
   gap: 4px;
 }
 
+.warehouseItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.priceRefIndicator {
+  color: #f59e0b;
+  font-size: 10px;
+}
+
 .actions {
   display: flex;
   align-items: center;

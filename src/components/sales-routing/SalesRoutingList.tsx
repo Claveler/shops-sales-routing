@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faEdit, faStore, faGlobe } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faEdit, faStore, faGlobe, faStar } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
@@ -169,11 +169,23 @@ export function SalesRoutingList() {
                       </TableCell>
                       <TableCell>
                         <div className={styles.warehouseList}>
-                          {warehouses.map(warehouse => (
-                            <Badge key={warehouse!.id} variant="info" size="sm">
-                              {warehouse!.name}
-                            </Badge>
-                          ))}
+                          {warehouses.map(warehouse => {
+                            const isPriceRef = routing.type === 'onsite' && 
+                                               warehouses.length > 1 && 
+                                               routing.priceReferenceWarehouseId === warehouse!.id;
+                            return (
+                              <div key={warehouse!.id} className={styles.warehouseItem}>
+                                <Badge variant="info" size="sm">
+                                  {warehouse!.name}
+                                </Badge>
+                                {isPriceRef && (
+                                  <span className={styles.priceRefIndicator}>
+                                    <FontAwesomeIcon icon={faStar} />
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       </TableCell>
                       <TableCell>

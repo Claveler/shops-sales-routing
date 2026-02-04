@@ -22,7 +22,8 @@
   border: 1px solid var(--fz-border-color);
   border-radius: var(--fz-border-radius);
   padding: var(--fz-spacing-lg);
-  margin-bottom: var(--fz-spacing-xl);
+  margin-top: var(--fz-spacing-xl);
+  margin-bottom: 0;
 }
 
 .nameHeader {
