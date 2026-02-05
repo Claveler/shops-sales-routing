@@ -9,7 +9,9 @@ import {
   faGlobe, 
   faBoxes,
   faCashRegister,
-  faImage
+  faImage,
+  faEye,
+  faEyeSlash
 } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
 import { 
@@ -17,7 +19,8 @@ import {
   getWarehouseById as getStaticWarehouseById, 
   getBoxOfficeSetupsByRoutingId, 
   getChannelById,
-  hasBoxOfficeChannel
+  hasBoxOfficeChannel,
+  isBoxOfficeChannel
 } from '../../data/mockData';
 import type { ResolvedProductPublication } from '../../data/mockData';
 import styles from './PublicationModal.module.css';
@@ -111,11 +114,28 @@ export function PublicationModal({
     ? getBoxOfficeSetupsByRoutingId(selectedPub.salesRouting.id) 
     : [];
   
-  // Get ALL channel names for the Channels card
-  const allChannelNames = selectedPub.salesRouting.channelIds
+  // Get ALL channels for the Channels card with visibility status
+  const allChannels = selectedPub.salesRouting.channelIds
     ? selectedPub.salesRouting.channelIds
-        .map(id => getChannelById(id)?.name)
-        .filter(Boolean)
+        .map(id => {
+          const channel = getChannelById(id);
+          if (!channel) return null;
+          
+          // Check visibility for this product in this channel
+          const isBoxOffice = isBoxOfficeChannel(id);
+          // Box Office channels don't have per-product visibility settings
+          const isVisible = isBoxOffice 
+            ? true 
+            : demo.isProductVisibleInChannel(productId, id, selectedPub.salesRouting.id);
+          
+          return {
+            id,
+            name: channel.name,
+            isBoxOffice,
+            isVisible
+          };
+        })
+        .filter(Boolean) as { id: string; name: string; isBoxOffice: boolean; isVisible: boolean }[]
     : [];
 
   return (
@@ -218,11 +238,23 @@ export function PublicationModal({
                   <span className={styles.cardLabel}>Channels</span>
                 </div>
                 <div className={styles.cardContent}>
-                  <span className={styles.cardValue}>
-                    {allChannelNames.length > 0 
-                      ? allChannelNames.join(', ')
-                      : 'No channels configured'}
-                  </span>
+                  {allChannels.length > 0 ? (
+                    <div className={styles.channelsList}>
+                      {allChannels.map(channel => (
+                        <div key={channel.id} className={styles.channelRow}>
+                          <span className={styles.channelName}>{channel.name}</span>
+                          {!channel.isBoxOffice && (
+                            <span className={`${styles.visibilityIndicator} ${channel.isVisible ? styles.visible : styles.hidden}`}>
+                              <FontAwesomeIcon icon={channel.isVisible ? faEye : faEyeSlash} />
+                              {channel.isVisible ? 'Visible' : 'Hidden'}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className={styles.emptyMessage}>No channels configured</span>
+                  )}
                 </div>
               </div>
 

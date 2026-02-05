@@ -203,3 +203,40 @@
   color: var(--fz-text-secondary);
   line-height: 1.5;
 }
+
+/* Product visibility toggle */
+.visibilityToggle {
+  display: flex;
+  gap: 4px;
+  margin-left: 12px;
+  flex-shrink: 0;
+}
+
+.visibilityBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--fz-border-color);
+  border-radius: 6px;
+  background: var(--fz-bg-card);
+  color: var(--fz-text-secondary);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.visibilityBtn:hover {
+  border-color: var(--fz-primary);
+  color: var(--fz-text-primary);
+}
+
+.visibilityBtn.active {
+  background: rgba(0, 137, 227, 0.1);
+  border-color: var(--fz-primary);
+  color: var(--fz-primary);
+}
+
+.visibilityBtn span {
+  white-space: nowrap;
+}

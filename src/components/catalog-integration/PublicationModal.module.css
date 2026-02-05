@@ -377,3 +377,44 @@
 .routingLink svg {
   font-size: 11px;
 }
+
+/* Channel visibility indicators */
+.channelsList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.channelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.channelName {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+}
+
+.visibilityIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.visibilityIndicator.visible {
+  background: rgba(34, 197, 94, 0.1);
+  color: rgb(34, 197, 94);
+}
+
+.visibilityIndicator.hidden {
+  background: rgba(156, 163, 175, 0.1);
+  color: rgb(156, 163, 175);
+}

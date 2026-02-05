@@ -12,7 +12,7 @@ import { ChannelRoutingStep } from './ChannelRoutingStep';
 import { ReviewStep } from './ReviewStep';
 import { useDemo } from '../../context/DemoContext';
 import { hasBoxOfficeChannel, isBoxOfficeChannel } from '../../data/mockData';
-import type { RoutingStatus } from '../../data/mockData';
+import type { RoutingStatus, DefaultVisibility } from '../../data/mockData';
 import styles from './CreateRoutingWizard.module.css';
 
 interface WizardStep {
@@ -40,6 +40,7 @@ export function CreateRoutingWizard() {
   const [selectedWarehouseIds, setSelectedWarehouseIds] = useState<string[]>([]);
   const [priceReferenceWarehouseId, setPriceReferenceWarehouseId] = useState<string | null>(null);
   const [channelWarehouseMapping, setChannelWarehouseMapping] = useState<Record<string, string>>({});
+  const [channelDefaultVisibility, setChannelDefaultVisibility] = useState<Record<string, DefaultVisibility>>({});
   const [status, setStatus] = useState<RoutingStatus>('draft');
   
   // Wizard state
@@ -139,6 +140,7 @@ export function CreateRoutingWizard() {
       warehouseIds: selectedWarehouseIds,
       channelIds: selectedChannelIds,
       channelWarehouseMapping,
+      channelDefaultVisibility: Object.keys(channelDefaultVisibility).length > 0 ? channelDefaultVisibility : undefined,
       priceReferenceWarehouseId: requiresPriceReference ? (priceReferenceWarehouseId || undefined) : undefined,
       status,
     };
@@ -191,6 +193,8 @@ export function CreateRoutingWizard() {
             selectedWarehouseIds={selectedWarehouseIds}
             channelWarehouseMapping={channelWarehouseMapping}
             onChange={setChannelWarehouseMapping}
+            channelDefaultVisibility={channelDefaultVisibility}
+            onDefaultVisibilityChange={setChannelDefaultVisibility}
           />
         );
       case 'review':

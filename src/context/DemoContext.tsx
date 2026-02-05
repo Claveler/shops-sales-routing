@@ -23,6 +23,8 @@ import {
   type BoxOfficeSetup,
   type HierarchyElement,
   type HierarchyElementProduct,
+  type ProductChannelVisibility,
+  type DefaultVisibility,
 } from '../data/mockData';
 import { DEMO_PRODUCTS, DEMO_PRODUCT_WAREHOUSES, SECOND_SYNC_PRODUCTS, SECOND_SYNC_PRODUCT_WAREHOUSES, DEMO_HIERARCHY_ELEMENT_PRODUCTS } from '../data/productPool';
 
@@ -40,6 +42,7 @@ interface DemoState {
   boxOfficeSetups: BoxOfficeSetup[];
   hierarchyElements: HierarchyElement[];
   hierarchyElementProducts: HierarchyElementProduct[];
+  productChannelVisibility: ProductChannelVisibility[];
   
   // Sync state
   hasSynced: boolean;
@@ -81,6 +84,13 @@ interface DemoContextValue extends DemoState {
   // Helper to check if product is published
   isProductPublished: (productId: string) => boolean;
   getUnpublishedReason: (productId: string) => { type: 'no-routing' } | null;
+  
+  // Product channel visibility
+  getProductChannelVisibility: () => ProductChannelVisibility[];
+  isProductVisibleInChannel: (productId: string, channelId: string, routingId: string) => boolean;
+  setProductChannelVisibility: (productId: string, channelId: string, routingId: string, visible: boolean) => void;
+  bulkSetProductChannelVisibility: (productIds: string[], channelIds: string[], routingId: string, visible: boolean) => void;
+  initializeChannelVisibility: (routingId: string, channelId: string, defaultVisibility: DefaultVisibility, productIds: string[]) => void;
 }
 
 const DemoContext = createContext<DemoContextValue | null>(null);
@@ -97,6 +107,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     boxOfficeSetups: [],
     hierarchyElements: [],
     hierarchyElementProducts: [],
+    productChannelVisibility: [],
     hasSynced: false,
     secondSyncDone: false,
     syncedProductIds: [],
@@ -115,6 +126,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       boxOfficeSetups: [],
       hierarchyElements: [],
       hierarchyElementProducts: [],
+      productChannelVisibility: [],
       hasSynced: false,
       secondSyncDone: false,
       syncedProductIds: [],
@@ -264,10 +276,27 @@ export function DemoProvider({ children }: { children: ReactNode }) {
         });
       });
 
+      // Initialize channel visibility based on default settings
+      const newVisibilityRecords: ProductChannelVisibility[] = [];
+      if (routingData.channelDefaultVisibility) {
+        Object.entries(routingData.channelDefaultVisibility).forEach(([channelId, defaultVisibility]) => {
+          const visible = defaultVisibility === 'all';
+          uniqueProductIds.forEach(productId => {
+            newVisibilityRecords.push({
+              productId,
+              channelId,
+              routingId: newRouting.id,
+              visible
+            });
+          });
+        });
+      }
+
       return {
         ...prev,
         salesRoutings: [...prev.salesRoutings, newRouting],
         productPublications: [...prev.productPublications, ...newPublications],
+        productChannelVisibility: [...prev.productChannelVisibility, ...newVisibilityRecords],
       };
     });
 
@@ -396,6 +425,87 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     return { type: 'no-routing' as const };
   }, [isProductPublished]);
 
+  // Get all product channel visibility records
+  const getProductChannelVisibility = useCallback(() => {
+    return state.productChannelVisibility;
+  }, [state.productChannelVisibility]);
+
+  // Check if a product is visible in a specific channel for a routing
+  // If no explicit record exists, defaults to true (visible)
+  const isProductVisibleInChannel = useCallback((productId: string, channelId: string, routingId: string) => {
+    const record = state.productChannelVisibility.find(
+      pcv => pcv.productId === productId && pcv.channelId === channelId && pcv.routingId === routingId
+    );
+    // Default to visible if no explicit record
+    return record ? record.visible : true;
+  }, [state.productChannelVisibility]);
+
+  // Set visibility for a single product in a channel
+  const setProductChannelVisibility = useCallback((productId: string, channelId: string, routingId: string, visible: boolean) => {
+    setState(prev => {
+      const existingIndex = prev.productChannelVisibility.findIndex(
+        pcv => pcv.productId === productId && pcv.channelId === channelId && pcv.routingId === routingId
+      );
+      
+      if (existingIndex >= 0) {
+        // Update existing record
+        const updated = [...prev.productChannelVisibility];
+        updated[existingIndex] = { ...updated[existingIndex], visible };
+        return { ...prev, productChannelVisibility: updated };
+      } else {
+        // Create new record
+        return {
+          ...prev,
+          productChannelVisibility: [
+            ...prev.productChannelVisibility,
+            { productId, channelId, routingId, visible }
+          ]
+        };
+      }
+    });
+  }, []);
+
+  // Bulk set visibility for multiple products across multiple channels
+  const bulkSetProductChannelVisibility = useCallback((productIds: string[], channelIds: string[], routingId: string, visible: boolean) => {
+    setState(prev => {
+      const newVisibility = [...prev.productChannelVisibility];
+      
+      productIds.forEach(productId => {
+        channelIds.forEach(channelId => {
+          const existingIndex = newVisibility.findIndex(
+            pcv => pcv.productId === productId && pcv.channelId === channelId && pcv.routingId === routingId
+          );
+          
+          if (existingIndex >= 0) {
+            newVisibility[existingIndex] = { ...newVisibility[existingIndex], visible };
+          } else {
+            newVisibility.push({ productId, channelId, routingId, visible });
+          }
+        });
+      });
+      
+      return { ...prev, productChannelVisibility: newVisibility };
+    });
+  }, []);
+
+  // Initialize visibility for all products when a routing is created
+  const initializeChannelVisibility = useCallback((routingId: string, channelId: string, defaultVisibility: DefaultVisibility, productIds: string[]) => {
+    setState(prev => {
+      const visible = defaultVisibility === 'all';
+      const newRecords: ProductChannelVisibility[] = productIds.map(productId => ({
+        productId,
+        channelId,
+        routingId,
+        visible
+      }));
+      
+      return {
+        ...prev,
+        productChannelVisibility: [...prev.productChannelVisibility, ...newRecords]
+      };
+    });
+  }, []);
+
   const value = useMemo<DemoContextValue>(() => ({
     ...state,
     resetDemo,
@@ -418,6 +528,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     getProductCategoryPath,
     isProductPublished,
     getUnpublishedReason,
+    getProductChannelVisibility,
+    isProductVisibleInChannel,
+    setProductChannelVisibility,
+    bulkSetProductChannelVisibility,
+    initializeChannelVisibility,
   }), [
     state,
     resetDemo,
@@ -440,6 +555,11 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     getProductCategoryPath,
     isProductPublished,
     getUnpublishedReason,
+    getProductChannelVisibility,
+    isProductVisibleInChannel,
+    setProductChannelVisibility,
+    bulkSetProductChannelVisibility,
+    initializeChannelVisibility,
   ]);
 
   return (

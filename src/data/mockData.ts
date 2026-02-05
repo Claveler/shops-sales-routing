@@ -73,6 +73,17 @@ export interface HierarchyElementProduct {
   productId: string;
 }
 
+// Product Channel Visibility - controls which products are visible in each channel
+export interface ProductChannelVisibility {
+  productId: string;
+  channelId: string;
+  routingId: string;  // Scoped to a specific sales routing
+  visible: boolean;
+}
+
+// Default visibility setting for channel-warehouse assignments
+export type DefaultVisibility = 'all' | 'none';
+
 // DEPRECATED: Keeping for backwards compatibility during migration
 export type RoutingType = 'onsite' | 'online';
 export type RoutingStatus = 'active' | 'inactive' | 'draft';
@@ -86,6 +97,7 @@ export interface SalesRouting {
   priceReferenceWarehouseId?: string; // Required when Box-Office channel selected with multiple warehouses
   channelIds: string[]; // All selected channels (including Box-Office)
   channelWarehouseMapping: Record<string, string>; // Maps each channel to one warehouse
+  channelDefaultVisibility?: Record<string, DefaultVisibility>; // Default visibility per channel when routing created
   selectedProductIds?: string[]; // DEPRECATED: Product visibility handled separately
   productChannelMapping?: Record<string, string[]>; // DEPRECATED: kept for backwards compat
   status: RoutingStatus;

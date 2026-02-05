@@ -13,7 +13,7 @@ This is a high-fidelity front-end mockup of new functionality for the **Fever Zo
 A new **Products** section in the left sidebar containing:
 - **Catalog Integration** - Connect external product catalogs (Square, Shopify)
 - **Sales Routing** - Configure how products are made available for sale at events
-- **Channels** - (Placeholder) Configure per-product channel visibility
+- **Channels** - Configure per-product channel visibility (granular control over which products appear in each channel)
 
 ### Target Users
 - Fever operations staff
@@ -424,7 +424,10 @@ src/
 │   │   ├── ChannelRoutingStep.tsx
 │   │   └── ReviewStep.tsx
 │   └── channels/
-│       └── ChannelsPage.tsx      # Placeholder for future feature
+│       ├── ChannelsPage.tsx        # Main page with city/event selectors
+│       ├── ChannelList.tsx         # Left panel channel list
+│       ├── ChannelProductList.tsx  # Right panel product visibility table
+│       └── BulkEditModal.tsx       # Modal for bulk visibility changes
 ```
 
 ---
@@ -445,32 +448,115 @@ src/
 
 ---
 
-## 10. Future Considerations
+## 10. Product Channel Visibility
 
-### Channels Page (Placeholder Added)
-A placeholder page has been added at **Products → Channels** for future implementation of per-product channel visibility. This will allow:
-- Selecting a sales channel to configure
-- Choosing which products to show or hide per channel
-- Fine-tuning visibility per event if needed
+### Overview
+The **Channels** page (Products → Channels) provides granular control over which products are visible in each sales channel. This is analogous to the ticket-type channel visibility feature in Fever Zone's Events section for tickets.
 
-This is analogous to the ticket-type channel visibility feature in Fever Zone's Events section.
+### Key Concepts
+
+**Default Visibility**: When creating a sales routing, users can choose the default visibility for each channel:
+- **All visible** (opt-out model): All products from the connected warehouse start visible; users can hide specific products
+- **None visible** (opt-in model): No products are visible initially; users must add products they want to show
+
+**Visibility per Channel**: Each product can be independently shown or hidden in each online channel. Box Office channels don't support per-product visibility (all products in connected warehouses are available).
+
+### User Interface
+
+**Channels Page Navigation**:
+Before viewing or editing visibility, users must select an event:
+1. **City Selector**: Dropdown showing cities that have events with sales routings
+2. **Event Selector**: Dropdown showing events in the selected city (enabled after city selection)
+3. **Show Button**: Loads the channels for the selected event/routing
+
+This matches the Fever Zone pattern where users first narrow down by geography before seeing channel details.
+
+**Channels Page Layout** (after event selection):
+- **Left Panel (30%)**: Channel list filtered to channels in the selected routing
+  - Filter by channel type
+  - Search channels
+  - Checkboxes for bulk selection
+  - "Edit in bulk" button (enabled when multiple selected)
+- **Right Panel (70%)**: Products in selected channel
+  - Product count indicator (e.g., "3 of 14 products visible")
+  - "Show all" / "Hide all" buttons
+  - Save and Discard buttons (appear when changes are pending)
+  - Search and filter by category
+  - Table with visibility toggles
+
+**Single Channel Editing**:
+1. Click a channel in the left panel
+2. View all products from connected warehouses
+3. Toggle visibility with eye icons (changes are staged, not saved immediately)
+4. Click **Save** to commit changes, or **Discard** to revert
+
+**Batch Save Behavior**:
+Visibility changes are staged locally and require explicit saving:
+1. Toggle visibility, or click "Show all" / "Hide all" - changes are staged
+2. **Save** and **Discard** buttons appear when there are pending changes
+3. Click **Save** to commit all changes, or **Discard** to revert
+4. Switching to a different channel or routing automatically discards pending changes
+
+This prevents accidental changes and allows users to preview before committing.
+
+**Bulk Editing**:
+1. Select multiple channels using checkboxes
+2. Click "Edit in bulk" button
+3. Modal appears with options to:
+   - Add products (make visible across selected channels)
+   - Remove products (hide across selected channels)
+4. Select products from dropdowns and save
+
+### Integration Points
+
+**Sales Routing Wizard**: 
+- Step 4 (Channel Routing) includes default visibility selection for each online channel
+- Users choose "All visible" (opt-out) or "None visible" (opt-in) per channel
+- When the routing is created, visibility records are initialized based on these defaults:
+  - "All visible": Creates records with `visible: true` for all products in the connected warehouse
+  - "None visible": Creates records with `visible: false` for all products in the connected warehouse
+
+**Distribution Modal**: 
+- Shows visibility status (visible/hidden indicator) for each channel
+- Visible channels show green "Visible" badge
+- Hidden products show gray "Hidden" badge
+
+### Data Model
+
+New interface added:
+```typescript
+interface ProductChannelVisibility {
+  productId: string;
+  channelId: string;
+  routingId: string;  // Scoped to a specific sales routing
+  visible: boolean;
+}
+```
+
+SalesRouting extended with:
+```typescript
+channelDefaultVisibility?: Record<string, DefaultVisibility>;
+// Maps channelId -> 'all' | 'none'
+```
+
+---
+
+## 11. Future Considerations
 
 ### Not in Current Scope
 - Multiple catalog integrations per partner
-- Full product channel visibility implementation (placeholder exists)
 - Automated channel assignment rules
 - Inventory sync back to external systems
 - Real API integration
 
 ### Potential Enhancements
-- Complete Channels page with product visibility configuration
 - Sales analytics per routing
 - Warehouse transfer functionality
-- Bulk product operations
+- Bulk product operations across warehouses
 
 ---
 
-## 11. Glossary
+## 12. Glossary
 
 | Term | Definition |
 |------|------------|
@@ -487,6 +573,8 @@ This is analogous to the ticket-type channel visibility feature in Fever Zone's 
 | **Multi-warehouse Routing** | Routing with Box Office channel, allowing multiple warehouses |
 | **Single-warehouse Routing** | Online-only routing, restricted to one warehouse |
 | **Category** | Product categorization imported from external system (Square/Shopify) |
+| **Product Channel Visibility** | Configuration controlling which products appear in each sales channel |
+| **Default Visibility** | Setting determining if products start visible (opt-out) or hidden (opt-in) when routing is created |
 
 ---
 

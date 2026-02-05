@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStore, faGlobe, faShoppingCart, faDesktop, faTicketAlt, faArrowRight, faMagicWandSparkles, faCog } from '@fortawesome/free-solid-svg-icons';
-import { channels, getWarehouseById, isBoxOfficeChannel } from '../../data/mockData';
+import { faStore, faGlobe, faShoppingCart, faDesktop, faTicketAlt, faArrowRight, faMagicWandSparkles, faCog, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { channels, getWarehouseById, isBoxOfficeChannel, type DefaultVisibility } from '../../data/mockData';
 import { useDemo } from '../../context/DemoContext';
 import styles from './ChannelRoutingStep.module.css';
 
@@ -10,6 +10,8 @@ interface ChannelRoutingStepProps {
   selectedWarehouseIds: string[];
   channelWarehouseMapping: Record<string, string>;
   onChange: (mapping: Record<string, string>) => void;
+  channelDefaultVisibility?: Record<string, DefaultVisibility>;
+  onDefaultVisibilityChange?: (visibility: Record<string, DefaultVisibility>) => void;
 }
 
 const channelIcons: Record<string, typeof faGlobe> = {
@@ -25,6 +27,8 @@ export function ChannelRoutingStep({
   selectedWarehouseIds,
   channelWarehouseMapping,
   onChange,
+  channelDefaultVisibility = {},
+  onDefaultVisibilityChange,
 }: ChannelRoutingStepProps) {
   const demo = useDemo();
   const demoWarehouses = demo.getWarehouses();
@@ -74,6 +78,20 @@ export function ChannelRoutingStep({
       ...channelWarehouseMapping,
       [channelId]: warehouseId,
     });
+  };
+
+  const handleVisibilityChange = (channelId: string, visibility: DefaultVisibility) => {
+    if (onDefaultVisibilityChange) {
+      onDefaultVisibilityChange({
+        ...channelDefaultVisibility,
+        [channelId]: visibility,
+      });
+    }
+  };
+
+  // Get default visibility for a channel (defaults to 'all')
+  const getChannelVisibility = (channelId: string): DefaultVisibility => {
+    return channelDefaultVisibility[channelId] || 'all';
   };
 
   // Fill demo data - assign only online channels to warehouses
@@ -168,6 +186,30 @@ export function ChannelRoutingStep({
                   </select>
                 )}
               </div>
+
+              {/* Product visibility toggle for online channels */}
+              {!isBoxOffice && onDefaultVisibilityChange && (
+                <div className={styles.visibilityToggle}>
+                  <button
+                    type="button"
+                    className={`${styles.visibilityBtn} ${getChannelVisibility(channel!.id) === 'all' ? styles.active : ''}`}
+                    onClick={() => handleVisibilityChange(channel!.id, 'all')}
+                    title="Start with all products visible"
+                  >
+                    <FontAwesomeIcon icon={faEye} />
+                    <span>All visible</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`${styles.visibilityBtn} ${getChannelVisibility(channel!.id) === 'none' ? styles.active : ''}`}
+                    onClick={() => handleVisibilityChange(channel!.id, 'none')}
+                    title="Start with no products visible"
+                  >
+                    <FontAwesomeIcon icon={faEyeSlash} />
+                    <span>None visible</span>
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}

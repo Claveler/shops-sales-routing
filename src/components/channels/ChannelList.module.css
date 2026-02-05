@@ -1,0 +1,197 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--fz-bg-content);
+  border-right: 1px solid var(--fz-border-color);
+}
+
+.filters {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-bottom: 1px solid var(--fz-border-color);
+}
+
+.filterSelect {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--fz-border-color);
+  border-radius: 6px;
+  background: var(--fz-bg-card);
+  color: var(--fz-text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.filterSelect:focus {
+  outline: none;
+  border-color: var(--fz-primary);
+}
+
+.searchBox {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--fz-text-muted);
+  font-size: 14px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid var(--fz-border-color);
+  border-radius: 6px;
+  background: var(--fz-bg-card);
+  color: var(--fz-text-primary);
+  font-size: 14px;
+}
+
+.searchInput::placeholder {
+  color: var(--fz-text-muted);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--fz-primary);
+}
+
+.selectAllRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--fz-border-color);
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--fz-text-primary);
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--fz-primary);
+}
+
+.editBulkBtn {
+  padding: 6px 12px;
+  border: 1px solid var(--fz-border-color);
+  border-radius: 6px;
+  background: var(--fz-bg-card);
+  color: var(--fz-text-primary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.editBulkBtn:hover {
+  background: var(--fz-bg-content);
+  border-color: var(--fz-primary);
+}
+
+.channelList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.emptyState {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--fz-text-secondary);
+  font-size: 14px;
+}
+
+.channelItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 4px;
+  border-radius: 8px;
+  background: var(--fz-bg-card);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.channelItem:hover {
+  border-color: var(--fz-primary);
+}
+
+.channelItem.selected {
+  border-color: var(--fz-primary);
+  background: rgba(0, 137, 227, 0.08);
+}
+
+.channelItem.boxOffice {
+  background: linear-gradient(135deg, var(--fz-bg-card), rgba(0, 137, 227, 0.05));
+}
+
+.channelInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.channelName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fz-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.channelStatus {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.channelStatus.active {
+  background: rgba(34, 197, 94, 0.1);
+  color: rgb(34, 197, 94);
+}
+
+.channelStatus.inactive {
+  background: rgba(156, 163, 175, 0.1);
+  color: rgb(156, 163, 175);
+}
+
+.channelIcon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: var(--fz-bg-content);
+  color: var(--fz-text-secondary);
+  font-size: 14px;
+}
+
+.channelIcon.boxOfficeIcon {
+  background: linear-gradient(135deg, var(--fz-primary), var(--fz-accent));
+  color: white;
+}
