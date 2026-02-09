@@ -43,22 +43,6 @@
   color: var(--fz-primary);
 }
 
-/* ---- Product Table Header ---- */
-.productTableHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-top: 1px solid var(--fz-border-color);
-  border-bottom: 1px solid var(--fz-border-color);
-}
-
-.productTableTitle {
-  font-size: 14px;
-  font-weight: var(--fz-font-weight-regular);
-  color: var(--fz-text-primary);
-}
-
 .headerActions {
   display: flex;
   gap: 8px;

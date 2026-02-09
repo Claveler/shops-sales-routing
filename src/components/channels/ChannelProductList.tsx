@@ -156,21 +156,6 @@ export function ChannelProductList({ channelId, routingId }: ChannelProductListP
           </div>
         )}
 
-        <div className={styles.productTableHeader}>
-          <span className={styles.productTableTitle}>Product</span>
-          {hasUnsavedChanges && (
-            <div className={styles.headerActions}>
-              <button className={styles.discardBtn} onClick={handleDiscard}>
-                Discard
-              </button>
-              <button className={styles.saveBtn} onClick={handleSave}>
-                <FontAwesomeIcon icon={faSave} />
-                Save
-              </button>
-            </div>
-          )}
-        </div>
-
         <div className={styles.filters}>
           <div className={styles.searchBox}>
             <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
@@ -194,6 +179,18 @@ export function ChannelProductList({ channelId, routingId }: ChannelProductListP
                 <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
+          )}
+
+          {hasUnsavedChanges && (
+            <div className={styles.headerActions}>
+              <button className={styles.discardBtn} onClick={handleDiscard}>
+                Discard
+              </button>
+              <button className={styles.saveBtn} onClick={handleSave}>
+                <FontAwesomeIcon icon={faSave} />
+                Save
+              </button>
+            </div>
           )}
         </div>
 
