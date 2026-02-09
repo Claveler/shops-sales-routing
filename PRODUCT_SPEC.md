@@ -58,7 +58,7 @@ Sales channels where products can be published:
 | Viator | ota | Online travel agency |
 | Tiqets | ota | Online travel agency |
 
-**Box Office is special**: It's the only onsite channel. When selected, it allows multiple warehouses with a price reference.
+**Box Office is special**: It's the only onsite channel. When selected, it removes the warehouse count limit entirely (unlimited warehouses). Multiple online channels also allow multi-warehouse selection, but capped at the number of online channels.
 
 ### Box Office Setup
 Physical POS device configuration for onsite sales. Multiple setups can use the same sales routing but pull stock from different warehouses.
@@ -148,25 +148,28 @@ Physical POS device configuration for onsite sales. Multiple setups can use the 
 
 ### Channel-Based Warehouse Selection Rules
 
-| Channels Selected | Warehouse Rule | Price Reference | Edit Behavior |
-|-------------------|----------------|-----------------|---------------|
-| Box Office only | Multiple allowed | Required if >1 warehouse | Can add warehouses |
-| Online only | Single warehouse | N/A (only 1 warehouse) | Can only swap warehouse |
-| Both Box Office + Online | Multiple allowed | Required if >1 warehouse | Can add warehouses |
+| Scenario | Warehouse Rule | Price Reference | Channel Routing | Edit Behavior |
+|----------|----------------|-----------------|-----------------|---------------|
+| 1 online channel | Exactly 1 warehouse | N/A (only 1 warehouse) | Auto-assigned | Can only swap warehouse |
+| N online channels (N > 1) | Up to N warehouses | Required if >1 warehouse | Assign each online channel to a warehouse | Can add warehouses (up to channel count) |
+| Box Office + 0..N online | Unlimited warehouses | Required if >1 warehouse | Assign each online channel to a warehouse; Box Office configured separately | Can add warehouses (no cap) |
 
-**Why these rules? The Price Reference is the key factor.**
+**Why these rules? The number of channels and the Price Reference are the key factors.**
 
 Sales routings create **SessionTypes and Sessions** in Fever plans. Each SessionType has exactly ONE price. The **price reference warehouse** determines which prices are used for all SessionTypes, regardless of which warehouse the stock comes from.
 
-- **Box Office** requires multiple warehouses (different POS devices pull from different stock locations). This necessitates a price reference to unify pricing. Once a price reference exists, there's no additional complexity in allowing online channels to also pick from multiple warehouses.
+- **Single online channel** keeps things simple: one warehouse serves as both the price source and stock source. No price reference needed, no channel routing decisions.
 
-- **Online-only** is restricted to a single warehouse to avoid introducing price reference complexity for simple use cases. With one warehouse, it serves as both the price source AND stock source - no ambiguity.
+- **Multiple online channels** unlock multi-warehouse selection, capped at the number of online channels (one warehouse per channel). This allows different channels to pull stock from different locations. Since multiple warehouses may have different prices, a price reference is required to unify pricing across all SessionTypes.
 
-- **Mixed (Box Office + Online)** already has a price reference (required by Box Office), so online channels can freely map to any available warehouse for stock without affecting pricing.
+- **Box Office (with or without online channels)** removes the warehouse cap entirely. Box Office is a physical POS channel where individual devices can pull from different stock locations (configured separately in Box Office Setup). This naturally requires unlimited warehouse access. Online channels in this scenario follow the same assignment rules.
+
+**Warning for unassigned warehouses:**
+If a user selects X warehouses but only assigns Y of them to channels in the routing step (Y < X), a non-blocking warning is shown: the unassigned warehouses are listed, and the user is advised to either remove them or assign them.
 
 **Edit constraints:**
-- Routings with Box Office (multi-warehouse): Users can add new warehouses
-- Online-only routings (single-warehouse): Users can only swap the warehouse for a different one; this automatically updates all channel mappings
+- Single-channel routings (single-warehouse): Users can only swap the warehouse for a different one; this automatically updates all channel mappings
+- Multi-channel routings (multi-warehouse): Users can add new warehouses up to the channel-count cap (or unlimited if Box Office is present)
 
 ### Price Reference vs Channel-Warehouse Mapping
 
@@ -236,9 +239,10 @@ Event → Channels → Warehouses → Channel Routing → Review
 - Explanatory text about implications
 
 #### Step 3: Warehouse Selection
-- **If only online channels**: Single warehouse selection (radio buttons)
-- **If Box Office included**: Multiple warehouse selection (checkboxes) with price reference selector
-- Dynamic explanation based on selected channels
+- **If 1 online channel**: Single warehouse selection (radio buttons)
+- **If N online channels (N > 1)**: Multiple warehouse selection (checkboxes), up to N warehouses, with price reference selector when >1 selected
+- **If Box Office included**: Multiple warehouse selection (checkboxes), unlimited warehouses, with price reference selector when >1 selected
+- Dynamic explanation based on selected channels and count
 
 #### Step 4: Channel Routing
 - Map each selected channel to one warehouse
@@ -292,11 +296,14 @@ The mockup supports a full end-to-end demo starting from a blank slate.
 #### Step 4: Create Multi-Channel Online Routing (Van Gogh) - Medium
 1. Create another routing for **Van Gogh: The Immersive Experience** (2nd in list - Exhibition Hall, Barcelona)
 2. Select channels: **Fever Marketplace** + **Whitelabel** (two online channels)
-3. Select single warehouse: **ES - Shops Shopify Testing** (online-only = single warehouse)
-4. Warehouse auto-assigned to both channels
-5. Create routing
+3. Two online channels unlock multi-warehouse: select **ES - Shops Square Testing** + **ES - Shops Shopify Testing** (up to 2 warehouses, one per channel)
+4. Set price reference: **ES - Shops Square Testing**
+5. Assign channels:
+   - Fever Marketplace → ES - Shops Square Testing
+   - Whitelabel → ES - Shops Shopify Testing
+6. Create routing
 
-**Concept introduced:** Multiple online channels can share the same warehouse/stock source.
+**Concepts introduced:** Multiple online channels unlock multi-warehouse selection (capped at channel count), price reference for unified pricing, per-channel warehouse assignment.
 
 #### Step 5: Create Hybrid Routing with Box Office (Hans Zimmer) - Complex
 1. Create routing for **Candlelight: Best of Hans Zimmer** (3rd in list - Teatro Real, Madrid)
@@ -343,7 +350,7 @@ Single-page layout with all configuration in one scrollable view.
 - Event (cannot be changed; routing is tied to event)
 
 **Editable:**
-- **Warehouses**: Can add new warehouses (if multi-warehouse/Box Office) or swap warehouse (if single/online-only)
+- **Warehouses**: Can add new warehouses (if multi-warehouse: up to channel count for online-only, or unlimited for Box Office) or swap warehouse (if single online channel)
 - **Price Reference**: Can change which warehouse provides the price reference
 - **Channels**: Can add new channels
 - **Channel-Warehouse Mapping**: Can change which warehouse serves each channel
@@ -352,7 +359,7 @@ Single-page layout with all configuration in one scrollable view.
 **Constraints:**
 - Nothing can be deleted (warehouses, channels, or channel-warehouse relationships)
 - Routings cannot be deleted, only deactivated (set to Inactive status)
-- When swapping a single warehouse (online-only routing), all channel mappings auto-update
+- When swapping a single warehouse (single-channel routing), all channel mappings auto-update
 
 ### Catalog Integration Page
 
@@ -570,8 +577,8 @@ channelDefaultVisibility?: Record<string, DefaultVisibility>;
 | **Price Reference** | Designated warehouse whose prices are used for ALL SessionTypes in the routing (stock can come from other warehouses) |
 | **Distribution** | Making a product available for sale through channels (formerly "Publication") |
 | **Session Type ID** | Internal Fever identifier for a product distribution |
-| **Multi-warehouse Routing** | Routing with Box Office channel, allowing multiple warehouses |
-| **Single-warehouse Routing** | Online-only routing, restricted to one warehouse |
+| **Multi-warehouse Routing** | Routing with multiple online channels (up to N warehouses) or Box Office (unlimited warehouses) |
+| **Single-warehouse Routing** | Routing with a single online channel, restricted to one warehouse |
 | **Category** | Product categorization imported from external system (Square/Shopify) |
 | **Product Channel Visibility** | Configuration controlling which products appear in each sales channel |
 | **Default Visibility** | Setting determining if products start visible (opt-out) or hidden (opt-in) when routing is created |

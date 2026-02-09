@@ -1,62 +1,103 @@
 :root {
-  /* Fever Zone Color Palette */
-  --fz-bg-dark: #06232c;
-  --fz-bg-sidebar: #06232c;
-  --fz-bg-header: #06232c;
-  --fz-bg-content: #f5f5f5;
-  --fz-bg-card: #ffffff;
-  --fz-bg-card-dark: #29292f;
-  
-  /* Text Colors */
-  --fz-text-primary: #212529;
-  --fz-text-secondary: #6c757d;
-  --fz-text-light: #ffffff;
-  --fz-text-muted: #9ca3af;
-  
-  /* Primary Colors - Fever Design System */
-  --fz-primary: #0089E3;
-  --fz-primary-light: #73BFF6;
-  --fz-primary-dark: #0068B0;
-  --fz-accent: #6F41D7;
-  
-  /* Legacy alias for compatibility */
-  --fz-accent-teal: #0089E3;
-  
-  /* Status Colors - Fever Design System */
-  --fz-status-active: #24A865;
-  --fz-status-inactive: #536B75;
-  --fz-status-draft: #FF8C00;
-  --fz-status-error: #EB0052;
-  
-  /* Border & Shadow */
-  --fz-border-color: #e5e7eb;
-  --fz-border-radius: 6px;
-  --fz-border-radius-sm: 4px;
-  --fz-border-radius-lg: 8px;
-  --fz-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  --fz-shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.08);
-  
-  /* Spacing */
-  --fz-spacing-xs: 4px;
-  --fz-spacing-sm: 8px;
-  --fz-spacing-md: 14px;
-  --fz-spacing-lg: 24px;
-  --fz-spacing-xl: 28px;
-  
-  /* Layout */
-  --fz-sidebar-width: 240px;
+  /*
+   * ============================================================
+   * Fever Zone Design Tokens
+   * Extracted from the live Fever Zone (partners.feverup.com)
+   * Framework: Angular + Bootstrap 5
+   * Icon system: Font Awesome 6 Pro
+   * Last synced: 2026-02-09
+   * ============================================================
+   */
+
+  /* ---- Background Colors ---- */
+  --fz-bg-dark: #06232C;             /* Main dark bg: header, sidebar, page-title area */
+  --fz-bg-sidebar: #06232C;          /* Sidebar background */
+  --fz-bg-header: #06232C;           /* Header bar background */
+  --fz-bg-content: #F2F3F3;          /* Main content area background */
+  --fz-bg-card: #FFFFFF;             /* Cards, modals, dropdowns, table */
+  --fz-bg-sidebar-active: #2C4751;   /* Active sidebar menu item highlight */
+  --fz-bg-disabled: #F2F3F3;         /* Disabled button background */
+  --fz-bg-overlay: rgba(6, 35, 44, 0.8);   /* Sidebar backdrop overlay */
+  --fz-bg-scrim: rgba(6, 35, 44, 0.88);    /* Modal scrim overlay */
+
+  /* ---- Text Colors ---- */
+  --fz-text-primary: #212529;        /* Default body text (Bootstrap body-color) */
+  --fz-text-secondary: #536B75;      /* Secondary text, table headers, muted labels */
+  --fz-text-light: #FFFFFF;          /* Text on dark backgrounds */
+  --fz-text-light-muted: #F2F3F3;    /* Muted text/icons on dark backgrounds */
+  --fz-text-muted: #788890;          /* Muted text (dates, subtitles) */
+  --fz-text-disabled: #A7B2BA;       /* Disabled/placeholder text */
+  --fz-text-dark: #101A23;           /* Dark text (inputs, form values) */
+  --fz-text-darkest: #031419;        /* Darkest text (tags, close buttons) */
+  --fz-text-heading-dark: #364550;   /* Dark heading text on light backgrounds (h4) */
+  --fz-text-subdued: #5A7385;        /* Subdued text (location info) */
+
+  /* ---- Primary / Brand Colors ---- */
+  --fz-primary: #0079CA;             /* Fever primary blue (buttons, active filters, links) */
+  --fz-primary-hover: #0068B0;       /* Primary hover state (estimated darker) */
+  --fz-primary-light: #73BFF6;       /* Primary light variant */
+
+  /* ---- Status Colors ---- */
+  --fz-status-active: #24A865;       /* Active/positive status tag border */
+  --fz-status-active-text: #18824C;  /* Active/positive status tag text */
+  --fz-status-inactive: #536B75;     /* Inactive status */
+  --fz-status-draft: #FF8C00;        /* Draft/pending status */
+  --fz-status-error: #DC3545;        /* Error/danger (Bootstrap danger) */
+
+  /* ---- Border & Shadow ---- */
+  --fz-border-color: #CCD2D8;        /* Input borders, dividers */
+  --fz-border-color-dark: #536B75;   /* Dark borders (header bottom, on dark bg) */
+  --fz-border-color-light: #D9DCDE;  /* Light borders (table separators) */
+  --fz-border-radius: 8px;           /* Default border radius (inputs, dropdowns, sidebar items) */
+  --fz-border-radius-sm: 4px;        /* Small radius (tags, combobox) */
+  --fz-border-radius-lg: 12px;       /* Large radius (table containers) */
+  --fz-border-radius-xl: 16px;       /* Extra-large radius (modals) */
+  --fz-border-radius-pill: 64px;     /* Pill radius (buttons) */
+  --fz-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);   /* Bootstrap shadow-sm */
+  --fz-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);      /* Bootstrap shadow */
+  --fz-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);        /* Bootstrap shadow-lg */
+
+  /* ---- Spacing ---- */
+  --fz-spacing-xs: 4px;              /* Tag padding, tight gaps */
+  --fz-spacing-sm: 8px;              /* Small padding, menu item gaps */
+  --fz-spacing-md: 12px;             /* Button padding, sidebar item padding */
+  --fz-spacing-lg: 16px;             /* Sidebar padding, header padding, section gaps */
+  --fz-spacing-xl: 24px;             /* Large button padding, major spacing */
+  --fz-spacing-2xl: 32px;            /* Heading margin-bottom, section breaks */
+
+  /* ---- Layout ---- */
+  --fz-sidebar-width: 256px;         /* Sidebar width when expanded */
   --fz-sidebar-collapsed-width: 56px;
-  --fz-header-height: 56px;
-  
-  /* Typography */
-  --fz-font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  --fz-font-size-xs: 11px;
-  --fz-font-size-sm: 14px;
-  --fz-font-size-md: 15px;
-  --fz-font-size-lg: 16px;
-  --fz-font-size-xl: 20px;
-  --fz-font-size-xxl: 24px;
-  
-  /* Transitions */
+  --fz-header-height: 72px;          /* Top header bar height */
+  --fz-modal-width: 500px;           /* Default modal max-width */
+
+  /* ---- Typography ---- */
+  --fz-font-family: 'Montserrat', sans-serif;
+  --fz-font-size-xs: 12px;           /* Tags, table headers, small labels */
+  --fz-font-size-sm: 14px;           /* Small buttons, secondary info, footer links */
+  --fz-font-size-md: 16px;           /* Body text, buttons, inputs, sidebar items */
+  --fz-font-size-lg: 18px;           /* Headings (h1, h4) */
+  --fz-font-size-xl: 20px;           /* Large headings */
+  --fz-font-size-xxl: 24px;          /* Extra-large headings */
+  --fz-font-weight-regular: 400;     /* Body text, sidebar items, inputs */
+  --fz-font-weight-semibold: 600;    /* Buttons, table headers, sub-headings */
+  --fz-font-weight-bold: 700;        /* Page titles (h1) */
+  --fz-line-height-body: 1.5;        /* Body text line-height (24px at 16px) */
+  --fz-line-height-heading: 1.14;    /* Heading line-height (~20.52px at 18px) */
+
+  /* ---- Button Sizes ---- */
+  --fz-btn-height-sm: 32px;          /* Small button height */
+  --fz-btn-height-lg: 48px;          /* Large button height */
+  --fz-btn-padding-sm: 0 12px;       /* Small button padding */
+  --fz-btn-padding-lg: 0 24px;       /* Large button padding */
+  --fz-btn-border-width: 2px;        /* Button border width */
+
+  /* ---- Input Sizes ---- */
+  --fz-input-height: 56px;           /* Standard input field height (floating label) */
+  --fz-input-height-sm: 40px;        /* Compact input/combobox height */
+  --fz-input-padding: 24px 12px 8px; /* Input padding (for floating label) */
+  --fz-input-padding-sm: 8px 12px;   /* Compact input padding */
+
+  /* ---- Transitions ---- */
   --fz-transition: 0.26s cubic-bezier(0.1, 0, 0, 1);
 }

@@ -151,6 +151,18 @@
   background: rgba(0, 137, 227, 0.05);
 }
 
+.warehouseItem.disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: var(--fz-border-color);
+  background: var(--fz-bg-card);
+}
+
+.warehouseItem.disabled:hover {
+  border-color: var(--fz-border-color);
+  background: var(--fz-bg-card);
+}
+
 .warehouseContent {
   flex: 1;
 }

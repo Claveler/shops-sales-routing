@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStore, faGlobe, faShoppingCart, faDesktop, faTicketAlt, faArrowRight, faMagicWandSparkles, faCog, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faStore, faGlobe, faShoppingCart, faDesktop, faTicketAlt, faArrowRight, faMagicWandSparkles, faCog, faEye, faEyeSlash, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { channels, getWarehouseById, isBoxOfficeChannel, type DefaultVisibility } from '../../data/mockData';
 import { useDemo } from '../../context/DemoContext';
 import styles from './ChannelRoutingStep.module.css';
@@ -94,18 +94,30 @@ export function ChannelRoutingStep({
     return channelDefaultVisibility[channelId] || 'all';
   };
 
-  // Fill demo data - assign only online channels to warehouses
+  // Fill demo data - assign each online channel to a different warehouse (round-robin)
   const handleFillDemoData = () => {
     const mapping: Record<string, string> = {};
-    onlineChannelIds.forEach(channelId => {
-      // Online → second warehouse if available, else first
-      mapping[channelId] = selectedWarehouseIds[1] || selectedWarehouseIds[0];
+    onlineChannelIds.forEach((channelId, index) => {
+      // Distribute warehouses across channels; wrap around if more channels than warehouses
+      mapping[channelId] = selectedWarehouseIds[index % selectedWarehouseIds.length];
     });
     onChange(mapping);
   };
 
   const isSingleWarehouse = selectedWarehouseIds.length === 1;
   const hasOnlineChannels = onlineChannelIds.length > 0;
+
+  // Compute unassigned warehouses (selected but not routed to any online channel)
+  const assignedWarehouseIds = new Set(
+    onlineChannelIds
+      .map(channelId => channelWarehouseMapping[channelId])
+      .filter(Boolean)
+  );
+  const unassignedWarehouses = selectedWarehouseIds
+    .filter(whId => !assignedWarehouseIds.has(whId))
+    .map(whId => getWarehouse(whId))
+    .filter(Boolean);
+  const showUnassignedWarning = !isSingleWarehouse && hasOnlineChannels && unassignedWarehouses.length > 0;
 
   return (
     <div className={styles.container}>
@@ -214,6 +226,19 @@ export function ChannelRoutingStep({
           );
         })}
       </div>
+
+      {showUnassignedWarning && (
+        <div className={styles.warningBanner}>
+          <FontAwesomeIcon icon={faExclamationTriangle} className={styles.warningIcon} />
+          <div>
+            <strong>
+              {unassignedWarehouses.length} warehouse{unassignedWarehouses.length > 1 ? 's' : ''} not assigned to any channel:
+            </strong>{' '}
+            {unassignedWarehouses.map(w => w!.name).join(', ')}.
+            {' '}Consider removing {unassignedWarehouses.length > 1 ? 'them' : 'it'} or assigning {unassignedWarehouses.length > 1 ? 'them' : 'it'} to a channel.
+          </div>
+        </div>
+      )}
 
       {!isSingleWarehouse && hasOnlineChannels && (
         <p className={styles.note}>

@@ -140,11 +140,13 @@ export function ChannelSelector({ selectedChannelIds, onChange }: ChannelSelecto
 
       <div className={styles.note}>
         <p>
-          <strong>Box Office:</strong> Allows multiple warehouses with a price reference. 
-          Individual POS devices can be configured later.
+          <strong>1 online channel:</strong> Single warehouse, simplest setup.
         </p>
         <p>
-          <strong>Online channels:</strong> Require a single warehouse for consistent pricing and stock.
+          <strong>Multiple online channels:</strong> Up to one warehouse per channel, with a price reference for unified pricing.
+        </p>
+        <p>
+          <strong>Box Office:</strong> Unlimited warehouses. Individual POS devices are configured separately.
         </p>
       </div>
     </div>

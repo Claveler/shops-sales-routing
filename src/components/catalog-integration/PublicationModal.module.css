@@ -371,7 +371,7 @@
 }
 
 .routingLink:hover {
-  background: var(--fz-primary-dark);
+  background: var(--fz-primary-hover);
 }
 
 .routingLink svg {

@@ -40,14 +40,14 @@
 }
 
 .primary:hover:not(:disabled) {
-  background-color: var(--fz-primary-dark);
-  border-color: var(--fz-primary-dark);
+  background-color: var(--fz-primary-hover);
+  border-color: var(--fz-primary-hover);
 }
 
 .secondary {
-  background-color: var(--fz-bg-card-dark);
+  background-color: var(--fz-bg-dark);
   color: var(--fz-text-light);
-  border-color: var(--fz-bg-card-dark);
+  border-color: var(--fz-bg-dark);
 }
 
 .secondary:hover:not(:disabled) {

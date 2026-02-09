@@ -1,0 +1,56 @@
+---
+description: After any UI-affecting change (CSS, component markup, styles), verify visually with agent-browser in headless mode
+alwaysApply: true
+---
+
+# Visual UI Verification with agent-browser
+
+After making changes that affect the UI (styles, component structure, layout, hover states, colors, spacing, etc.), always verify the result using `agent-browser` in a dedicated headless session.
+
+## When to verify
+
+- Any edit to `.css` or `.module.css` files
+- Any edit to `.tsx`/`.jsx` that changes rendered markup, classNames, or inline styles
+- Adding, removing, or modifying interactive states (hover, focus, active, disabled)
+
+## Verification steps
+
+1. **Ensure dev server is running** on `localhost:3000`. If not, start it with `npm run dev`.
+
+2. **Open a headless session** scoped to the page that changed:
+
+```bash
+agent-browser open http://localhost:3000/<route> --headless --session ui-check
+```
+
+3. **Take a snapshot** to get the accessibility tree and identify interactive refs:
+
+```bash
+agent-browser snapshot -i --session ui-check
+```
+
+4. **Screenshot the area** before and after any interactive states:
+
+```bash
+agent-browser screenshot screenshots/verify-<description>.png --session ui-check
+agent-browser hover @<ref>   # or click, focus, etc.
+agent-browser screenshot screenshots/verify-<description>-hover.png --session ui-check
+```
+
+5. **Read the screenshots** to visually confirm:
+   - Elements render with correct colors, spacing, and text
+   - Hover/focus/active states change appearance as expected (no blank, missing, or invisible elements)
+   - Layout is not broken
+
+6. **Close the session** when done:
+
+```bash
+agent-browser close --session ui-check
+```
+
+## Key things to check
+
+- Buttons and CTAs remain visible and styled on hover (watch for undefined CSS variables)
+- Text contrast is sufficient on all interactive states
+- No layout shifts or overflow issues
+- Disabled states look distinct from enabled states

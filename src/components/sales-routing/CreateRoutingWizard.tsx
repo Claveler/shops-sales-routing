@@ -48,19 +48,27 @@ export function CreateRoutingWizard() {
   
   // Derived state based on channel selection
   const hasBoxOffice = hasBoxOfficeChannel(selectedChannelIds);
+  const onlineChannelCount = selectedChannelIds.filter(id => !isBoxOfficeChannel(id)).length;
   
   // Warehouse selection rules:
-  // - Box-Office only: multiple warehouses allowed, price ref needed if >1
-  // - Online only: single warehouse only
-  // - Both: multiple warehouses allowed, price ref needed if >1
-  const allowMultipleWarehouses = hasBoxOffice;
-  const requiresPriceReference = hasBoxOffice && selectedWarehouseIds.length > 1;
+  // - 1 online channel: single warehouse only
+  // - N online channels (N > 1): up to N warehouses, price ref if >1
+  // - Box Office + 0..N online: unlimited warehouses, price ref if >1
+  const allowMultipleWarehouses = hasBoxOffice || onlineChannelCount > 1;
+  const maxWarehouses = hasBoxOffice ? Infinity : Math.max(onlineChannelCount, 1);
+  const requiresPriceReference = selectedWarehouseIds.length > 1;
   
   // Handle warehouse selection changes
   const handleWarehouseChange = (warehouseIds: string[]) => {
-    // If online-only and trying to select multiple, keep only first
+    // Enforce single warehouse for single-channel routing
     if (!allowMultipleWarehouses && warehouseIds.length > 1) {
       setSelectedWarehouseIds([warehouseIds[warehouseIds.length - 1]]);
+      return;
+    }
+    
+    // Enforce maxWarehouses cap for multi-online (non-Box-Office) routings
+    if (warehouseIds.length > maxWarehouses) {
+      setSelectedWarehouseIds(warehouseIds.slice(0, maxWarehouses));
       return;
     }
     
@@ -83,11 +91,20 @@ export function CreateRoutingWizard() {
   const handleChannelChange = (channelIds: string[]) => {
     setSelectedChannelIds(channelIds);
     
-    // If switching from Box-Office to online-only, limit warehouses to 1
     const newHasBoxOffice = hasBoxOfficeChannel(channelIds);
-    if (!newHasBoxOffice && selectedWarehouseIds.length > 1) {
-      setSelectedWarehouseIds([selectedWarehouseIds[0]]);
-      setPriceReferenceWarehouseId(null);
+    const newOnlineCount = channelIds.filter(id => !isBoxOfficeChannel(id)).length;
+    const newMaxWarehouses = newHasBoxOffice ? Infinity : Math.max(newOnlineCount, 1);
+    
+    // Trim warehouses if the new channel selection lowers the cap
+    if (selectedWarehouseIds.length > newMaxWarehouses) {
+      const trimmed = selectedWarehouseIds.slice(0, newMaxWarehouses);
+      setSelectedWarehouseIds(trimmed);
+      // Reset price reference if only 1 warehouse left
+      if (trimmed.length <= 1) {
+        setPriceReferenceWarehouseId(trimmed.length === 1 ? trimmed[0] : null);
+      } else if (priceReferenceWarehouseId && !trimmed.includes(priceReferenceWarehouseId)) {
+        setPriceReferenceWarehouseId(trimmed[0]);
+      }
     }
     
     // Reset channel-warehouse mapping when channels change
@@ -181,6 +198,7 @@ export function CreateRoutingWizard() {
             value={selectedWarehouseIds} 
             onChange={handleWarehouseChange}
             allowMultiple={allowMultipleWarehouses}
+            maxWarehouses={maxWarehouses}
             priceReferenceId={priceReferenceWarehouseId}
             onPriceReferenceChange={setPriceReferenceWarehouseId}
             selectedChannelIds={selectedChannelIds}

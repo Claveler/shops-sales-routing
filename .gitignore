@@ -24,3 +24,7 @@ dist-ssr
 *.sw?
 .vercel
 .env*.local
+
+# Reference images and agent-browser screenshots
+screenshots/
+fever-*.png

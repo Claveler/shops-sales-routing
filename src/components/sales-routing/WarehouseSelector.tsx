@@ -4,7 +4,7 @@ import { faStar as faStarOutline } from '@fortawesome/free-regular-svg-icons';
 import { faShopify } from '@fortawesome/free-brands-svg-icons';
 import { Badge } from '../common/Badge';
 import { useDemo } from '../../context/DemoContext';
-import { warehouses as staticWarehouses, hasBoxOfficeChannel, hasOnlineChannels } from '../../data/mockData';
+import { warehouses as staticWarehouses, hasBoxOfficeChannel, isBoxOfficeChannel } from '../../data/mockData';
 import { DEMO_WAREHOUSE_1_ID, DEMO_WAREHOUSE_2_ID } from '../../data/productPool';
 import styles from './WarehouseSelector.module.css';
 
@@ -12,6 +12,7 @@ interface WarehouseSelectorProps {
   value: string[];
   onChange: (warehouseIds: string[]) => void;
   allowMultiple: boolean;
+  maxWarehouses?: number;
   priceReferenceId?: string | null;
   onPriceReferenceChange?: (warehouseId: string) => void;
   selectedChannelIds: string[];
@@ -27,6 +28,7 @@ export function WarehouseSelector({
   value, 
   onChange, 
   allowMultiple,
+  maxWarehouses = Infinity,
   priceReferenceId,
   onPriceReferenceChange,
   selectedChannelIds
@@ -51,15 +53,16 @@ export function WarehouseSelector({
 
   // Determine explanation text based on channel selection
   const hasBoxOffice = hasBoxOfficeChannel(selectedChannelIds);
-  const hasOnline = hasOnlineChannels(selectedChannelIds);
+  const onlineCount = selectedChannelIds.filter(id => !isBoxOfficeChannel(id)).length;
+  const isAtCap = !hasBoxOffice && value.length >= maxWarehouses;
   
   let explanationText = '';
-  if (hasBoxOffice && hasOnline) {
-    explanationText = 'Box Office channel allows multiple warehouses. You\'ll configure which warehouse serves each channel in the next step.';
-  } else if (hasBoxOffice && !hasOnline) {
-    explanationText = 'For Box Office, you can select multiple warehouses. Individual POS devices can pull stock from different warehouses (configured separately).';
-  } else if (!hasBoxOffice && hasOnline) {
-    explanationText = 'Online channels require a single warehouse to ensure consistent pricing and stock tracking.';
+  if (hasBoxOffice) {
+    explanationText = 'Box Office removes warehouse limits. You can select as many warehouses as you need. Online channels will be assigned individually in the next step.';
+  } else if (onlineCount > 1) {
+    explanationText = `You have ${onlineCount} online channels, so you can select up to ${onlineCount} warehouses (one per channel). You'll assign them in the next step.`;
+  } else if (onlineCount === 1) {
+    explanationText = 'With a single online channel, select one warehouse to provide stock and pricing.';
   }
 
   const handleSelect = (warehouseId: string) => {
@@ -68,6 +71,8 @@ export function WarehouseSelector({
       if (value.includes(warehouseId)) {
         onChange(value.filter(id => id !== warehouseId));
       } else {
+        // Enforce maxWarehouses cap
+        if (value.length >= maxWarehouses) return;
         onChange([...value, warehouseId]);
       }
     } else {
@@ -95,22 +100,22 @@ export function WarehouseSelector({
     const routingCount = demo.getSalesRoutings().length;
     
     if (allowMultiple) {
-      // Hans Zimmer (has Box Office): both warehouses + price ref
+      // Multi-warehouse: Van Gogh (2 online channels) or Hans Zimmer (Box Office)
+      // Select both demo warehouses + price ref
       const demoWarehouseIds = warehouses
         .filter(w => w.id === DEMO_WAREHOUSE_1_ID || w.id === DEMO_WAREHOUSE_2_ID)
-        .map(w => w.id);
+        .map(w => w.id)
+        .slice(0, maxWarehouses === Infinity ? undefined : maxWarehouses);
       onChange(demoWarehouseIds);
       if (onPriceReferenceChange && demoWarehouseIds.includes(DEMO_WAREHOUSE_1_ID)) {
         onPriceReferenceChange(DEMO_WAREHOUSE_1_ID);
       }
     } else {
-      // Single warehouse - vary for demo variety
+      // Single warehouse (Taylor Swift: 1 online channel)
       if (routingCount === 0) {
-        // Taylor Swift: Square warehouse
         const squareWarehouse = warehouses.find(w => w.id === DEMO_WAREHOUSE_1_ID);
         onChange([squareWarehouse?.id || warehouses[0]?.id].filter(Boolean) as string[]);
       } else {
-        // Van Gogh: Shopify warehouse
         const shopifyWarehouse = warehouses.find(w => w.id === DEMO_WAREHOUSE_2_ID);
         onChange([shopifyWarehouse?.id || warehouses[0]?.id].filter(Boolean) as string[]);
       }
@@ -119,8 +124,11 @@ export function WarehouseSelector({
 
   const title = allowMultiple ? 'Select warehouse(s)' : 'Select warehouse';
   const subtitle = allowMultiple
-    ? 'Choose which warehouses to include in this sales routing.'
+    ? (hasBoxOffice
+      ? 'Choose which warehouses to include in this sales routing.'
+      : `Choose up to ${maxWarehouses} warehouse${maxWarehouses > 1 ? 's' : ''} (one per online channel).`)
     : 'Choose the warehouse to use for this sales routing.';
+  const showSelectAll = allowMultiple && hasBoxOffice;
 
   return (
     <div className={styles.container}>
@@ -156,17 +164,19 @@ export function WarehouseSelector({
 
       {allowMultiple && (
         <div className={styles.selectAllWrapper}>
-          <button 
-            className={styles.selectAllBtn}
-            onClick={handleSelectAll}
-          >
-            <div className={`${styles.checkbox} ${value.length === warehouses.length ? styles.checked : ''}`}>
-              {value.length === warehouses.length && <FontAwesomeIcon icon={faCheck} />}
-            </div>
-            <span>Select all warehouses</span>
-          </button>
+          {showSelectAll && (
+            <button 
+              className={styles.selectAllBtn}
+              onClick={handleSelectAll}
+            >
+              <div className={`${styles.checkbox} ${value.length === warehouses.length ? styles.checked : ''}`}>
+                {value.length === warehouses.length && <FontAwesomeIcon icon={faCheck} />}
+              </div>
+              <span>Select all warehouses</span>
+            </button>
+          )}
           <span className={styles.selectedCount}>
-            {value.length} of {warehouses.length} selected
+            {value.length}{maxWarehouses !== Infinity ? ` of ${maxWarehouses} max` : ` of ${warehouses.length}`} selected
           </span>
         </div>
       )}
@@ -175,12 +185,14 @@ export function WarehouseSelector({
         {warehouses.map((warehouse) => {
           const isSelected = value.includes(warehouse.id);
           const isPriceReference = priceReferenceId === warehouse.id;
+          const isDisabled = !isSelected && isAtCap;
           
           return (
             <button
               key={warehouse.id}
-              className={`${styles.warehouseItem} ${isSelected ? styles.selected : ''}`}
+              className={`${styles.warehouseItem} ${isSelected ? styles.selected : ''} ${isDisabled ? styles.disabled : ''}`}
               onClick={() => handleSelect(warehouse.id)}
+              disabled={isDisabled}
             >
               <div className={`${allowMultiple ? styles.checkbox : styles.radio} ${isSelected ? styles.checked : ''}`}>
                 {isSelected && (

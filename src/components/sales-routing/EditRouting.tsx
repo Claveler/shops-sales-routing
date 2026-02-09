@@ -9,7 +9,8 @@ import {
   faStore, 
   faDesktop, 
   faExternalLinkAlt, 
-  faStar
+  faStar,
+  faExclamationTriangle
 } from '@fortawesome/free-solid-svg-icons';
 import { Card, CardBody, CardHeader, CardTitle } from '../common/Card';
 import { Button } from '../common/Button';
@@ -118,11 +119,24 @@ export function EditRouting() {
   const availableChannels = channels.filter(c => !channelIds.includes(c.id));
   const availableWarehouses = demoWarehouses.filter(w => !warehouseIds.includes(w.id));
   const selectedChannels = channels.filter(c => channelIds.includes(c.id));
-  const hasBoxOffice = channelIds.some(id => isBoxOfficeChannel(id));
-  const isMultiWarehouse = hasBoxOffice;
-  const warehouses = warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
   const onlineChannels = selectedChannels.filter(c => !isBoxOfficeChannel(c.id));
+  const hasBoxOffice = channelIds.some(id => isBoxOfficeChannel(id));
+  const isMultiWarehouse = hasBoxOffice || onlineChannels.length > 1;
+  const maxWarehouses = hasBoxOffice ? Infinity : Math.max(onlineChannels.length, 1);
+  const warehouses = warehouseIds.map(id => getWarehouse(id)).filter(Boolean);
   const priceRefWarehouse = priceRefId ? getWarehouse(priceRefId) : null;
+
+  // Compute unassigned warehouses for warning
+  const assignedWarehouseIds = new Set(
+    onlineChannels
+      .map(c => channelMapping[c.id])
+      .filter(Boolean)
+  );
+  const unassignedWarehouses = warehouseIds
+    .filter(whId => !assignedWarehouseIds.has(whId))
+    .map(whId => getWarehouse(whId))
+    .filter(Boolean);
+  const showUnassignedWarning = isMultiWarehouse && onlineChannels.length > 0 && unassignedWarehouses.length > 0;
 
   // Handlers for editable fields
   const handleAddWarehouse = (warehouseId: string) => {
@@ -249,7 +263,7 @@ export function EditRouting() {
           <div className={styles.section}>
             <div className={styles.sectionHeader}>
               <span className={styles.sectionLabel}>Warehouse{isMultiWarehouse ? 's' : ''}</span>
-              {isMultiWarehouse && availableWarehouses.length > 0 && !showAddWarehouse && (
+              {isMultiWarehouse && availableWarehouses.length > 0 && !showAddWarehouse && warehouseIds.length < maxWarehouses && (
                 <Button variant="ghost" size="sm" onClick={() => setShowAddWarehouse(true)}>
                   <FontAwesomeIcon icon={faPlus} /> Add
                 </Button>
@@ -390,6 +404,19 @@ export function EditRouting() {
 
             {!allMappingsValid && onlineChannels.length > 0 && (
               <p className={styles.warning}>All online channels must have a warehouse assigned</p>
+            )}
+
+            {showUnassignedWarning && (
+              <div className={styles.warningBanner}>
+                <FontAwesomeIcon icon={faExclamationTriangle} className={styles.warningBannerIcon} />
+                <span>
+                  <strong>
+                    {unassignedWarehouses.length} warehouse{unassignedWarehouses.length > 1 ? 's' : ''} not assigned:
+                  </strong>{' '}
+                  {unassignedWarehouses.map(w => w!.name).join(', ')}.
+                  {' '}Consider removing {unassignedWarehouses.length > 1 ? 'them' : 'it'} or assigning {unassignedWarehouses.length > 1 ? 'them' : 'it'} to a channel.
+                </span>
+              </div>
             )}
 
             {priceRefWarehouse && (
