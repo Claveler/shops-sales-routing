@@ -57,6 +57,7 @@ const menuItems: MenuItem[] = [
     icon: faCube, 
     label: 'Products',
     children: [
+      { label: 'Guide', path: '/products/guide' },
       { label: 'Catalog integration', path: '/products/catalog-integration' },
       { label: 'Sales routing', path: '/products/sales-routing' },
       { label: 'Channels', path: '/products/channels' }

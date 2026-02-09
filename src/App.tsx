@@ -3,6 +3,7 @@ import { Layout } from './components/layout';
 import { SalesRoutingList, CreateRoutingWizard, EditRouting } from './components/sales-routing';
 import { CatalogIntegrationPage, CreateIntegrationWizard } from './components/catalog-integration';
 import { ChannelsPage } from './components/channels';
+import { GuidePage } from './components/guide';
 import { DemoProvider } from './context/DemoContext';
 import './styles/global.css';
 
@@ -23,6 +24,9 @@ function App() {
           {/* Catalog Integration Routes */}
           <Route path="/products/catalog-integration" element={<CatalogIntegrationPage />} />
           <Route path="/products/catalog-integration/create" element={<CreateIntegrationWizard />} />
+          
+          {/* Guide Route */}
+          <Route path="/products/guide" element={<GuidePage />} />
           
           {/* Channels Routes */}
           <Route path="/products/channels" element={<ChannelsPage />} />

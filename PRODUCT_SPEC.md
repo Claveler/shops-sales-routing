@@ -11,6 +11,7 @@ This is a high-fidelity front-end mockup of new functionality for the **Fever Zo
 
 ### Scope
 A new **Products** section in the left sidebar containing:
+- **Guide** - Step-by-step onboarding reference for operations teams explaining the full setup process
 - **Catalog Integration** - Connect external product catalogs (Square, Shopify)
 - **Sales Routing** - Configure how products are made available for sale at events
 - **Channels** - Configure per-product channel visibility (granular control over which products appear in each channel)
@@ -394,6 +395,22 @@ Renamed from "Publication Modal" for consistency with Sales Routing terminology.
 - First event auto-expanded
 - Channel icons displayed as small badges below venue name
 
+### Guide Page
+
+An in-app onboarding reference designed for Fever operations teams. Accessible at **Products → Guide** in the sidebar.
+
+**Purpose:** Provides a plain-language, step-by-step walkthrough of the entire product sales setup process so ops teams can self-serve without external documentation.
+
+**Sections:**
+1. **Overview** — High-level summary of the three-step setup flow
+2. **Step 1: Set up your Catalog Integration** — Connecting Square/Shopify, adding warehouses, syncing products. Links to the Catalog Integration page.
+3. **Step 2: Create Sales Routings** — The 5-step wizard, three complexity levels (single-channel, multi-channel, hybrid with Box Office). Links to the Sales Routing page.
+4. **Step 3: Configure Channel Visibility** — Per-product visibility control, bulk editing, default visibility. Links to the Channels page.
+5. **Key Concepts** — Quick-reference grid for channels, warehouses, price reference, distribution, Box Office, and product visibility.
+6. **Tips & FAQ** — Answers to common questions (new product syncs, editing routings, price reference purpose, Box Office behavior, recommended order).
+
+**Design:** Card-based layout using the shared `Card` and `PageHeader` components. Numbered step badges, icon-decorated sections, info callout boxes, and internal navigation links to each relevant page.
+
 ---
 
 ## 8. Technical Implementation
@@ -417,6 +434,8 @@ src/
 │   ├── mockData.ts           # Static entities and relationships
 │   └── productPool.ts        # Demo-specific product data
 ├── components/
+│   ├── guide/
+│   │   └── GuidePage.tsx         # Step-by-step onboarding guide for ops teams
 │   ├── catalog-integration/
 │   │   ├── CatalogIntegrationPage.tsx
 │   │   ├── IntegrationDetails.tsx
