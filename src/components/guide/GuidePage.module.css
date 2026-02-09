@@ -11,6 +11,27 @@
   gap: var(--fz-spacing-xl);
 }
 
+/* ---- Internal Banner ---- */
+.internalBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fz-spacing-md);
+  padding: var(--fz-spacing-lg);
+  background: var(--fz-warning-bg);
+  border: 1px solid var(--fz-warning-border);
+  border-radius: var(--fz-border-radius);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-warning-text);
+  line-height: var(--fz-line-height-body);
+}
+
+.internalBannerIcon {
+  font-size: 18px;
+  color: var(--fz-warning);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
 /* ---- Overview Section ---- */
 .overview {
   /* wrapper — no extra style needed */

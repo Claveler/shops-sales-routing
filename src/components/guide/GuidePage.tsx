@@ -13,6 +13,7 @@ import {
   faSatelliteDish,
   faShoppingCart,
   faEye,
+  faInfoCircle,
 } from '@fortawesome/free-solid-svg-icons';
 import { PageHeader } from '../common/PageHeader';
 import { Card } from '../common/Card';
@@ -31,6 +32,14 @@ export function GuidePage() {
       />
 
       <div className={styles.pageBody}>
+        {/* Internal notice */}
+        <div className={styles.internalBanner}>
+          <FontAwesomeIcon icon={faInfoCircle} className={styles.internalBannerIcon} />
+          <div>
+            <strong>For the squad only</strong> &mdash; This Guide tab is part of the mockup and won't ship in the final implementation. It's here so the team can understand the full setup flow we need to build. Use it as a reference when working on the features described below.
+          </div>
+        </div>
+
         {/* Overview */}
         <section className={styles.overview}>
           <Card>
