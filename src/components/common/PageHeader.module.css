@@ -1,0 +1,30 @@
+.pageHeader {
+  background-color: var(--fz-bg-dark);
+  padding: var(--fz-spacing-lg) var(--fz-spacing-xl);
+  color: var(--fz-text-light);
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--fz-spacing-lg);
+}
+
+.title {
+  font-size: var(--fz-font-size-3xl);
+  font-weight: var(--fz-font-weight-semibold);
+  color: var(--fz-text-light);
+  margin: 0;
+  line-height: var(--fz-line-height-heading);
+}
+
+.subtitle {
+  font-size: var(--fz-font-size-sm);
+  color: rgba(255, 255, 255, 0.7);
+  margin: 4px 0 0;
+}
+
+.content {
+  margin-top: var(--fz-spacing-lg);
+}

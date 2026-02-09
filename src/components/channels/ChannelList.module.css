@@ -93,7 +93,7 @@
   background: var(--fz-bg-card);
   color: var(--fz-text-primary);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -152,7 +152,7 @@
 
 .channelName {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -165,7 +165,7 @@
   padding: 2px 8px;
   border-radius: 4px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   width: fit-content;
 }
 

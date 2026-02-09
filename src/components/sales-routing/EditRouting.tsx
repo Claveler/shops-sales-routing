@@ -15,7 +15,7 @@ import {
 import { Card, CardBody, CardHeader, CardTitle } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
-import { Breadcrumb } from '../common/Breadcrumb';
+import { PageHeader } from '../common/PageHeader';
 import { useDemo } from '../../context/DemoContext';
 import { 
   getSalesRoutingById, 
@@ -208,49 +208,52 @@ export function EditRouting() {
   const handleCancel = () => navigate('/products/sales-routing');
 
   if (loading) {
-    return <div className={styles.container}><div className={styles.loading}>Loading...</div></div>;
+    return <div className={styles.pageBody}><div className={styles.loading}>Loading...</div></div>;
   }
 
   if (notFound || !routing || !event) {
     return (
-      <div className={styles.container}>
-        <Breadcrumb items={[
-          { label: 'Products', path: '/products' },
-          { label: 'Sales routing', path: '/products/sales-routing' },
-          { label: 'Not found' }
-        ]} />
-        <Card>
-          <CardBody>
-            <div className={styles.notFound}>
-              <h2>Sales routing not found</h2>
-              <p>The sales routing you're looking for doesn't exist or has been deleted.</p>
-              <Button variant="primary" onClick={() => navigate('/products/sales-routing')}>Back to list</Button>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
+      <>
+        <PageHeader
+          breadcrumbItems={[
+            { label: 'Products', path: '/products' },
+            { label: 'Sales routing', path: '/products/sales-routing' },
+            { label: 'Not found' }
+          ]}
+          title="Sales routing"
+        />
+        <div className={styles.pageBody}>
+          <Card>
+            <CardBody>
+              <div className={styles.notFound}>
+                <h2>Sales routing not found</h2>
+                <p>The sales routing you're looking for doesn't exist or has been deleted.</p>
+                <Button variant="primary" onClick={() => navigate('/products/sales-routing')}>Back to list</Button>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <Breadcrumb items={[
-        { label: 'Products', path: '/products' },
-        { label: 'Sales routing', path: '/products/sales-routing' },
-        { label: 'Edit' }
-      ]} />
-      
-      {/* Page Header */}
-      <div className={styles.pageHeader}>
-        <div className={styles.headerLeft}>
-          <h1 className={styles.pageTitle}>{event.name}</h1>
-          <span className={styles.headerMeta}>{event.venue}, {event.city}</span>
-        </div>
-        <Badge variant={statusVariantMap[routing.status]} size="md">
-          {routing.status.charAt(0).toUpperCase() + routing.status.slice(1)}
-        </Badge>
-      </div>
-
+    <>
+      <PageHeader
+        breadcrumbItems={[
+          { label: 'Products', path: '/products' },
+          { label: 'Sales routing', path: '/products/sales-routing' },
+          { label: 'Edit' }
+        ]}
+        title={event.name}
+        subtitle={`${event.venue}, ${event.city}`}
+        actions={
+          <Badge variant={statusVariantMap[routing.status]} size="md">
+            {routing.status.charAt(0).toUpperCase() + routing.status.slice(1)}
+          </Badge>
+        }
+      />
+      <div className={styles.pageBody}>
       {/* Main Card - Single Page Layout */}
       <Card padding="none">
         <CardHeader>
@@ -455,6 +458,7 @@ export function EditRouting() {
           </div>
         </CardBody>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

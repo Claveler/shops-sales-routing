@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSlidersH } from '@fortawesome/free-solid-svg-icons';
-import { Breadcrumb } from '../common/Breadcrumb';
+import { PageHeader } from '../common/PageHeader';
 import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
 import { ChannelList } from './ChannelList';
 import { ChannelProductList } from './ChannelProductList';
@@ -77,18 +77,15 @@ export function ChannelsPage() {
   // Empty state when no routings exist at all
   if (!hasAnyRoutings) {
     return (
-      <div className={styles.container}>
-        <Breadcrumb 
-          items={[
+      <>
+        <PageHeader
+          breadcrumbItems={[
             { label: 'Products', path: '/products' },
             { label: 'Channels' }
-          ]} 
+          ]}
+          title="Channels"
         />
-        
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Channels</h1>
-        </div>
-
+        <div className={styles.pageBody}>
         <Card>
           <div className={styles.emptyContainer}>
             <div className={styles.iconWrapper}>
@@ -123,64 +120,62 @@ export function ChannelsPage() {
             </p>
           </div>
         </Card>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <Breadcrumb 
-        items={[
+    <>
+      <PageHeader
+        breadcrumbItems={[
           { label: 'Products', path: '/products' },
           { label: 'Channels' }
-        ]} 
-      />
-      
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Channels</h1>
-      </div>
-
-      <div className={styles.selectorRow}>
-        <select 
-          className={styles.citySelector}
-          value={selectedCity || ''}
-          onChange={(e) => {
-            setSelectedCity(e.target.value || null);
-            setSelectedRoutingId(null);
-            setSelectedChannelId(null);
-          }}
-        >
-          <option value="">Select city</option>
-          {citiesWithRoutings.map(city => (
-            <option key={city} value={city}>{city}</option>
-          ))}
-        </select>
-        
-        <select
-          className={styles.eventSelector}
-          value={selectedRoutingId || ''}
-          onChange={(e) => {
-            setSelectedRoutingId(e.target.value || null);
-            setSelectedChannelId(null);
-          }}
-          disabled={!selectedCity}
-        >
-          <option value="">Select event</option>
-          {eventsInCity.map(({ routing, event }) => (
-            <option key={routing.id} value={routing.id}>
-              {event.name} - {event.venue}
-            </option>
-          ))}
-        </select>
-        
-        <button 
-          className={styles.showBtn}
-          disabled={!selectedRoutingId}
-        >
-          Show
-        </button>
-      </div>
-
+        ]}
+        title="Channels"
+      >
+        <div className={styles.selectorRow}>
+          <select 
+            className={styles.citySelector}
+            value={selectedCity || ''}
+            onChange={(e) => {
+              setSelectedCity(e.target.value || null);
+              setSelectedRoutingId(null);
+              setSelectedChannelId(null);
+            }}
+          >
+            <option value="">City</option>
+            {citiesWithRoutings.map(city => (
+              <option key={city} value={city}>{city}</option>
+            ))}
+          </select>
+          
+          <select
+            className={styles.eventSelector}
+            value={selectedRoutingId || ''}
+            onChange={(e) => {
+              setSelectedRoutingId(e.target.value || null);
+              setSelectedChannelId(null);
+            }}
+            disabled={!selectedCity}
+          >
+            <option value="">Select a city and search for an event</option>
+            {eventsInCity.map(({ routing, event }) => (
+              <option key={routing.id} value={routing.id}>
+                {event.name} - {event.venue}
+              </option>
+            ))}
+          </select>
+          
+          <button 
+            className={styles.showBtn}
+            disabled={!selectedRoutingId}
+          >
+            Show
+          </button>
+        </div>
+      </PageHeader>
+      <div className={styles.pageBody}>
       <Card padding="none">
         <CardHeader>
           <CardTitle subtitle="Configure which products are visible in each sales channel">
@@ -228,6 +223,7 @@ export function ChannelsPage() {
         channelIds={checkedChannelIds}
         onClose={() => setShowBulkModal(false)}
       />
-    </div>
+      </div>
+    </>
   );
 }

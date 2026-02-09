@@ -5,7 +5,7 @@ import { faPlus, faEdit, faCashRegister, faGlobe, faChevronDown, faChevronRight,
 import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
-import { Breadcrumb } from '../common/Breadcrumb';
+import { PageHeader } from '../common/PageHeader';
 import { SalesRoutingEmptyState } from './SalesRoutingEmptyState';
 import { useDemo } from '../../context/DemoContext';
 import { getEventById, getWarehouseById, channels, hasBoxOfficeChannel, isBoxOfficeChannel } from '../../data/mockData';
@@ -77,40 +77,35 @@ export function SalesRoutingList() {
   // Show empty state if no routings
   if (salesRoutings.length === 0) {
     return (
-      <div className={styles.container}>
-        <Breadcrumb 
-          items={[
+      <>
+        <PageHeader
+          breadcrumbItems={[
             { label: 'Products', path: '/products' },
             { label: 'Sales routing' }
-          ]} 
+          ]}
+          title="Sales routing"
         />
-        
-        <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>Sales routing</h1>
+        <div className={styles.pageBody}>
+          <SalesRoutingEmptyState 
+            hasIntegration={!!integration}
+            onCreateNew={handleCreateNew}
+            onGoToIntegration={handleGoToIntegration}
+          />
         </div>
-
-        <SalesRoutingEmptyState 
-          hasIntegration={!!integration}
-          onCreateNew={handleCreateNew}
-          onGoToIntegration={handleGoToIntegration}
-        />
-      </div>
+      </>
     );
   }
 
   return (
-    <div className={styles.container}>
-      <Breadcrumb 
-        items={[
+    <>
+      <PageHeader
+        breadcrumbItems={[
           { label: 'Products', path: '/products' },
           { label: 'Sales routing' }
-        ]} 
+        ]}
+        title="Sales routing"
       />
-      
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Sales routing</h1>
-      </div>
-
+      <div className={styles.pageBody}>
       <Card padding="none">
         <div className={styles.cardInner}>
           <CardHeader 
@@ -256,6 +251,7 @@ export function SalesRoutingList() {
           </CardBody>
         </div>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

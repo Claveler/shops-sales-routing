@@ -1,33 +1,36 @@
 .breadcrumb {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  margin-bottom: 4px;
+  gap: var(--fz-spacing-sm);
+  font-size: var(--fz-font-size-xs);
+  margin-bottom: var(--fz-spacing-xs);
 }
 
 .item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--fz-spacing-sm);
 }
 
 .link {
-  color: #9ca3af;
+  color: var(--fz-text-inverse);
+  opacity: 0.7;
   text-decoration: none;
-  transition: color var(--fz-transition);
+  transition: opacity var(--fz-transition-fast);
 }
 
 .link:hover {
-  color: var(--fz-text-light);
+  opacity: 1;
+  text-decoration: underline;
 }
 
 .current {
-  color: var(--fz-text-light);
-  font-weight: 500;
+  color: var(--fz-text-inverse);
+  font-weight: var(--fz-font-weight-semibold);
 }
 
 .separator {
-  color: #6b7280;
+  color: var(--fz-text-inverse);
+  opacity: 0.5;
   font-size: 8px;
 }

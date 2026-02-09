@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCheck } from '@fortawesome/free-solid-svg-icons';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import { Breadcrumb } from '../common/Breadcrumb';
+import { PageHeader } from '../common/PageHeader';
 import { EventSelector } from './EventSelector';
 import { WarehouseSelector } from './WarehouseSelector';
 import { ChannelSelector } from './ChannelSelector';
@@ -235,19 +235,16 @@ export function CreateRoutingWizard() {
   const isLastStep = currentStepIndex === wizardSteps.length - 1;
   
   return (
-    <div className={styles.container}>
-      <Breadcrumb 
-        items={[
+    <>
+      <PageHeader
+        breadcrumbItems={[
           { label: 'Products', path: '/products' },
           { label: 'Sales routing', path: '/products/sales-routing' },
           { label: 'Create new' }
-        ]} 
+        ]}
+        title="Create sales routing"
       />
-      
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Create sales routing</h1>
-      </div>
-
+      <div className={styles.pageBody}>
       <Card padding="none">
         <div className={styles.cardInner}>
           {/* Progress Steps */}
@@ -316,6 +313,7 @@ export function CreateRoutingWizard() {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

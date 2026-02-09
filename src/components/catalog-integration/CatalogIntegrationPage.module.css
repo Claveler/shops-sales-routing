@@ -1,15 +1,5 @@
-.container {
+.pageBody {
   max-width: 1400px;
   margin: 0 auto;
-}
-
-.pageHeader {
-  margin-bottom: 12px;
-}
-
-.pageTitle {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--fz-text-light);
-  margin: 0;
+  padding: var(--fz-spacing-xl);
 }

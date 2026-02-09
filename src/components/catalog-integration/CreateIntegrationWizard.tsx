@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faArrowRight, faCheck, faPlus, faTrash, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
-import { Breadcrumb } from '../common/Breadcrumb';
+import { PageHeader } from '../common/PageHeader';
 import { ProviderSelector } from './ProviderSelector';
 import { useDemo } from '../../context/DemoContext';
 import { DEMO_INTEGRATION_DATA, DEMO_WAREHOUSE_DATA } from '../../data/productPool';
@@ -307,19 +307,16 @@ export function CreateIntegrationWizard() {
   };
 
   return (
-    <div className={styles.container}>
-      <Breadcrumb 
-        items={[
+    <>
+      <PageHeader
+        breadcrumbItems={[
           { label: 'Products', path: '/products' },
           { label: 'Catalog integration', path: '/products/catalog-integration' },
           { label: 'Create new' }
-        ]} 
+        ]}
+        title="Create catalog integration"
       />
-      
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Create catalog integration</h1>
-      </div>
-
+      <div className={styles.pageBody}>
       <Card>
         <div className={styles.cardInner}>
           {/* Progress Bar */}
@@ -377,6 +374,7 @@ export function CreateIntegrationWizard() {
           </div>
         </div>
       </Card>
-    </div>
+      </div>
+    </>
   );
 }

@@ -34,7 +34,7 @@
   border-radius: 8px;
   color: white;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -69,7 +69,7 @@
   cursor: pointer;
   font-size: var(--fz-font-size-sm);
   color: var(--fz-text-primary);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
 }
 
 .selectedCount {
@@ -177,7 +177,7 @@
 
 .warehouseName {
   font-size: var(--fz-font-size-md);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   margin: 0;
 }
@@ -278,7 +278,7 @@
 
 .priceRefLabel {
   font-size: var(--fz-font-size-xs);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-primary);
 }
 
@@ -308,7 +308,7 @@
 .configNote {
   margin-top: var(--fz-spacing-lg);
   padding: var(--fz-spacing-md);
-  background: #f8f9fa;
+  background: var(--fz-bg-subtle);
   border-radius: var(--fz-border-radius);
 }
 

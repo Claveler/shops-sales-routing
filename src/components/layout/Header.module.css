@@ -3,49 +3,53 @@
   align-items: center;
   justify-content: space-between;
   height: var(--fz-header-height);
-  padding: 0 16px;
+  padding: 0 var(--fz-spacing-lg);
   background-color: var(--fz-bg-header);
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 100;
-  border-bottom: 1px solid rgb(83, 107, 117);
+  z-index: 1000;
+  border-bottom: 1px solid var(--fz-neutral-600);
+  gap: 1rem;
 }
 
 .leadSide {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--fz-spacing-md);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .menuToggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 2.75rem;
+  height: 2.75rem;
   background: transparent;
   border: none;
-  color: var(--fz-text-light);
-  font-size: 16px;
-  border-radius: 4px;
-  transition: background-color var(--fz-transition);
+  color: var(--fz-text-inverse);
+  font-size: 1.25rem;
+  border-radius: var(--fz-border-radius);
+  transition: background-color var(--fz-transition-base);
 }
 
 .menuToggle:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: var(--fz-neutral-800);
 }
 
 .logo img {
-  height: 24px;
+  height: 32px;
   display: block;
 }
 
 .trailSide {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 2rem;
 }
 
 .userMenu {
@@ -55,12 +59,12 @@
 .userButton {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 4px 8px;
+  gap: var(--fz-spacing-sm);
+  padding: var(--fz-spacing-xs) var(--fz-spacing-sm);
   background: transparent;
   border: none;
-  color: var(--fz-text-light);
-  border-radius: 4px;
+  color: var(--fz-text-inverse);
+  border-radius: var(--fz-border-radius-sm);
   transition: background-color var(--fz-transition);
 }
 
@@ -76,16 +80,27 @@
 }
 
 .userName {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: var(--fz-font-weight-regular);
+  color: var(--fz-text-inverse);
+  max-width: 11.25rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .userOrg {
-  font-size: 12px;
-  color: var(--fz-text-muted);
+  font-size: var(--fz-font-size-xs);
+  line-height: 1.25;
+  color: var(--fz-neutral-400);
+  max-width: 11.25rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
 .userIcon {
-  font-size: 28px;
-  opacity: 0.7;
+  font-size: 1.75rem;
+  line-height: 1.25;
+  color: var(--fz-text-inverse);
 }

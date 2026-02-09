@@ -83,7 +83,7 @@
   align-items: center;
   gap: 10px;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   cursor: pointer;
 }
@@ -192,7 +192,7 @@
   background: transparent;
   color: var(--fz-primary);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -208,7 +208,7 @@
   background: var(--fz-primary);
   color: white;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.15s ease;
 }

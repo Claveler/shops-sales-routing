@@ -1,13 +1,40 @@
 :root {
   /*
    * ============================================================
-   * Fever Zone Design Tokens
-   * Extracted from the live Fever Zone (partners.feverup.com)
-   * Framework: Angular + Bootstrap 5
-   * Icon system: Font Awesome 6 Pro
+   * Fever Zone Design Tokens — Ignite Design System
+   * Source: https://design.fevertools.com/1d4a57dde/p/52e17c
+   * Aligned with patron-profile implementation
+   * Font weights: 400 (regular) and 600 (semibold) only
    * Last synced: 2026-02-09
    * ============================================================
    */
+
+  /* ---- Primary Color Scale ---- */
+  --fz-primary-100: #E6F4FF;
+  --fz-primary-200: #ACDAFB;
+  --fz-primary-300: #73BFF6;
+  --fz-primary-400: #39A5EE;
+  --fz-primary-500: #0089E3;
+  --fz-primary-600: #0079CA;
+  --fz-primary-700: #0068B0;
+  --fz-primary-800: #005795;
+  --fz-primary-900: #004679;
+
+  /* ---- Neutral Color Scale ---- */
+  --fz-neutral-50: #F9FAFB;
+  --fz-neutral-100: #F2F3F3;
+  --fz-neutral-200: #E5E7EB;
+  --fz-neutral-300: #CCD2D8;
+  --fz-neutral-400: #A7B2BA;
+  --fz-neutral-500: #788890;
+  --fz-neutral-600: #536B75;
+  --fz-neutral-700: #2C4751;
+  --fz-neutral-800: #000405;
+  --fz-neutral-900: #06232C;
+
+  /* ---- Accent Color ---- */
+  --fz-accent: #6F41D7;
+  --fz-accent-light: #9B7AE6;
 
   /* ---- Background Colors ---- */
   --fz-bg-dark: #06232C;             /* Main dark bg: header, sidebar, page-title area */
@@ -15,55 +42,88 @@
   --fz-bg-header: #06232C;           /* Header bar background */
   --fz-bg-content: #F2F3F3;          /* Main content area background */
   --fz-bg-card: #FFFFFF;             /* Cards, modals, dropdowns, table */
+  --fz-bg-subtle: #F9FAFB;           /* Subtle background (table headers, hover rows) */
+  --fz-bg-muted: #F3F4F6;            /* Muted background (tags, preview chips) */
   --fz-bg-sidebar-active: #2C4751;   /* Active sidebar menu item highlight */
   --fz-bg-disabled: #F2F3F3;         /* Disabled button background */
   --fz-bg-overlay: rgba(6, 35, 44, 0.8);   /* Sidebar backdrop overlay */
   --fz-bg-scrim: rgba(6, 35, 44, 0.88);    /* Modal scrim overlay */
 
   /* ---- Text Colors ---- */
-  --fz-text-primary: #212529;        /* Default body text (Bootstrap body-color) */
+  --fz-text-primary: #06232C;        /* Default body text (DS neutral-900) */
   --fz-text-secondary: #536B75;      /* Secondary text, table headers, muted labels */
   --fz-text-light: #FFFFFF;          /* Text on dark backgrounds */
   --fz-text-light-muted: #F2F3F3;    /* Muted text/icons on dark backgrounds */
-  --fz-text-muted: #788890;          /* Muted text (dates, subtitles) */
+  --fz-text-muted: #A7B2BA;          /* Muted text (DS neutral-400) */
   --fz-text-disabled: #A7B2BA;       /* Disabled/placeholder text */
   --fz-text-dark: #101A23;           /* Dark text (inputs, form values) */
   --fz-text-darkest: #031419;        /* Darkest text (tags, close buttons) */
   --fz-text-heading-dark: #364550;   /* Dark heading text on light backgrounds (h4) */
   --fz-text-subdued: #5A7385;        /* Subdued text (location info) */
+  --fz-text-inverse: #FFFFFF;        /* Inverse text (same as light, for clarity) */
 
   /* ---- Primary / Brand Colors ---- */
-  --fz-primary: #0079CA;             /* Fever primary blue (buttons, active filters, links) */
-  --fz-primary-hover: #0068B0;       /* Primary hover state (estimated darker) */
+  --fz-primary: #0089E3;             /* Fever primary blue — DS primary-500 */
+  --fz-primary-hover: #0079CA;       /* Primary hover state (DS primary-600) */
+  --fz-primary-active: #0068B0;      /* Primary active/pressed state (DS primary-700) */
   --fz-primary-light: #73BFF6;       /* Primary light variant */
 
-  /* ---- Status Colors ---- */
+  /* ---- Semantic / Status Colors ---- */
   --fz-status-active: #24A865;       /* Active/positive status tag border */
   --fz-status-active-text: #18824C;  /* Active/positive status tag text */
   --fz-status-inactive: #536B75;     /* Inactive status */
   --fz-status-draft: #FF8C00;        /* Draft/pending status */
-  --fz-status-error: #DC3545;        /* Error/danger (Bootstrap danger) */
+  --fz-status-error: #EB0052;        /* Error/danger (DS danger) */
+
+  /* Semantic color variants for badges */
+  --fz-success: #24A865;
+  --fz-success-bg: #ECFDF5;
+  --fz-success-text: #047857;
+  --fz-success-border: #A7F3D0;
+
+  --fz-warning: #FF8C00;
+  --fz-warning-bg: #FEF3C7;
+  --fz-warning-text: #B45309;
+  --fz-warning-border: #FDE68A;
+
+  --fz-danger: #EB0052;
+  --fz-danger-bg: #FEE2E2;
+  --fz-danger-text: #B91C1C;
+  --fz-danger-border: #FECACA;
+
+  --fz-info: #0EA5E9;
+  --fz-info-bg: #E0F2FE;
+  --fz-info-text: #0369A1;
+  --fz-info-border: #BAE6FD;
 
   /* ---- Border & Shadow ---- */
-  --fz-border-color: #CCD2D8;        /* Input borders, dividers */
+  --fz-border-color: #CCD2D8;        /* Input borders, dividers (DS neutral-300) */
   --fz-border-color-dark: #536B75;   /* Dark borders (header bottom, on dark bg) */
   --fz-border-color-light: #D9DCDE;  /* Light borders (table separators) */
-  --fz-border-radius: 8px;           /* Default border radius (inputs, dropdowns, sidebar items) */
+  --fz-border-color-lighter: #E5E7EB; /* Lightest borders (DS neutral-200) */
+  --fz-border-radius: 8px;           /* Default border radius (inputs, dropdowns) */
   --fz-border-radius-sm: 4px;        /* Small radius (tags, combobox) */
-  --fz-border-radius-lg: 12px;       /* Large radius (table containers) */
+  --fz-border-radius-lg: 12px;       /* Large radius (table containers, cards) */
   --fz-border-radius-xl: 16px;       /* Extra-large radius (modals) */
-  --fz-border-radius-pill: 64px;     /* Pill radius (buttons) */
-  --fz-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);   /* Bootstrap shadow-sm */
-  --fz-shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);      /* Bootstrap shadow */
-  --fz-shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);        /* Bootstrap shadow-lg */
+  --fz-border-radius-2xl: 20px;      /* DS radius-500 */
+  --fz-border-radius-3xl: 24px;      /* DS radius-600 */
+  --fz-border-radius-pill: 64px;     /* Pill radius (buttons) — DS radius-full */
 
-  /* ---- Spacing ---- */
+  /* Shadows — Ignite DS elevation scale (using DS neutral tones) */
+  --fz-shadow: 0 1px 3px rgba(6, 35, 44, 0.08);
+  --fz-shadow-md: 0 4px 8px rgba(6, 35, 44, 0.1);
+  --fz-shadow-lg: 0 8px 16px rgba(6, 35, 44, 0.12);
+  --fz-shadow-xl: 0 12px 24px rgba(6, 35, 44, 0.16);
+
+  /* ---- Spacing (4-unit grid) ---- */
   --fz-spacing-xs: 4px;              /* Tag padding, tight gaps */
   --fz-spacing-sm: 8px;              /* Small padding, menu item gaps */
   --fz-spacing-md: 12px;             /* Button padding, sidebar item padding */
   --fz-spacing-lg: 16px;             /* Sidebar padding, header padding, section gaps */
   --fz-spacing-xl: 24px;             /* Large button padding, major spacing */
   --fz-spacing-2xl: 32px;            /* Heading margin-bottom, section breaks */
+  --fz-spacing-3xl: 40px;            /* Extra-large spacing */
+  --fz-spacing-4xl: 48px;            /* Section spacing */
 
   /* ---- Layout ---- */
   --fz-sidebar-width: 256px;         /* Sidebar width when expanded */
@@ -73,17 +133,21 @@
 
   /* ---- Typography ---- */
   --fz-font-family: 'Montserrat', sans-serif;
-  --fz-font-size-xs: 12px;           /* Tags, table headers, small labels */
-  --fz-font-size-sm: 14px;           /* Small buttons, secondary info, footer links */
-  --fz-font-size-md: 16px;           /* Body text, buttons, inputs, sidebar items */
-  --fz-font-size-lg: 18px;           /* Headings (h1, h4) */
-  --fz-font-size-xl: 20px;           /* Large headings */
-  --fz-font-size-xxl: 24px;          /* Extra-large headings */
+  --fz-font-size-xs: 12px;           /* Tags, table headers, small labels — DS caption */
+  --fz-font-size-sm: 14px;           /* Small buttons, secondary info — DS body-sm */
+  --fz-font-size-md: 16px;           /* Body text, buttons, inputs — DS body-base */
+  --fz-font-size-lg: 18px;           /* Headings h4 */
+  --fz-font-size-xl: 20px;           /* Headings h3 */
+  --fz-font-size-xxl: 24px;          /* Headings h2 */
+  --fz-font-size-3xl: 28px;          /* Headings h1 */
+  --fz-font-size-4xl: 48px;          /* Display */
   --fz-font-weight-regular: 400;     /* Body text, sidebar items, inputs */
   --fz-font-weight-semibold: 600;    /* Buttons, table headers, sub-headings */
-  --fz-font-weight-bold: 700;        /* Page titles (h1) */
-  --fz-line-height-body: 1.5;        /* Body text line-height (24px at 16px) */
-  --fz-line-height-heading: 1.14;    /* Heading line-height (~20.52px at 18px) */
+  --fz-font-weight-bold: 600;        /* DS has no 700; mapped to semibold */
+  --fz-line-height-body: 1.5;        /* Body text line-height */
+  --fz-line-height-heading: 1.14;    /* Heading line-height */
+  --fz-line-height-tight: 1.25;      /* Tight line-height */
+  --fz-line-height-relaxed: 1.75;    /* Relaxed line-height */
 
   /* ---- Button Sizes ---- */
   --fz-btn-height-sm: 32px;          /* Small button height */
@@ -100,4 +164,7 @@
 
   /* ---- Transitions ---- */
   --fz-transition: 0.26s cubic-bezier(0.1, 0, 0, 1);
+  --fz-transition-fast: 150ms ease-in-out;
+  --fz-transition-base: 200ms ease-in-out;
+  --fz-transition-slow: 300ms ease-in-out;
 }

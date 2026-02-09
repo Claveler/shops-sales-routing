@@ -2,8 +2,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-weight: 500;
-  border-radius: 4px;
+  font-weight: var(--fz-font-weight-semibold);
+  border-radius: var(--fz-border-radius-sm);
   white-space: nowrap;
 }
 
@@ -18,39 +18,39 @@
   font-size: 11px;
 }
 
-/* Variants - Fever Design System Colors */
+/* Variants — Ignite Design System Colors */
 .default {
-  background-color: #f3f4f6;
+  background-color: var(--fz-bg-muted);
   color: var(--fz-text-primary);
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--fz-border-color-lighter);
 }
 
 .success {
-  background-color: #e6f7ee;
-  color: #1a7a4c;
-  border: 1px solid #b8e8cf;
+  background-color: var(--fz-success-bg);
+  color: var(--fz-success-text);
+  border: 1px solid var(--fz-success-border);
 }
 
 .warning {
-  background-color: #fff4e6;
-  color: #b36b00;
-  border: 1px solid #ffd699;
+  background-color: var(--fz-warning-bg);
+  color: var(--fz-warning-text);
+  border: 1px solid var(--fz-warning-border);
 }
 
 .danger {
-  background-color: #fde8ef;
-  color: #b30041;
-  border: 1px solid #f9b3cc;
+  background-color: var(--fz-danger-bg);
+  color: var(--fz-danger-text);
+  border: 1px solid var(--fz-danger-border);
 }
 
 .info {
-  background-color: #e6f4ff;
-  color: #0068b0;
-  border: 1px solid #acdafb;
+  background-color: var(--fz-info-bg);
+  color: var(--fz-info-text);
+  border: 1px solid var(--fz-info-border);
 }
 
 .secondary {
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
+  background-color: var(--fz-bg-muted);
+  color: var(--fz-text-secondary);
+  border: 1px solid var(--fz-border-color-lighter);
 }

@@ -1,9 +1,15 @@
 @import './variables.css';
 
-* {
+*, *::before, *::after {
+  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 html, body, #root {
@@ -14,10 +20,10 @@ html, body, #root {
 body {
   font-family: var(--fz-font-family);
   font-size: var(--fz-font-size-md);
+  font-weight: var(--fz-font-weight-regular);
+  line-height: var(--fz-line-height-body);
   color: var(--fz-text-primary);
   background-color: var(--fz-bg-content);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -25,14 +31,25 @@ a {
   text-decoration: none;
 }
 
+a:hover {
+  text-decoration: underline;
+}
+
 button {
-  cursor: pointer;
   font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
 }
 
 input, select, textarea {
   font-family: inherit;
   font-size: inherit;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
 }
 
 /* Scrollbar styling */

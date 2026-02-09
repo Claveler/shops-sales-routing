@@ -1,11 +1,11 @@
 .toast {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 16px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  gap: var(--fz-spacing-md);
+  padding: var(--fz-spacing-lg);
+  background: var(--fz-bg-card);
+  border-radius: var(--fz-border-radius);
+  box-shadow: var(--fz-shadow-lg);
   min-width: 320px;
   max-width: 420px;
   animation: slideIn 0.3s ease-out;
@@ -33,24 +33,24 @@
 }
 
 .icon {
-  font-size: 16px;
+  font-size: var(--fz-font-size-md);
 }
 
 /* Variants */
 .success .iconWrapper {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(36, 168, 101, 0.15);
 }
 
 .success .icon {
-  color: #10b981;
+  color: var(--fz-success);
 }
 
 .warning .iconWrapper {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(255, 140, 0, 0.15);
 }
 
 .warning .icon {
-  color: #f59e0b;
+  color: var(--fz-warning);
 }
 
 .info .iconWrapper {
@@ -62,11 +62,11 @@
 }
 
 .error .iconWrapper {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(235, 0, 82, 0.15);
 }
 
 .error .icon {
-  color: #ef4444;
+  color: var(--fz-status-error);
 }
 
 .content {
@@ -75,28 +75,28 @@
 }
 
 .title {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: var(--fz-font-size-sm);
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   margin-bottom: 2px;
 }
 
 .message {
-  font-size: 13px;
+  font-size: var(--fz-font-size-sm);
   color: var(--fz-text-secondary);
   line-height: 1.4;
 }
 
 .actionBtn {
-  margin-top: 8px;
+  margin-top: var(--fz-spacing-sm);
   padding: 0;
   background: none;
   border: none;
-  font-size: 13px;
-  font-weight: 500;
+  font-size: var(--fz-font-size-sm);
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-primary);
   cursor: pointer;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--fz-transition-fast);
 }
 
 .actionBtn:hover {
@@ -113,12 +113,12 @@
   background: none;
   border: none;
   border-radius: 6px;
-  color: #9ca3af;
+  color: var(--fz-text-muted);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--fz-transition-fast);
 }
 
 .dismissBtn:hover {
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--fz-bg-muted);
+  color: var(--fz-text-secondary);
 }

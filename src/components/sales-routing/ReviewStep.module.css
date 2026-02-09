@@ -47,7 +47,7 @@
 }
 
 .required {
-  color: #dc2626;
+  color: var(--fz-status-error);
   margin-left: 2px;
 }
 
@@ -61,7 +61,7 @@
   border-radius: 8px;
   color: white;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -101,7 +101,7 @@
 }
 
 .nameInput.inputRequired:focus {
-  border-color: #dc2626;
+  border-color: var(--fz-status-error);
 }
 
 .nameHint {
@@ -154,7 +154,7 @@
 
 .sectionValue {
   font-size: var(--fz-font-size-md);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   margin: 0 0 var(--fz-spacing-xs) 0;
 }
@@ -202,7 +202,7 @@
   background: rgba(245, 158, 11, 0.15);
   border-radius: 12px;
   font-size: var(--fz-font-size-xs);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: #d97706;
 }
 
@@ -303,7 +303,7 @@
   align-items: center;
   gap: var(--fz-spacing-xs);
   color: var(--fz-text-primary);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   min-width: 160px;
 }
 

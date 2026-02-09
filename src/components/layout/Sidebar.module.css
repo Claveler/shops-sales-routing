@@ -7,17 +7,17 @@
   background-color: var(--fz-bg-sidebar);
   display: flex;
   flex-direction: column;
-  transition: width var(--fz-transition);
-  z-index: 90;
+  transition: width var(--fz-transition-slow);
+  z-index: 900;
   overflow-x: hidden;
   overflow-y: auto;
-  border-right: 1px solid rgb(83, 107, 117);
+  border-right: 1px solid var(--fz-neutral-600);
   scrollbar-width: thin; /* Firefox */
   scrollbar-color: rgba(255, 255, 255, 0.2) transparent; /* Firefox */
 }
 
 .sidebar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
 }
 
 .sidebar::-webkit-scrollbar-track {
@@ -26,7 +26,11 @@
 
 .sidebar::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
+  border-radius: var(--fz-border-radius-sm);
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 .sidebar.collapsed {
@@ -36,51 +40,60 @@
 .nav {
   flex: 1;
   overflow: visible;
-  padding: var(--fz-spacing-sm) 0;
+  padding: var(--fz-spacing-lg) var(--fz-spacing-md);
 }
 
 .menuList {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .menuItem {
-  margin-bottom: 1px;
+  /* No margin — gap handles spacing */
 }
 
 .menuLink {
   display: flex;
   align-items: center;
-  gap: var(--fz-spacing-sm);
-  padding: 10px 16px;
-  color: var(--fz-text-light);
+  gap: 0.25rem;
+  height: 2.5rem;
+  padding: 0.75rem;
+  color: var(--fz-text-inverse);
   background: transparent;
   border: none;
   width: 100%;
   text-align: left;
-  font-size: var(--fz-font-size-lg);
+  font-size: var(--fz-font-size-md);
+  font-weight: var(--fz-font-weight-regular);
+  line-height: 1.4;
   cursor: pointer;
-  transition: all var(--fz-transition);
+  transition: background-color 0.3s ease-in-out;
   text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .menuLink:hover {
-  color: var(--fz-text-light);
-  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--fz-text-inverse);
+  background-color: var(--fz-neutral-800);
+  text-decoration: none;
 }
 
 .menuLink.active {
-  color: var(--fz-text-light);
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  margin: 0 8px;
-  padding: 10px 12px;
+  color: var(--fz-text-inverse);
+  background-color: var(--fz-neutral-700);
+  border-radius: var(--fz-border-radius);
 }
 
 .menuIcon {
   width: 20px;
-  font-size: 14px;
-  opacity: 1;
+  font-size: 1rem;
   text-align: center;
+  flex-shrink: 0;
+  color: var(--fz-bg-content);
 }
 
 .menuLabel {
@@ -91,34 +104,51 @@
 }
 
 .expandIcon {
-  font-size: 8px;
-  opacity: 0.5;
+  font-size: var(--fz-font-size-xs);
+  opacity: 0.6;
 }
 
 .subMenu {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-block: 0.25rem;
+  padding-block-end: 0.25rem;
+  padding-inline-start: 1.5rem;
+  border-bottom: 1px dashed var(--fz-neutral-600);
 }
 
 .subMenuLink {
-  display: block;
-  padding: 10px 16px 10px 44px;
-  color: var(--fz-text-light);
-  font-size: var(--fz-font-size-lg);
-  transition: all var(--fz-transition);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  height: 2.5rem;
+  padding: 0.75rem;
+  color: var(--fz-text-inverse);
+  font-size: var(--fz-font-size-md);
+  font-weight: var(--fz-font-weight-regular);
+  line-height: 1.4;
+  transition: background-color 0.3s ease-in-out;
   text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .subMenuLink:hover {
-  color: var(--fz-text-light);
-  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--fz-text-inverse);
+  background-color: var(--fz-neutral-800);
+  text-decoration: none;
 }
 
 .subMenuLink.active {
-  color: var(--fz-text-light);
-  background-color: rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  margin: 0 8px;
-  padding: 10px 12px 10px 36px;
+  color: var(--fz-text-inverse);
+  background-color: var(--fz-neutral-700);
+  border-radius: var(--fz-border-radius);
+}
+
+.subMenuLink.active:hover {
+  background-color: var(--fz-neutral-700);
 }
 
 .sidebar.collapsed .menuLabel,

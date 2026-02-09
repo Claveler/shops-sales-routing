@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import styles from './Breadcrumb.module.css';
 
-interface BreadcrumbItem {
+export interface BreadcrumbItem {
   label: string;
   path?: string;
 }

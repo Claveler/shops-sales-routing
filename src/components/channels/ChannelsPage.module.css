@@ -1,44 +1,47 @@
-.container {
+.pageBody {
   max-width: 1400px;
   margin: 0 auto;
+  padding: var(--fz-spacing-xl);
 }
 
-.pageHeader {
-  margin-bottom: 20px;
-}
-
-.pageTitle {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--fz-text-light);
-  margin: 0;
-}
-
-/* Selector Row */
+/* Selector Row — inside dark PageHeader */
 .selectorRow {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.citySelector,
-.eventSelector {
-  padding: 10px 14px;
-  border: 1px solid var(--fz-border-color);
-  border-radius: 6px;
-  font-size: 14px;
-  background: var(--fz-bg-card);
-  color: var(--fz-text-primary);
-  cursor: pointer;
+  align-items: center;
+  gap: 10px;
 }
 
 .citySelector {
-  min-width: 150px;
+  padding: 10px 14px;
+  border: 1px solid var(--fz-border-color-lighter);
+  border-radius: 6px;
+  font-size: var(--fz-font-size-sm);
+  font-family: var(--fz-font-family);
+  background: var(--fz-bg-card);
+  color: var(--fz-text-primary);
+  cursor: pointer;
+  appearance: auto;
+  min-width: 130px;
 }
 
 .eventSelector {
   flex: 1;
-  min-width: 300px;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--fz-border-color-lighter);
+  border-radius: 6px;
+  font-size: var(--fz-font-size-sm);
+  font-family: var(--fz-font-family);
+  background: var(--fz-bg-card);
+  color: var(--fz-text-primary);
+  cursor: pointer;
+  appearance: auto;
+}
+
+.citySelector:focus,
+.eventSelector:focus {
+  outline: none;
+  border-color: var(--fz-primary);
 }
 
 .eventSelector:disabled {
@@ -47,23 +50,26 @@
 }
 
 .showBtn {
-  padding: 10px 24px;
-  border: 1px solid var(--fz-border-color);
-  border-radius: 6px;
-  background: var(--fz-bg-card);
-  color: var(--fz-text-primary);
-  font-size: 14px;
-  font-weight: 500;
+  padding: 10px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--fz-border-radius-pill);
+  background: transparent;
+  color: var(--fz-text-light);
+  font-size: var(--fz-font-size-sm);
+  font-weight: var(--fz-font-weight-semibold);
+  font-family: var(--fz-font-family);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--fz-transition-fast);
+  white-space: nowrap;
 }
 
 .showBtn:hover:not(:disabled) {
-  border-color: var(--fz-primary);
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.5);
 }
 
 .showBtn:disabled {
-  opacity: 0.5;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
@@ -92,7 +98,7 @@
   background: var(--fz-primary);
   color: white;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.15s ease;
 }

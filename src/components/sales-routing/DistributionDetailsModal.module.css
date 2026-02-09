@@ -13,7 +13,7 @@
 }
 
 .modal {
-  background: white;
+  background: var(--fz-bg-card);
   border-radius: 12px;
   max-width: 520px;
   width: 100%;
@@ -36,20 +36,20 @@
   background: transparent;
   border: none;
   border-radius: 6px;
-  color: #6c757d;
+  color: var(--fz-text-secondary);
   cursor: pointer;
   transition: all var(--fz-transition);
   z-index: 1;
 }
 
 .closeBtn:hover {
-  background: #f8f9fa;
-  color: #212529;
+  background: var(--fz-bg-subtle);
+  color: var(--fz-text-primary);
 }
 
 .header {
   padding: var(--fz-spacing-lg) var(--fz-spacing-lg) var(--fz-spacing-md);
-  border-bottom: 1px solid #e9ecef;
+  border-bottom: 1px solid var(--fz-border-color-lighter);
 }
 
 .title {
@@ -67,7 +67,7 @@
 
 .eventName {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
 }
 
@@ -110,7 +110,7 @@
 }
 
 .sectionContent {
-  background: #f8f9fa;
+  background: var(--fz-bg-subtle);
   border-radius: 8px;
   padding: var(--fz-spacing-md);
 }
@@ -133,14 +133,14 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 12px;
-  background: white;
+  background: var(--fz-bg-card);
   border-radius: 6px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--fz-border-color-lighter);
 }
 
 .warehouseName {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
 }
 
@@ -153,7 +153,7 @@
   background: #fff9db;
   padding: 3px 8px;
   border-radius: 4px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
 }
 
 .priceRef svg {
@@ -171,9 +171,9 @@
   align-items: center;
   gap: var(--fz-spacing-sm);
   padding: 8px 12px;
-  background: white;
+  background: var(--fz-bg-card);
   border-radius: 6px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--fz-border-color-lighter);
 }
 
 .channelInfo {
@@ -192,7 +192,7 @@
 
 .channelName {
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   white-space: nowrap;
   overflow: hidden;
@@ -201,7 +201,7 @@
 
 .arrow {
   font-size: 10px;
-  color: #adb5bd;
+  color: var(--fz-text-muted);
   flex-shrink: 0;
 }
 
@@ -213,7 +213,7 @@
 
 .footer {
   padding: var(--fz-spacing-md) var(--fz-spacing-lg);
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--fz-border-color-lighter);
   display: flex;
   justify-content: flex-end;
 }

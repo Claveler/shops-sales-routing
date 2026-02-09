@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Breadcrumb } from '../common/Breadcrumb';
+import { PageHeader } from '../common/PageHeader';
 import { useDemo } from '../../context/DemoContext';
 import { EmptyState } from './EmptyState';
 import { IntegrationDetails } from './IntegrationDetails';
@@ -15,23 +15,21 @@ export function CatalogIntegrationPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <Breadcrumb 
-        items={[
+    <>
+      <PageHeader
+        breadcrumbItems={[
           { label: 'Products', path: '/products' },
           { label: 'Catalog integration' }
-        ]} 
+        ]}
+        title="Catalog integration"
       />
-      
-      <div className={styles.pageHeader}>
-        <h1 className={styles.pageTitle}>Catalog integration</h1>
+      <div className={styles.pageBody}>
+        {integration ? (
+          <IntegrationDetails integration={integration} />
+        ) : (
+          <EmptyState onCreateNew={handleCreateNew} />
+        )}
       </div>
-
-      {integration ? (
-        <IntegrationDetails integration={integration} />
-      ) : (
-        <EmptyState onCreateNew={handleCreateNew} />
-      )}
-    </div>
+    </>
   );
 }

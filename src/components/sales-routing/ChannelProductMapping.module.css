@@ -83,7 +83,7 @@
   border-radius: 20px;
   color: white;
   font-size: var(--fz-font-size-sm);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all var(--fz-transition);
 }
@@ -166,7 +166,7 @@
 }
 
 .productName {
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
 }
 
@@ -182,7 +182,7 @@
 }
 
 .price {
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
 }
 
 .channelCell {

@@ -34,7 +34,7 @@
   border-radius: 8px;
   color: white;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -119,12 +119,12 @@
 .eventItem.disabled {
   opacity: 0.6;
   cursor: not-allowed;
-  background: #f9fafb;
+  background: var(--fz-bg-subtle);
 }
 
 .eventItem.disabled:hover {
   border-color: var(--fz-border-color);
-  background: #f9fafb;
+  background: var(--fz-bg-subtle);
 }
 
 .disabledBadge {
@@ -132,8 +132,8 @@
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: #6b7280;
-  background: #e5e7eb;
+  color: var(--fz-text-secondary);
+  background: var(--fz-border-color-lighter);
   padding: 6px 10px;
   border-radius: 6px;
   white-space: nowrap;
@@ -150,7 +150,7 @@
 
 .eventName {
   font-size: var(--fz-font-size-md);
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   margin: 0 0 var(--fz-spacing-xs) 0;
 }

@@ -39,7 +39,7 @@
   border-radius: 8px;
   color: white;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -84,8 +84,8 @@
   gap: 16px;
   width: 100%;
   padding: 16px 20px;
-  background: white;
-  border: 1px solid #dee2e6;
+  background: var(--fz-bg-card);
+  border: 1px solid var(--fz-border-color);
   border-radius: 10px;
   cursor: pointer;
   text-align: left;
@@ -93,8 +93,8 @@
 }
 
 .channelItem:hover {
-  border-color: #ced4da;
-  background: #f8f9fa;
+  border-color: var(--fz-border-color);
+  background: var(--fz-bg-subtle);
 }
 
 .channelItem.selected {
@@ -136,7 +136,7 @@
 .checkbox {
   width: 22px;
   height: 22px;
-  border: 2px solid #dee2e6;
+  border: 2px solid var(--fz-border-color);
   border-radius: 6px;
   display: flex;
   align-items: center;
@@ -156,12 +156,12 @@
 .channelIcon {
   width: 44px;
   height: 44px;
-  background: #f3f4f6;
+  background: var(--fz-bg-muted);
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #6b7280;
+  color: var(--fz-text-secondary);
   font-size: 18px;
   flex-shrink: 0;
 }
@@ -181,7 +181,7 @@
 
 .channelName {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
 }
 
@@ -193,7 +193,7 @@
 /* Note */
 .note {
   padding: 14px 18px;
-  background: #f8f9fa;
+  background: var(--fz-bg-subtle);
   border-radius: 8px;
   display: flex;
   flex-direction: column;

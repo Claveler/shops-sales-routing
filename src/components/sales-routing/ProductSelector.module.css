@@ -39,7 +39,7 @@
   border-radius: 8px;
   color: white;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   cursor: pointer;
   transition: all 0.2s ease;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
@@ -72,14 +72,14 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #9ca3af;
+  color: var(--fz-text-muted);
   font-size: 14px;
 }
 
 .searchInput {
   width: 100%;
   padding: 12px 14px 12px 42px;
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--fz-border-color);
   border-radius: 8px;
   font-size: 14px;
   transition: all 0.15s ease;
@@ -92,7 +92,7 @@
 }
 
 .searchInput::placeholder {
-  color: #adb5bd;
+  color: var(--fz-text-muted);
 }
 
 .bulkActions {
@@ -102,8 +102,8 @@
 
 .bulkBtn {
   padding: 10px 16px;
-  background: white;
-  border: 1px solid #dee2e6;
+  background: var(--fz-bg-card);
+  border: 1px solid var(--fz-border-color);
   border-radius: 6px;
   font-size: 13px;
   color: var(--fz-text-secondary);
@@ -112,8 +112,8 @@
 }
 
 .bulkBtn:hover:not(:disabled) {
-  background: #f8f9fa;
-  border-color: #ced4da;
+  background: var(--fz-bg-subtle);
+  border-color: var(--fz-border-color);
   color: var(--fz-text-primary);
 }
 
@@ -124,7 +124,7 @@
 
 /* Product list */
 .listWrapper {
-  border: 1px solid #dee2e6;
+  border: 1px solid var(--fz-border-color);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -147,9 +147,9 @@
   gap: 14px;
   width: 100%;
   padding: 14px 16px;
-  background: white;
+  background: var(--fz-bg-card);
   border: none;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid var(--fz-bg-muted);
   cursor: pointer;
   text-align: left;
   transition: background 0.15s ease;
@@ -160,7 +160,7 @@
 }
 
 .productItem:hover {
-  background: #f8f9fa;
+  background: var(--fz-bg-subtle);
 }
 
 .productItem.selected {
@@ -175,7 +175,7 @@
 .checkbox {
   width: 20px;
   height: 20px;
-  border: 2px solid #dee2e6;
+  border: 2px solid var(--fz-border-color);
   border-radius: 4px;
   display: flex;
   align-items: center;
@@ -198,7 +198,7 @@
   border-radius: 6px;
   overflow: hidden;
   flex-shrink: 0;
-  background: #f3f4f6;
+  background: var(--fz-bg-muted);
 }
 
 .productImage img {
@@ -213,7 +213,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9ca3af;
+  color: var(--fz-text-muted);
   font-size: 14px;
 }
 
@@ -228,7 +228,7 @@
 
 .productName {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -242,7 +242,7 @@
 
 .productPrice {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: var(--fz-font-weight-semibold);
   color: var(--fz-text-primary);
   flex-shrink: 0;
 }
@@ -253,7 +253,7 @@
   align-items: center;
   gap: 8px;
   padding: 12px 16px;
-  background: #f8f9fa;
+  background: var(--fz-bg-subtle);
   border-radius: 8px;
 }
 
