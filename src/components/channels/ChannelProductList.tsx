@@ -128,8 +128,6 @@ export function ChannelProductList({ channelId, routingId }: ChannelProductListP
     setPendingChanges({});
   };
 
-  // Count visible products
-  const visibleCount = filteredProducts.filter(p => getProductVisibility(p.id)).length;
 
   if (!channel) {
     return (

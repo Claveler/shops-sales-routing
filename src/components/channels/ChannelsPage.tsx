@@ -129,14 +129,6 @@ export function ChannelsPage() {
     );
   }
 
-  // Build the selected event label for the combobox display
-  const selectedEventLabel = useMemo(() => {
-    if (!selectedRoutingId) return '';
-    const match = eventsInCity.find(({ routing }) => routing.id === selectedRoutingId);
-    if (match) return `${match.event.name} - ${match.event.venue}`;
-    return '';
-  }, [selectedRoutingId, eventsInCity]);
-
   return (
     <>
       <PageHeader
