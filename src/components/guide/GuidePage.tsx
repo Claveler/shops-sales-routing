@@ -257,12 +257,25 @@ export function GuidePage() {
                 </div>
               </div>
 
+              <div className={styles.tipBox}>
+                <FontAwesomeIcon icon={faInfoCircle} className={styles.tipIcon} />
+                <div>
+                  <strong>Design note:</strong> This page is inspired by the <em>Events &gt; Channels</em> section in the real Fever Zone, adapted for our product-sales use case. Key differences from the original:
+                  <ul style={{ margin: '8px 0 0', paddingLeft: '20px', lineHeight: '1.7' }}>
+                    <li><strong>No "Event ready for sale" banner</strong> &mdash; irrelevant here because only events with an active sales routing appear in this view. An event that isn't ready for sale wouldn't have a routing in the first place.</li>
+                    <li><strong>No Status toggle</strong> &mdash; activating or deactivating a channel is done in the event's own Channels section, not here. This page only controls <em>product visibility</em> within an already-active routing.</li>
+                    <li><strong>No "Edit" side-panel</strong> &mdash; in the real Fever Zone, clicking "Edit" opens a side panel to select ticket types. We use inline eye-icon toggles instead, which is more direct for per-product visibility control.</li>
+                    <li><strong>Channel type categories</strong> &mdash; channels are grouped into four types (Box Office, Marketplace, Kiosk, API) that match the Fever Zone filter categories.</li>
+                  </ul>
+                </div>
+              </div>
+
               <div className={styles.substeps}>
                 <div className={styles.substep}>
                   <span className={styles.substepNumber}>a</span>
                   <div>
                     <strong>Select your event</strong>
-                    <p>Use the city and event selectors to load the channels for a specific routing.</p>
+                    <p>Use the city and event selectors to load the channels for a specific sales routing.</p>
                   </div>
                 </div>
                 <div className={styles.substep}>

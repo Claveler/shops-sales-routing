@@ -1,15 +1,11 @@
 import { useState, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faGlobe, 
-  faDesktop, 
-  faStore, 
-  faExternalLinkAlt, 
-  faCashRegister,
+  faEdit, 
   faSearch
 } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
-import { channels, isBoxOfficeChannel } from '../../data/mockData';
+import { channels, isBoxOfficeChannel, getChannelTypeCategory, CHANNEL_TYPE_LABELS, type ChannelTypeCategory } from '../../data/mockData';
 import styles from './ChannelList.module.css';
 
 interface ChannelListProps {
@@ -21,14 +17,6 @@ interface ChannelListProps {
   onDeselectAll: () => void;
   routingId: string | null;
 }
-
-const channelIcons: Record<string, typeof faGlobe> = {
-  onsite: faCashRegister,
-  marketplace: faGlobe,
-  whitelabel: faDesktop,
-  kiosk: faStore,
-  ota: faExternalLinkAlt
-};
 
 export function ChannelList({
   selectedChannelId,
@@ -50,19 +38,19 @@ export function ChannelList({
     return routing ? channels.filter(c => routing.channelIds.includes(c.id)) : [];
   }, [routingId, demo]);
 
-  // Filter channels based on search and type filter
+  // Filter channels based on search and type category filter
   const filteredChannels = useMemo(() => {
     return routedChannels.filter(channel => {
       const matchesSearch = channel.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesType = filterType === 'all' || channel.type === filterType;
+      const matchesType = filterType === 'all' || getChannelTypeCategory(channel) === filterType;
       return matchesSearch && matchesType;
     });
   }, [routedChannels, searchQuery, filterType]);
 
-  // Get unique channel types for filter dropdown
-  const channelTypes = useMemo(() => {
-    const types = new Set(routedChannels.map(c => c.type));
-    return Array.from(types);
+  // Get unique channel type categories for filter dropdown
+  const channelTypeCategories = useMemo(() => {
+    const cats = new Set<ChannelTypeCategory>(routedChannels.map(c => getChannelTypeCategory(c)));
+    return Array.from(cats);
   }, [routedChannels]);
 
   const allChecked = filteredChannels.length > 0 && 
@@ -70,47 +58,56 @@ export function ChannelList({
 
   return (
     <div className={styles.container}>
-      <div className={styles.filters}>
-        <select 
-          className={styles.filterSelect}
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
-        >
-          <option value="all">Filter by channel type</option>
-          {channelTypes.map(type => (
-            <option key={type} value={type}>
-              {type.charAt(0).toUpperCase() + type.slice(1)}
-            </option>
-          ))}
-        </select>
-
-        <div className={styles.searchBox}>
-          <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.searchInput}
-          />
-        </div>
+      <div className={styles.panelHeader}>
+        <h3 className={styles.panelTitle}>Channels List</h3>
+        <p className={styles.panelSubtitle}>
+          Click a channel to check or edit its details, or select multiple to edit in bulk.
+        </p>
       </div>
 
-      <div className={styles.selectAllRow}>
-        <label className={styles.checkboxLabel}>
-          <input
-            type="checkbox"
-            checked={allChecked}
-            onChange={() => allChecked ? onDeselectAll() : onSelectAll()}
-            className={styles.checkbox}
-          />
-          Select all
-        </label>
-        {checkedChannelIds.length > 1 && (
-          <button className={styles.editBulkBtn}>
-            Edit in bulk
-          </button>
-        )}
+      <div className={styles.filterContainer}>
+        <div className={styles.filters}>
+          <select 
+            className={styles.filterSelect}
+            value={filterType}
+            onChange={(e) => setFilterType(e.target.value)}
+          >
+            <option value="all">Filter by channel type</option>
+            {channelTypeCategories.map(cat => (
+              <option key={cat} value={cat}>
+                {CHANNEL_TYPE_LABELS[cat]}
+              </option>
+            ))}
+          </select>
+
+          <div className={styles.searchBox}>
+            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
+          </div>
+        </div>
+
+        <div className={styles.selectAllRow}>
+          <label className={styles.checkboxLabel}>
+            <input
+              type="checkbox"
+              checked={allChecked}
+              onChange={() => allChecked ? onDeselectAll() : onSelectAll()}
+              className={styles.checkbox}
+            />
+            Select all
+          </label>
+          {checkedChannelIds.length > 1 && (
+            <button className={styles.editBulkBtn}>
+              Edit in bulk
+            </button>
+          )}
+        </div>
       </div>
 
       <div className={styles.channelList}>
@@ -125,7 +122,6 @@ export function ChannelList({
         ) : (
           filteredChannels.map(channel => {
             const isBoxOffice = isBoxOfficeChannel(channel.id);
-            const icon = channelIcons[channel.type] || faGlobe;
             const isSelected = selectedChannelId === channel.id;
             const isChecked = checkedChannelIds.includes(channel.id);
 
@@ -150,7 +146,7 @@ export function ChannelList({
                   <span className={`${styles.channelStatus} ${styles.active}`}>Active</span>
                 </div>
                 <div className={`${styles.channelIcon} ${isBoxOffice ? styles.boxOfficeIcon : ''}`}>
-                  <FontAwesomeIcon icon={icon} />
+                  <FontAwesomeIcon icon={faEdit} />
                 </div>
               </div>
             );

@@ -143,152 +143,126 @@ export function ChannelProductList({ channelId, routingId }: ChannelProductListP
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.headerTop}>
-          <div>
-            <h3 className={styles.title}>{channel.name}</h3>
-            <p className={styles.subtitle}>
-              {visibleCount} of {filteredProducts.length} products visible
-            </p>
-          </div>
-          <div className={styles.headerActions}>
-            {hasUnsavedChanges && (
-              <>
-                <button className={styles.discardBtn} onClick={handleDiscard}>
-                  Discard
-                </button>
-                <button className={styles.saveBtn} onClick={handleSave}>
-                  <FontAwesomeIcon icon={faSave} />
-                  Save
-                </button>
-              </>
-            )}
-            <button 
-              className={styles.actionBtn}
-              onClick={() => {
-                const newChanges: Record<string, boolean> = {};
-                filteredProducts.forEach(p => {
-                  newChanges[p.id] = true;
-                });
-                setPendingChanges(prev => ({ ...prev, ...newChanges }));
-              }}
-            >
-              <FontAwesomeIcon icon={faEye} />
-              Show all
-            </button>
-            <button 
-              className={styles.actionBtn}
-              onClick={() => {
-                const newChanges: Record<string, boolean> = {};
-                filteredProducts.forEach(p => {
-                  newChanges[p.id] = false;
-                });
-                setPendingChanges(prev => ({ ...prev, ...newChanges }));
-              }}
-            >
-              <FontAwesomeIcon icon={faEyeSlash} />
-              Hide all
-            </button>
-          </div>
+      {/* Product card */}
+      <div className={styles.productCard}>
+        <div className={styles.productSectionHeader}>
+          <p className={styles.productSectionDescription}>
+            Toggle visibility for the products you want to sell through <strong>{channel.name}</strong>.
+          </p>
         </div>
-        
+
         {isBoxOffice && (
           <div className={styles.infoBar}>
             <FontAwesomeIcon icon={faInfoCircle} />
             <span>Box Office products are available across all connected POS devices.</span>
           </div>
         )}
-      </div>
 
-      <div className={styles.filters}>
-        <div className={styles.searchBox}>
-          <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className={styles.searchInput}
-          />
+        <div className={styles.productTableHeader}>
+          <span className={styles.productTableTitle}>Product</span>
+          {hasUnsavedChanges && (
+            <div className={styles.headerActions}>
+              <button className={styles.discardBtn} onClick={handleDiscard}>
+                Discard
+              </button>
+              <button className={styles.saveBtn} onClick={handleSave}>
+                <FontAwesomeIcon icon={faSave} />
+                Save
+              </button>
+            </div>
+          )}
         </div>
-        
-        {categories.length > 0 && (
-          <select 
-            className={styles.filterSelect}
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-          >
-            <option value="all">All categories</option>
-            {categories.map(cat => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-        )}
-      </div>
 
-      <div className={styles.productList}>
-        {filteredProducts.length === 0 ? (
-          <div className={styles.emptyState}>
-            {channelProducts.length === 0 ? (
-              <p>No products are connected to this channel through sales routing.</p>
-            ) : (
-              <p>No products match your search.</p>
-            )}
+        <div className={styles.filters}>
+          <div className={styles.searchBox}>
+            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className={styles.searchInput}
+            />
           </div>
-        ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th className={styles.visibilityCol}>Visible</th>
-                <th className={styles.imageCol}>Image</th>
-                <th className={styles.nameCol}>Product</th>
-                <th className={styles.skuCol}>SKU</th>
-                <th className={styles.categoryCol}>Category</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredProducts.map(product => {
-                const isVisible = getProductVisibility(product.id);
-                const category = demo.getProductCategoryPath(product.id);
-                
-                return (
-                  <tr 
-                    key={product.id} 
-                    className={`${styles.productRow} ${!isVisible ? styles.hidden : ''}`}
-                  >
-                    <td className={styles.visibilityCol}>
-                      <button
-                        className={`${styles.visibilityToggle} ${isVisible ? styles.visible : styles.hidden}`}
-                        onClick={() => toggleVisibility(product.id)}
-                        title={isVisible ? 'Hide product' : 'Show product'}
-                      >
-                        <FontAwesomeIcon icon={isVisible ? faEye : faEyeSlash} />
-                      </button>
-                    </td>
-                    <td className={styles.imageCol}>
-                      <div className={styles.productImage}>
-                        {product.imageUrl ? (
-                          <img src={product.imageUrl} alt={product.name} />
-                        ) : (
-                          <FontAwesomeIcon icon={faImage} className={styles.imagePlaceholder} />
-                        )}
-                      </div>
-                    </td>
-                    <td className={styles.nameCol}>
-                      <span className={styles.productName}>{product.name}</span>
-                    </td>
-                    <td className={styles.skuCol}>
-                      <span className={styles.productSku}>{product.sku}</span>
-                    </td>
-                    <td className={styles.categoryCol}>
-                      <span className={styles.productCategory}>{category}</span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
+          
+          {categories.length > 0 && (
+            <select 
+              className={styles.filterSelect}
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
+              <option value="all">All categories</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        <div className={styles.productList}>
+          {filteredProducts.length === 0 ? (
+            <div className={styles.emptyState}>
+              {channelProducts.length === 0 ? (
+                <p>No products are connected to this channel through sales routing.</p>
+              ) : (
+                <p>No products match your search.</p>
+              )}
+            </div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th className={styles.visibilityCol}>Visible</th>
+                  <th className={styles.imageCol}>Image</th>
+                  <th className={styles.nameCol}>Product</th>
+                  <th className={styles.skuCol}>SKU</th>
+                  <th className={styles.categoryCol}>Category</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredProducts.map(product => {
+                  const isVisible = getProductVisibility(product.id);
+                  const category = demo.getProductCategoryPath(product.id);
+                  
+                  return (
+                    <tr 
+                      key={product.id} 
+                      className={`${styles.productRow} ${!isVisible ? styles.hidden : ''}`}
+                    >
+                      <td className={styles.visibilityCol}>
+                        <button
+                          className={`${styles.visibilityToggle} ${isVisible ? styles.visible : styles.hidden}`}
+                          onClick={() => toggleVisibility(product.id)}
+                          title={isVisible ? 'Hide product' : 'Show product'}
+                        >
+                          <FontAwesomeIcon icon={isVisible ? faEye : faEyeSlash} />
+                        </button>
+                      </td>
+                      <td className={styles.imageCol}>
+                        <div className={styles.productImage}>
+                          {product.imageUrl ? (
+                            <img src={product.imageUrl} alt={product.name} />
+                          ) : (
+                            <FontAwesomeIcon icon={faImage} className={styles.imagePlaceholder} />
+                          )}
+                        </div>
+                      </td>
+                      <td className={styles.nameCol}>
+                        <span className={styles.productName}>{product.name}</span>
+                      </td>
+                      <td className={styles.skuCol}>
+                        <span className={styles.productSku}>{product.sku}</span>
+                      </td>
+                      <td className={styles.categoryCol}>
+                        <span className={styles.productCategory}>{category}</span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
       </div>
     </div>
   );

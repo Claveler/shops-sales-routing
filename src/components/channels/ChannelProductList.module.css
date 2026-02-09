@@ -2,64 +2,40 @@
   display: flex;
   flex-direction: column;
   height: 100%;
-  background: var(--fz-bg-card);
-}
-
-.header {
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--fz-border-color);
-}
-
-.headerTop {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
   gap: 16px;
 }
 
-.title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--fz-text-primary);
-  margin: 0 0 4px 0;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--fz-text-secondary);
-  margin: 0;
-}
-
-.headerActions {
+/* ---- Product Card ---- */
+.productCard {
+  border: 1px solid var(--fz-border-color);
+  border-radius: var(--fz-border-radius);
+  background: var(--fz-bg-card);
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 }
 
-.actionBtn {
+.productSectionHeader {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border: 1px solid var(--fz-border-color);
-  border-radius: 6px;
-  background: var(--fz-bg-card);
-  color: var(--fz-text-primary);
-  font-size: 13px;
-  font-weight: var(--fz-font-weight-semibold);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px;
 }
 
-.actionBtn:hover {
-  background: var(--fz-bg-content);
-  border-color: var(--fz-primary);
+.productSectionDescription {
+  font-size: 14px;
+  color: var(--fz-text-primary);
+  margin: 0;
+  line-height: 1.5;
 }
 
 .infoBar {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 12px;
+  margin: 0 12px 12px;
   padding: 10px 12px;
   background: rgba(0, 137, 227, 0.08);
   border-radius: 6px;
@@ -67,11 +43,32 @@
   color: var(--fz-primary);
 }
 
+/* ---- Product Table Header ---- */
+.productTableHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-top: 1px solid var(--fz-border-color);
+  border-bottom: 1px solid var(--fz-border-color);
+}
+
+.productTableTitle {
+  font-size: 14px;
+  font-weight: var(--fz-font-weight-regular);
+  color: var(--fz-text-primary);
+}
+
+.headerActions {
+  display: flex;
+  gap: 8px;
+}
+
 .filters {
   display: flex;
   gap: 12px;
-  padding: 12px 20px;
-  border-bottom: 1px solid var(--fz-border-color);
+  padding: 12px;
+  border-bottom: 1px solid var(--fz-border-color-lighter);
 }
 
 .searchBox {
@@ -90,12 +87,13 @@
 
 .searchInput {
   width: 100%;
-  padding: 8px 12px 8px 36px;
-  border: 1px solid var(--fz-border-color);
-  border-radius: 6px;
-  background: var(--fz-bg-content);
+  padding: 10px 12px 10px 36px;
+  border: 1px solid var(--fz-border-color-lighter);
+  border-radius: var(--fz-border-radius);
+  background: var(--fz-bg-card);
   color: var(--fz-text-primary);
   font-size: 14px;
+  font-family: var(--fz-font-family);
 }
 
 .searchInput::placeholder {
@@ -108,12 +106,13 @@
 }
 
 .filterSelect {
-  padding: 8px 12px;
-  border: 1px solid var(--fz-border-color);
-  border-radius: 6px;
-  background: var(--fz-bg-content);
+  padding: 10px 12px;
+  border: 1px solid var(--fz-border-color-lighter);
+  border-radius: var(--fz-border-radius);
+  background: var(--fz-bg-card);
   color: var(--fz-text-primary);
   font-size: 14px;
+  font-family: var(--fz-font-family);
   cursor: pointer;
   min-width: 150px;
 }
@@ -149,8 +148,8 @@
   font-weight: 600;
   text-transform: uppercase;
   color: var(--fz-text-muted);
-  background: var(--fz-bg-content);
-  border-bottom: 1px solid var(--fz-border-color);
+  background: var(--fz-bg-subtle);
+  border-bottom: 1px solid var(--fz-border-color-lighter);
   position: sticky;
   top: 0;
   z-index: 1;
@@ -158,7 +157,7 @@
 
 .table td {
   padding: 12px 16px;
-  border-bottom: 1px solid var(--fz-border-color);
+  border-bottom: 1px solid var(--fz-border-color-lighter);
   vertical-align: middle;
 }
 

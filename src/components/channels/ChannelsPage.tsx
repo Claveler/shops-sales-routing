@@ -1,8 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSlidersH } from '@fortawesome/free-solid-svg-icons';
 import { PageHeader } from '../common/PageHeader';
-import { Card, CardHeader, CardTitle, CardBody } from '../common/Card';
 import { ChannelList } from './ChannelList';
 import { ChannelProductList } from './ChannelProductList';
 import { BulkEditModal } from './BulkEditModal';
@@ -45,6 +44,13 @@ export function ChannelsPage() {
     return routing ? channels.filter(c => routing.channelIds.includes(c.id)) : [];
   }, [selectedRoutingId, demo]);
 
+  // Auto-select first channel when routing changes
+  useEffect(() => {
+    if (routedChannels.length > 0) {
+      setSelectedChannelId(routedChannels[0].id);
+    }
+  }, [routedChannels]);
+
   // Check if any routings exist at all (for empty state)
   const hasAnyRoutings = demo.getSalesRoutings().length > 0;
 
@@ -86,7 +92,6 @@ export function ChannelsPage() {
           title="Channels"
         />
         <div className={styles.pageBody}>
-        <Card>
           <div className={styles.emptyContainer}>
             <div className={styles.iconWrapper}>
               <FontAwesomeIcon icon={faSlidersH} className={styles.icon} />
@@ -119,11 +124,18 @@ export function ChannelsPage() {
               No sales routings have been created yet. Create a sales routing to configure product visibility.
             </p>
           </div>
-        </Card>
         </div>
       </>
     );
   }
+
+  // Build the selected event label for the combobox display
+  const selectedEventLabel = useMemo(() => {
+    if (!selectedRoutingId) return '';
+    const match = eventsInCity.find(({ routing }) => routing.id === selectedRoutingId);
+    if (match) return `${match.event.name} - ${match.event.venue}`;
+    return '';
+  }, [selectedRoutingId, eventsInCity]);
 
   return (
     <>
@@ -135,37 +147,43 @@ export function ChannelsPage() {
         title="Channels"
       >
         <div className={styles.selectorRow}>
-          <select 
-            className={styles.citySelector}
-            value={selectedCity || ''}
-            onChange={(e) => {
-              setSelectedCity(e.target.value || null);
-              setSelectedRoutingId(null);
-              setSelectedChannelId(null);
-            }}
-          >
-            <option value="">City</option>
-            {citiesWithRoutings.map(city => (
-              <option key={city} value={city}>{city}</option>
-            ))}
-          </select>
-          
-          <select
-            className={styles.eventSelector}
-            value={selectedRoutingId || ''}
-            onChange={(e) => {
-              setSelectedRoutingId(e.target.value || null);
-              setSelectedChannelId(null);
-            }}
-            disabled={!selectedCity}
-          >
-            <option value="">Select a city and search for an event</option>
-            {eventsInCity.map(({ routing, event }) => (
-              <option key={routing.id} value={routing.id}>
-                {event.name} - {event.venue}
-              </option>
-            ))}
-          </select>
+          <div className={styles.cityBox}>
+            <label className={styles.selectorLabel}>City</label>
+            <select 
+              className={styles.citySelector}
+              value={selectedCity || ''}
+              onChange={(e) => {
+                setSelectedCity(e.target.value || null);
+                setSelectedRoutingId(null);
+                setSelectedChannelId(null);
+              }}
+            >
+              <option value="">Select city</option>
+              {citiesWithRoutings.map(city => (
+                <option key={city} value={city}>{city}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.eventBox}>
+            <label className={styles.selectorLabel}>Select a city and search for an event</label>
+            <select
+              className={styles.eventSelector}
+              value={selectedRoutingId || ''}
+              onChange={(e) => {
+                setSelectedRoutingId(e.target.value || null);
+                setSelectedChannelId(null);
+              }}
+              disabled={!selectedCity}
+            >
+              <option value="">{selectedCity ? 'Select an event' : ''}</option>
+              {eventsInCity.map(({ routing, event }) => (
+                <option key={routing.id} value={routing.id}>
+                  {event.name} - {event.venue}
+                </option>
+              ))}
+            </select>
+          </div>
           
           <button 
             className={styles.showBtn}
@@ -175,54 +193,49 @@ export function ChannelsPage() {
           </button>
         </div>
       </PageHeader>
+
       <div className={styles.pageBody}>
-      <Card padding="none">
-        <CardHeader>
-          <CardTitle subtitle="Configure which products are visible in each sales channel">
-            Product Channel Visibility
-          </CardTitle>
-        </CardHeader>
-        <CardBody padding="none">
+        {/* Channels settings card */}
+        <div className={styles.wrapperCard}>
           <div className={styles.mainContent}>
-          <div className={styles.leftPanel}>
-            <ChannelList
-              selectedChannelId={selectedChannelId}
-              onSelectChannel={handleSelectChannel}
-              checkedChannelIds={checkedChannelIds}
-              onToggleCheck={handleToggleCheck}
-              onSelectAll={handleSelectAll}
-              onDeselectAll={handleDeselectAll}
-              routingId={selectedRoutingId}
-            />
-            {checkedChannelIds.length > 1 && (
-              <button 
-                className={styles.bulkEditBtn}
-                onClick={handleOpenBulkEdit}
-              >
-                Edit {checkedChannelIds.length} channels in bulk
-              </button>
-            )}
-          </div>
-          
-          <div className={styles.rightPanel}>
-            {selectedChannelId && selectedRoutingId ? (
-              <ChannelProductList channelId={selectedChannelId} routingId={selectedRoutingId} />
-            ) : (
-              <div className={styles.noSelection}>
-                <FontAwesomeIcon icon={faSlidersH} className={styles.noSelectionIcon} />
-                <p>Select a channel from the list to view and configure product visibility</p>
-              </div>
-            )}
+            <div className={styles.leftPanel}>
+              <ChannelList
+                selectedChannelId={selectedChannelId}
+                onSelectChannel={handleSelectChannel}
+                checkedChannelIds={checkedChannelIds}
+                onToggleCheck={handleToggleCheck}
+                onSelectAll={handleSelectAll}
+                onDeselectAll={handleDeselectAll}
+                routingId={selectedRoutingId}
+              />
+              {checkedChannelIds.length > 1 && (
+                <button 
+                  className={styles.bulkEditBtn}
+                  onClick={handleOpenBulkEdit}
+                >
+                  Edit {checkedChannelIds.length} channels in bulk
+                </button>
+              )}
+            </div>
+            
+            <div className={styles.rightPanel}>
+              {selectedChannelId && selectedRoutingId ? (
+                <ChannelProductList channelId={selectedChannelId} routingId={selectedRoutingId} />
+              ) : (
+                <div className={styles.noSelection}>
+                  <FontAwesomeIcon icon={faSlidersH} className={styles.noSelectionIcon} />
+                  <p>Select a channel from the list to view and configure product visibility</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
-        </CardBody>
-      </Card>
 
-      <BulkEditModal
-        isOpen={showBulkModal}
-        channelIds={checkedChannelIds}
-        onClose={() => setShowBulkModal(false)}
-      />
+        <BulkEditModal
+          isOpen={showBulkModal}
+          channelIds={checkedChannelIds}
+          onClose={() => setShowBulkModal(false)}
+        />
       </div>
     </>
   );

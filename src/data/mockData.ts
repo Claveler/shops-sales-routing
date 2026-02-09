@@ -53,6 +53,28 @@ export interface Channel {
   icon?: string;
 }
 
+// Channel type categories — groups granular channel types into Fever Zone filter categories
+export type ChannelTypeCategory = 'box-office' | 'marketplace' | 'kiosk' | 'api';
+
+export const CHANNEL_TYPE_CATEGORIES: Record<Channel['type'], ChannelTypeCategory> = {
+  onsite: 'box-office',
+  marketplace: 'marketplace',
+  whitelabel: 'marketplace',
+  kiosk: 'kiosk',
+  ota: 'api',
+};
+
+export const CHANNEL_TYPE_LABELS: Record<ChannelTypeCategory, string> = {
+  'box-office': 'Box Office',
+  marketplace: 'Marketplace',
+  kiosk: 'Kiosk',
+  api: 'API',
+};
+
+export function getChannelTypeCategory(channel: Channel): ChannelTypeCategory {
+  return CHANNEL_TYPE_CATEGORIES[channel.type];
+}
+
 // Product categorization (imported from Square categories)
 export interface Hierarchy {
   id: string;
