@@ -32,6 +32,176 @@
   margin-top: 2px;
 }
 
+/* ---- Demo Flow Section ---- */
+.demoFlowSection {
+  /* wrapper — no extra style needed */
+}
+
+.demoFlowContent {
+  padding: var(--fz-spacing-xl);
+}
+
+.demoFlowHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fz-spacing-lg);
+  margin-bottom: var(--fz-spacing-xl);
+}
+
+.demoFlowIconWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--fz-border-radius);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.demoFlowTitle {
+  font-size: var(--fz-font-size-lg);
+  font-weight: var(--fz-font-weight-semibold);
+  color: var(--fz-text-primary);
+  margin: 0 0 var(--fz-spacing-xs) 0;
+}
+
+.demoFlowSubtitle {
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  line-height: var(--fz-line-height-body);
+  margin: 0;
+}
+
+.demoFlowBlock {
+  padding: var(--fz-spacing-lg);
+  background: var(--fz-bg-subtle);
+  border-radius: var(--fz-border-radius);
+  margin-bottom: var(--fz-spacing-lg);
+}
+
+.demoFlowBlockTitle {
+  font-size: var(--fz-font-size-md);
+  font-weight: var(--fz-font-weight-semibold);
+  color: var(--fz-text-primary);
+  margin: 0 0 var(--fz-spacing-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+}
+
+.demoFlowBlockIcon {
+  color: #764ba2;
+  font-size: 14px;
+}
+
+.demoFlowText {
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  line-height: var(--fz-line-height-body);
+  margin: 0;
+}
+
+.demoFooterBtnLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: var(--fz-neutral-200);
+  border-radius: var(--fz-border-radius-sm);
+  font-size: var(--fz-font-size-xs);
+  font-weight: var(--fz-font-weight-semibold);
+  color: var(--fz-text-primary);
+  white-space: nowrap;
+}
+
+.demoFooterBtnLabelActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: rgba(0, 137, 227, 0.12);
+  border-radius: var(--fz-border-radius-sm);
+  font-size: var(--fz-font-size-xs);
+  font-weight: var(--fz-font-weight-semibold);
+  color: var(--fz-primary);
+  white-space: nowrap;
+}
+
+.demoHintInline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: var(--fz-border-radius-sm);
+  font-size: var(--fz-font-size-xs);
+  font-weight: var(--fz-font-weight-semibold);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Demo Steps (numbered list) */
+.demoSteps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fz-spacing-md);
+}
+
+.demoStep {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--fz-spacing-md);
+  padding: var(--fz-spacing-md) var(--fz-spacing-lg);
+  background: var(--fz-bg-subtle);
+  border-radius: var(--fz-border-radius);
+}
+
+.demoStepNumber {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: var(--fz-font-size-xs);
+  font-weight: var(--fz-font-weight-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.demoStep strong {
+  display: block;
+  font-size: var(--fz-font-size-sm);
+  font-weight: var(--fz-font-weight-semibold);
+  color: var(--fz-text-primary);
+  margin-bottom: 2px;
+}
+
+.demoStep p {
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-text-secondary);
+  line-height: var(--fz-line-height-body);
+  margin: 0;
+}
+
+.optionalTag {
+  display: inline-block;
+  padding: 1px 7px;
+  background: var(--fz-neutral-200);
+  border-radius: var(--fz-border-radius-pill);
+  font-size: var(--fz-font-size-xs);
+  font-weight: var(--fz-font-weight-normal);
+  color: var(--fz-text-secondary);
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
 /* ---- Overview Section ---- */
 .overview {
   /* wrapper — no extra style needed */

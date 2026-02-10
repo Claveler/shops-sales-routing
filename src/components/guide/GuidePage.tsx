@@ -14,6 +14,9 @@ import {
   faShoppingCart,
   faEye,
   faInfoCircle,
+  faMagicWandSparkles,
+  faRotateLeft,
+  faPlay,
 } from '@fortawesome/free-solid-svg-icons';
 import { PageHeader } from '../common/PageHeader';
 import { Card } from '../common/Card';
@@ -39,6 +42,125 @@ export function GuidePage() {
             <strong>For the squad only</strong> &mdash; This Guide tab is part of the mockup and won't ship in the final implementation. It's here so the team can understand the full setup flow we need to build. Use it as a reference when working on the features described below.
           </div>
         </div>
+
+        {/* Demo Flow */}
+        <section className={styles.demoFlowSection}>
+          <Card>
+            <div className={styles.demoFlowContent}>
+              <div className={styles.demoFlowHeader}>
+                <div className={styles.demoFlowIconWrapper}>
+                  <FontAwesomeIcon icon={faPlay} />
+                </div>
+                <div>
+                  <h2 className={styles.demoFlowTitle}>Interactive Demo</h2>
+                  <p className={styles.demoFlowSubtitle}>
+                    This mockup loads with <strong>sample data already configured</strong> &mdash; an
+                    existing catalog integration, warehouses, products, sales routings, and
+                    publications. Feel free to browse around, but for the best experience we
+                    recommend following the guided demo flow described below.
+                  </p>
+                </div>
+              </div>
+
+              <div className={styles.demoFlowBlock}>
+                <h3 className={styles.demoFlowBlockTitle}>
+                  <FontAwesomeIcon icon={faRotateLeft} className={styles.demoFlowBlockIcon} />
+                  Starting the demo
+                </h3>
+                <p className={styles.demoFlowText}>
+                  Scroll to the bottom of any page and click the{' '}
+                  <strong className={styles.demoFooterBtnLabel}>
+                    <FontAwesomeIcon icon={faRotateLeft} /> Reset Demo
+                  </strong>{' '}
+                  button in the footer. This clears all preloaded data and redirects you to
+                  the Catalog Integration page with a blank slate. The footer button changes
+                  to <strong className={styles.demoFooterBtnLabelActive}>Demo Mode Active</strong>{' '}
+                  to confirm you're in demo mode.
+                </p>
+              </div>
+
+              <div className={styles.demoFlowBlock}>
+                <h3 className={styles.demoFlowBlockTitle}>
+                  <FontAwesomeIcon icon={faMagicWandSparkles} className={styles.demoFlowBlockIcon} />
+                  Following the demo &mdash; how hints work
+                </h3>
+                <p className={styles.demoFlowText}>
+                  Once in demo mode, purple{' '}
+                  <span className={styles.demoHintInline}>
+                    <FontAwesomeIcon icon={faMagicWandSparkles} /> Fill demo data
+                  </span>{' '}
+                  and{' '}
+                  <span className={styles.demoHintInline}>
+                    <FontAwesomeIcon icon={faMagicWandSparkles} /> Select suggested
+                  </span>{' '}
+                  buttons appear at each step of the wizards. Click them and the system
+                  auto-fills the current form with sensible demo values. The hints are{' '}
+                  <strong>context-aware</strong> &mdash; they progressively suggest more complex
+                  configurations as you create additional routings.
+                </p>
+              </div>
+
+              <h3 className={styles.demoFlowBlockTitle} style={{ marginTop: 0 }}>Recommended steps</h3>
+              <div className={styles.demoSteps}>
+                <div className={styles.demoStep}>
+                  <span className={styles.demoStepNumber}>1</span>
+                  <div>
+                    <strong>Create a Catalog Integration</strong>
+                    <p>
+                      Use <span className={styles.demoHintInline}><FontAwesomeIcon icon={faMagicWandSparkles} /> Fill demo data</span> to
+                      populate the integration details and the warehouse list (3 warehouses),
+                      then create the integration.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.demoStep}>
+                  <span className={styles.demoStepNumber}>2</span>
+                  <div>
+                    <strong>Sync Products</strong>
+                    <p>
+                      On the integration details page, click <strong>Sync products</strong> to
+                      import 20 demo products distributed across your warehouses.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.demoStep}>
+                  <span className={styles.demoStepNumber}>3</span>
+                  <div>
+                    <strong>Create Sales Routings</strong>
+                    <p>
+                      Create up to three routings of increasing complexity. At each wizard step,
+                      use <span className={styles.demoHintInline}><FontAwesomeIcon icon={faMagicWandSparkles} /> Select suggested</span> or{' '}
+                      <span className={styles.demoHintInline}><FontAwesomeIcon icon={faMagicWandSparkles} /> Fill demo data</span> &mdash; the
+                      system automatically picks appropriate events, channels, and warehouses
+                      for a simple, medium, then advanced routing.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.demoStep}>
+                  <span className={styles.demoStepNumber}>4</span>
+                  <div>
+                    <strong>Second Sync <span className={styles.optionalTag}>optional</span></strong>
+                    <p>
+                      Click <strong>Sync products</strong> again to import 5 additional products
+                      and see how they are automatically published into channels whose warehouses
+                      are already mapped.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.demoStep}>
+                  <span className={styles.demoStepNumber}>5</span>
+                  <div>
+                    <strong>Configure Channel Visibility</strong>
+                    <p>
+                      Go to the Channels page and fine-tune which products are visible in each
+                      channel, per event.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </section>
 
         {/* Overview */}
         <section className={styles.overview}>
