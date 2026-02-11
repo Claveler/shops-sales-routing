@@ -426,3 +426,17 @@
   cursor: default;
   opacity: 1;
 }
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+@media (max-width: 768px) {
+  .panel {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .safeArea {
+    display: none;
+  }
+}

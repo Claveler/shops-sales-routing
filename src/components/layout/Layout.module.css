@@ -35,3 +35,16 @@
   display: flex;
   flex-direction: column;
 }
+
+/* ========================================
+   Mobile: Sidebar overlays, no margin push
+   ======================================== */
+@media (max-width: 768px) {
+  .main.sidebarOpen {
+    margin-left: 0;
+  }
+
+  .main.sidebarCollapsed {
+    margin-left: 0;
+  }
+}

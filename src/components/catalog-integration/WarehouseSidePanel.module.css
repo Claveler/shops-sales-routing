@@ -228,3 +228,17 @@
 .closeAction:hover {
   color: var(--fz-primary-hover, #0079ca);
 }
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+@media (max-width: 768px) {
+  .card {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .safeArea {
+    display: none;
+  }
+}

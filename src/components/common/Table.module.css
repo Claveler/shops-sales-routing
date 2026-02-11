@@ -1,9 +1,11 @@
 .tableWrapper {
-  overflow: visible;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   font-size: var(--fz-font-size-sm);
 }

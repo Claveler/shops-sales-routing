@@ -127,7 +127,7 @@
 
   /* ---- Layout ---- */
   --fz-sidebar-width: 256px;         /* Sidebar width when expanded */
-  --fz-sidebar-collapsed-width: 56px;
+  --fz-sidebar-collapsed-width: 0px;
   --fz-header-height: 72px;          /* Top header bar height */
   --fz-modal-width: 500px;           /* Default modal max-width */
 

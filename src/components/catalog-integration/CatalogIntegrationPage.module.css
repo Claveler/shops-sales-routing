@@ -30,3 +30,16 @@
   min-height: 0;
   padding: var(--fz-spacing-xl);
 }
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+@media (max-width: 768px) {
+  .pageBody {
+    padding: var(--fz-spacing-lg);
+  }
+
+  .pageBodyEmpty {
+    padding: var(--fz-spacing-lg);
+  }
+}

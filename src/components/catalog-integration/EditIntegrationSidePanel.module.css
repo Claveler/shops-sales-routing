@@ -245,3 +245,17 @@
 .cancelBtn:hover {
   opacity: 0.8;
 }
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+@media (max-width: 768px) {
+  .card {
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .safeArea {
+    display: none;
+  }
+}

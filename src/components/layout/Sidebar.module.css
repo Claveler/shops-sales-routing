@@ -35,6 +35,8 @@
 
 .sidebar.collapsed {
   width: var(--fz-sidebar-collapsed-width);
+  visibility: hidden;
+  pointer-events: none;
 }
 
 .nav {
@@ -160,6 +162,51 @@
 .sidebar.collapsed .menuLink {
   justify-content: center;
   padding: 10px;
+}
+
+/* ========================================
+   Mobile: Sidebar as overlay
+   ======================================== */
+.backdrop {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: var(--fz-sidebar-width);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(-100%);
+    width: var(--fz-sidebar-width);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: var(--fz-bg-overlay, rgba(6, 35, 44, 0.8));
+    z-index: 899;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--fz-transition-slow);
+  }
+
+  .backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* Submenu badge (e.g. "Squad" on Guide) */

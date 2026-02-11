@@ -448,6 +448,11 @@
   box-sizing: border-box;
 }
 
+/* Product Name column min-width */
+.productNameCell {
+  min-width: 180px;
+}
+
 /* ========================================
    Warehouse Cell — standalone link style
    ======================================== */
@@ -735,4 +740,68 @@
   justify-content: center;
   color: var(--fz-text-muted);
   font-size: 18px;
+}
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+@media (max-width: 768px) {
+  /* Integration Header Card: stack vertically */
+  .integrationHeaderCard {
+    flex-wrap: wrap;
+  }
+
+  .headerStats {
+    border-left: none;
+    border-top: 1px solid #ccd2d8;
+    padding-left: 0;
+    padding-top: 12px;
+    width: 100%;
+    min-height: auto;
+  }
+
+  .headerActions {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Tab row */
+  .tabRow {
+    flex-wrap: wrap;
+  }
+
+  /* Toolbar: stack search + pagination + filters */
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .toolbarLeft {
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .toolbarRight {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .searchWrapper {
+    flex: 1;
+    min-width: 0;
+    flex-shrink: 1;
+  }
+
+  .searchInput {
+    width: 100%;
+  }
+
+  /* Add Warehouse Form: stack fields */
+  .formRow {
+    flex-direction: column;
+  }
+
+  .formActions {
+    flex-direction: row;
+    width: 100%;
+  }
 }

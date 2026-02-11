@@ -26,3 +26,17 @@
 .content {
   margin-top: var(--fz-spacing-lg);
 }
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 16px 16px 0;
+  }
+
+  .titleRow {
+    flex-wrap: wrap;
+    gap: var(--fz-spacing-sm);
+  }
+}

@@ -29,6 +29,7 @@ import styles from './Sidebar.module.css';
 
 interface SidebarProps {
   isOpen: boolean;
+  onClose?: () => void;
 }
 
 interface MenuItem {
@@ -69,7 +70,7 @@ const menuItems: MenuItem[] = [
   { icon: faMapMarkerAlt, label: 'Venues', path: '/venues' },
 ];
 
-export function Sidebar({ isOpen }: SidebarProps) {
+export function Sidebar({ isOpen, onClose }: SidebarProps) {
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>(['Products']);
 
@@ -87,57 +88,64 @@ export function Sidebar({ isOpen }: SidebarProps) {
   };
 
   return (
-    <aside className={`${styles.sidebar} ${isOpen ? styles.open : styles.collapsed}`}>
-      <nav className={styles.nav}>
-        <ul className={styles.menuList}>
-          {menuItems.map((item) => (
-            <li key={item.label} className={styles.menuItem}>
-              {item.children ? (
-                <>
-                  <button
-                    className={`${styles.menuLink} ${isChildActive(item.children) ? styles.active : ''}`}
-                    onClick={() => toggleExpand(item.label)}
+    <>
+      {/* Backdrop for mobile overlay */}
+      <div
+        className={`${styles.backdrop} ${isOpen ? styles.visible : ''}`}
+        onClick={onClose}
+      />
+      <aside className={`${styles.sidebar} ${isOpen ? styles.open : styles.collapsed}`}>
+        <nav className={styles.nav}>
+          <ul className={styles.menuList}>
+            {menuItems.map((item) => (
+              <li key={item.label} className={styles.menuItem}>
+                {item.children ? (
+                  <>
+                    <button
+                      className={`${styles.menuLink} ${isChildActive(item.children) ? styles.active : ''}`}
+                      onClick={() => toggleExpand(item.label)}
+                    >
+                      <FontAwesomeIcon icon={item.icon} className={styles.menuIcon} />
+                      <span className={styles.menuLabel}>{item.label}</span>
+                      <FontAwesomeIcon 
+                        icon={expandedItems.includes(item.label) ? faChevronDown : faChevronRight} 
+                        className={styles.expandIcon}
+                      />
+                    </button>
+                    {expandedItems.includes(item.label) && (
+                      <ul className={styles.subMenu}>
+                        {item.children.map((child) => (
+                          <li key={child.path}>
+                            <NavLink
+                              to={child.path}
+                              className={({ isActive }) => 
+                                `${styles.subMenuLink} ${isActive ? styles.active : ''}`
+                              }
+                            >
+                              {child.label}
+                              {child.badge && <span className={styles.badge}>{child.badge}</span>}
+                            </NavLink>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <NavLink
+                    to={item.path!}
+                    className={({ isActive }) => 
+                      `${styles.menuLink} ${isActive ? styles.active : ''}`
+                    }
                   >
                     <FontAwesomeIcon icon={item.icon} className={styles.menuIcon} />
                     <span className={styles.menuLabel}>{item.label}</span>
-                    <FontAwesomeIcon 
-                      icon={expandedItems.includes(item.label) ? faChevronDown : faChevronRight} 
-                      className={styles.expandIcon}
-                    />
-                  </button>
-                  {expandedItems.includes(item.label) && (
-                    <ul className={styles.subMenu}>
-                      {item.children.map((child) => (
-                        <li key={child.path}>
-                          <NavLink
-                            to={child.path}
-                            className={({ isActive }) => 
-                              `${styles.subMenuLink} ${isActive ? styles.active : ''}`
-                            }
-                          >
-                            {child.label}
-                            {child.badge && <span className={styles.badge}>{child.badge}</span>}
-                          </NavLink>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </>
-              ) : (
-                <NavLink
-                  to={item.path!}
-                  className={({ isActive }) => 
-                    `${styles.menuLink} ${isActive ? styles.active : ''}`
-                  }
-                >
-                  <FontAwesomeIcon icon={item.icon} className={styles.menuIcon} />
-                  <span className={styles.menuLabel}>{item.label}</span>
-                </NavLink>
-              )}
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
+                  </NavLink>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+    </>
   );
 }

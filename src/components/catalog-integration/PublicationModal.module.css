@@ -418,3 +418,31 @@
   background: rgba(156, 163, 175, 0.1);
   color: rgb(156, 163, 175);
 }
+
+/* ========================================
+   Mobile Responsive
+   ======================================== */
+@media (max-width: 768px) {
+  .modal {
+    max-height: 90vh;
+  }
+
+  .body {
+    flex-direction: column;
+  }
+
+  .listColumn {
+    width: 100%;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid var(--fz-border-color-lighter);
+  }
+
+  .detailColumn {
+    padding: 16px;
+  }
+
+  .detailHeader {
+    flex-wrap: wrap;
+  }
+}
