@@ -13,8 +13,8 @@ function App() {
       <BrowserRouter>
         <Layout>
           <Routes>
-          {/* Redirect root to sales routing */}
-          <Route path="/" element={<Navigate to="/products/sales-routing" replace />} />
+          {/* Redirect root to catalog integration */}
+          <Route path="/" element={<Navigate to="/products/catalog-integration" replace />} />
           
           {/* Sales Routing Routes */}
           <Route path="/products/sales-routing" element={<SalesRoutingList />} />
@@ -31,8 +31,8 @@ function App() {
           {/* Channels Routes */}
           <Route path="/products/channels" element={<ChannelsPage />} />
           
-          {/* Catch all - redirect to sales routing */}
-          <Route path="*" element={<Navigate to="/products/sales-routing" replace />} />
+          {/* Catch all - redirect to catalog integration */}
+          <Route path="*" element={<Navigate to="/products/catalog-integration" replace />} />
         </Routes>
         </Layout>
       </BrowserRouter>

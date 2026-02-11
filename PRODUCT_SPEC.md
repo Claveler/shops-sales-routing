@@ -115,23 +115,37 @@ Physical POS device configuration for onsite sales. Multiple setups can use the 
 │ eventId             │       │ venue               │
 │ channelIds[]        │       │ city                │
 │ warehouseIds[]      │       │ date                │
-│ priceReferenceId    │       │ thumbnailUrl        │
+│ priceReferenceId    │       │ status              │
 │ channelWarehouse-   │       └─────────────────────┘
 │   Mapping{}         │
-│ status              │       ┌─────────────────────┐
-└─────────────────────┘       │      Channel        │
+│ channelDefault-     │       ┌─────────────────────┐
+│   Visibility{}      │       │      Channel        │
+│ status              │       │─────────────────────│
+└─────────────────────┘       │ id                  │
+                              │ name                │
+┌─────────────────────┐       │ type (onsite/       │
+│   BoxOfficeSetup    │       │   marketplace/      │
+│─────────────────────│       │   whitelabel/       │
+│ id                  │       │   kiosk/ota)        │
+│ name                │       └─────────────────────┘
+│ salesRoutingId      │
+│ warehouseId         │       ┌─────────────────────┐
+└─────────────────────┘       │   Hierarchy         │
                               │─────────────────────│
 ┌─────────────────────┐       │ id                  │
-│   BoxOfficeSetup    │       │ name                │
-│─────────────────────│       │ type (onsite/online)│
-│ id                  │       └─────────────────────┘
-│─────────────────────│
-│ id                  │
-│ name                │
-│ salesRoutingId      │
-│ warehouseId         │
-│ location            │
-└─────────────────────┘
+│  HierarchyElement   │       │ name                │
+│  (Category)         │       │ retailSetupId       │
+│─────────────────────│       └─────────┬───────────┘
+│ id                  │                 │ 1:N
+│ hierarchyId         │◀────────────────┘
+│ parentId (nullable) │
+│ name                │       ┌─────────────────────┐
+│ externalId          │       │HierarchyElement-    │
+└─────────────────────┘       │  Product            │
+                              │─────────────────────│
+                              │ hierarchyElementId  │
+                              │ productId           │
+                              └─────────────────────┘
 ```
 
 ### Key Relationships
@@ -142,6 +156,8 @@ Physical POS device configuration for onsite sales. Multiple setups can use the 
 4. **SalesRouting references channels and warehouses** with explicit channel-warehouse mapping
 5. **BoxOfficeSetup determines stock source** for onsite sales when multiple warehouses exist
 6. **Price Reference determines pricing** for SessionTypes; channel-warehouse mapping determines stock source only
+7. **HierarchyElement** represents product categories imported from the external system (e.g., Square categories). Categories form a tree via `parentId` (null = root category). The `HierarchyElementProduct` junction table maps products to categories.
+8. **Product categories** include: Apparel, Art & Prints, Music, Home & Living, Books, Experiences, Food & Wine (root level), each with subcategories (e.g., Apparel → T-Shirts, Apparel → Accessories)
 
 ---
 
@@ -340,6 +356,10 @@ The mockup supports a full end-to-end demo starting from a blank slate.
 - "Create new sales routing" CTA
 - Events with existing routings are disabled in the creation wizard (1:1 relationship)
 - Click edit button to modify routing
+- Empty state (`SalesRoutingEmptyState`) when no routings exist
+- Distribution details modal for viewing full routing details
+- Delete confirm modal for routing deletion
+- Design Pending banner shown on page
 
 ### Create Routing Wizard
 See Section 5 for detailed flow.
@@ -367,20 +387,69 @@ Single-page layout with all configuration in one scrollable view.
 **Empty state:**
 - Prompts to create first integration
 - Shows benefits and supported providers
+- Triggers provider modal for provider selection (Square/Shopify)
+
+**Provider Modal:**
+- Full-screen overlay modal for choosing an integration provider
+- Displays Square and Shopify as selectable options via `ProviderSelector`
+- Continue button navigates to the Create Integration Wizard with the selected provider
+- Cancel returns to the empty state
 
 **Existing integration:**
 - Integration header with provider logo, name, account ID
-- "Sync products" button
-- Warehouses table (add/edit/delete)
-- Products table with filters
+- "Sync products" button with loading animation
+- Tab-based view: **Products** tab (default) and **Warehouses** tab
+- Products table with search, pagination (10 per page), and filter side panel
+- Warehouses table with warehouse details
+- Edit integration name via side panel (`EditIntegrationSidePanel`)
+- View product warehouse details via side panel (`WarehouseSidePanel`)
+- View product distribution details via publication modal (`PublicationModal`)
+- Warehouse popover for quick warehouse info in product rows
+
+**Edit Integration Side Panel:**
+- Slide-in panel from the right with overlay backdrop
+- Floating label input for editing integration name
+- Validation (non-empty name required)
+- Enter key to save, Escape to close
+
+**Filter Side Panel:**
+- Slide-in panel from the right for product filtering
+- Filters: Warehouse, Distribution Status, Event, Channel, Category
+- Floating label select inputs
+- Warning alert when no sales routing is configured
+- "Apply filters" button showing result count
+- "Clear filters" button to reset all
+
+**Warehouse Side Panel:**
+- Slide-in panel showing product availability across warehouses
+- Displays warehouse name, stock level, and formatted price per warehouse
+- Icon-decorated rows
+
+### "New" Badge on Products
+
+After a product sync, newly imported products display a **"New" badge** next to their name in the product list. This helps users quickly identify which items were recently added to the catalog.
+
+**Behavior:**
+- The "New" badge appears on products that have a `syncedAt` timestamp within the last **3 days**
+- After 3 days from the sync date, the badge automatically stops being shown
+- The badge is purely visual — it does not affect the product's background row color or any other styling; the row background remains the same as non-new products
+- The badge uses the info/solid tag style (light blue background `#73bff6`, dark text)
+
+**Data:**
+- Based on the `syncedAt` field on the `Product` entity (ISO 8601 timestamp set at sync time)
+- No separate tracking of "new" product IDs is required — the badge is derived from `syncedAt` at render time
 
 ### Product Filters
-- **Search**: Text search by name or SKU
-- **Warehouse**: Filter by specific warehouse
-- **Distribution Status**: All / Distributed / Not distributed
-- **Event**: Filter by event where distributed
-- **Channel**: Filter by sales channel
-- **Category**: Filter by product category (imported from external system)
+- **Search**: Text search by name or SKU (inline in the table header)
+- **Filter Side Panel**: Dedicated slide-in panel with advanced filters:
+  - **Warehouse**: Filter by specific warehouse
+  - **Distribution Status**: All / Distributed / Not distributed
+  - **Event**: Filter by event where distributed
+  - **Channel**: Filter by sales channel
+  - **Category**: Filter by product category (imported from external system)
+- Filter button in the table header opens the side panel
+- Result count shown on the Apply button
+- Clear all filters option
 
 ### Distribution Modal
 Renamed from "Publication Modal" for consistency with Sales Routing terminology.
@@ -411,47 +480,90 @@ An in-app onboarding reference designed for Fever operations teams. Accessible a
 
 **Design:** Card-based layout using the shared `Card` and `PageHeader` components. Numbered step badges, icon-decorated sections, info callout boxes, and internal navigation links to each relevant page.
 
+### Design Pending Banner
+
+A reusable banner component (`DesignPendingBanner`) displayed on pages/sections where the visual design is still being refined.
+
+- Pencil-ruler icon with customizable message
+- Default message: "Design pending"
+- Used across Sales Routing List, Channels Page, and other pages during iterative design
+
 ---
 
 ## 8. Technical Implementation
 
 ### State Management
-- **DemoContext**: Centralized state for demo mode
-- Stores: integration, warehouses, products, productWarehouses, routings
-- `resetDemo()`: Clears all state for fresh demo
-- `syncProducts()`: Simulates product import
+- **DemoContext**: Centralized state for demo mode with two operating modes:
+  - **Static Mode** (default): Uses pre-populated mock data for "steady state" demos
+  - **Reset Mode** (`isResetMode: true`): Blank-slate state for guided demo flows
+- Stores: integration, warehouses, products, productWarehouses, salesRoutings, productPublications, boxOfficeSetups, hierarchyElements, hierarchyElementProducts, productChannelVisibility
+- **Actions**: `resetDemo()`, `exitResetMode()`, `createIntegration()`, `updateIntegrationName()`, `syncProducts()`, `createRouting()`, `updateRouting()`, `deleteRouting()`
+- **Computed getters**: Unified API (`getIntegration()`, `getWarehouses()`, `getProducts()`, etc.) that works transparently in both modes
+- **Category helpers**: `getProductCategory()`, `getProductCategoryPath()` for hierarchy-based categorization
+- **Visibility helpers**: `isProductVisibleInChannel()`, `setProductChannelVisibility()`, `bulkSetProductChannelVisibility()`, `initializeChannelVisibility()`
+- **Publication helpers**: `isProductPublished()`, `getUnpublishedReason()`
 
 ### Data Sources
-- **Static mock data**: Pre-configured data for "steady state" demos
-- **Dynamic demo data**: Created during demo flow via DemoContext
+- **Static mock data** (`mockData.ts`): Pre-configured data for "steady state" demos (6 events, 1 integration, 6 warehouses, 17 products, 5 routings, 4 box office setups, category hierarchy)
+- **Dynamic demo data** (`productPool.ts`): Created during demo flow — includes 20 initial products, 5 second-sync products, warehouse assignments, and category assignments
 
 ### Key Files
 ```
 src/
 ├── context/
-│   └── DemoContext.tsx       # Demo state management
+│   └── DemoContext.tsx           # Demo state management (two-mode architecture)
 ├── data/
-│   ├── mockData.ts           # Static entities and relationships
-│   └── productPool.ts        # Demo-specific product data
+│   ├── mockData.ts              # Static entities, types, and relationships
+│   └── productPool.ts           # Demo-specific product/warehouse pool data
+├── styles/
+│   ├── variables.css            # Ignite Design System tokens (100+ CSS variables)
+│   └── global.css               # CSS reset, base typography, scrollbar styles
 ├── components/
+│   ├── common/
+│   │   ├── Button.tsx           # Reusable button (primary/secondary/outline/ghost/danger)
+│   │   ├── Table.tsx            # Table with Head/Body/Row/Cell sub-components
+│   │   ├── Card.tsx             # Card with Header/Title/Body sub-components
+│   │   ├── Badge.tsx            # Status badge (success/warning/secondary/info/danger)
+│   │   ├── PageHeader.tsx       # Page header with breadcrumbs
+│   │   ├── Breadcrumb.tsx       # Breadcrumb navigation
+│   │   ├── Toast.tsx            # Toast notification
+│   │   └── DesignPendingBanner.tsx  # Design-in-progress banner
+│   ├── layout/
+│   │   ├── Layout.tsx           # Main app layout (sidebar + header + content)
+│   │   ├── Header.tsx           # Top navigation bar
+│   │   ├── Sidebar.tsx          # Left navigation with expandable menu
+│   │   └── Footer.tsx           # Page footer
 │   ├── guide/
-│   │   └── GuidePage.tsx         # Step-by-step onboarding guide for ops teams
+│   │   └── GuidePage.tsx        # Step-by-step onboarding guide for ops teams
 │   ├── catalog-integration/
-│   │   ├── CatalogIntegrationPage.tsx
-│   │   ├── IntegrationDetails.tsx
-│   │   ├── CreateIntegrationWizard.tsx
-│   │   └── PublicationModal.tsx  # (Distribution details)
+│   │   ├── CatalogIntegrationPage.tsx   # Main page (empty state or details)
+│   │   ├── IntegrationDetails.tsx       # Detail view (tabs, products, warehouses)
+│   │   ├── CreateIntegrationWizard.tsx  # Multi-step integration wizard
+│   │   ├── EmptyState.tsx               # Empty state prompt
+│   │   ├── ProviderSelector.tsx         # Square/Shopify provider cards
+│   │   ├── ProviderModal.tsx            # Modal for provider selection
+│   │   ├── EditIntegrationSidePanel.tsx # Side panel for editing name
+│   │   ├── FilterSidePanel.tsx          # Side panel for product filters
+│   │   ├── WarehouseSidePanel.tsx       # Side panel for warehouse details
+│   │   ├── WarehousePopover.tsx         # Quick warehouse info popover
+│   │   └── PublicationModal.tsx         # Distribution details modal
 │   ├── sales-routing/
-│   │   ├── SalesRoutingList.tsx
-│   │   ├── CreateRoutingWizard.tsx
-│   │   ├── EditRouting.tsx
-│   │   ├── ChannelSelector.tsx
-│   │   ├── WarehouseSelector.tsx
-│   │   ├── ChannelRoutingStep.tsx
-│   │   └── ReviewStep.tsx
+│   │   ├── SalesRoutingList.tsx          # Routing list with expandable rows
+│   │   ├── SalesRoutingEmptyState.tsx   # Empty state for no routings
+│   │   ├── CreateRoutingWizard.tsx      # Multi-step routing wizard
+│   │   ├── EditRouting.tsx              # Single-page routing editor
+│   │   ├── EventSelector.tsx            # Event picker
+│   │   ├── ChannelSelector.tsx          # Channel multi-select
+│   │   ├── WarehouseSelector.tsx        # Warehouse picker with rules
+│   │   ├── ChannelRoutingStep.tsx       # Channel-warehouse mapping
+│   │   ├── ProductSelector.tsx          # Product selection for routing
+│   │   ├── ChannelProductMapping.tsx    # Channel-product mapping UI
+│   │   ├── ReviewStep.tsx               # Review & create step
+│   │   ├── DeleteConfirmModal.tsx       # Routing deletion confirmation
+│   │   └── DistributionDetailsModal.tsx # Full distribution info modal
 │   └── channels/
 │       ├── ChannelsPage.tsx        # Main page with city/event selectors
-│       ├── ChannelList.tsx         # Left panel channel list
+│       ├── ChannelList.tsx         # Left panel channel list with checkboxes
 │       ├── ChannelProductList.tsx  # Right panel product visibility table
 │       └── BulkEditModal.tsx       # Modal for bulk visibility changes
 ```
@@ -460,17 +572,35 @@ src/
 
 ## 9. Design Constraints
 
+### Design System
+Uses the **Fever Zone Ignite Design System** (synced from https://design.fevertools.com/1d4a57dde/p/52e17c). All design tokens are defined as CSS custom properties in `src/styles/variables.css`.
+
 ### Fever Brand Guidelines
-- Primary color: `#0089E3` (Fever blue)
-- Secondary colors: See color palette in codebase
-- Font: Montserrat
-- Button styles: Primary (gradient), Outline, Ghost, Danger
+- Primary color: `--fz-primary: #0089E3` (Fever blue, DS primary-500)
+- Primary scale: `--fz-primary-100` through `--fz-primary-900`
+- Neutral scale: `--fz-neutral-50` through `--fz-neutral-900`
+- Accent: `--fz-accent: #6F41D7`
+- Font: Montserrat (`--fz-font-family`), weights 400 (regular) and 600 (semibold) only
+- Button styles: Primary, Secondary, Outline, Ghost, Danger
+- Button heights: `--fz-btn-height-sm: 32px`, `--fz-btn-height-lg: 48px`
+- Border radius: Pill buttons (`--fz-border-radius-pill: 64px`)
 
 ### Fever Zone Styling
-- Sidebar: 240px wide, dark background (#1a2332)
-- Content max-width: Consistent across screens
-- Tables: Fever-style with hover states
-- Filters: Floating label pattern with custom chevron
+- Sidebar: `--fz-sidebar-width: 256px` expanded, `--fz-sidebar-collapsed-width: 56px` collapsed
+- Dark background: `--fz-bg-dark: #06232C` (header, sidebar, page-title area)
+- Content background: `--fz-bg-content: #FFFFFF`
+- Header height: `--fz-header-height: 72px`
+- Tables: Fever-style with subtle hover rows (`--fz-bg-subtle: #F9FAFB`)
+- Inputs: Floating label pattern, `--fz-input-height: 56px`
+- Modal scrim: `--fz-bg-scrim: rgba(6, 35, 44, 0.88)`
+- Shadows: 4-level elevation scale (`--fz-shadow` to `--fz-shadow-xl`)
+- Spacing: 4-unit grid (`--fz-spacing-xs: 4px` to `--fz-spacing-4xl: 48px`)
+- Transitions: `--fz-transition: 0.26s cubic-bezier(0.1, 0, 0, 1)`
+
+### Styling Approach
+- **CSS Modules**: Every component uses co-located `.module.css` files for scoped styling
+- **Global styles**: CSS reset, base typography, and scrollbar customization in `global.css`
+- **No CSS-in-JS**: Pure CSS Modules with design token variables
 
 ---
 
@@ -569,6 +699,31 @@ channelDefaultVisibility?: Record<string, DefaultVisibility>;
 
 ## 11. Future Considerations
 
+### Application Routes
+
+| Route Path | Component | Purpose |
+|------------|-----------|---------|
+| `/` | Redirect → `/products/catalog-integration` | Default entry point |
+| `/products/catalog-integration` | `CatalogIntegrationPage` | Integration management |
+| `/products/catalog-integration/create` | `CreateIntegrationWizard` | Create new integration |
+| `/products/sales-routing` | `SalesRoutingList` | List all sales routings |
+| `/products/sales-routing/create` | `CreateRoutingWizard` | Create new routing |
+| `/products/sales-routing/edit/:id` | `EditRouting` | Edit existing routing |
+| `/products/channels` | `ChannelsPage` | Channel visibility management |
+| `/products/guide` | `GuidePage` | Onboarding guide |
+| `*` | Redirect → `/products/catalog-integration` | Catch-all fallback |
+
+### Technology Stack
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | ^19.2.0 | UI framework |
+| React Router DOM | ^7.13.0 | Client-side routing |
+| TypeScript | ~5.9.3 | Type safety |
+| Vite | ^7.2.4 | Build tool and dev server |
+| FontAwesome | ^6.x | Icon library (SVG Core, Brands, Regular, Solid) |
+| Vercel | — | Deployment platform (SPA rewrites configured) |
+
 ### Not in Current Scope
 - Multiple catalog integrations per partner
 - Automated channel assignment rules
@@ -598,9 +753,12 @@ channelDefaultVisibility?: Record<string, DefaultVisibility>;
 | **Session Type ID** | Internal Fever identifier for a product distribution |
 | **Multi-warehouse Routing** | Routing with multiple online channels (up to N warehouses) or Box Office (unlimited warehouses) |
 | **Single-warehouse Routing** | Routing with a single online channel, restricted to one warehouse |
-| **Category** | Product categorization imported from external system (Square/Shopify) |
+| **Category** | Product categorization imported from external system (Square/Shopify), stored as `HierarchyElement` tree |
+| **HierarchyElement** | A node in the product category tree (root or child), imported from the external catalog system |
 | **Product Channel Visibility** | Configuration controlling which products appear in each sales channel |
 | **Default Visibility** | Setting determining if products start visible (opt-out) or hidden (opt-in) when routing is created |
+| **Channel Type Category** | Grouping of channel types for Fever Zone filters: Box Office, Marketplace, Kiosk, API |
+| **Design Pending Banner** | UI indicator shown on pages where visual design is still being refined |
 
 ---
 

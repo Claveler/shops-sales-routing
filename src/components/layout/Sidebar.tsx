@@ -58,7 +58,7 @@ const menuItems: MenuItem[] = [
     label: 'Products',
     children: [
       { label: 'Guide', path: '/products/guide' },
-      { label: 'Catalog integration', path: '/products/catalog-integration' },
+      { label: 'Catalog integrations', path: '/products/catalog-integration' },
       { label: 'Sales routing', path: '/products/sales-routing' },
       { label: 'Channels', path: '/products/channels' }
     ]

@@ -1,0 +1,27 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--fz-spacing-sm);
+  padding: var(--fz-spacing-sm) var(--fz-spacing-lg);
+  margin: var(--fz-spacing-lg) var(--fz-spacing-xl) 0;
+  background: var(--fz-warning-bg);
+  border: 1px solid var(--fz-warning-border);
+  border-radius: var(--fz-border-radius);
+  font-size: var(--fz-font-size-sm);
+  color: var(--fz-warning-text);
+  line-height: var(--fz-line-height-body);
+}
+
+.icon {
+  flex-shrink: 0;
+  font-size: var(--fz-font-size-md);
+  color: var(--fz-warning);
+}
+
+.text {
+  font-weight: var(--fz-font-weight-regular);
+}
+
+.label {
+  font-weight: var(--fz-font-weight-semibold);
+}

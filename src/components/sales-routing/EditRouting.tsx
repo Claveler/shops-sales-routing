@@ -16,6 +16,7 @@ import { Card, CardBody, CardHeader, CardTitle } from '../common/Card';
 import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { PageHeader } from '../common/PageHeader';
+import { DesignPendingBanner } from '../common/DesignPendingBanner';
 import { useDemo } from '../../context/DemoContext';
 import { 
   getSalesRoutingById, 
@@ -222,6 +223,7 @@ export function EditRouting() {
           ]}
           title="Sales routing"
         />
+        <DesignPendingBanner />
         <div className={styles.pageBody}>
           <Card>
             <CardBody>
@@ -253,6 +255,7 @@ export function EditRouting() {
           </Badge>
         }
       />
+      <DesignPendingBanner />
       <div className={styles.pageBody}>
       {/* Main Card - Single Page Layout */}
       <Card padding="none">

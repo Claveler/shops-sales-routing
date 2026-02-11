@@ -18,9 +18,11 @@ export function Layout({ children }: LayoutProps) {
       <Sidebar isOpen={sidebarOpen} />
       <main className={`${styles.main} ${sidebarOpen ? styles.sidebarOpen : styles.sidebarCollapsed}`}>
         <div className={styles.content}>
-          {children}
+          <div className={styles.pageWrapper}>
+            {children}
+          </div>
+          <Footer />
         </div>
-        <Footer />
       </main>
     </div>
   );

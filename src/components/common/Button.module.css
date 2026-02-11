@@ -12,8 +12,23 @@
 }
 
 .button:disabled {
-  opacity: 0.6;
   cursor: not-allowed;
+}
+
+.primary:disabled {
+  background-color: var(--fz-neutral-200);
+  color: var(--fz-neutral-400);
+  border-color: var(--fz-neutral-200);
+}
+
+.secondary:disabled,
+.outline:disabled {
+  opacity: 0.5;
+}
+
+.ghost:disabled,
+.danger:disabled {
+  opacity: 0.5;
 }
 
 /* Sizes */
@@ -45,14 +60,14 @@
 }
 
 .secondary {
-  background-color: var(--fz-bg-dark);
-  color: var(--fz-text-light);
-  border-color: var(--fz-bg-dark);
+  background-color: transparent;
+  color: var(--fz-primary);
+  border-color: var(--fz-primary);
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: var(--fz-neutral-700);
-  border-color: var(--fz-neutral-700);
+  background-color: var(--fz-primary-100);
+  border-color: var(--fz-primary-hover);
 }
 
 .outline {

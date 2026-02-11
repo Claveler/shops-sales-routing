@@ -1,10 +1,10 @@
+/* To hide the footer again, change `display: flex` → `display: none` */
 .footer {
+  display: flex;
   background-color: var(--fz-bg-sidebar);
   color: var(--fz-text-inverse);
-  display: flex;
   flex-direction: column;
   padding: 32px 28px 23px;
-  margin-top: auto;
 }
 
 .container {
@@ -72,7 +72,7 @@
 .bottomRow {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
   margin-top: var(--fz-spacing-lg);
   color: var(--fz-neutral-500);
@@ -83,33 +83,4 @@
   font-size: 0.625rem;
   color: var(--fz-neutral-500);
   margin: 0;
-}
-
-.resetBtn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--fz-border-radius-sm);
-  color: var(--fz-text-muted);
-  font-size: 11px;
-  cursor: pointer;
-  transition: all var(--fz-transition-fast);
-}
-
-.resetBtn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: var(--fz-text-light);
-}
-
-.resetBtn.active {
-  background: rgba(0, 137, 227, 0.2);
-  border-color: rgba(0, 137, 227, 0.4);
-  color: var(--fz-primary-300);
-}
-
-.resetBtn.active:hover {
-  background: rgba(0, 137, 227, 0.25);
 }

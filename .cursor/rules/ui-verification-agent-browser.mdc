@@ -1,6 +1,6 @@
 ---
 description: After any UI-affecting change (CSS, component markup, styles), verify visually with agent-browser in headless mode
-alwaysApply: true
+alwaysApply: false
 ---
 
 # Visual UI Verification with agent-browser

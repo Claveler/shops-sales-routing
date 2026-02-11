@@ -1,15 +1,27 @@
 import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faPlus, faTrash, faExclamationTriangle, faSquare, faImage, faSync, faSpinner, faCheck, faSearch } from '@fortawesome/free-solid-svg-icons';
+import {
+  faEdit,
+  faPlus,
+  faExclamationTriangle,
+  faImage,
+  faSpinner,
+  faCheck,
+  faSearch,
+  faWarehouse,
+  faTshirt,
+  faCalendar,
+  faChevronLeft,
+  faChevronRight,
+} from '@fortawesome/free-solid-svg-icons';
+import { faSlidersH } from '@fortawesome/free-solid-svg-icons';
 import { faShopify } from '@fortawesome/free-brands-svg-icons';
-import { Card, CardHeader, CardBody } from '../common/Card';
 import { Button } from '../common/Button';
-import { Badge } from '../common/Badge';
 import { Table, TableHead, TableBody, TableRow, TableCell } from '../common/Table';
-import { DeleteIntegrationModal } from './DeleteIntegrationModal';
 import { PublicationModal } from './PublicationModal';
-import { WarehousePopover } from './WarehousePopover';
+import { WarehouseSidePanel } from './WarehouseSidePanel';
+import { FilterSidePanel } from './FilterSidePanel';
+import { EditIntegrationSidePanel } from './EditIntegrationSidePanel';
 import { useDemo } from '../../context/DemoContext';
 import { 
   getProductPublications as getStaticProductPublications,
@@ -25,20 +37,23 @@ interface IntegrationDetailsProps {
   integration: CatalogIntegration;
 }
 
+const PAGE_SIZE = 10;
+
 export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
-  const navigate = useNavigate();
   const demo = useDemo();
   
   // Tab state
   const [activeTab, setActiveTab] = useState<'products' | 'warehouses'>('products');
   
   // UI state
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [, setEditingWarehouse] = useState<string | null>(null);
   const [showAddWarehouse, setShowAddWarehouse] = useState(false);
   const [newWarehouseName, setNewWarehouseName] = useState('');
   const [newWarehouseLocationId, setNewWarehouseLocationId] = useState('');
-  const [openWarehousePopover, setOpenWarehousePopover] = useState<string | null>(null);
+  const [warehousePanelProduct, setWarehousePanelProduct] = useState<{
+    id: string;
+    name: string;
+    warehouses: ReturnType<typeof getWarehousesForProductLocal>;
+  } | null>(null);
   const [publicationModalProduct, setPublicationModalProduct] = useState<{
     id: string;
     name: string;
@@ -50,6 +65,15 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
   const [eventFilter, setEventFilter] = useState<string>('all');
   const [channelFilter, setChannelFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  
+  // Filter panel state
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  
+  // Edit integration panel state
+  const [showEditPanel, setShowEditPanel] = useState(false);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
   
   // Local sync UI state
   const [isSyncing, setIsSyncing] = useState(false);
@@ -113,15 +137,13 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     
     // Generate a deterministic 8-digit session type ID from routing + product
     const generateSessionTypeId = (routingId: string, prodId: string): string => {
-      // Simple hash function to generate consistent 8-digit number
       const str = `${routingId}-${prodId}`;
       let hash = 0;
       for (let i = 0; i < str.length; i++) {
         const char = str.charCodeAt(i);
         hash = ((hash << 5) - hash) + char;
-        hash = hash & hash; // Convert to 32bit integer
+        hash = hash & hash;
       }
-      // Ensure positive 8-digit number
       return String(Math.abs(hash) % 90000000 + 10000000);
     };
     
@@ -135,14 +157,10 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       const event = getEventById(routing.eventId);
       if (!event) return;
       
-      // New logic: Check channels instead of deprecated type field
       const hasBoxOffice = routing.channelIds.some(id => isBoxOfficeChannel(id));
       const mappedWarehouseIds = Object.values(routing.channelWarehouseMapping);
       const isInOnlineChannel = mappedWarehouseIds.some(whId => productWarehouseIds.includes(whId));
       
-      // Product is published if:
-      // 1. Routing has Box Office and product's warehouse is in the routing
-      // 2. Product's warehouse is mapped to an online channel
       if (hasBoxOffice || isInOnlineChannel) {
         publications.push({
           sessionTypeId: generateSessionTypeId(routing.id, productId),
@@ -181,14 +199,13 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
   
   // Derive available categories for filter dropdown
   const availableCategories = useMemo(() => {
-    return demo.getHierarchyElements().filter(he => he.parentId === null); // Root categories only for cleaner UI
+    return demo.getHierarchyElements().filter(he => he.parentId === null);
   }, [demo]);
   
   // Apply all filters
   const filteredProducts = useMemo(() => {
     let products = allProducts;
     
-    // 1. Text search (name or SKU)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       products = products.filter(p => 
@@ -197,10 +214,8 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       );
     }
     
-    // 2. Filter by warehouse
     if (warehouseFilter !== 'all') {
       products = getProductsByWarehouse(warehouseFilter);
-      // Re-apply search filter after warehouse filter
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         products = products.filter(p => 
@@ -210,14 +225,12 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       }
     }
     
-    // 3. Filter by publication status
     if (publishedFilter === 'unpublished') {
       products = products.filter(p => !demo.isProductPublished(p.id));
     } else if (publishedFilter === 'published') {
       products = products.filter(p => demo.isProductPublished(p.id));
     }
     
-    // 4. Filter by event
     if (eventFilter !== 'all') {
       products = products.filter(p => {
         const pubs = demo.isResetMode 
@@ -227,7 +240,6 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       });
     }
     
-    // 5. Filter by channel
     if (channelFilter !== 'all') {
       products = products.filter(p => {
         const pubs = demo.isResetMode 
@@ -237,27 +249,31 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       });
     }
     
-    // 6. Filter by category
     if (categoryFilter !== 'all') {
       products = products.filter(p => {
         const category = demo.getProductCategory(p.id);
         if (!category) return false;
-        // Match if category is the selected one, or if parent is the selected one
         return category.id === categoryFilter || category.parentId === categoryFilter;
       });
     }
     
     return products;
   }, [allProducts, searchQuery, warehouseFilter, publishedFilter, eventFilter, channelFilter, categoryFilter, productWarehouses, demo.isResetMode]);
-  
-  const providerIcon = integration.provider === 'square' ? faSquare : faShopify;
-  const providerClass = integration.provider === 'square' ? styles.square : styles.shopify;
 
-  const handleDeleteIntegration = () => {
-    // In real app, would delete via API
-    console.log('Deleting integration:', integration.id);
-    setShowDeleteModal(false);
-  };
+  // Pagination derived values
+  const totalProducts = filteredProducts.length;
+  const totalPages = Math.max(1, Math.ceil(totalProducts / PAGE_SIZE));
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+  const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
+  const endIndex = Math.min(startIndex + PAGE_SIZE, totalProducts);
+  const paginatedProducts = filteredProducts.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  useMemo(() => {
+    setCurrentPage(1);
+  }, [searchQuery, warehouseFilter, publishedFilter, eventFilter, channelFilter, categoryFilter]);
+  
+  const providerClass = integration.provider === 'square' ? styles.square : styles.shopify;
 
   const handleAddWarehouse = () => {
     if (newWarehouseName.trim() && newWarehouseLocationId.trim()) {
@@ -268,29 +284,20 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     }
   };
 
-  const handleDeleteWarehouse = (warehouseId: string) => {
-    console.log('Deleting warehouse:', warehouseId);
-  };
-
   const handleSyncProducts = () => {
     if (isSyncing) return;
     
-    // In reset mode, use demo context sync
-    // In normal mode, use static data sync (for pending products)
     if (demo.isResetMode) {
       if (demo.hasSynced && demo.secondSyncDone) return;
     }
     
     setIsSyncing(true);
     
-    // Simulate API call delay
     setTimeout(() => {
       if (demo.isResetMode) {
-        // Use demo context sync
         const { newProductIds } = demo.syncProducts();
         setLocalSyncedProductIds(newProductIds);
       } else {
-        // Use static data sync for pending products
         const pendingProducts = allProducts.filter(p => p.pendingSync);
         const newProductIds = pendingProducts.map(p => p.id);
         setLocalSyncedProductIds(newProductIds);
@@ -306,7 +313,6 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     publications: ReturnType<typeof getStaticProductPublications>,
     _unpublishedReason: ReturnType<typeof demo.getUnpublishedReason>
   ) => {
-    // If published, show clickable badge
     if (publications.length > 0) {
       return (
         <button 
@@ -322,22 +328,10 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       );
     }
 
-    // Not published - warehouse has no sales routing configured
     return (
-      <div className={styles.unpublishedWarning}>
-        <div className={`${styles.unpublishedBadge} ${styles.noRouting}`}>
-          <FontAwesomeIcon icon={faExclamationTriangle} />
-          No sales routing
-        </div>
-        <div className={styles.unpublishedHint}>
-          This warehouse has no sales routing configured
-        </div>
-        <button 
-          className={styles.createRoutingBtn}
-          onClick={() => navigate('/products/sales-routing/create')}
-        >
-          Create sales routing
-        </button>
+      <div className={styles.noRoutingInline}>
+        <FontAwesomeIcon icon={faExclamationTriangle} className={styles.noRoutingIcon} />
+        <span className={styles.noRoutingText}>No sales routing configured</span>
       </div>
     );
   };
@@ -349,74 +343,78 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
     }
     
     if (demo.isResetMode) {
-      // Reset mode: first sync, then second sync
       if (!demo.hasSynced) {
-        return { variant: 'primary' as const, disabled: false, icon: faSync, label: 'Sync products' };
+        return { variant: 'primary' as const, disabled: false, icon: faPlus, label: 'Sync products' };
       }
       if (!demo.secondSyncDone) {
-        return { variant: 'primary' as const, disabled: false, icon: faSync, label: 'Sync new products' };
+        return { variant: 'primary' as const, disabled: false, icon: faPlus, label: 'Sync new products' };
       }
       return { variant: 'outline' as const, disabled: true, icon: faCheck, label: 'Synced' };
     }
     
-    // Normal mode: only one sync for pending products
     if (localSyncedProductIds.length > 0) {
       return { variant: 'outline' as const, disabled: true, icon: faCheck, label: 'Synced' };
     }
-    return { variant: 'primary' as const, disabled: false, icon: faSync, label: 'Sync products' };
+    return { variant: 'primary' as const, disabled: false, icon: faPlus, label: 'Sync products' };
   };
+
+  // Determine if any sales routing exists
+  const hasSalesRouting = demo.getSalesRoutings().length > 0;
+
+  // Count active filters for badge
+  const activeFilterCount = [warehouseFilter, publishedFilter, eventFilter, channelFilter, categoryFilter]
+    .filter(f => f !== 'all').length;
+
+  // Last sync date
+  const lastSyncDate = integration.createdAt
+    ? new Date(integration.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : null;
 
   return (
     <div className={styles.container}>
       {/* Integration Info Card */}
-      <Card padding="none">
-        <div className={styles.integrationHeader}>
-          <div className={styles.headerLeft}>
+      <div className={styles.integrationHeaderCard}>
+        <div className={styles.headerLeft}>
+          <div className={styles.providerIconBox}>
             <div className={`${styles.providerIcon} ${providerClass}`}>
-              <FontAwesomeIcon icon={providerIcon} />
-            </div>
-            <div className={styles.headerInfo}>
-              <div className={styles.headerTop}>
-                <h2 className={styles.integrationName}>{integration.name}</h2>
-                <span className={`${styles.providerLabel} ${providerClass}`}>{providerName}</span>
-              </div>
-              <div className={styles.headerMeta}>
-                <span className={styles.metaItem}>
-                  <strong>Master catalog ID:</strong> {integration.externalAccountId}
-                </span>
-                <span className={styles.metaItem}>
-                  <strong>Created:</strong> {new Date(integration.createdAt).toLocaleDateString()}
-                </span>
-                <span className={styles.metaSeparator}>·</span>
-                <span className={styles.metaStat}>{allProducts.length} products</span>
-                <span className={styles.metaSeparator}>·</span>
-                <span className={styles.metaStat}>{integrationWarehouses.length} warehouses</span>
-              </div>
+              {integration.provider === 'square' ? (
+                <img src="/square-logo.png" alt="Square" className={styles.providerLogoImg} />
+              ) : (
+                <FontAwesomeIcon icon={faShopify} />
+              )}
             </div>
           </div>
-          <div className={styles.headerActions}>
-            <Button 
-              variant={getSyncButtonState().variant} 
-              size="sm" 
-              onClick={handleSyncProducts}
-              disabled={getSyncButtonState().disabled}
-            >
-              <FontAwesomeIcon 
-                icon={getSyncButtonState().icon} 
-                spin={isSyncing}
-              />
-              {getSyncButtonState().label}
-            </Button>
-            <Button variant="outline" size="sm">
-              <FontAwesomeIcon icon={faEdit} />
-              Edit details
-            </Button>
+          <div className={styles.headerInfo}>
+            <h2 className={styles.integrationName}>{integration.name}</h2>
+            <span className={styles.accountId}>{integration.externalAccountId}</span>
+            <span className={`${styles.providerTag} ${providerClass}`}>{providerName}</span>
           </div>
         </div>
-      </Card>
+        <div className={styles.headerStats}>
+          <div className={styles.statItem}>
+            <FontAwesomeIcon icon={faWarehouse} className={styles.statIcon} />
+            <span className={styles.statText}>{integrationWarehouses.length} warehouses</span>
+          </div>
+          <div className={styles.statItem}>
+            <FontAwesomeIcon icon={faTshirt} className={styles.statIcon} />
+            <span className={styles.statText}>
+              {allProducts.length} products{lastSyncDate ? ` (Last sync: ${lastSyncDate})` : ''}
+            </span>
+          </div>
+          <div className={styles.statItem}>
+            <FontAwesomeIcon icon={faCalendar} className={styles.statIcon} />
+            <span className={styles.statText}>Creation date: {lastSyncDate || 'N/A'}</span>
+          </div>
+        </div>
+        <div className={styles.headerActions}>
+          <Button variant="secondary" size="sm" onClick={() => setShowEditPanel(true)}>
+            Edit integration
+          </Button>
+        </div>
+      </div>
 
-      {/* Tabs + Content Card */}
-      <Card padding="none">
+      {/* Tabs + Sync Button Row */}
+      <div className={styles.tabRow}>
         <div className={styles.tabBar}>
           <button 
             className={`${styles.tab} ${activeTab === 'products' ? styles.activeTab : ''}`}
@@ -431,21 +429,31 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             Warehouses
           </button>
         </div>
-
-        {/* Warehouses Tab Content */}
+        {activeTab === 'products' && (
+          <Button 
+            variant={getSyncButtonState().variant} 
+            size="sm" 
+            onClick={handleSyncProducts}
+            disabled={getSyncButtonState().disabled}
+          >
+            <FontAwesomeIcon 
+              icon={getSyncButtonState().icon} 
+              spin={isSyncing}
+            />
+            {getSyncButtonState().label}
+          </Button>
+        )}
         {activeTab === 'warehouses' && (
-        <>
-        <CardHeader 
-          title="Warehouses" 
-          subtitle={`Manage warehouses linked to your ${providerName} account`}
-          action={
-            <Button variant="primary" size="sm" onClick={() => setShowAddWarehouse(true)}>
-              <FontAwesomeIcon icon={faPlus} />
-              Add warehouse
-            </Button>
-          }
-        />
-        <CardBody padding="none">
+          <Button variant="primary" size="sm" onClick={() => setShowAddWarehouse(true)}>
+            <FontAwesomeIcon icon={faPlus} />
+            Add warehouse
+          </Button>
+        )}
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === 'warehouses' && (
+        <div className={styles.warehousesContent}>
           {showAddWarehouse && (
             <div className={styles.addWarehouseForm}>
               <div className={styles.formRow}>
@@ -493,40 +501,19 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
                   <TableCell>Name</TableCell>
                   <TableCell>External Location ID</TableCell>
                   <TableCell>Products</TableCell>
-                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {integrationWarehouses.map((warehouse) => (
                   <TableRow key={warehouse.id}>
                     <TableCell>
-                      <span className={styles.warehouseName}>{warehouse.name}</span>
+                      {warehouse.name}
                     </TableCell>
                     <TableCell>
-                      <code className={styles.locationId}>{warehouse.externalLocationId}</code>
+                      {warehouse.externalLocationId}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary" size="sm">
-                        {getProductsByWarehouse(warehouse.id).length} products
-                      </Badge>
-                    </TableCell>
-                    <TableCell align="right">
-                      <div className={styles.actions}>
-                        <button 
-                          className={styles.actionBtn}
-                          onClick={() => setEditingWarehouse(warehouse.id)}
-                          title="Edit warehouse"
-                        >
-                          <FontAwesomeIcon icon={faEdit} />
-                        </button>
-                        <button 
-                          className={`${styles.actionBtn} ${styles.danger}`}
-                          onClick={() => handleDeleteWarehouse(warehouse.id)}
-                          title="Delete warehouse"
-                        >
-                          <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                      </div>
+                      {getProductsByWarehouse(warehouse.id).length}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -541,103 +528,65 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
               </Button>
             </div>
           )}
-        </CardBody>
-        </>
-        )}
-
-        {/* Products Tab Content */}
-        {activeTab === 'products' && (
-        <>
-        <CardHeader 
-          title="Products" 
-          subtitle={`All products from your ${providerName} catalog`}
-        />
-        <div className={styles.filterBar}>
-          <div className={styles.searchWrapper}>
-            <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
-            <input
-              type="text"
-              className={styles.searchInput}
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-          <div className={styles.filterDropdown}>
-            <span className={styles.filterDropdownLabel}>Warehouse</span>
-            <select 
-              className={styles.filterSelect}
-              value={warehouseFilter}
-              onChange={(e) => setWarehouseFilter(e.target.value)}
-            >
-              <option value="all">All</option>
-              {integrationWarehouses.map(wh => (
-                <option key={wh.id} value={wh.id}>{wh.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.filterDropdown}>
-            <span className={styles.filterDropdownLabel}>Status</span>
-            <select 
-              className={styles.filterSelect}
-              value={publishedFilter}
-              onChange={(e) => setPublishedFilter(e.target.value)}
-            >
-              <option value="all">All</option>
-              <option value="published">Distributed</option>
-              <option value="unpublished">Not distributed</option>
-            </select>
-          </div>
-          <div className={styles.filterDropdown}>
-            <span className={styles.filterDropdownLabel}>Event</span>
-            <select 
-              className={styles.filterSelect}
-              value={eventFilter}
-              onChange={(e) => setEventFilter(e.target.value)}
-            >
-              <option value="all">All</option>
-              {availableEvents.map(evt => (
-                <option key={evt.id} value={evt.id}>{evt.name}</option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.filterDropdown}>
-            <span className={styles.filterDropdownLabel}>Channel</span>
-            <select 
-              className={styles.filterSelect}
-              value={channelFilter}
-              onChange={(e) => setChannelFilter(e.target.value)}
-            >
-              <option value="all">All</option>
-              {availableChannels.map(channel => (
-                <option key={channel.id} value={channel.id}>
-                  {channel.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles.filterDropdown}>
-            <span className={styles.filterDropdownLabel}>Category</span>
-            <select 
-              className={styles.filterSelect}
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <option value="all">All</option>
-              {availableCategories.map(category => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
-        <CardBody padding="none">
-          {filteredProducts.length > 0 ? (
+      )}
+
+      {activeTab === 'products' && (
+        <div className={styles.productsContent}>
+          {/* Toolbar: Search + Pagination + Filters */}
+          <div className={styles.toolbar}>
+            <div className={styles.toolbarLeft}>
+              <div className={styles.searchWrapper}>
+                <FontAwesomeIcon icon={faSearch} className={styles.searchIcon} />
+                <input
+                  type="text"
+                  className={styles.searchInput}
+                  placeholder="Search by name, SKU"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className={styles.toolbarRight}>
+              {/* Pagination */}
+              <div className={styles.pagination}>
+                <span className={styles.paginationText}>
+                  {totalProducts > 0 ? `${startIndex + 1} - ${endIndex}` : '0'} of {totalProducts}
+                </span>
+                <button
+                  className={styles.paginationBtn}
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={safeCurrentPage <= 1}
+                >
+                  <FontAwesomeIcon icon={faChevronLeft} />
+                </button>
+                <button
+                  className={styles.paginationBtn}
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={safeCurrentPage >= totalPages}
+                >
+                  <FontAwesomeIcon icon={faChevronRight} />
+                </button>
+              </div>
+              {/* Filters button */}
+              <button
+                className={styles.filtersBtn}
+                onClick={() => setShowFilterPanel(true)}
+              >
+                <FontAwesomeIcon icon={faSlidersH} />
+                Filters
+                {activeFilterCount > 0 && (
+                  <span className={styles.filtersBadge}>{activeFilterCount}</span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Products Table */}
+          {paginatedProducts.length > 0 ? (
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>Image</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>SKU</TableCell>
                   <TableCell>Category</TableCell>
@@ -646,33 +595,37 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredProducts.map((product) => {
+                {paginatedProducts.map((product) => {
                   const productWarehouseDetails = getWarehousesForProductLocal(product.id);
-                  const isNew = localSyncedProductIds.includes(product.id) || demo.syncedProductIds.includes(product.id);
+                  const isNew = (() => {
+                    if (!product.syncedAt) return false;
+                    const syncedDate = new Date(product.syncedAt);
+                    const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+                    return (Date.now() - syncedDate.getTime()) < threeDaysMs;
+                  })();
                   const unpublishedReason = demo.getUnpublishedReason(product.id);
                   
-                  // Get publications - in demo mode, derive from routings; otherwise use static
                   const publications = demo.isResetMode 
                     ? getPublicationsFromRoutings(product.id)
                     : getStaticProductPublications(product.id);
                   
                   return (
-                    <TableRow key={product.id} className={isNew ? styles.newProductRow : undefined}>
-                      <TableCell>
-                        <div className={styles.productImage}>
-                          {product.imageUrl ? (
-                            <img src={product.imageUrl} alt={product.name} />
-                          ) : (
-                            <div className={styles.imagePlaceholder}>
-                              <FontAwesomeIcon icon={faImage} />
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
+                    <TableRow key={product.id}>
                       <TableCell>
                         <div className={styles.productNameCell}>
+                          <div className={styles.productThumb}>
+                            {product.imageUrl ? (
+                              <img src={product.imageUrl} alt={product.name} />
+                            ) : (
+                              <div className={styles.thumbPlaceholder}>
+                                <FontAwesomeIcon icon={faImage} />
+                              </div>
+                            )}
+                          </div>
                           {isNew && <span className={styles.newBadge}>New</span>}
-                          <span className={styles.productName}>{product.name}</span>
+                          <div className={styles.productNameContent}>
+                            <span className={styles.productName}>{product.name}</span>
+                          </div>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -685,24 +638,19 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
                       </TableCell>
                       <TableCell>
                         {productWarehouseDetails.length === 0 ? (
-                          <Badge variant="secondary" size="sm">
-                            Not in any warehouse
-                          </Badge>
+                          <span className={styles.categoryText}>—</span>
                         ) : (
-                          <div 
-                            className={styles.warehouseCell}
-                            onMouseEnter={() => setOpenWarehousePopover(product.id)}
-                            onMouseLeave={() => setOpenWarehousePopover(null)}
-                          >
-                            <span className={styles.warehouseBadge}>
-                              In {productWarehouseDetails.length} warehouse{productWarehouseDetails.length > 1 ? 's' : ''}
-                            </span>
-                            {openWarehousePopover === product.id && (
-                              <WarehousePopover
-                                warehouses={productWarehouseDetails}
-                                onClose={() => setOpenWarehousePopover(null)}
-                              />
-                            )}
+                          <div className={styles.warehouseCell}>
+                            <button
+                              className={styles.warehouseBadge}
+                              onClick={() => setWarehousePanelProduct({
+                                id: product.id,
+                                name: product.name,
+                                warehouses: productWarehouseDetails,
+                              })}
+                            >
+                              {productWarehouseDetails.length} warehouse{productWarehouseDetails.length > 1 ? 's' : ''}
+                            </button>
                           </div>
                         )}
                       </TableCell>
@@ -716,52 +664,18 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
             </Table>
           ) : (
             <div className={styles.emptyProducts}>
-              <p>
-                {warehouseFilter === 'all' && publishedFilter === 'all'
-                  ? 'No products in the catalog yet.'
-                  : warehouseFilter !== 'all' && publishedFilter !== 'all'
-                    ? 'No products match the selected filters.'
-                    : warehouseFilter !== 'all'
-                      ? 'No products in this warehouse.'
-                      : 'No products with this status.'}
-              </p>
+              <div className={styles.emptyProductsContent}>
+                <h4 className={styles.emptyProductsTitle}>No results</h4>
+                <p className={styles.emptyProductsDescription}>
+                  {searchQuery.trim() || activeFilterCount > 0
+                    ? "Sorry, we couldn't find any product with your search criteria. Please change the filters and try again."
+                    : 'No products in the catalog yet. Sync your catalog to see products here.'}
+                </p>
+              </div>
             </div>
           )}
-        </CardBody>
-        </>
-        )}
-      </Card>
-
-      {/* Danger Zone */}
-      <Card padding="none">
-        <div className={styles.dangerZone}>
-          <div className={styles.dangerContent}>
-            <div className={styles.dangerIcon}>
-              <FontAwesomeIcon icon={faExclamationTriangle} />
-            </div>
-            <div className={styles.dangerInfo}>
-              <h4 className={styles.dangerTitle}>Delete integration</h4>
-              <p className={styles.dangerDescription}>
-                Permanently delete this catalog integration and all its warehouses. 
-                This will affect any sales routings using these warehouses.
-              </p>
-            </div>
-          </div>
-          <Button variant="danger" size="sm" onClick={() => setShowDeleteModal(true)}>
-            <FontAwesomeIcon icon={faTrash} />
-            Delete integration
-          </Button>
         </div>
-      </Card>
-
-      {/* Delete Confirmation Modal */}
-      <DeleteIntegrationModal
-        isOpen={showDeleteModal}
-        integrationName={integration.name}
-        warehouseCount={integrationWarehouses.length}
-        onConfirm={handleDeleteIntegration}
-        onCancel={() => setShowDeleteModal(false)}
-      />
+      )}
 
       {/* Publication Details Modal */}
       {publicationModalProduct && (
@@ -774,6 +688,43 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
         />
       )}
 
+      {/* Warehouse Info Side Panel */}
+      <WarehouseSidePanel
+        isOpen={warehousePanelProduct !== null}
+        productName={warehousePanelProduct?.name ?? ''}
+        warehouses={warehousePanelProduct?.warehouses ?? []}
+        onClose={() => setWarehousePanelProduct(null)}
+      />
+
+      {/* Edit Integration Side Panel */}
+      <EditIntegrationSidePanel
+        isOpen={showEditPanel}
+        currentName={integration.name}
+        onSave={(newName) => demo.updateIntegrationName(newName)}
+        onClose={() => setShowEditPanel(false)}
+      />
+
+      {/* Filter Side Panel */}
+      <FilterSidePanel
+        isOpen={showFilterPanel}
+        onClose={() => setShowFilterPanel(false)}
+        warehouseFilter={warehouseFilter}
+        setWarehouseFilter={setWarehouseFilter}
+        warehouseOptions={integrationWarehouses.map(wh => ({ value: wh.id, label: wh.name }))}
+        publishedFilter={publishedFilter}
+        setPublishedFilter={setPublishedFilter}
+        eventFilter={eventFilter}
+        setEventFilter={setEventFilter}
+        eventOptions={availableEvents.map(evt => ({ value: evt.id, label: evt.name }))}
+        channelFilter={channelFilter}
+        setChannelFilter={setChannelFilter}
+        channelOptions={availableChannels.map(ch => ({ value: ch.id, label: ch.name }))}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        categoryOptions={availableCategories.map(cat => ({ value: cat.id, label: cat.name }))}
+        resultCount={filteredProducts.length}
+        hasSalesRouting={hasSalesRouting}
+      />
     </div>
   );
 }

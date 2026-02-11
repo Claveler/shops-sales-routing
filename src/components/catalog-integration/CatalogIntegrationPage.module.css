@@ -1,5 +1,32 @@
+/* Page wrapper — fills the content area */
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.pageWrapperEmpty {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: #FFFFFF;
+  overflow: hidden; /* empty state never scrolls */
+}
+
+/* Body area */
 .pageBody {
   max-width: 1400px;
   margin: 0 auto;
+  padding: var(--fz-spacing-xl);
+  width: 100%;
+}
+
+.pageBodyEmpty {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   padding: var(--fz-spacing-xl);
 }

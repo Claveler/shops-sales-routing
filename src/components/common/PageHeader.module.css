@@ -1,7 +1,5 @@
 .pageHeader {
-  background-color: var(--fz-bg-dark);
-  padding: var(--fz-spacing-lg) var(--fz-spacing-xl);
-  color: var(--fz-text-light);
+  padding: 24px 24px 0;
 }
 
 .titleRow {
@@ -12,16 +10,16 @@
 }
 
 .title {
-  font-size: var(--fz-font-size-3xl);
-  font-weight: var(--fz-font-weight-semibold);
-  color: var(--fz-text-light);
+  font-size: 20px;
+  font-weight: 600;
+  color: #031419;
   margin: 0;
-  line-height: var(--fz-line-height-heading);
+  line-height: 26px;
 }
 
 .subtitle {
   font-size: var(--fz-font-size-sm);
-  color: rgba(255, 255, 255, 0.7);
+  color: #536b75;
   margin: 4px 0 0;
 }
 

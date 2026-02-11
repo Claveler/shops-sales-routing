@@ -1,0 +1,230 @@
+/* Backdrop / Scrim */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--fz-bg-scrim, rgba(6, 35, 44, 0.88));
+  z-index: 1100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Panel container (full screen, right-aligned) */
+.panel {
+  position: fixed;
+  inset: 0;
+  z-index: 1101;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.panel.open {
+  pointer-events: auto;
+}
+
+/* Safe area on the left for click-to-close */
+.safeArea {
+  width: 56px;
+  flex-shrink: 0;
+}
+
+/* Card (the white panel) */
+.card {
+  width: 375px;
+  flex-shrink: 0;
+  background: var(--fz-bg-card, #ffffff);
+  border-radius: 16px 0 0 16px;
+  box-shadow: -6px 0 6px rgba(0, 70, 121, 0.2);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 24px;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.1, 0, 0, 1);
+}
+
+.panel.open .card {
+  transform: translateX(0);
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  height: 24px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: var(--fz-font-weight-semibold, 600);
+  color: var(--fz-text-primary, #031419);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 48px);
+}
+
+.closeBtn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: transparent;
+  border: none;
+  color: var(--fz-text-primary, #031419);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.closeBtn:hover {
+  color: var(--fz-text-secondary, #536b75);
+}
+
+/* Divider line */
+.divider {
+  height: 1px;
+  background: var(--fz-border-color, #ccd2d8);
+  width: 100%;
+}
+
+/* Body */
+.body {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.description {
+  font-size: 14px;
+  color: var(--fz-text-primary, #031419);
+  line-height: 20px;
+  margin: 0;
+}
+
+.description strong {
+  font-weight: var(--fz-font-weight-semibold, 600);
+}
+
+/* List */
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.listItem {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  position: relative;
+}
+
+.listItemRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.leadingIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: var(--fz-text-primary, #031419);
+  font-size: 16px;
+}
+
+.textWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.warehouseName {
+  font-size: 14px;
+  font-weight: var(--fz-font-weight-semibold, 600);
+  color: var(--fz-text-primary, #031419);
+  line-height: 20px;
+}
+
+.stockText {
+  font-size: 12px;
+  color: var(--fz-text-secondary, #536b75);
+  line-height: 16px;
+}
+
+.price {
+  font-size: 12px;
+  font-weight: var(--fz-font-weight-semibold, 600);
+  color: var(--fz-text-primary, #031419);
+  line-height: 16px;
+  flex-shrink: 0;
+}
+
+/* Item divider */
+.itemDivider {
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background: var(--fz-border-color, #ccd2d8);
+}
+
+.listItem:last-child .itemDivider {
+  display: none;
+}
+
+/* Footer */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 24px;
+  flex-shrink: 0;
+}
+
+.closeAction {
+  background: none;
+  border: none;
+  color: var(--fz-primary, #0089e3);
+  font-size: 14px;
+  font-weight: var(--fz-font-weight-semibold, 600);
+  cursor: pointer;
+  padding: 8px 16px;
+  transition: color 0.15s ease;
+}
+
+.closeAction:hover {
+  color: var(--fz-primary-hover, #0079ca);
+}

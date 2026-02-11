@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import styles from './Breadcrumb.module.css';
 
 export interface BreadcrumbItem {
@@ -25,7 +23,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
             <span className={styles.current}>{item.label}</span>
           )}
           {index < items.length - 1 && (
-            <FontAwesomeIcon icon={faChevronRight} className={styles.separator} />
+            <span className={styles.separator}>/</span>
           )}
         </span>
       ))}

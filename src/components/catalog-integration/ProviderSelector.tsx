@@ -11,40 +11,41 @@ const providers: { id: IntegrationProvider; name: string; logo: string; descript
     id: 'square',
     name: 'Square',
     logo: '/square-logo.png',
-    description: 'Connect your Square catalog to import products and manage inventory from your Square POS system.'
+    description: 'Connect your Square catalog to import products and manage inventory.'
   },
   {
     id: 'shopify',
     name: 'Shopify',
     logo: '/shopify-logo.png',
-    description: 'Connect your Shopify store to import products and sync inventory with your e-commerce platform.'
+    description: 'Connect your Shopify store to import products and manage inventory.'
   }
 ];
 
 export function ProviderSelector({ value, onChange }: ProviderSelectorProps) {
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Select integration provider</h2>
-      <p className={styles.subtitle}>Choose the platform where your product catalog is managed</p>
-      
-      <div className={styles.providers}>
-        {providers.map((provider) => (
+      <div className={styles.fieldset}>
+        {providers.map((provider, index) => (
           <button
             key={provider.id}
-            className={`${styles.providerCard} ${value === provider.id ? styles.selected : ''}`}
+            className={`${styles.listItem} ${value === provider.id ? styles.selected : ''} ${index < providers.length - 1 ? styles.bordered : ''}`}
             onClick={() => onChange(provider.id)}
           >
             <div className={styles.providerIcon}>
               <img src={provider.logo} alt={provider.name} className={styles.providerLogo} />
             </div>
             <div className={styles.providerContent}>
-              <h3 className={styles.providerName}>{provider.name}</h3>
-              <p className={styles.providerDescription}>{provider.description}</p>
+              <span className={styles.providerName}>{provider.name}</span>
+              <span className={styles.providerDescription}>{provider.description}</span>
             </div>
             <div className={styles.radioIndicator}>
-              <div className={styles.radioOuter}>
-                {value === provider.id && <div className={styles.radioInner} />}
-              </div>
+              {value === provider.id ? (
+                <div className={styles.radioActive}>
+                  <div className={styles.radioDot} />
+                </div>
+              ) : (
+                <div className={styles.radioDefault} />
+              )}
             </div>
           </button>
         ))}

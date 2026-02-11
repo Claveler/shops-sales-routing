@@ -1,19 +1,7 @@
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faRotateLeft } from '@fortawesome/free-solid-svg-icons';
-import { useDemo } from '../../context/DemoContext';
 import styles from './Footer.module.css';
 import feverLogo from '../../assets/fever-logo-only.svg';
 
 export function Footer() {
-  const navigate = useNavigate();
-  const { isResetMode, resetDemo } = useDemo();
-
-  const handleResetDemo = () => {
-    resetDemo();
-    navigate('/products/catalog-integration');
-  };
-
   return (
     <footer className={styles.footer}>
       <div className={styles.container}>
@@ -39,14 +27,7 @@ export function Footer() {
       </div>
       <div className={styles.divider} />
       <div className={styles.bottomRow}>
-        <div className={styles.copyright}>©2026 Fever</div>
-        <button 
-          className={`${styles.resetBtn} ${isResetMode ? styles.active : ''}`}
-          onClick={handleResetDemo}
-        >
-          <FontAwesomeIcon icon={faRotateLeft} />
-          {isResetMode ? 'Demo Mode Active' : 'Reset Demo'}
-        </button>
+        <div className={styles.copyright}>&copy;2026 Fever</div>
       </div>
     </footer>
   );

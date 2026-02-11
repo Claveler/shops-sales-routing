@@ -1,109 +1,101 @@
 .container {
-  padding: var(--fz-spacing-lg) 0;
-}
-
-.title {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--fz-text-primary);
-  margin: 0 0 8px 0;
-}
-
-.subtitle {
-  font-size: 14px;
-  color: var(--fz-text-secondary);
-  margin: 0 0 24px 0;
-}
-
-.providers {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.providerCard {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 20px;
-  background: var(--fz-bg-card);
-  border: 2px solid var(--fz-border-color-lighter);
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: left;
-  transition: all var(--fz-transition);
   width: 100%;
 }
 
-.providerCard:hover {
-  border-color: var(--fz-primary);
-  background: rgba(0, 137, 227, 0.02);
+.fieldset {
+  border: 1px solid #ccd2d8;
+  border-radius: 8px;
+  overflow: hidden;
+  background: white;
 }
 
-.providerCard.selected {
-  border-color: var(--fz-primary);
-  background: rgba(0, 137, 227, 0.05);
+.listItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 16px;
+  background: white;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background 0.15s ease;
+}
+
+.listItem.bordered {
+  border-bottom: 1px solid #ccd2d8;
+}
+
+.listItem:hover {
+  background: rgba(0, 137, 227, 0.03);
+}
+
+.listItem.selected {
+  background: #e6f4ff;
 }
 
 .providerIcon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  background: var(--fz-bg-subtle);
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  overflow: hidden;
 }
 
 .providerLogo {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   object-fit: contain;
 }
 
 .providerContent {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
 }
 
 .providerName {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: var(--fz-text-primary);
-  margin: 0 0 6px 0;
+  color: #031419;
+  line-height: 20px;
 }
 
 .providerDescription {
-  font-size: 13px;
-  color: var(--fz-text-secondary);
-  margin: 0;
-  line-height: 1.5;
+  font-size: 12px;
+  font-weight: 400;
+  color: #536b75;
+  line-height: 16px;
 }
 
 .radioIndicator {
   flex-shrink: 0;
-  padding-top: 4px;
 }
 
-.radioOuter {
-  width: 20px;
-  height: 20px;
+.radioDefault {
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  border: 2px solid var(--fz-border-color);
+  border: 1px solid #ccd2d8;
+  background: white;
+}
+
+.radioActive {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0089e3;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--fz-transition);
 }
 
-.providerCard.selected .radioOuter {
-  border-color: var(--fz-primary);
-}
-
-.radioInner {
-  width: 10px;
-  height: 10px;
+.radioDot {
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--fz-primary);
+  background: white;
 }

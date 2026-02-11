@@ -5,6 +5,7 @@ import { faArrowLeft, faArrowRight, faCheck } from '@fortawesome/free-solid-svg-
 import { Card } from '../common/Card';
 import { Button } from '../common/Button';
 import { PageHeader } from '../common/PageHeader';
+import { DesignPendingBanner } from '../common/DesignPendingBanner';
 import { EventSelector } from './EventSelector';
 import { WarehouseSelector } from './WarehouseSelector';
 import { ChannelSelector } from './ChannelSelector';
@@ -244,6 +245,7 @@ export function CreateRoutingWizard() {
         ]}
         title="Create sales routing"
       />
+      <DesignPendingBanner />
       <div className={styles.pageBody}>
       <Card padding="none">
         <div className={styles.cardInner}>

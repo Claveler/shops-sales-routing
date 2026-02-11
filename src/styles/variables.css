@@ -40,7 +40,7 @@
   --fz-bg-dark: #06232C;             /* Main dark bg: header, sidebar, page-title area */
   --fz-bg-sidebar: #06232C;          /* Sidebar background */
   --fz-bg-header: #06232C;           /* Header bar background */
-  --fz-bg-content: #F2F3F3;          /* Main content area background */
+  --fz-bg-content: #FFFFFF;          /* Main content area background */
   --fz-bg-card: #FFFFFF;             /* Cards, modals, dropdowns, table */
   --fz-bg-subtle: #F9FAFB;           /* Subtle background (table headers, hover rows) */
   --fz-bg-muted: #F3F4F6;            /* Muted background (tags, preview chips) */

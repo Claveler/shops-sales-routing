@@ -9,20 +9,20 @@
 }
 
 .thead {
-  background-color: var(--fz-bg-subtle);
+  background-color: var(--fz-bg-card, #ffffff);
 }
 
 .thead .cell {
-  font-weight: var(--fz-font-weight-semibold);
-  color: var(--fz-text-secondary);
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  border-bottom: 1px solid var(--fz-border-color);
+  font-weight: var(--fz-font-weight-semibold, 600);
+  color: var(--fz-text-primary, #031419);
+  font-size: 14px;
+  line-height: 20px;
+  border-bottom: 1px solid #d9d9dc;
+  height: 48px;
 }
 
 .tbody .row {
-  border-bottom: 1px solid var(--fz-border-color);
+  border-bottom: 1px solid #d9d9dc;
   transition: background-color var(--fz-transition);
 }
 
@@ -39,8 +39,14 @@
 }
 
 .cell {
-  padding: 14px var(--fz-spacing-lg);
+  padding: 12px 16px;
   vertical-align: middle;
+  height: 64px;
+}
+
+.thead .cell {
+  height: 48px;
+  padding: 12px 16px;
 }
 
 .left {

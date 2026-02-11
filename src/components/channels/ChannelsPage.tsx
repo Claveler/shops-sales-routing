@@ -5,6 +5,7 @@ import { PageHeader } from '../common/PageHeader';
 import { ChannelList } from './ChannelList';
 import { ChannelProductList } from './ChannelProductList';
 import { BulkEditModal } from './BulkEditModal';
+import { DesignPendingBanner } from '../common/DesignPendingBanner';
 import { useDemo } from '../../context/DemoContext';
 import { channels, getEventById } from '../../data/mockData';
 import styles from './ChannelsPage.module.css';
@@ -91,6 +92,7 @@ export function ChannelsPage() {
           ]}
           title="Channels"
         />
+        <DesignPendingBanner />
         <div className={styles.pageBody}>
           <div className={styles.emptyContainer}>
             <div className={styles.iconWrapper}>
@@ -186,6 +188,7 @@ export function ChannelsPage() {
         </div>
       </PageHeader>
 
+      <DesignPendingBanner />
       <div className={styles.pageBody}>
         {/* Channels settings card */}
         <div className={styles.wrapperCard}>

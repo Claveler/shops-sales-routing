@@ -241,27 +241,28 @@ export const warehouses: Warehouse[] = [
 ];
 
 // Mock Products - catalog-level (same across all warehouses)
+// Some products have imageUrl (via picsum.photos) for realistic thumbnails, others use placeholder
 export const products: Product[] = [
-  { id: 'p-001', name: 'Candlelight T-Shirt (Black)', sku: 'TSH-BLK-001' },
-  { id: 'p-002', name: 'Candlelight T-Shirt (White)', sku: 'TSH-WHT-001' },
-  { id: 'p-003', name: 'Concert Poster (A2)', sku: 'POS-A2-001' },
+  { id: 'p-001', name: 'Candlelight T-Shirt (Black)', sku: 'TSH-BLK-001', imageUrl: 'https://picsum.photos/seed/tshirt-black/100/100' },
+  { id: 'p-002', name: 'Candlelight T-Shirt (White)', sku: 'TSH-WHT-001', imageUrl: 'https://picsum.photos/seed/tshirt-white/100/100' },
+  { id: 'p-003', name: 'Concert Poster (A2)', sku: 'POS-A2-001', imageUrl: 'https://picsum.photos/seed/concert-poster/100/100' },
   { id: 'p-004', name: 'Vinyl Record - Classical Hits', sku: 'VNL-CLS-001' },
-  { id: 'p-005', name: 'Scented Candle Set (3 pack)', sku: 'CND-SET-001' },
+  { id: 'p-005', name: 'Scented Candle Set (3 pack)', sku: 'CND-SET-001', imageUrl: 'https://picsum.photos/seed/candle-set/100/100' },
   { id: 'p-006', name: 'Tote Bag - Candlelight Design', sku: 'BAG-TOT-001' },
-  { id: 'p-007', name: 'Van Gogh Starry Night Print', sku: 'VG-PRT-001' },
+  { id: 'p-007', name: 'Van Gogh Starry Night Print', sku: 'VG-PRT-001', imageUrl: 'https://picsum.photos/seed/starry-night/100/100' },
   { id: 'p-008', name: 'Van Gogh Sunflowers Mug', sku: 'VG-MUG-001' },
-  { id: 'p-009', name: 'Art Book - Van Gogh Collection', sku: 'VG-BK-001' },
+  { id: 'p-009', name: 'Art Book - Van Gogh Collection', sku: 'VG-BK-001', imageUrl: 'https://picsum.photos/seed/art-book/100/100' },
   { id: 'p-010', name: 'Puzzle - Starry Night (1000pc)', sku: 'VG-PZL-001' },
   { id: 'p-011', name: 'VR Headset Rental', sku: 'VG-VR-001' },
-  { id: 'p-012', name: 'Barcelona City Map Poster', sku: 'BCN-MAP-001' },
+  { id: 'p-012', name: 'Barcelona City Map Poster', sku: 'BCN-MAP-001', imageUrl: 'https://picsum.photos/seed/bcn-map/100/100' },
   { id: 'p-013', name: 'Tapas Recipe Book', sku: 'BCN-BK-001' },
-  { id: 'p-014', name: 'Wine Tasting Set', sku: 'BCN-WINE-001' }, // In wh-005 (no routing) - unpublished
+  { id: 'p-014', name: 'Wine Tasting Set', sku: 'BCN-WINE-001', imageUrl: 'https://picsum.photos/seed/wine-set/100/100' }, // In wh-005 (no routing) - unpublished
   
   // Pending sync products - hidden until "Sync products" is clicked
   // p-new-001: In wh-001 (has onsite routing) → auto-published after sync
   // p-new-002: In wh-002 (has online routing sr-002) but not in selectedProductIds → "Not in online routing"
   // p-new-003: In wh-005 (no routing) → "No routing configured"
-  { id: 'p-new-001', name: 'Limited Edition Poster', sku: 'LTD-POST-001', pendingSync: true },
+  { id: 'p-new-001', name: 'Limited Edition Poster', sku: 'LTD-POST-001', pendingSync: true, imageUrl: 'https://picsum.photos/seed/ltd-poster/100/100' },
   { id: 'p-new-002', name: 'VIP Experience Package', sku: 'VIP-EXP-001', pendingSync: true },
   { id: 'p-new-003', name: 'Exclusive Vinyl Record', sku: 'VINYL-EXC-001', pendingSync: true },
 ];

@@ -48,6 +48,9 @@ interface DemoState {
   hasSynced: boolean;
   secondSyncDone: boolean;
   syncedProductIds: string[];
+  
+  // Name override (for editing integration name in static mode)
+  integrationNameOverride: string | null;
 }
 
 interface DemoContextValue extends DemoState {
@@ -57,6 +60,7 @@ interface DemoContextValue extends DemoState {
   
   // Integration actions
   createIntegration: (integration: CatalogIntegration, newWarehouses: Warehouse[]) => void;
+  updateIntegrationName: (name: string) => void;
   
   // Sync actions
   syncProducts: () => { newCount: number; newProductIds: string[] };
@@ -111,6 +115,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     hasSynced: false,
     secondSyncDone: false,
     syncedProductIds: [],
+    integrationNameOverride: null,
   });
 
   // Reset to blank slate
@@ -130,6 +135,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       hasSynced: false,
       secondSyncDone: false,
       syncedProductIds: [],
+      integrationNameOverride: null,
     });
   }, []);
 
@@ -148,6 +154,23 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       catalogIntegration: integration,
       warehouses: newWarehouses,
     }));
+  }, []);
+
+  // Update integration name
+  const updateIntegrationName = useCallback((name: string) => {
+    setState(prev => {
+      if (prev.isResetMode && prev.catalogIntegration) {
+        return {
+          ...prev,
+          catalogIntegration: { ...prev.catalogIntegration, name },
+        };
+      }
+      // In static mode, store as override
+      return {
+        ...prev,
+        integrationNameOverride: name,
+      };
+    });
   }, []);
 
   // Sync products from "external system"
@@ -324,8 +347,13 @@ export function DemoProvider({ children }: { children: ReactNode }) {
 
   // Unified getters that work in both modes
   const getIntegration = useCallback(() => {
-    return state.isResetMode ? state.catalogIntegration : staticIntegration;
-  }, [state.isResetMode, state.catalogIntegration]);
+    if (state.isResetMode) return state.catalogIntegration;
+    if (!staticIntegration) return null;
+    if (state.integrationNameOverride) {
+      return { ...staticIntegration, name: state.integrationNameOverride };
+    }
+    return staticIntegration;
+  }, [state.isResetMode, state.catalogIntegration, state.integrationNameOverride]);
 
   const getWarehouses = useCallback(() => {
     return state.isResetMode ? state.warehouses : staticWarehouses;
@@ -511,6 +539,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     resetDemo,
     exitResetMode,
     createIntegration,
+    updateIntegrationName,
     syncProducts,
     createRouting,
     updateRouting,
@@ -538,6 +567,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     resetDemo,
     exitResetMode,
     createIntegration,
+    updateIntegrationName,
     syncProducts,
     createRouting,
     updateRouting,

@@ -7,6 +7,7 @@ import { Button } from '../common/Button';
 import { Badge } from '../common/Badge';
 import { PageHeader } from '../common/PageHeader';
 import { SalesRoutingEmptyState } from './SalesRoutingEmptyState';
+import { DesignPendingBanner } from '../common/DesignPendingBanner';
 import { useDemo } from '../../context/DemoContext';
 import { getEventById, getWarehouseById, channels, hasBoxOfficeChannel, isBoxOfficeChannel } from '../../data/mockData';
 import type { RoutingStatus } from '../../data/mockData';
@@ -85,6 +86,7 @@ export function SalesRoutingList() {
           ]}
           title="Sales routing"
         />
+        <DesignPendingBanner />
         <div className={styles.pageBody}>
           <SalesRoutingEmptyState 
             hasIntegration={!!integration}
@@ -105,6 +107,7 @@ export function SalesRoutingList() {
         ]}
         title="Sales routing"
       />
+      <DesignPendingBanner />
       <div className={styles.pageBody}>
       <Card padding="none">
         <div className={styles.cardInner}>

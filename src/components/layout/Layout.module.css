@@ -1,15 +1,17 @@
 .layout {
   min-height: 100vh;
-  background-color: var(--fz-bg-dark);
+  background-color: var(--fz-bg-content);
+  overflow: hidden; /* prevent margin-collapsing from <main> */
 }
 
 .main {
-  min-height: calc(100vh - var(--fz-header-height));
+  height: calc(100vh - var(--fz-header-height));
   margin-top: var(--fz-header-height);
   background-color: var(--fz-bg-content);
   transition: margin-left var(--fz-transition-slow);
   display: flex;
   flex-direction: column;
+  overflow: hidden; /* main never scrolls; pages manage their own overflow */
 }
 
 .main.sidebarOpen {
@@ -22,4 +24,14 @@
 
 .content {
   flex: 1;
+  min-height: 0; /* allow flex children to shrink below content size */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* default scroll container for pages */
+}
+
+.pageWrapper {
+  flex: 1 0 100%; /* fill at least the full visible height, pushing footer below the fold */
+  display: flex;
+  flex-direction: column;
 }
