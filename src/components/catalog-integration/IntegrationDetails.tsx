@@ -310,15 +310,12 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
     }, 1500);
   };
 
-  // Auto-sync: when autoSync prop is set, trigger sync after a 2-second delay
+  // Auto-sync: when autoSync prop is set, trigger sync immediately
   const autoSyncTriggeredRef = useRef(false);
   useEffect(() => {
     if (autoSync && !autoSyncTriggeredRef.current && demo.isResetMode && !demo.hasSynced) {
       autoSyncTriggeredRef.current = true;
-      const timer = setTimeout(() => {
-        handleSyncProducts();
-      }, 2000);
-      return () => clearTimeout(timer);
+      handleSyncProducts();
     }
   }, [autoSync]);
 
@@ -614,6 +611,8 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
                   const productWarehouseDetails = getWarehousesForProductLocal(product.id);
                   const isNew = (() => {
                     if (!product.syncedAt) return false;
+                    // Only show "New" for products from the most recent sync
+                    if (demo.lastSyncTimestamp && product.syncedAt !== demo.lastSyncTimestamp) return false;
                     const syncedDate = new Date(product.syncedAt);
                     const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
                     return (Date.now() - syncedDate.getTime()) < threeDaysMs;

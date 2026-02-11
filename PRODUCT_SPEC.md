@@ -430,14 +430,16 @@ Single-page layout with all configuration in one scrollable view.
 After a product sync, newly imported products display a **"New" badge** next to their name in the product list. This helps users quickly identify which items were recently added to the catalog.
 
 **Behavior:**
-- The "New" badge appears on products that have a `syncedAt` timestamp within the last **3 days**
-- After 3 days from the sync date, the badge automatically stops being shown
+- The "New" badge appears on products that were imported in the **most recent sync** and whose `syncedAt` timestamp is within the last **3 days**
+- When a new manual sync is triggered, the badge is removed from previously-synced products — only the products from the latest sync batch are considered "new"
+- After 3 days from the sync date, the badge automatically stops being shown (auto-expiry fallback)
 - The badge is purely visual — it does not affect the product's background row color or any other styling; the row background remains the same as non-new products
 - The badge uses the info/solid tag style (light blue background `#73bff6`, dark text)
 
 **Data:**
 - Based on the `syncedAt` field on the `Product` entity (ISO 8601 timestamp set at sync time)
-- No separate tracking of "new" product IDs is required — the badge is derived from `syncedAt` at render time
+- Compared against the `lastSyncTimestamp` stored on the demo state — only products whose `syncedAt` matches the last sync timestamp are shown as "new"
+- No separate tracking of "new" product IDs is required — the badge is derived from `syncedAt` and `lastSyncTimestamp` at render time
 
 ### Product Filters
 - **Search**: Text search by name or SKU (inline in the table header)
@@ -498,6 +500,7 @@ A reusable banner component (`DesignPendingBanner`) displayed on pages/sections 
   - **Reset Mode** (`isResetMode: true`): Blank-slate state for guided demo flows
 - Stores: integration, warehouses, products, productWarehouses, salesRoutings, productPublications, boxOfficeSetups, hierarchyElements, hierarchyElementProducts, productChannelVisibility
 - **Actions**: `resetDemo()`, `exitResetMode()`, `createIntegration()`, `updateIntegrationName()`, `syncProducts()`, `createRouting()`, `updateRouting()`, `deleteRouting()`
+- **Sync tracking**: `lastSyncTimestamp` records when the most recent sync occurred; used to determine which products display the "New" badge
 - **Computed getters**: Unified API (`getIntegration()`, `getWarehouses()`, `getProducts()`, etc.) that works transparently in both modes
 - **Category helpers**: `getProductCategory()`, `getProductCategoryPath()` for hierarchy-based categorization
 - **Visibility helpers**: `isProductVisibleInChannel()`, `setProductChannelVisibility()`, `bulkSetProductChannelVisibility()`, `initializeChannelVisibility()`

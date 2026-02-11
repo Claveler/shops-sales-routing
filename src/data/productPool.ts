@@ -9,34 +9,34 @@ export const DEMO_WAREHOUSE_3_ID = 'wh-demo-popup';
 // ~30% intentionally have no image to show realistic placeholder mix
 export const DEMO_PRODUCTS: Product[] = [
   // Apparel (6)
-  { id: 'demo-p-001', name: 'Event T-Shirt (Black)', sku: 'TSH-BLK-001', imageUrl: 'https://picsum.photos/seed/demo-tshirt-black/100/100' },
-  { id: 'demo-p-002', name: 'Event T-Shirt (White)', sku: 'TSH-WHT-001', imageUrl: 'https://picsum.photos/seed/demo-tshirt-white/100/100' },
-  { id: 'demo-p-003', name: 'Premium Hoodie (Gray)', sku: 'HOOD-GRY-001', imageUrl: 'https://picsum.photos/seed/demo-hoodie-gray/100/100' },
+  { id: 'demo-p-001', name: 'Event T-Shirt (Black)', sku: 'TSH-BLK-001', imageUrl: '/images/products/demo-p-001.jpeg' },
+  { id: 'demo-p-002', name: 'Event T-Shirt (White)', sku: 'TSH-WHT-001', imageUrl: '/images/products/demo-p-002.jpeg' },
+  { id: 'demo-p-003', name: 'Premium Hoodie (Gray)', sku: 'HOOD-GRY-001', imageUrl: '/images/products/demo-p-003.jpeg' },
   { id: 'demo-p-004', name: 'Vintage Cap', sku: 'CAP-VTG-001' },
-  { id: 'demo-p-005', name: 'Concert Jacket', sku: 'JKT-CNT-001', imageUrl: 'https://picsum.photos/seed/demo-concert-jacket/100/100' },
+  { id: 'demo-p-005', name: 'Concert Jacket', sku: 'JKT-CNT-001', imageUrl: '/images/products/demo-p-005.jpeg' },
   { id: 'demo-p-006', name: 'Limited Edition Beanie', sku: 'BNE-LTD-001' },
   
   // Accessories (4)
-  { id: 'demo-p-007', name: 'Canvas Tote Bag', sku: 'BAG-TOT-001', imageUrl: 'https://picsum.photos/seed/demo-tote-bag/100/100' },
-  { id: 'demo-p-008', name: 'Enamel Pin Set', sku: 'PIN-SET-001', imageUrl: 'https://picsum.photos/seed/demo-enamel-pins/100/100' },
+  { id: 'demo-p-007', name: 'Canvas Tote Bag', sku: 'BAG-TOT-001', imageUrl: '/images/products/demo-p-007.jpeg' },
+  { id: 'demo-p-008', name: 'Enamel Pin Set', sku: 'PIN-SET-001', imageUrl: '/images/products/demo-p-008.jpeg' },
   { id: 'demo-p-009', name: 'Wristband Pack (3)', sku: 'WRB-PCK-001' },
   { id: 'demo-p-010', name: 'Lanyard with Badge Holder', sku: 'LNY-BDG-001' },
   
   // Home & Decor (4)
-  { id: 'demo-p-011', name: 'Concert Poster (A2)', sku: 'POS-A2-001', imageUrl: 'https://picsum.photos/seed/demo-concert-poster/100/100' },
-  { id: 'demo-p-012', name: 'Scented Candle Set', sku: 'CND-SET-001', imageUrl: 'https://picsum.photos/seed/demo-candle-set/100/100' },
+  { id: 'demo-p-011', name: 'Concert Poster (A2)', sku: 'POS-A2-001', imageUrl: '/images/products/demo-p-011.jpeg' },
+  { id: 'demo-p-012', name: 'Scented Candle Set', sku: 'CND-SET-001', imageUrl: '/images/products/demo-p-012.jpeg' },
   { id: 'demo-p-013', name: 'Art Print Collection', sku: 'ART-PRT-001' },
-  { id: 'demo-p-014', name: 'Photo Book', sku: 'PHO-BK-001', imageUrl: 'https://picsum.photos/seed/demo-photo-book/100/100' },
+  { id: 'demo-p-014', name: 'Photo Book', sku: 'PHO-BK-001', imageUrl: '/images/products/demo-p-014.jpeg' },
   
   // Collectibles (3)
-  { id: 'demo-p-015', name: 'Vinyl Record - Live Album', sku: 'VNL-LIV-001', imageUrl: 'https://picsum.photos/seed/demo-vinyl-record/100/100' },
+  { id: 'demo-p-015', name: 'Vinyl Record - Live Album', sku: 'VNL-LIV-001', imageUrl: '/images/products/demo-p-015.jpeg' },
   { id: 'demo-p-016', name: 'Commemorative Coin', sku: 'CON-CMM-001' },
-  { id: 'demo-p-017', name: 'Signed Photograph', sku: 'PHO-SGN-001', imageUrl: 'https://picsum.photos/seed/demo-signed-photo/100/100' },
+  { id: 'demo-p-017', name: 'Signed Photograph', sku: 'PHO-SGN-001', imageUrl: '/images/products/demo-p-017.jpeg' },
   
   // Food & Beverage (3)
-  { id: 'demo-p-018', name: 'Gourmet Chocolate Box', sku: 'CHO-BOX-001', imageUrl: 'https://picsum.photos/seed/demo-chocolate-box/100/100' },
+  { id: 'demo-p-018', name: 'Gourmet Chocolate Box', sku: 'CHO-BOX-001', imageUrl: '/images/products/demo-p-018.jpeg' },
   { id: 'demo-p-019', name: 'Premium Coffee Blend', sku: 'COF-PRM-001' },
-  { id: 'demo-p-020', name: 'Wine Tasting Set', sku: 'WIN-SET-001', imageUrl: 'https://picsum.photos/seed/demo-wine-set/100/100' },
+  { id: 'demo-p-020', name: 'Wine Tasting Set', sku: 'WIN-SET-001', imageUrl: '/images/products/demo-p-020.jpeg' },
 ];
 
 // Product-Warehouse mappings for initial sync
@@ -81,10 +81,10 @@ export const DEMO_PRODUCT_WAREHOUSES: ProductWarehouse[] = [
 
 // Products for second sync (5 new products)
 export const SECOND_SYNC_PRODUCTS: Product[] = [
-  { id: 'demo-p-021', name: 'Anniversary Edition T-Shirt', sku: 'TSH-ANV-001', imageUrl: 'https://picsum.photos/seed/demo-anniv-tshirt/100/100' },
-  { id: 'demo-p-022', name: 'Exclusive Poster Bundle', sku: 'POS-BND-001', imageUrl: 'https://picsum.photos/seed/demo-poster-bundle/100/100' },
+  { id: 'demo-p-021', name: 'Anniversary Edition T-Shirt', sku: 'TSH-ANV-001', imageUrl: '/images/products/demo-p-021.jpeg' },
+  { id: 'demo-p-022', name: 'Exclusive Poster Bundle', sku: 'POS-BND-001', imageUrl: '/images/products/demo-p-022.jpeg' },
   { id: 'demo-p-023', name: 'VIP Experience Add-on', sku: 'VIP-ADD-001' },
-  { id: 'demo-p-024', name: 'Collector\'s Box Set', sku: 'COL-BOX-001', imageUrl: 'https://picsum.photos/seed/demo-collector-box/100/100' },
+  { id: 'demo-p-024', name: 'Collector\'s Box Set', sku: 'COL-BOX-001', imageUrl: '/images/products/demo-p-024.jpeg' },
   { id: 'demo-p-025', name: 'Digital Download Card', sku: 'DIG-DWN-001' },
 ];
 

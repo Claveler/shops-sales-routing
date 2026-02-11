@@ -249,7 +249,9 @@ export function GuidePage() {
                     products</strong> to import your catalog. A success
                     notification confirms when the sync completes, and
                     products will appear with their warehouse-specific
-                    prices and stock.
+                    prices and stock. Newly imported products display
+                    a <strong>"New" badge</strong> for 3 days. If you
+                    sync again, only the latest batch shows the badge.
                   </p>
                 </div>
               </div>
@@ -497,7 +499,10 @@ export function GuidePage() {
                     they land in a warehouse that's already mapped to a channel
                     in an active routing, they'll be automatically distributed.
                     Otherwise, you'll see an "undistributed" warning prompting
-                    you to update your routing.
+                    you to update your routing. Newly synced products show a
+                    "New" badge for 3 days so you can quickly spot them. When
+                    you trigger another sync, the badge moves to the latest
+                    batch only — previous products lose the badge.
                   </p>
                 </div>
               </div>

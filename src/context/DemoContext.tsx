@@ -48,6 +48,7 @@ interface DemoState {
   hasSynced: boolean;
   secondSyncDone: boolean;
   syncedProductIds: string[];
+  lastSyncTimestamp: string | null;
   
   // Name override (for editing integration name in static mode)
   integrationNameOverride: string | null;
@@ -115,6 +116,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     hasSynced: false,
     secondSyncDone: false,
     syncedProductIds: [],
+    lastSyncTimestamp: null,
     integrationNameOverride: null,
   });
 
@@ -135,6 +137,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
       hasSynced: false,
       secondSyncDone: false,
       syncedProductIds: [],
+      lastSyncTimestamp: null,
       integrationNameOverride: null,
     });
   }, []);
@@ -203,6 +206,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
           hierarchyElementProducts: newHierarchyElementProducts,
           hasSynced: true,
           syncedProductIds: newProductIds,
+          lastSyncTimestamp: syncTimestamp,
         };
       } else if (!prev.secondSyncDone) {
         // Second sync - add more products with syncedAt timestamp
@@ -251,6 +255,7 @@ export function DemoProvider({ children }: { children: ReactNode }) {
           hierarchyElementProducts: [...prev.hierarchyElementProducts, ...newHierarchyElementProducts],
           secondSyncDone: true,
           syncedProductIds: newProductIds,
+          lastSyncTimestamp: syncTimestamp,
         };
       }
       
