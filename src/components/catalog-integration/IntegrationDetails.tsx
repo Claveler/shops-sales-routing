@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPlus,
@@ -34,11 +34,12 @@ import styles from './IntegrationDetails.module.css';
 
 interface IntegrationDetailsProps {
   integration: CatalogIntegration;
+  autoSync?: boolean;
 }
 
 const PAGE_SIZE = 10;
 
-export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
+export function IntegrationDetails({ integration, autoSync }: IntegrationDetailsProps) {
   const demo = useDemo();
   
   // Tab state
@@ -305,6 +306,18 @@ export function IntegrationDetails({ integration }: IntegrationDetailsProps) {
       setIsSyncing(false);
     }, 1500);
   };
+
+  // Auto-sync: when autoSync prop is set, trigger sync after a 2-second delay
+  const autoSyncTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (autoSync && !autoSyncTriggeredRef.current && demo.isResetMode && !demo.hasSynced) {
+      autoSyncTriggeredRef.current = true;
+      const timer = setTimeout(() => {
+        handleSyncProducts();
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [autoSync]);
 
   // Helper to render publication status
   const renderPublicationStatus = (
