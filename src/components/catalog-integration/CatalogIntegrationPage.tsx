@@ -42,9 +42,9 @@ export function CatalogIntegrationPage() {
       <PageHeader
         breadcrumbItems={[
           { label: 'Products', path: '/products' },
-          { label: 'Catalog integrations' }
+          { label: 'Catalog integration' }
         ]}
-        title="Catalog integrations"
+        title="Catalog integration"
       />
       <div className={integration ? styles.pageBody : styles.pageBodyEmpty}>
         {integration ? (

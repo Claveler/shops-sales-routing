@@ -35,7 +35,7 @@ interface MenuItem {
   icon: typeof faCalendar;
   label: string;
   path?: string;
-  children?: { label: string; path: string }[];
+  children?: { label: string; path: string; badge?: string }[];
 }
 
 const menuItems: MenuItem[] = [
@@ -57,9 +57,9 @@ const menuItems: MenuItem[] = [
     icon: faCube, 
     label: 'Products',
     children: [
-      { label: 'Guide', path: '/products/guide' },
-      { label: 'Catalog integrations', path: '/products/catalog-integration' },
-      { label: 'Sales routing', path: '/products/sales-routing' },
+      { label: 'Guide', path: '/products/guide', badge: 'Squad' },
+      { label: 'Catalog integration', path: '/products/catalog-integration' },
+      { label: 'Sales routings', path: '/products/sales-routing' },
       { label: 'Channels', path: '/products/channels' }
     ]
   },
@@ -116,6 +116,7 @@ export function Sidebar({ isOpen }: SidebarProps) {
                             }
                           >
                             {child.label}
+                            {child.badge && <span className={styles.badge}>{child.badge}</span>}
                           </NavLink>
                         </li>
                       ))}

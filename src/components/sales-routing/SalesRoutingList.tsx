@@ -82,12 +82,12 @@ export function SalesRoutingList() {
         <PageHeader
           breadcrumbItems={[
             { label: 'Products', path: '/products' },
-            { label: 'Sales routing' }
+            { label: 'Sales routings' }
           ]}
-          title="Sales routing"
+          title="Sales routings"
         />
         <DesignPendingBanner />
-        <div className={styles.pageBody}>
+        <div className={`${styles.pageBody} ${styles.pageBodyEmpty}`}>
           <SalesRoutingEmptyState 
             hasIntegration={!!integration}
             onCreateNew={handleCreateNew}
@@ -103,9 +103,9 @@ export function SalesRoutingList() {
       <PageHeader
         breadcrumbItems={[
           { label: 'Products', path: '/products' },
-          { label: 'Sales routing' }
+          { label: 'Sales routings' }
         ]}
-        title="Sales routing"
+        title="Sales routings"
       />
       <DesignPendingBanner />
       <div className={styles.pageBody}>

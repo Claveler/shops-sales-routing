@@ -1,7 +1,14 @@
 .pageBody {
-  max-width: 1400px;
-  margin: 0 auto;
+  width: 100%;
   padding: var(--fz-spacing-xl);
+  box-sizing: border-box;
+}
+
+.pageBodyEmpty {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: calc(100vh - 200px);
 }
 
 .cardInner {

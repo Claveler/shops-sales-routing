@@ -23,6 +23,7 @@ import {
   isBoxOfficeChannel
 } from '../../data/mockData';
 import type { ResolvedProductPublication } from '../../data/mockData';
+import { DesignPendingBanner } from '../common/DesignPendingBanner';
 import styles from './PublicationModal.module.css';
 
 interface PublicationModalProps {
@@ -153,6 +154,8 @@ export function PublicationModal({
             <FontAwesomeIcon icon={faTimes} />
           </button>
         </div>
+
+        <DesignPendingBanner variant="inline" />
 
         {/* Two-column body */}
         <div className={styles.body}>

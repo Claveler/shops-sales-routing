@@ -240,7 +240,7 @@ export function CreateRoutingWizard() {
       <PageHeader
         breadcrumbItems={[
           { label: 'Products', path: '/products' },
-          { label: 'Sales routing', path: '/products/sales-routing' },
+          { label: 'Sales routings', path: '/products/sales-routing' },
           { label: 'Create new' }
         ]}
         title="Create sales routing"

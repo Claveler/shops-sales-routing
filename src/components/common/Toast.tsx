@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCheckCircle, faExclamationTriangle, faInfoCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faExclamationTriangle, faInfoCircle, faTimes } from '@fortawesome/free-solid-svg-icons';
 import styles from './Toast.module.css';
 
 export type ToastVariant = 'success' | 'warning' | 'info' | 'error';
@@ -16,7 +16,7 @@ interface ToastProps {
 }
 
 const iconMap = {
-  success: faCheckCircle,
+  success: faCheck,
   warning: faExclamationTriangle,
   info: faInfoCircle,
   error: faExclamationTriangle,

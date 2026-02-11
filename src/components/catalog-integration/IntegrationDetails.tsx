@@ -21,6 +21,7 @@ import { PublicationModal } from './PublicationModal';
 import { WarehouseSidePanel } from './WarehouseSidePanel';
 import { FilterSidePanel } from './FilterSidePanel';
 import { EditIntegrationSidePanel } from './EditIntegrationSidePanel';
+import { Toast } from '../common/Toast';
 import { useDemo } from '../../context/DemoContext';
 import { 
   getProductPublications as getStaticProductPublications,
@@ -78,6 +79,7 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
   // Local sync UI state
   const [isSyncing, setIsSyncing] = useState(false);
   const [localSyncedProductIds, setLocalSyncedProductIds] = useState<string[]>([]);
+  const [showSyncToast, setShowSyncToast] = useState(false);
 
   // Get data from demo context
   const allWarehouses = demo.getWarehouses();
@@ -304,6 +306,7 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
       }
       
       setIsSyncing(false);
+      setShowSyncToast(true);
     }, 1500);
   };
 
@@ -715,6 +718,17 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
         onSave={(newName) => demo.updateIntegrationName(newName)}
         onClose={() => setShowEditPanel(false)}
       />
+
+      {/* Sync Success Toast */}
+      {showSyncToast && (
+        <div className={styles.toastContainer}>
+          <Toast
+            variant="success"
+            title="Synchronization successfully completed"
+            onDismiss={() => setShowSyncToast(false)}
+          />
+        </div>
+      )}
 
       {/* Filter Side Panel */}
       <FilterSidePanel

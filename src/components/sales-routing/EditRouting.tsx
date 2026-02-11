@@ -218,10 +218,10 @@ export function EditRouting() {
         <PageHeader
           breadcrumbItems={[
             { label: 'Products', path: '/products' },
-            { label: 'Sales routing', path: '/products/sales-routing' },
+            { label: 'Sales routings', path: '/products/sales-routing' },
             { label: 'Not found' }
           ]}
-          title="Sales routing"
+          title="Sales routings"
         />
         <DesignPendingBanner />
         <div className={styles.pageBody}>
@@ -244,7 +244,7 @@ export function EditRouting() {
       <PageHeader
         breadcrumbItems={[
           { label: 'Products', path: '/products' },
-          { label: 'Sales routing', path: '/products/sales-routing' },
+          { label: 'Sales routings', path: '/products/sales-routing' },
           { label: 'Edit' }
         ]}
         title={event.name}

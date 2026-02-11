@@ -1,9 +1,7 @@
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faPlug,
   faRoute,
-  faBullseye,
   faWarehouse,
   faDollarSign,
   faStore,
@@ -19,7 +17,6 @@ import {
   faPlay,
 } from '@fortawesome/free-solid-svg-icons';
 import { PageHeader } from '../common/PageHeader';
-import { Card } from '../common/Card';
 import styles from './GuidePage.module.css';
 
 export function GuidePage() {
@@ -45,7 +42,7 @@ export function GuidePage() {
 
         {/* Demo Flow */}
         <section className={styles.demoFlowSection}>
-          <Card>
+          <div className={`${styles.card}`}>
             <div className={styles.demoFlowContent}>
               <div className={styles.demoFlowHeader}>
                 <div className={styles.demoFlowIconWrapper}>
@@ -68,13 +65,14 @@ export function GuidePage() {
                   Starting the demo
                 </h3>
                 <p className={styles.demoFlowText}>
-                  Scroll to the bottom of any page and click the{' '}
+                  Click the{' '}
                   <strong className={styles.demoFooterBtnLabel}>
                     <FontAwesomeIcon icon={faRotateLeft} /> Reset Demo
                   </strong>{' '}
-                  button in the footer. This clears all preloaded data and redirects you to
-                  the Catalog Integration page with a blank slate. The footer button changes
-                  to <strong className={styles.demoFooterBtnLabelActive}>Demo Mode Active</strong>{' '}
+                  button in the top-right corner of the header. This clears all preloaded
+                  data and redirects you to the Catalog Integration page with a blank slate.
+                  The button changes to{' '}
+                  <strong className={styles.demoFooterBtnLabelActive}>Demo Active</strong>{' '}
                   to confirm you're in demo mode.
                 </p>
               </div>
@@ -159,12 +157,12 @@ export function GuidePage() {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </section>
 
         {/* Overview */}
         <section className={styles.overview}>
-          <Card>
+          <div className={styles.card}>
             <div className={styles.overviewContent}>
               <h2 className={styles.overviewTitle}>How product sales work</h2>
               <p className={styles.overviewText}>
@@ -194,7 +192,7 @@ export function GuidePage() {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </section>
 
         {/* Step 1 */}
@@ -204,68 +202,64 @@ export function GuidePage() {
             <h2 className={styles.stepTitle}>Set up your Catalog Integration</h2>
           </div>
 
-          <Card>
-            <div className={styles.stepContent}>
-              <div className={styles.stepIntro}>
-                <div className={styles.stepIconWrapper}>
-                  <FontAwesomeIcon icon={faPlug} />
-                </div>
+          <div className={styles.stepContent}>
+            <div className={styles.stepIntro}>
+              <h3 className={styles.stepHeading}>Catalog Integration</h3>
+              <p className={styles.stepDescription}>
+                First, connect your external product catalog. This is where
+                Fever pulls your product information, prices, and stock
+                levels from. Each partner can have <strong>one catalog
+                integration</strong>.
+              </p>
+            </div>
+
+            <div className={styles.substeps}>
+              <div className={styles.substep}>
+                <span className={styles.substepNumber}>a</span>
                 <div>
-                  <p className={styles.stepDescription}>
-                    First, connect your external product catalog. This is where
-                    Fever pulls your product information, prices, and stock
-                    levels from. Each partner can have <strong>one catalog
-                    integration</strong>.
+                  <strong>Choose your provider</strong>
+                  <p>Select either <strong>Square</strong> or <strong>Shopify</strong> as your catalog source.</p>
+                </div>
+              </div>
+              <div className={styles.substep}>
+                <span className={styles.substepNumber}>b</span>
+                <div>
+                  <strong>Enter your catalog ID</strong>
+                  <p>Provide the Master Catalog ID from your external system so Fever can connect to it.</p>
+                </div>
+              </div>
+              <div className={styles.substep}>
+                <span className={styles.substepNumber}>c</span>
+                <div>
+                  <strong>Add warehouses</strong>
+                  <p>
+                    Warehouses represent your inventory locations (e.g., "Main
+                    Store", "Gift Shop"). Each warehouse maps to a location in
+                    your external system. Products can exist in multiple
+                    warehouses with different prices and stock levels.
                   </p>
                 </div>
               </div>
-
-              <div className={styles.substeps}>
-                <div className={styles.substep}>
-                  <span className={styles.substepNumber}>a</span>
-                  <div>
-                    <strong>Choose your provider</strong>
-                    <p>Select either <strong>Square</strong> or <strong>Shopify</strong> as your catalog source.</p>
-                  </div>
-                </div>
-                <div className={styles.substep}>
-                  <span className={styles.substepNumber}>b</span>
-                  <div>
-                    <strong>Enter your catalog ID</strong>
-                    <p>Provide the Master Catalog ID from your external system so Fever can connect to it.</p>
-                  </div>
-                </div>
-                <div className={styles.substep}>
-                  <span className={styles.substepNumber}>c</span>
-                  <div>
-                    <strong>Add warehouses</strong>
-                    <p>
-                      Warehouses represent your inventory locations (e.g., "Main
-                      Store", "Gift Shop"). Each warehouse maps to a location in
-                      your external system. Products can exist in multiple
-                      warehouses with different prices and stock levels.
-                    </p>
-                  </div>
-                </div>
-                <div className={styles.substep}>
-                  <span className={styles.substepNumber}>d</span>
-                  <div>
-                    <strong>Sync your products</strong>
-                    <p>
-                      Once your integration is set up, click <strong>Sync
-                      products</strong> to import your catalog. Products will
-                      appear with their warehouse-specific prices and stock.
-                    </p>
-                  </div>
+              <div className={styles.substep}>
+                <span className={styles.substepNumber}>d</span>
+                <div>
+                  <strong>Sync your products</strong>
+                  <p>
+                    Once your integration is set up, click <strong>Sync
+                    products</strong> to import your catalog. A success
+                    notification confirms when the sync completes, and
+                    products will appear with their warehouse-specific
+                    prices and stock.
+                  </p>
                 </div>
               </div>
-
-              <Link to="/products/catalog-integration" className={styles.stepLink}>
-                Go to Catalog Integration
-                <FontAwesomeIcon icon={faArrowRight} />
-              </Link>
             </div>
-          </Card>
+
+            <Link to="/products/catalog-integration" className={styles.stepLink}>
+              Go to Catalog Integration
+              <FontAwesomeIcon icon={faArrowRight} />
+            </Link>
+          </div>
         </section>
 
         {/* Step 2 */}
@@ -275,86 +269,80 @@ export function GuidePage() {
             <h2 className={styles.stepTitle}>Create Sales Routings</h2>
           </div>
 
-          <Card>
-            <div className={styles.stepContent}>
-              <div className={styles.stepIntro}>
-                <div className={styles.stepIconWrapper}>
-                  <FontAwesomeIcon icon={faRoute} />
-                </div>
-                <div>
-                  <p className={styles.stepDescription}>
-                    A sales routing tells Fever <em>how</em> products should be
-                    sold at a specific event: which channels sell them and which
-                    warehouses supply the stock. Each event has <strong>one
-                    routing</strong>.
-                  </p>
-                </div>
-              </div>
-
-              <h3 className={styles.substepGroupTitle}>The 5-step wizard</h3>
-              <div className={styles.wizardSteps}>
-                <div className={styles.wizardStep}>
-                  <span className={styles.wizardStepNum}>1</span>
-                  <div>
-                    <strong>Event</strong>
-                    <p>Pick the event where products will be sold.</p>
-                  </div>
-                </div>
-                <div className={styles.wizardStep}>
-                  <span className={styles.wizardStepNum}>2</span>
-                  <div>
-                    <strong>Channels</strong>
-                    <p>Choose which sales channels to use (Box Office, Fever Marketplace, Whitelabel, etc.).</p>
-                  </div>
-                </div>
-                <div className={styles.wizardStep}>
-                  <span className={styles.wizardStepNum}>3</span>
-                  <div>
-                    <strong>Warehouses</strong>
-                    <p>Select which warehouses supply stock. The number of warehouses you can select depends on the channels you chose.</p>
-                  </div>
-                </div>
-                <div className={styles.wizardStep}>
-                  <span className={styles.wizardStepNum}>4</span>
-                  <div>
-                    <strong>Channel Routing</strong>
-                    <p>Map each online channel to a warehouse and set the default product visibility (all visible or none visible).</p>
-                  </div>
-                </div>
-                <div className={styles.wizardStep}>
-                  <span className={styles.wizardStepNum}>5</span>
-                  <div>
-                    <strong>Review</strong>
-                    <p>Review everything and set the routing status (Draft, Active, or Inactive).</p>
-                  </div>
-                </div>
-              </div>
-
-              <h3 className={styles.substepGroupTitle}>Routing complexity levels</h3>
-              <div className={styles.complexityCards}>
-                <div className={styles.complexityCard}>
-                  <div className={styles.complexityBadge}>Simple</div>
-                  <strong>Single online channel</strong>
-                  <p>One channel, one warehouse. The simplest setup. Great for selling through Fever Marketplace only.</p>
-                </div>
-                <div className={styles.complexityCard}>
-                  <div className={styles.complexityBadge}>Medium</div>
-                  <strong>Multiple online channels</strong>
-                  <p>Several channels, each mapped to a warehouse. Requires choosing a price reference warehouse.</p>
-                </div>
-                <div className={styles.complexityCard}>
-                  <div className={styles.complexityBadge}>Advanced</div>
-                  <strong>Box Office + online</strong>
-                  <p>Combines onsite POS sales with online channels. Unlocks unlimited warehouses. POS devices are configured separately.</p>
-                </div>
-              </div>
-
-              <Link to="/products/sales-routing" className={styles.stepLink}>
-                Go to Sales Routing
-                <FontAwesomeIcon icon={faArrowRight} />
-              </Link>
+          <div className={styles.stepContent}>
+            <div className={styles.stepIntro}>
+              <h3 className={styles.stepHeading}>Sales Routings</h3>
+              <p className={styles.stepDescription}>
+                A sales routing tells Fever <em>how</em> products should be
+                sold at a specific event: which channels sell them and which
+                warehouses supply the stock. Each event has <strong>one
+                routing</strong>.
+              </p>
             </div>
-          </Card>
+
+            <h3 className={styles.substepGroupTitle}>The 5-step wizard</h3>
+            <div className={styles.wizardSteps}>
+              <div className={styles.wizardStep}>
+                <span className={styles.wizardStepNum}>1</span>
+                <div>
+                  <strong>Event</strong>
+                  <p>Pick the event where products will be sold.</p>
+                </div>
+              </div>
+              <div className={styles.wizardStep}>
+                <span className={styles.wizardStepNum}>2</span>
+                <div>
+                  <strong>Channels</strong>
+                  <p>Choose which sales channels to use (Box Office, Fever Marketplace, Whitelabel, etc.).</p>
+                </div>
+              </div>
+              <div className={styles.wizardStep}>
+                <span className={styles.wizardStepNum}>3</span>
+                <div>
+                  <strong>Warehouses</strong>
+                  <p>Select which warehouses supply stock. The number of warehouses you can select depends on the channels you chose.</p>
+                </div>
+              </div>
+              <div className={styles.wizardStep}>
+                <span className={styles.wizardStepNum}>4</span>
+                <div>
+                  <strong>Routing</strong>
+                  <p>Map each online channel to a warehouse and set the default product visibility (all visible or none visible).</p>
+                </div>
+              </div>
+              <div className={styles.wizardStep}>
+                <span className={styles.wizardStepNum}>5</span>
+                <div>
+                  <strong>Review</strong>
+                  <p>Review everything and set the routing status (Draft, Active, or Inactive).</p>
+                </div>
+              </div>
+            </div>
+
+            <h3 className={styles.substepGroupTitle}>Routing complexity levels</h3>
+            <div className={styles.complexityCards}>
+              <div className={styles.complexityCard}>
+                <div className={styles.complexityBadge}>Simple</div>
+                <strong>Single online channel</strong>
+                <p>One channel, one warehouse. The simplest setup. Great for selling through Fever Marketplace only.</p>
+              </div>
+              <div className={styles.complexityCard}>
+                <div className={styles.complexityBadge}>Medium</div>
+                <strong>Multiple online channels</strong>
+                <p>Several channels, each mapped to a warehouse. Requires choosing a price reference warehouse.</p>
+              </div>
+              <div className={styles.complexityCard}>
+                <div className={styles.complexityBadge}>Advanced</div>
+                <strong>Box Office + online</strong>
+                <p>Combines onsite POS sales with online channels. Unlocks unlimited warehouses. POS devices are configured separately.</p>
+              </div>
+            </div>
+
+            <Link to="/products/sales-routing" className={styles.stepLink}>
+              Go to Sales Routing
+              <FontAwesomeIcon icon={faArrowRight} />
+            </Link>
+          </div>
         </section>
 
         {/* Step 3 */}
@@ -364,71 +352,65 @@ export function GuidePage() {
             <h2 className={styles.stepTitle}>Configure Channel Visibility</h2>
           </div>
 
-          <Card>
-            <div className={styles.stepContent}>
-              <div className={styles.stepIntro}>
-                <div className={styles.stepIconWrapper}>
-                  <FontAwesomeIcon icon={faBullseye} />
-                </div>
-                <div>
-                  <p className={styles.stepDescription}>
-                    After creating a routing, you can fine-tune <em>which
-                    products</em> appear in each channel. This goes beyond
-                    warehouse-level routing and gives you per-product control.
-                  </p>
-                </div>
-              </div>
-
-              <div className={styles.tipBox}>
-                <FontAwesomeIcon icon={faInfoCircle} className={styles.tipIcon} />
-                <div>
-                  <strong>Design note:</strong> This page is inspired by the <em>Events &gt; Channels</em> section in the real Fever Zone, adapted for our product-sales use case. Key differences from the original:
-                  <ul style={{ margin: '8px 0 0', paddingLeft: '20px', lineHeight: '1.7' }}>
-                    <li><strong>No "Event ready for sale" banner</strong> &mdash; irrelevant here because only events with an active sales routing appear in this view. An event that isn't ready for sale wouldn't have a routing in the first place.</li>
-                    <li><strong>No Status toggle</strong> &mdash; activating or deactivating a channel is done in the event's own Channels section, not here. This page only controls <em>product visibility</em> within an already-active routing.</li>
-                    <li><strong>No "Edit" side-panel</strong> &mdash; in the real Fever Zone, clicking "Edit" opens a side panel to select ticket types. We use inline eye-icon toggles instead, which is more direct for per-product visibility control.</li>
-                    <li><strong>Channel type categories</strong> &mdash; channels are grouped into four types (Box Office, Marketplace, Kiosk, API) that match the Fever Zone filter categories.</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div className={styles.substeps}>
-                <div className={styles.substep}>
-                  <span className={styles.substepNumber}>a</span>
-                  <div>
-                    <strong>Select your event</strong>
-                    <p>Use the city and event selectors to load the channels for a specific sales routing.</p>
-                  </div>
-                </div>
-                <div className={styles.substep}>
-                  <span className={styles.substepNumber}>b</span>
-                  <div>
-                    <strong>Toggle product visibility</strong>
-                    <p>Click a channel, then use the eye icon to show or hide individual products. Changes are staged until you save.</p>
-                  </div>
-                </div>
-                <div className={styles.substep}>
-                  <span className={styles.substepNumber}>c</span>
-                  <div>
-                    <strong>Bulk edit across channels</strong>
-                    <p>Select multiple channels and click "Edit in bulk" to show or hide products across several channels at once.</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.tipBox}>
-                <FontAwesomeIcon icon={faLightbulb} className={styles.tipIcon} />
-                <div>
-                  <strong>Default visibility</strong> is set during sales routing creation (Step 2, Channel Routing). If you chose "All visible", every product starts visible and you can hide specific ones. If you chose "None visible", you add products manually.
-                </div>
-              </div>
-
-              <Link to="/products/channels" className={styles.stepLink}>
-                Go to Channels
-                <FontAwesomeIcon icon={faArrowRight} />
-              </Link>
+          <div className={styles.stepContent}>
+            <div className={styles.stepIntro}>
+              <h3 className={styles.stepHeading}>Channel Visibility</h3>
+              <p className={styles.stepDescription}>
+                After creating a routing, you can fine-tune <em>which
+                products</em> appear in each channel. This goes beyond
+                warehouse-level routing and gives you per-product control.
+              </p>
             </div>
-          </Card>
+
+            <div className={styles.tipBox}>
+              <FontAwesomeIcon icon={faInfoCircle} className={styles.tipIcon} />
+              <div>
+                <strong>Design note:</strong> This page is inspired by the <em>Events &gt; Channels</em> section in the real Fever Zone, adapted for our product-sales use case. Key differences from the original:
+                <ul style={{ margin: '8px 0 0', paddingLeft: '20px', lineHeight: '1.7' }}>
+                  <li><strong>No "Event ready for sale" banner</strong> &mdash; irrelevant here because only events with an active sales routing appear in this view. An event that isn't ready for sale wouldn't have a routing in the first place.</li>
+                  <li><strong>No Status toggle</strong> &mdash; activating or deactivating a channel is done in the event's own Channels section, not here. This page only controls <em>product visibility</em> within an already-active routing.</li>
+                  <li><strong>No "Edit" side-panel</strong> &mdash; in the real Fever Zone, clicking "Edit" opens a side panel to select ticket types. We use inline eye-icon toggles instead, which is more direct for per-product visibility control.</li>
+                  <li><strong>Channel type categories</strong> &mdash; channels are grouped into four types (Box Office, Marketplace, Kiosk, API) that match the Fever Zone filter categories.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className={styles.substeps}>
+              <div className={styles.substep}>
+                <span className={styles.substepNumber}>a</span>
+                <div>
+                  <strong>Select your event</strong>
+                  <p>Use the city dropdown and event dropdown to pick a routing, then click <strong>Show</strong> to load the channels for that event.</p>
+                </div>
+              </div>
+              <div className={styles.substep}>
+                <span className={styles.substepNumber}>b</span>
+                <div>
+                  <strong>Toggle product visibility</strong>
+                  <p>Click a channel, then use the eye icon to show or hide individual products. Changes are staged until you save.</p>
+                </div>
+              </div>
+              <div className={styles.substep}>
+                <span className={styles.substepNumber}>c</span>
+                <div>
+                  <strong>Bulk edit across channels</strong>
+                  <p>Select multiple channels and click "Edit in bulk" to show or hide products across several channels at once.</p>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.tipBox}>
+              <FontAwesomeIcon icon={faLightbulb} className={styles.tipIcon} />
+              <div>
+                <strong>Default visibility</strong> is set during sales routing creation (Step 2, Routing). If you chose "All visible", every product starts visible and you can hide specific ones. If you chose "None visible", you add products manually.
+              </div>
+            </div>
+
+            <Link to="/products/channels" className={styles.stepLink}>
+              Go to Channels
+              <FontAwesomeIcon icon={faArrowRight} />
+            </Link>
+          </div>
         </section>
 
         {/* Key Concepts */}
@@ -500,7 +482,7 @@ export function GuidePage() {
         {/* Tips & FAQ */}
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Tips &amp; FAQ</h2>
-          <Card>
+          <div className={styles.card}>
             <div className={styles.faqList}>
               <div className={styles.faqItem}>
                 <div className={styles.faqIcon}>
@@ -591,7 +573,7 @@ export function GuidePage() {
                 </div>
               </div>
             </div>
-          </Card>
+          </div>
         </section>
       </div>
     </>

@@ -5,11 +5,13 @@ import styles from './DesignPendingBanner.module.css';
 interface DesignPendingBannerProps {
   /** Optional custom message to display after the "Design pending" label */
   message?: string;
+  /** Use "inline" when placing inside a modal or contained element (removes outer margins) */
+  variant?: 'page' | 'inline';
 }
 
-export function DesignPendingBanner({ message }: DesignPendingBannerProps) {
+export function DesignPendingBanner({ message, variant = 'page' }: DesignPendingBannerProps) {
   return (
-    <div className={styles.banner}>
+    <div className={`${styles.banner} ${variant === 'inline' ? styles.inline : ''}`}>
       <FontAwesomeIcon icon={faPencilRuler} className={styles.icon} />
       <span className={styles.text}>
         <span className={styles.label}>Design pending</span>

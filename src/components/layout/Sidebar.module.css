@@ -161,3 +161,16 @@
   justify-content: center;
   padding: 10px;
 }
+
+/* Submenu badge (e.g. "Squad" on Guide) */
+.badge {
+  margin-left: auto;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 16px;
+  border-radius: 4px;
+  background: rgba(255, 140, 0, 0.2);
+  color: #FF8C00;
+  white-space: nowrap;
+}

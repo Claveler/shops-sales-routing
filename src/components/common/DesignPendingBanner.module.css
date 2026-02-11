@@ -25,3 +25,11 @@
 .label {
   font-weight: var(--fz-font-weight-semibold);
 }
+
+/* Inline variant — for modals and contained elements */
+.inline {
+  margin: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
