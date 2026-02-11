@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faEdit,
   faPlus,
   faExclamationTriangle,
   faImage,
