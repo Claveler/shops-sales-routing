@@ -71,11 +71,7 @@ export function FilterSidePanel({
     onClose();
   };
 
-  // Build "Apply filters" label
-  const applyLabel =
-    resultCount !== undefined
-      ? `Apply filters (See ${resultCount} results)`
-      : 'Apply filters';
+  const applyLabel = 'Apply filters';
 
   return createPortal(
     <>

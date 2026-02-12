@@ -39,9 +39,6 @@ export function SyncingProductsModal({ isOpen, onDismiss }: SyncingProductsModal
 
         {/* Footer */}
         <div className={styles.footer}>
-          <Button variant="outline" size="lg" disabled>
-            Cancel
-          </Button>
           <Button variant="primary" size="lg" onClick={onDismiss}>
             Continue
           </Button>

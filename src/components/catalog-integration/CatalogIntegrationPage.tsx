@@ -44,7 +44,7 @@ export function CatalogIntegrationPage() {
           { label: 'Products', path: '/products' },
           { label: 'Catalog integration' }
         ]}
-        title="Catalog integration"
+        title="Catalog integrations"
       />
       <div className={integration ? styles.pageBody : styles.pageBodyEmpty}>
         {integration ? (
