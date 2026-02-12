@@ -747,7 +747,6 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
         categoryFilter={categoryFilter}
         setCategoryFilter={setCategoryFilter}
         categoryOptions={availableCategories.map(cat => ({ value: cat.id, label: cat.name }))}
-        resultCount={filteredProducts.length}
         hasSalesRouting={hasSalesRouting}
       />
     </div>

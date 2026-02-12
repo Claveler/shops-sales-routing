@@ -26,7 +26,6 @@ interface FilterSidePanelProps {
   categoryFilter: string;
   setCategoryFilter: (value: string) => void;
   categoryOptions: FilterOption[];
-  resultCount?: number;
   hasSalesRouting?: boolean;
 }
 
@@ -47,7 +46,6 @@ export function FilterSidePanel({
   categoryFilter,
   setCategoryFilter,
   categoryOptions,
-  resultCount,
   hasSalesRouting = true,
 }: FilterSidePanelProps) {
   const [alertDismissed, setAlertDismissed] = useState(false);
