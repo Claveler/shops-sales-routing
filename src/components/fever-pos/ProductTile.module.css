@@ -139,3 +139,45 @@
   font-size: 16px;
   color: var(--fz-text-secondary, #536b75);
 }
+
+/* ---- Member pricing badge (top-right corner triangle) ---- */
+.memberBadge {
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 40px;
+  height: 40px;
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  background: #FFF3D6;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  z-index: 1;
+}
+
+.memberBadgeIcon {
+  font-size: 12px;
+  color: var(--fz-warning-500, #FF8C00);
+  margin-top: 4px;
+  margin-right: 4px;
+}
+
+/* ---- Member pricing row (strikethrough + discounted price) ---- */
+.memberPriceRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.originalPrice {
+  font: 400 10px / 14px var(--fz-font-family, 'Montserrat', sans-serif);
+  color: var(--fz-text-secondary, #536b75);
+  text-decoration: line-through;
+  white-space: nowrap;
+}
+
+.memberPrice {
+  font: 600 12px / 16px var(--fz-font-family, 'Montserrat', sans-serif);
+  color: var(--fz-text-primary, #031419);
+  white-space: nowrap;
+}

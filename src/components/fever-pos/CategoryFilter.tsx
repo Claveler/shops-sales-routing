@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faChevronRight, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faChevronRight, faCrown, faHouse } from '@fortawesome/free-solid-svg-icons';
 import type { Category } from '../../data/feverPosData';
 import styles from './CategoryFilter.module.css';
 
@@ -18,6 +18,7 @@ interface CategoryFilterProps {
   onBreadcrumbClick?: (id: string) => void;
   onHomeClick?: () => void;
   isHomeDisabled?: boolean;
+  isMemberActive?: boolean;
 }
 
 export function CategoryFilter({
@@ -30,6 +31,7 @@ export function CategoryFilter({
   onBreadcrumbClick,
   onHomeClick,
   isHomeDisabled = true,
+  isMemberActive = false,
 }: CategoryFilterProps) {
   return (
     <div className={styles.filterBar}>
@@ -73,6 +75,9 @@ export function CategoryFilter({
                 type="button"
               >
                 {cat.name}
+                {isMemberActive && cat.hasMemberPricing && (
+                  <FontAwesomeIcon icon={faCrown} className={styles.chipCrown} />
+                )}
               </button>
             ))}
           </div>

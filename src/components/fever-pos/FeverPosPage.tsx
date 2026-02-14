@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faMagnifyingGlass, faTabletScreenButton } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faMagnifyingGlass, faTabletScreenButton, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
 import iminDeviceImg from '../../assets/imin-swan-1-pro-3d.webp';
 import { FeverPosHeader } from './FeverPosHeader';
@@ -17,10 +17,12 @@ import {
   getProductsByCategory,
   initialCartEvents,
   DEFAULT_EVENT_THUMBNAIL_URL,
+  eventTicketCatalogs,
 } from '../../data/feverPosData';
 import { getEventById } from '../../data/mockData';
 import type { Product, CartEventGroup } from '../../data/feverPosData';
 import { EventSelectionModal } from './EventSelectionModal';
+import { MemberIdentifyModal } from './MemberIdentifyModal';
 import styles from './FeverPosPage.module.css';
 
 /**
@@ -49,6 +51,16 @@ export function FeverPosPage() {
   // Device preview state (iMin Swan 1 Pro: 1397×786 dp)
   const [isDevicePreview, setIsDevicePreview] = useState(false);
   const handleToggleDevicePreview = useCallback(() => setIsDevicePreview((prev) => !prev), []);
+
+  // Preload the device frame image so it's cached before the user enters preview
+  const [deviceImageLoaded, setDeviceImageLoaded] = useState(false);
+  const handleDeviceImageLoad = useCallback(() => setDeviceImageLoaded(true), []);
+
+  useEffect(() => {
+    const img = new Image();
+    img.src = iminDeviceImg;
+    img.onload = () => setDeviceImageLoaded(true);
+  }, []);
 
   // Scale the device frame to fit within the browser viewport
   const TABLET_OUTER_W = 7680; // 3D image width
@@ -87,6 +99,79 @@ export function FeverPosPage() {
   const [selectedEventId, setSelectedEventId] = useState('');
   const [pendingEventId, setPendingEventId] = useState('');
   const [eventPickerCity, setEventPickerCity] = useState('');
+
+  // Member identification state
+  const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
+  const [identifiedMember, setIdentifiedMember] = useState<{ id: string; name: string } | null>(null);
+
+  const isMemberActive = identifiedMember !== null;
+
+  // Warehouse data needed for member pricing on gift shop products
+  const productWarehouses = demo.getProductWarehouses();
+
+  const handleOpenMemberModal = useCallback(() => setIsMemberModalOpen(true), []);
+  const handleCloseMemberModal = useCallback(() => setIsMemberModalOpen(false), []);
+
+  // Build a lookup map for member prices from all available product sources
+  const memberPriceLookup = useMemo(() => {
+    const map = new Map<string, number>();
+    // Ticket products from all event catalogs
+    for (const catalog of Object.values(eventTicketCatalogs)) {
+      for (const p of catalog.products) {
+        if (p.memberPrice != null) map.set(p.id, p.memberPrice);
+      }
+    }
+    return map;
+  }, []);
+
+  const handleIdentifyMember = useCallback((member: { id: string; name: string }) => {
+    setIdentifiedMember(member);
+    setIsMemberModalOpen(false);
+
+    // Apply member pricing to existing cart items
+    setCartEvents((prev) =>
+      prev.map((group) => ({
+        ...group,
+        items: group.items.map((item) => {
+          const mp = memberPriceLookup.get(item.productId);
+          if (mp != null && item.originalPrice == null) {
+            return { ...item, originalPrice: item.price, price: mp };
+          }
+          return item;
+        }),
+        retailItems: group.retailItems.map((item) => {
+          // Gift shop products: look up memberPrice from warehouse data
+          const warehouseEntry = productWarehouses.find((pw) => pw.productId === item.productId);
+          const mp = warehouseEntry?.memberPrice;
+          if (mp != null && item.originalPrice == null) {
+            return { ...item, originalPrice: item.price, price: mp };
+          }
+          return item;
+        }),
+      }))
+    );
+  }, [memberPriceLookup, productWarehouses]);
+
+  const handleClearMember = useCallback(() => {
+    setIdentifiedMember(null);
+
+    // Revert member pricing on all cart items
+    setCartEvents((prev) =>
+      prev.map((group) => ({
+        ...group,
+        items: group.items.map((item) =>
+          item.originalPrice != null
+            ? { ...item, price: item.originalPrice, originalPrice: undefined }
+            : item
+        ),
+        retailItems: group.retailItems.map((item) =>
+          item.originalPrice != null
+            ? { ...item, price: item.originalPrice, originalPrice: undefined }
+            : item
+        ),
+      }))
+    );
+  }, []);
 
   const salesRoutingEvents = useMemo(() => {
     const uniqueEventIds = Array.from(new Set(demo.getSalesRoutings().map((routing) => routing.eventId)));
@@ -133,7 +218,16 @@ export function FeverPosPage() {
     () => getTicketProductsForEvent(ticketsEventId),
     [ticketsEventId]
   );
-  const categories = activeTab === 'tickets' ? ticketCategories : topLevelGiftShopCategories;
+  const ticketCategoriesWithMember = useMemo(
+    () =>
+      ticketCategories.map((cat) => ({
+        ...cat,
+        hasMemberPricing: ticketProducts.some(
+          (p) => p.categoryId === cat.id && p.memberPrice != null
+        ),
+      })),
+    [ticketCategories, ticketProducts]
+  );
 
   // When switching tabs, reset to first category
   const handleTabChange = useCallback((tab: PosTab) => {
@@ -202,7 +296,6 @@ export function FeverPosPage() {
   const hierarchyElements = demo.getHierarchyElements();
   const hierarchyElementProducts = demo.getHierarchyElementProducts();
   const catalogProducts = demo.getProducts();
-  const productWarehouses = demo.getProductWarehouses();
 
   const currentGiftShopCategoryId = giftShopPathIds[giftShopPathIds.length - 1] ?? activeCategoryId;
   const childGiftShopCategories = useMemo(
@@ -223,6 +316,7 @@ export function FeverPosPage() {
           id: product.id,
           name: product.name,
           price: warehouseEntry?.price ?? 0,
+          memberPrice: warehouseEntry?.memberPrice,
           type: 'retail' as const,
           categoryId: currentGiftShopCategoryId,
           imageUrl: product.imageUrl,
@@ -231,17 +325,51 @@ export function FeverPosPage() {
       });
   }, [hierarchyElementProducts, currentGiftShopCategoryId, catalogProducts, productWarehouses]);
 
+  // Check whether a hierarchy category (or its descendants) contains any
+  // product with member pricing, so we can show a crown on the folder tile.
+  const categoryHasMemberPricing = useCallback(
+    (categoryId: string): boolean => {
+      // Direct products in this category
+      const directProductIds = hierarchyElementProducts
+        .filter((link) => link.hierarchyElementId === categoryId)
+        .map((link) => link.productId);
+
+      const hasDirect = directProductIds.some((pid) => {
+        const pw = productWarehouses.find((w) => w.productId === pid);
+        return pw?.memberPrice != null;
+      });
+      if (hasDirect) return true;
+
+      // Recurse into child categories
+      const children = hierarchyElements.filter((he) => he.parentId === categoryId);
+      return children.some((child) => categoryHasMemberPricing(child.id));
+    },
+    [hierarchyElements, hierarchyElementProducts, productWarehouses]
+  );
+
+  const topLevelGiftShopCategoriesWithMember = useMemo(
+    () =>
+      topLevelGiftShopCategories.map((cat) => ({
+        ...cat,
+        hasMemberPricing: categoryHasMemberPricing(cat.id),
+      })),
+    [topLevelGiftShopCategories, categoryHasMemberPricing]
+  );
+
+  const categories = activeTab === 'tickets' ? ticketCategoriesWithMember : topLevelGiftShopCategoriesWithMember;
+
   const giftShopCategoryTiles = useMemo(
     () =>
       childGiftShopCategories.map((category) => ({
         id: `cat-${category.id}`,
         name: category.name,
         price: 0,
+        memberPrice: categoryHasMemberPricing(category.id) ? 0 : undefined,
         type: 'retail' as const,
         categoryId: category.id,
         tab: 'shop' as const,
       })),
-    [childGiftShopCategories]
+    [childGiftShopCategories, categoryHasMemberPricing]
   );
 
   const giftShopProducts = useMemo(
@@ -297,6 +425,10 @@ export function FeverPosPage() {
 
       const targetGroup = updatedGroups[groupIndex];
 
+      // Determine effective price: use member price when member is active and eligible
+      const useMemberPrice = identifiedMember != null && product.memberPrice != null;
+      const effectivePrice = useMemberPrice ? product.memberPrice! : product.price;
+
       if (isTicketOrAddon) {
         const existingItem = targetGroup.items.find((i) => i.productId === product.id);
         if (existingItem) {
@@ -306,8 +438,8 @@ export function FeverPosPage() {
             id: `ci-${Date.now()}`,
             productId: product.id,
             name: product.name,
-            price: product.price,
-            originalPrice: product.originalPrice,
+            price: effectivePrice,
+            originalPrice: useMemberPrice ? product.price : undefined,
             quantity: 1,
             bookingFee: 0.60,
           });
@@ -321,8 +453,8 @@ export function FeverPosPage() {
             id: `cp-${Date.now()}`,
             productId: product.id,
             name: product.name,
-            price: product.price,
-            originalPrice: product.originalPrice,
+            price: effectivePrice,
+            originalPrice: useMemberPrice ? product.price : undefined,
             quantity: 1,
           });
         }
@@ -331,7 +463,7 @@ export function FeverPosPage() {
       targetGroup.isExpanded = true;
       return updatedGroups;
     });
-  }, [activeSelectedEvent, boxOfficeEvent]);
+  }, [activeSelectedEvent, boxOfficeEvent, identifiedMember]);
 
   const handleOpenEventSelector = useCallback(() => {
     if (salesRoutingEvents.length === 0) return;
@@ -488,9 +620,24 @@ export function FeverPosPage() {
               onEditEvent={handleOpenEventSelector}
             />
             <div className={styles.actions}>
-              <button className={styles.actionBtn} type="button" aria-label="Contacts">
-                <FontAwesomeIcon icon={faAddressCard} />
-              </button>
+              {identifiedMember ? (
+                <div className={styles.memberPill} role="button" tabIndex={0} onClick={handleOpenMemberModal}>
+                  <FontAwesomeIcon icon={faAddressCard} className={styles.memberPillIcon} />
+                  <span className={styles.memberPillName}>{identifiedMember.name}</span>
+                  <button
+                    type="button"
+                    className={styles.memberPillClose}
+                    aria-label="Clear member"
+                    onClick={(e) => { e.stopPropagation(); handleClearMember(); }}
+                  >
+                    <FontAwesomeIcon icon={faXmark} />
+                  </button>
+                </div>
+              ) : (
+                <button className={styles.actionBtn} type="button" aria-label="Identify member" onClick={handleOpenMemberModal}>
+                  <FontAwesomeIcon icon={faAddressCard} />
+                </button>
+              )}
               <button className={styles.actionBtn} type="button" aria-label="Search">
                 <FontAwesomeIcon icon={faMagnifyingGlass} />
               </button>
@@ -498,7 +645,7 @@ export function FeverPosPage() {
           </div>
 
           {/* Content area */}
-          <div className={styles.content}>
+          <div className={`${styles.content} ${activeTab === 'tickets' ? styles.contentFirstTab : ''}`}>
             <div className={styles.contentInner}>
               {/* Category filters */}
               <CategoryFilter
@@ -511,12 +658,14 @@ export function FeverPosPage() {
                 onBreadcrumbClick={handleBreadcrumbClick}
                 onHomeClick={handleHomeClick}
                 isHomeDisabled={!showTopBreadcrumbs}
+                isMemberActive={isMemberActive}
               />
 
               {/* Product grid */}
               <ProductGrid
                 products={filteredProducts}
                 onProductClick={handleAddToCart}
+                isMemberActive={isMemberActive}
               />
 
             </div>
@@ -532,6 +681,7 @@ export function FeverPosPage() {
           onDecrementItem={handleDecrementItem}
           onRemoveItem={handleRemoveItem}
           onClearAll={handleClearAll}
+          isMemberActive={isMemberActive}
         />
       </div>
 
@@ -544,6 +694,12 @@ export function FeverPosPage() {
         onSelectCity={handleSelectEventCity}
         onSelectEvent={handleSelectEventAndApply}
         onClose={handleCloseEventSelector}
+      />
+
+      <MemberIdentifyModal
+        isOpen={isMemberModalOpen}
+        onIdentify={handleIdentifyMember}
+        onClose={handleCloseMemberModal}
       />
     </div>
   );
@@ -565,19 +721,27 @@ export function FeverPosPage() {
       </button>
 
       <div ref={backdropRef} className={styles.devicePreviewBackdrop}>
-        <div className={styles.deviceFrame} style={tabletStyle}>
-          <img
-            src={iminDeviceImg}
-            alt="iMin Swan 1 Pro"
-            className={styles.deviceImage}
-            draggable={false}
-          />
-          <div className={styles.deviceScreen}>
-            {pageContent}
-            <div className={styles.deviceScreenDofOverlay} />
-            <div className={styles.deviceScreenGlare} />
+        {!deviceImageLoaded ? (
+          <div className={styles.devicePreviewLoading}>
+            <FontAwesomeIcon icon={faTabletScreenButton} spin />
+            <span>Loading device…</span>
           </div>
-        </div>
+        ) : (
+          <div className={`${styles.deviceFrame} ${styles.deviceFrameReady}`} style={tabletStyle}>
+            <img
+              src={iminDeviceImg}
+              alt="iMin Swan 1 Pro"
+              className={styles.deviceImage}
+              draggable={false}
+              onLoad={handleDeviceImageLoad}
+            />
+            <div className={styles.deviceScreen}>
+              {pageContent}
+              <div className={styles.deviceScreenDofOverlay} />
+              <div className={styles.deviceScreenGlare} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

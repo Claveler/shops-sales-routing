@@ -73,6 +73,12 @@
   color: var(--fz-primary-600, #0079CA);
 }
 
+.chipCrown {
+  font-size: 10px;
+  color: var(--fz-warning-500, #FF8C00);
+  margin-left: 4px;
+}
+
 .clearButton {
   display: flex;
   align-items: center;

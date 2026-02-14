@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTicket, faCartPlus, faFolderOpen } from '@fortawesome/free-solid-svg-icons';
+import { faTicket, faCartPlus, faBoxesStacked, faGift, faCrown } from '@fortawesome/free-solid-svg-icons';
 import type { Product } from '../../data/feverPosData';
 import { formatPrice } from '../../data/feverPosData';
 import styles from './ProductTile.module.css';
@@ -7,6 +7,7 @@ import styles from './ProductTile.module.css';
 interface ProductTileProps {
   product: Product;
   onClick: (product: Product) => void;
+  isMemberActive?: boolean;
 }
 
 /**
@@ -27,16 +28,18 @@ function getTypeIcon(type: Product['type']) {
     case 'ticket':
       return faTicket;
     case 'addon':
+      return faCartPlus;
     case 'food':
     case 'retail':
-      return faCartPlus;
+      return faGift;
   }
 }
 
-export function ProductTile({ product, onClick }: ProductTileProps) {
+export function ProductTile({ product, onClick, isMemberActive }: ProductTileProps) {
   const isCategoryTile = product.id.startsWith('cat-');
   const stripeColor = isCategoryTile ? '#AE92ED' : TYPE_STRIPE_DEFAULTS[product.type];
   const hasImage = product.type === 'addon' && product.imageUrl;
+  const hasMemberPrice = isMemberActive && product.memberPrice != null;
 
   return (
     <button
@@ -49,6 +52,13 @@ export function ProductTile({ product, onClick }: ProductTileProps) {
         className={styles.categoryStripe}
         style={{ backgroundColor: stripeColor }}
       />
+
+      {/* Crown badge — top-right corner triangle */}
+      {hasMemberPrice && (
+        <div className={styles.memberBadge} aria-hidden="true">
+          <FontAwesomeIcon icon={faCrown} className={styles.memberBadgeIcon} />
+        </div>
+      )}
 
       {/* Main content */}
       <div className={styles.tileMain}>
@@ -67,11 +77,18 @@ export function ProductTile({ product, onClick }: ProductTileProps) {
         {/* Bottom: price + type icon */}
         <div className={styles.tileBottom}>
           <div className={styles.bottomLead}>
-            {!isCategoryTile && <span className={styles.tilePrice}>{formatPrice(product.price)}</span>}
+            {!isCategoryTile && hasMemberPrice ? (
+              <div className={styles.memberPriceRow}>
+                <span className={styles.originalPrice}>{formatPrice(product.price)}</span>
+                <span className={styles.memberPrice}>{formatPrice(product.memberPrice!)}</span>
+              </div>
+            ) : (
+              !isCategoryTile && <span className={styles.tilePrice}>{formatPrice(product.price)}</span>
+            )}
           </div>
           <div className={styles.bottomTrail}>
             <FontAwesomeIcon
-              icon={isCategoryTile ? faFolderOpen : getTypeIcon(product.type)}
+              icon={isCategoryTile ? faBoxesStacked : getTypeIcon(product.type)}
               className={styles.categoryIcon}
             />
           </div>

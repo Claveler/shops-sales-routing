@@ -1,0 +1,197 @@
+/* ---- Overlay ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 35, 44, 0.72);
+}
+
+/* ---- Modal card ---- */
+.modal {
+  width: min(480px, 100%);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: 0 24px 24px rgba(0, 70, 121, 0.2);
+  padding: 24px;
+  position: relative;
+}
+
+/* ---- Header ---- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 32px;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #031419;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.closeButton {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #031419;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 64px;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* ---- Divider below header ---- */
+.divider {
+  height: 1px;
+  background: #CCD2D8;
+  margin-top: 16px;
+  flex-shrink: 0;
+}
+
+/* ---- Content ---- */
+.content {
+  padding-top: 16px;
+}
+
+/* ---- Grey block ---- */
+.block {
+  background: #FAFBFB;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- Instruction row ---- */
+.instruction {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.instructionIcon {
+  font-size: 14px;
+  color: #536B75;
+  flex-shrink: 0;
+}
+
+.instructionText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 18px;
+  font-weight: 600;
+  color: #536B75;
+}
+
+/* ---- Input field with floating label ---- */
+.fieldWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.field {
+  width: 100%;
+  height: 56px;
+  padding: 22px 44px 6px 12px;
+  border: 1px solid #CCD2D8;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: #031419;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.field:focus {
+  border-color: #0079CA;
+}
+
+.field::placeholder {
+  color: transparent;
+}
+
+.fieldLabel {
+  position: absolute;
+  left: 12px;
+  top: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: #536B75;
+  pointer-events: none;
+  transition: all 150ms ease-in-out;
+}
+
+/* When field is empty and not focused, make label act as placeholder */
+.field:placeholder-shown:not(:focus) + .fieldLabel {
+  top: 16px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+}
+
+.fieldIcon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: #031419;
+  pointer-events: none;
+}
+
+/* ---- Fill Demo Button ---- */
+.fillDemoBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+.fillDemoBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.fillDemoBtn:active {
+  transform: translateY(0);
+}

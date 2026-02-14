@@ -57,6 +57,10 @@ The Fever POS is designed for the **iMin Swan 1 Pro** dual-screen device:
 
 The customer-facing display (second screen) is planned for a future phase. After the initial launch, the UI will be optimized for mobile devices (Adyen mobile POS, iMin handheld validation devices).
 
+### Device Preview Simulation
+
+The POS includes a browser-based device preview that renders the full POS UI inside a 3D photo of the iMin Swan 1 Pro. The device frame image (7680 x 4320 `.webp`) is eagerly preloaded on page mount so it is typically cached before the user enters preview mode. If the image has not finished loading when the user toggles into device preview, a lightweight loading indicator is shown in place of the device frame. Once the image is ready, the device frame fades in (0.4 s ease-out) to avoid a jarring pop-in of content before the frame appears.
+
 ---
 
 ## 4. Page Layout
@@ -69,7 +73,7 @@ The Fever POS is a full-screen interface that renders **outside** the standard F
 |  [Hamburger] [fever ZONE]     [Date/Time] [Start Shift] [User] |
 +-------------------------------------------------------+
 |  Main Content Area                    |  Cart Panel    |
-|  +--------------------------------+   |  (400px)       |
+|  +--------------------------------+   |  (400px/28.6vw)|
 |  | Navigation Tabs                |   |                |
 |  | [Event Name] [Meals] [Shop]   |   |  Cart          |
 |  +--------------------------------+   |  Clear all     |
@@ -100,7 +104,7 @@ The Fever POS is a full-screen interface that renders **outside** the standard F
 Occupies all horizontal space left of the cart panel. Contains:
 
 - **Navigation Tabs** at the top
-- **Folder-like tab connection**: the active event tab is visually connected to the content panel below (shared border seam), creating a folder-style container
+- **Folder-like tab connection**: the active tab is visually connected to the content panel below, creating a folder-style container. The content panel has its own top border; the active tab has `margin-bottom: -1px` to overlap it and a white `border-bottom` to cover the content's grey border beneath it, producing a seamless folder cut-out effect. When the first tab is active, the content panel's top-left corner is square (flush with the tab); otherwise all top corners are rounded
 - **Folder frame spacing**: the connected tab+panel block is inset with horizontal and bottom padding so it does not touch the outer viewport/container edges
 - **Background palette**: page background `#F8F9F9`; folder surface (active tab + panel) `#FFFFFF`
 - **Tab sizing model**: only the event tab uses the expanded active width; `Meal Deals` and `Shop` keep compact active widths
@@ -119,7 +123,11 @@ Occupies all horizontal space left of the cart panel. Contains:
 
 ### Cart Panel
 
-- Fixed width: 400px
+- **Viewport-dependent width** (mirrors live Fever Zone POS sizing):
+  - Below 1397px: fixed at 400px (`min-width` + `max-width` lock)
+  - At 1397px and above: `28.633vw` (`400 / 1397 × 100`), scaling proportionally with the viewport
+  - The `28.633vw` value equals exactly 400px at the 1397px breakpoint, creating a seamless transition
+- `flex: 0 0 auto` — the cart never grows or shrinks from flex distribution; the main content area absorbs all remaining space
 - Right side of the viewport
 - Separated from main content by a left border
 - Contains: cart header, scrollable item list, sticky footer with totals and payment buttons
@@ -368,16 +376,23 @@ The cart panel occupies the right side of the POS interface.
 - **Empty state**: centered receipt icon in a 60px area + text "The cart is empty" in subtle `18px/24px` heading style with 16px icon/text gap; the cart header ("Cart" title and "Clear all" button) is hidden when the cart is empty
 - **Shadow**: left-side shadow `-2px 0 5px rgba(167,178,186,0.5)` on the cart panel
 
+### Tickets vs Products: Different Routing Rules
+
+A fundamental distinction governs how items reach the POS:
+
+- **Tickets** are not physical goods. They do not require a sales routing, warehouse, or inventory. The POS can sell tickets to **any event** in the system -- the staff member simply selects the event from the event selector and sells tickets for it. Ticket availability is independent of which sales routing is configured for the Box Office.
+- **Products** (retail, F&B, merchandise) are physical inventory items. They are only available at the POS if a **sales routing** has been created that maps them to the Box Office channel. In the Box Office Setup screen, the operator selects which sales routing (and therefore which event's product catalog) the POS device will use. Since sales routings map 1:1 to events, we refer to the configured routing by its event name (e.g., "the Box Office is configured with the Taylor Swift event").
+
 ### Smart Event Grouping
 
-Cart items are grouped by event, but tickets and retail products follow different routing rules:
+Cart items are grouped by event, but tickets and products follow different grouping rules:
 
-- **Tickets & add-ons**: grouped under whichever event the user is currently selling tickets for (the active ticket event selector choice). Changing the ticket event changes which group new tickets land in.
-- **Retail / gift-shop products**: **always** grouped under the **Box Office event** -- the single event whose sales routing was used to configure this POS device. Changing the ticket event selector does NOT change where retail products are grouped. This is because the Box Office setup is configured against one sales routing, and that routing determines which retail products are available at this POS.
+- **Tickets & add-ons**: grouped under whichever event the user is currently selling tickets for (the active ticket event selector choice). The POS can sell tickets for multiple events in the same transaction. Changing the ticket event selector changes which group new tickets land in.
+- **Retail / gift-shop products**: **always** grouped under the **Box Office event** -- the single event whose sales routing was used to configure this POS device. Changing the ticket event selector does NOT change where retail products are grouped, because the product catalog comes from the Box Office setup, not the ticket event selector.
 - **Single-event mode**: when only one event exists in the cart, event subsection headers are suppressed entirely; items are shown flat with just the time-slot header and optional products sub-section
 - **Multi-event mode**: each event gets a collapsible card with its own header (thumbnail, name, location, delete, chevron)
 
-> **Example**: The Box Office is configured for the Taylor Swift event (`evt-001`). A staff member sells Taylor Swift tickets, then switches to Van Gogh tickets. If they also add a T-shirt from the Gift Shop, that T-shirt goes into the Taylor Swift cart group (the Box Office event), not the Van Gogh group.
+> **Example**: The Box Office is configured with the Taylor Swift event (`evt-001`) as its product source. A staff member sells 2x Zone A Tickets for Taylor Swift, then switches the event selector to Van Gogh and sells 1x Standard Adult Entry. They also add a Navy T-Shirt from the Gift Shop. The cart now shows two event groups: Taylor Swift (with tickets + the T-shirt) and Van Gogh (with tickets only). The T-shirt is in the Taylor Swift group because that's the Box Office event whose sales routing provides the product catalog -- not because it's related to the Taylor Swift event specifically.
 
 ### Event Group Card (multi-event mode)
 
@@ -397,7 +412,7 @@ Cart items are grouped by event, but tickets and retail products follow differen
 
 - **Card**: `background: #FFFFFF`, `border: 1px solid #CCD2D8`, `border-radius: 8px`, `padding: 8px`
 - **Item name**: `12px` regular weight, max 2 lines with ellipsis
-- **Price row**: original price `10px` regular `#536B75` with strikethrough, current price `12px` semibold, optional crown icon `12px` `#FFA639`
+- **Price row**: current price `12px` semibold
 - **Booking fee**: `10px` regular `#536B75`
 
 ### Quantity Controls (Pill Counter)
@@ -410,6 +425,16 @@ The quantity control is a **pill-shaped capsule** containing both action buttons
   - **Quantity >= 2**: minus icon, `background: #0079CA`, white icon -- decrements quantity
 - **Count text**: centered, `16px` regular, `color: #536B75`
 - **Right button** (plus): 40x40 circle, `background: #0079CA`, white icon -- increments quantity
+
+### Member Identify Modal
+
+The cart header includes an **Identify member** action button (address-card icon). Tapping it opens a centered modal:
+
+- **Header**: "Identify member" title + close (×) button
+- **Instruction row**: address-card icon + "Scan the QR code or enter the ID manually"
+- **Input field**: floating-label text input ("Member ID") with a crosshairs icon
+- **Demo prefill button**: a purple-gradient "Enter demo member" button (magic-wand icon) that immediately identifies demo member **Anderson Collingwood** (ID `7261322`) without requiring manual input. This button uses the same `fillDemoBtn` visual style (purple gradient, white text, wand icon) as the demo prefill buttons in the Sales Routing wizard.
+- **Behavior**: on successful identification the modal closes and the header shows the member's name in a badge; tapping the badge's × clears the member
 
 ### Footer
 
@@ -427,6 +452,22 @@ The quantity control is a **pill-shaped capsule** containing both action buttons
 
 ## 9. Category System
 
+### Terminology: Explode Pipes vs Category Tiles
+
+The POS uses two distinct category navigation mechanisms. These are separate UI elements and should not be confused:
+
+- **Explode pipes** are the **first-level category chip buttons** in the top filter bar. They appear as compact pill-shaped chips (e.g., "General Admission", "VIP Experience" on the Tickets tab; "Apparel", "Art & Prints", "Music" on the Gift Shop tab). Explode pipes are always visible at the root navigation level and are replaced by breadcrumbs when the user drills into nested categories (Gift Shop only).
+- **Category tiles** are **second-level and deeper folder tiles** in the product grid. They appear as full-sized tiles with a purple left stripe (`#AE92ED`) and a stacked-boxes icon. Clicking a category tile navigates deeper into the hierarchy. Category tiles are only present in the Gift Shop tab.
+
+### Member Pricing Crown Indicators
+
+When a member is identified, both explode pipes and category tiles display a **crown icon** if the category (or any of its descendant categories/products) contains products with member pricing:
+
+- **Explode pipe chips**: a small orange crown icon (`#FF8C00`, 10px) appears inline after the category name
+- **Category tiles**: a triangular corner badge (top-right, light yellow `#FFF3D6` background) with an orange crown icon
+
+This aids discovery by letting staff quickly see which categories contain member-priced products without having to drill into each one.
+
 ### Navigable Categories (Retail Tab)
 
 Products in the Retail tab are organized into a navigable category tree imported from the external inventory system (Square). The hierarchy is displayed via:
@@ -443,7 +484,7 @@ Products in the Retail tab are organized into a navigable category tree imported
 | CSS class | `tile--product tile--parent` | `tile--product` |
 | Click action | Navigate into category | Add to cart |
 | Price shown | No | Yes |
-| Icon | Category grid icon | Cart-plus icon |
+| Icon | Stacked-boxes icon (bottom-right) | Gift icon (retail/food), Cart-plus icon (add-ons) |
 
 ### Tickets & Add-Ons Categories
 
@@ -508,7 +549,7 @@ Planned enhancements beyond the current scope:
 - **E-commerce Enablement**: Make inventory-managed products available in online purchase flows (marketplace, whitelabel)
 - **Mobile UI**: Optimize for Adyen mobile POS and iMin handheld validation devices
 - **Customer Facing Display**: Use the iMin Swan 1 Pro dual-screen hardware for a customer-facing display showing the cart, pricing, booking questions, and donations
-- **Memberships Integration**: Allow customers to claim perks on all purchases and log transactions against member profiles
+- **Memberships Integration**: Allow customers to claim perks on all purchases and log transactions against member profiles. This will introduce member pricing (strikethrough original price + discounted price) and a premium indicator (crown icon) on cart items for members. The **Identify member** modal is already implemented (see §8, Cart Panel header) and includes a demo prefill button for quick testing
 - **Gift Card Sales & Redemption**: Enable sale and redemption of physical and digital gift cards
 - **Refund/Exchange Flow**: Streamlined refund and exchange process for all product types
 - **Advanced Reporting**: Deeper analytics and business intelligence dashboards
@@ -529,7 +570,8 @@ Planned enhancements beyond the current scope:
 | **Tile** | A clickable product or category card in the POS grid |
 | **Session / Ticket** | A purchasable ticket type with a specific timeslot |
 | **Add-on** | An optional ticket-linked upgrade (priority access, flexible change, premium/experience upgrade); physical inventory is sold via Gift Shop |
-| **Category (Parent)** | A navigable category tile in the Retail tab (purple stripe) |
+| **Explode pipes** | First-level category chip buttons in the top filter bar (e.g., "General Admission", "VIP Experience", "Apparel"). Distinct from category tiles |
+| **Category tile** | A second-level or deeper navigable category tile in the Gift Shop grid (purple stripe). Distinct from explode pipes |
 | **Product (Leaf)** | A purchasable retail item tile (green stripe) |
 | **Stripe** | The 8px colored bar on the left edge of each tile indicating its type |
 | **Quick Picks** | A configurable favorites grid for frequently-sold items (touchscreen muscle memory) |

@@ -9,22 +9,26 @@ interface CartItemProps {
   onIncrement: (id: string) => void;
   onDecrement: (id: string) => void;
   onRemove: (id: string) => void;
+  isMemberActive?: boolean;
 }
 
-export function CartItem({ item, onIncrement, onDecrement, onRemove }: CartItemProps) {
+export function CartItem({ item, onIncrement, onDecrement, onRemove, isMemberActive }: CartItemProps) {
   const isOne = item.quantity <= 1;
+  const hasMemberDiscount = isMemberActive && item.originalPrice != null;
 
   return (
     <div className={styles.cartItem}>
       <div className={styles.itemInfo}>
         <p className={styles.itemName}>{item.name}</p>
         <div className={styles.priceRow}>
-          {item.originalPrice && (
-            <span className={styles.originalPrice}>{formatPrice(item.originalPrice)}</span>
-          )}
-          <span className={styles.price}>{formatPrice(item.price)}</span>
-          {item.isPremium && (
-            <FontAwesomeIcon icon={faCrown} className={styles.premiumIcon} />
+          {hasMemberDiscount ? (
+            <>
+              <span className={styles.originalPrice}>{formatPrice(item.originalPrice!)}</span>
+              <span className={styles.price}>{formatPrice(item.price)}</span>
+              <FontAwesomeIcon icon={faCrown} className={styles.crownIcon} />
+            </>
+          ) : (
+            <span className={styles.price}>{formatPrice(item.price)}</span>
           )}
         </div>
         {item.bookingFee !== undefined && item.bookingFee > 0 && (

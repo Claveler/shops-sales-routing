@@ -62,7 +62,9 @@ Represent physical product inventory locations. Each warehouse maps 1:1 to a loc
 
 ### Sales Routing (RetailPlan)
 
-Configuration that makes products available for sale at specific events through selected channels. **There is a 1:1 relationship between events and sales routings** -- each event can have at most one routing, and the routing is identified by the event name (no separate routing name).
+Configuration that makes **physical products** (retail, F&B, merchandise) available for sale at specific events through selected channels. **There is a 1:1 relationship between events and sales routings** -- each event can have at most one routing, and the routing is identified by the event name (no separate routing name).
+
+> **Important**: Sales routings govern **products only**, not tickets. Tickets are not physical inventory and do not require a sales routing, warehouse, or channel mapping. Tickets for any event can be sold at any POS regardless of which sales routing is configured. The sales routing determines which product catalog is available at the POS -- not which events can have their tickets sold.
 
 A Sales Routing combines:
 
@@ -89,7 +91,7 @@ Sales channels where products can be published:
 
 ### Box Office Setup
 
-Physical POS device configuration for onsite sales. Multiple setups can use the same sales routing but pull stock from different warehouses.
+Physical POS device configuration for onsite sales. The Box Office Setup selects which sales routing provides the **product catalog** for the POS device, determining which retail/F&B items are available in the Gift Shop tab. Multiple setups can use the same sales routing but pull stock from different warehouses. Ticket sales are independent of this configuration -- the POS can sell tickets for any event regardless of which sales routing is selected.
 
 ### Product Hierarchy (Categories)
 
@@ -211,7 +213,7 @@ Sales routings create **SessionTypes and Sessions** in Fever plans. Each Session
 - **Single online channel** keeps things simple: one warehouse serves as both the price source and stock source. No price reference needed, no channel routing decisions.
 - **Multiple online channels** unlock multi-warehouse selection, capped at the number of online channels (one warehouse per channel). This allows different channels to pull stock from different locations. Since multiple warehouses may have different prices, a price reference is required to unify pricing across all SessionTypes.
 - **Box Office (with or without online channels)** removes the warehouse cap entirely. Box Office is a physical POS channel where individual devices can pull from different stock locations (configured separately in Box Office Setup). This naturally requires unlimited warehouse access. Online channels in this scenario follow the same assignment rules.
-- In the Fever POS UX split, physical inventory is surfaced in the Gift Shop (retail) tab, while the Tickets & Add-Ons tab is reserved for ticket products and ticket-linked upgrades.
+- In the Fever POS UX split, physical inventory (governed by sales routings) is surfaced in the Gift Shop (retail) tab, while the Tickets & Add-Ons tab is reserved for ticket products and ticket-linked upgrades. Tickets do not flow through sales routings -- they can be sold for any event independently of the Box Office's configured sales routing.
 
 ### Price Reference vs Channel-Warehouse Mapping
 

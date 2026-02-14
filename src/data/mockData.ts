@@ -42,6 +42,7 @@ export interface ProductWarehouse {
   productId: string;
   warehouseId: string;
   price: number;
+  memberPrice?: number; // Discounted price for identified members
   currency: string;
   stock: number;
 }
@@ -271,10 +272,10 @@ export const products: Product[] = [
 // A product can exist in multiple warehouses with different stock/price
 export const productWarehouses: ProductWarehouse[] = [
   // Products in wh-001 (ES - Shops Square Testing)
-  { productId: 'p-001', warehouseId: 'wh-001', price: 29.99, currency: 'EUR', stock: 150 },
+  { productId: 'p-001', warehouseId: 'wh-001', price: 29.99, memberPrice: 22.49, currency: 'EUR', stock: 150 },
   { productId: 'p-002', warehouseId: 'wh-001', price: 29.99, currency: 'EUR', stock: 120 },
   { productId: 'p-003', warehouseId: 'wh-001', price: 15.00, currency: 'EUR', stock: 200 },
-  { productId: 'p-004', warehouseId: 'wh-001', price: 34.99, currency: 'EUR', stock: 50 },
+  { productId: 'p-004', warehouseId: 'wh-001', price: 34.99, memberPrice: 26.24, currency: 'EUR', stock: 50 },
   { productId: 'p-005', warehouseId: 'wh-001', price: 24.99, currency: 'EUR', stock: 80 },
   { productId: 'p-006', warehouseId: 'wh-001', price: 19.99, currency: 'EUR', stock: 100 },
   
@@ -284,9 +285,9 @@ export const productWarehouses: ProductWarehouse[] = [
   { productId: 'p-004', warehouseId: 'wh-003', price: 32.99, currency: 'EUR', stock: 20 },
   
   // Products in wh-002 (ES - Shops Shopify Testing)
-  { productId: 'p-007', warehouseId: 'wh-002', price: 45.00, currency: 'EUR', stock: 75 },
+  { productId: 'p-007', warehouseId: 'wh-002', price: 45.00, memberPrice: 33.75, currency: 'EUR', stock: 75 },
   { productId: 'p-008', warehouseId: 'wh-002', price: 18.00, currency: 'EUR', stock: 200 },
-  { productId: 'p-009', warehouseId: 'wh-002', price: 39.99, currency: 'EUR', stock: 40 },
+  { productId: 'p-009', warehouseId: 'wh-002', price: 39.99, memberPrice: 29.99, currency: 'EUR', stock: 40 },
   { productId: 'p-010', warehouseId: 'wh-002', price: 22.00, currency: 'EUR', stock: 60 },
   { productId: 'p-011', warehouseId: 'wh-002', price: 10.00, currency: 'EUR', stock: 30 },
   
@@ -295,7 +296,7 @@ export const productWarehouses: ProductWarehouse[] = [
   { productId: 'p-013', warehouseId: 'wh-004', price: 28.00, currency: 'EUR', stock: 45 },
   
   // Products in wh-005 (New Arrivals - NO ROUTING configured)
-  { productId: 'p-014', warehouseId: 'wh-005', price: 55.00, currency: 'EUR', stock: 25 }, // Wine Tasting Set - unpublished
+  { productId: 'p-014', warehouseId: 'wh-005', price: 55.00, memberPrice: 41.25, currency: 'EUR', stock: 25 }, // Wine Tasting Set - unpublished
   
   // Pending sync products - warehouse assignments
   { productId: 'p-new-001', warehouseId: 'wh-001', price: 25.00, currency: 'EUR', stock: 100 }, // → auto-published via sr-001 (onsite)

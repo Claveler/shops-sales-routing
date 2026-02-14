@@ -24,6 +24,7 @@ interface CartProps {
   onDecrementItem: (itemId: string) => void;
   onRemoveItem: (itemId: string) => void;
   onClearAll: () => void;
+  isMemberActive?: boolean;
 }
 
 export function Cart({
@@ -34,6 +35,7 @@ export function Cart({
   onDecrementItem,
   onRemoveItem,
   onClearAll,
+  isMemberActive,
 }: CartProps) {
   // Calculate totals across all groups (tickets + retail)
   const totalItems = eventGroups.reduce(
@@ -88,6 +90,7 @@ export function Cart({
             onIncrementItem={onIncrementItem}
             onDecrementItem={onDecrementItem}
             onRemoveItem={onRemoveItem}
+            isMemberActive={isMemberActive}
           />
         )}
 
@@ -102,6 +105,7 @@ export function Cart({
               onIncrementItem={onIncrementItem}
               onDecrementItem={onDecrementItem}
               onRemoveItem={onRemoveItem}
+              isMemberActive={isMemberActive}
             />
           ))
         }
@@ -148,11 +152,13 @@ function SingleEventLayout({
   onIncrementItem,
   onDecrementItem,
   onRemoveItem,
+  isMemberActive,
 }: {
   group: CartEventGroup;
   onIncrementItem: (id: string) => void;
   onDecrementItem: (id: string) => void;
   onRemoveItem: (id: string) => void;
+  isMemberActive?: boolean;
 }) {
   return (
     <div className={styles.flatItems}>
@@ -168,6 +174,7 @@ function SingleEventLayout({
                 onIncrement={onIncrementItem}
                 onDecrement={onDecrementItem}
                 onRemove={onRemoveItem}
+                isMemberActive={isMemberActive}
               />
             ))}
           </div>
@@ -186,6 +193,7 @@ function SingleEventLayout({
                 onIncrement={onIncrementItem}
                 onDecrement={onDecrementItem}
                 onRemove={onRemoveItem}
+                isMemberActive={isMemberActive}
               />
             ))}
           </div>
@@ -206,6 +214,7 @@ function EventGroupCard({
   onIncrementItem,
   onDecrementItem,
   onRemoveItem,
+  isMemberActive,
 }: {
   group: CartEventGroup;
   onToggleExpand: (eventId: string) => void;
@@ -213,6 +222,7 @@ function EventGroupCard({
   onIncrementItem: (id: string) => void;
   onDecrementItem: (id: string) => void;
   onRemoveItem: (id: string) => void;
+  isMemberActive?: boolean;
 }) {
   const headerClasses = [
     styles.eventHeader,
@@ -247,7 +257,7 @@ function EventGroupCard({
           </div>
         </div>
         <button
-          className={styles.eventIconBtn}
+          className={`${styles.eventIconBtn} ${styles.eventDeleteBtn}`}
           onClick={() => onRemoveEvent(group.id)}
           type="button"
           aria-label="Remove event"
@@ -279,6 +289,7 @@ function EventGroupCard({
                     onIncrement={onIncrementItem}
                     onDecrement={onDecrementItem}
                     onRemove={onRemoveItem}
+                    isMemberActive={isMemberActive}
                   />
                 ))}
               </div>
@@ -297,6 +308,7 @@ function EventGroupCard({
                     onIncrement={onIncrementItem}
                     onDecrement={onDecrementItem}
                     onRemove={onRemoveItem}
+                    isMemberActive={isMemberActive}
                   />
                 ))}
               </div>

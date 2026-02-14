@@ -3,41 +3,52 @@
   align-items: flex-end;
   gap: 0;
   flex-shrink: 0;
-  position: relative;
-  z-index: 2;
 }
 
+/* ------------------------------------------------------------------ *
+ *  Tab marker                                                         *
+ *                                                                     *
+ *  Every tab has the exact same box model: fixed height, identical    *
+ *  padding, no border, no margin.  Only background + border change    *
+ *  when the tab becomes active — nothing that affects layout.         *
+ * ------------------------------------------------------------------ */
 .tab {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
   min-width: 64px;
-  min-height: 48px;
-  padding: 0 24px;
+  height: 50px;
+  padding: 8px 20px;
   font-size: var(--fz-font-size-sm, 14px);
   font-weight: var(--fz-font-weight-regular, 400);
   color: var(--fz-text-primary, #031419);
   border: 1px solid transparent;
-  border-bottom: 1px solid var(--fz-border-color, #ccd2d8);
+  border-bottom-color: transparent;
   background: transparent;
   cursor: pointer;
   white-space: nowrap;
+  border-radius: 12px 12px 0 0;
+  /* Push 1px below the topBar::after line so the active tab's white
+     bottom-border paints over it. */
+  margin-bottom: -1px;
+  position: relative;
   transition: background var(--fz-transition-fast, 150ms ease-in-out),
               color var(--fz-transition-fast, 150ms ease-in-out);
 }
 
 .tab:hover:not(.active) {
   background: #F8F9F9;
+  /* Keep the content panel's grey top border visible beneath the hovered tab */
+  border-bottom-color: var(--fz-border-color, #ccd2d8);
 }
 
+/* Active marker: white background, grey border on top/left/right,
+   white border on bottom so it merges with the content panel. */
 .tab.active {
   background: #FFFFFF;
-  border: 1px solid var(--fz-border-color, #ccd2d8);
-  border-bottom: none;
-  border-radius: 12px 12px 0 0;
-  margin-bottom: -1px;
-  position: relative;
+  border-color: var(--fz-border-color, #ccd2d8);
+  border-bottom-color: #FFFFFF;
   z-index: 3;
 }
 
@@ -46,17 +57,9 @@
   padding: 8px 12px;
 }
 
-.eventTab.active {
-  min-width: 250px;
-}
-
 .standardTab {
-  padding: 0 20px;
-}
-
-.standardTab.active {
-  padding: 0 20px;
-  min-width: 0;
+  /* padding already set on .tab; override horizontal only */
+  padding: 8px 20px;
 }
 
 .tabIcon {

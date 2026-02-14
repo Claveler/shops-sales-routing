@@ -5,9 +5,10 @@ import styles from './ProductGrid.module.css';
 interface ProductGridProps {
   products: Product[];
   onProductClick: (product: Product) => void;
+  isMemberActive?: boolean;
 }
 
-export function ProductGrid({ products, onProductClick }: ProductGridProps) {
+export function ProductGrid({ products, onProductClick, isMemberActive }: ProductGridProps) {
   if (products.length === 0) {
     return (
       <div className={styles.emptyState}>
@@ -23,6 +24,7 @@ export function ProductGrid({ products, onProductClick }: ProductGridProps) {
           key={product.id}
           product={product}
           onClick={onProductClick}
+          isMemberActive={isMemberActive}
         />
       ))}
     </div>

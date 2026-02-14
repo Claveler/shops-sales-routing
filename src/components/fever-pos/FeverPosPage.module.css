@@ -16,11 +16,18 @@
 
 /* ---- Main content area (left side) ---- */
 .main {
-  flex: 1;
+  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  max-width: calc(100% - 400px);
   overflow: hidden;
+}
+
+@media (min-width: 1397px) {
+  .main {
+    max-width: calc(100% - 28.633vw);
+  }
 }
 
 .topBar {
@@ -32,6 +39,7 @@
   position: relative;
   z-index: 2;
 }
+
 
 .topBar > :first-child {
   flex: 1;
@@ -66,6 +74,59 @@
   background: var(--fz-bg-subtle, #f9fafb);
 }
 
+/* ---- Member pill (identified member state) ---- */
+.memberPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 64px;
+  border: 2px solid #CCD2D8;
+  background: #FFFFFF;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: background var(--fz-transition-fast, 150ms ease-in-out);
+}
+
+.memberPill:hover {
+  background: var(--fz-bg-subtle, #f9fafb);
+}
+
+.memberPillIcon {
+  font-size: 14px;
+  color: var(--fz-primary-600, #0079CA);
+  flex-shrink: 0;
+}
+
+.memberPillName {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #031419;
+}
+
+.memberPillClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  color: #031419;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.memberPillClose:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
 /* ---- Content: filters + grid ---- */
 .content {
   flex: 1;
@@ -76,10 +137,16 @@
   overflow: hidden;
   background: #FFFFFF;
   border: 1px solid var(--fz-border-color, #ccd2d8);
-  border-radius: 0 12px 12px 12px;
-  margin: -1px 16px 16px;
+  border-radius: 12px 12px 12px 12px;
+  margin: 0 16px 16px;
   position: relative;
   z-index: 1;
+}
+
+/* When the first tab (leftmost) is active, flatten the top-left corner
+   so the content panel connects flush with the tab marker above it. */
+.contentFirstTab {
+  border-radius: 0 12px 12px 12px;
 }
 
 .contentInner {
@@ -244,7 +311,43 @@
     );
 }
 
+/* Loading placeholder shown while the device frame image is still loading */
+.devicePreviewLoading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* Fade-in when the device frame image finishes loading */
+.deviceFrameReady {
+  animation: deviceFadeIn 0.4s ease-out both;
+}
+
+@keyframes deviceFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/*
+ * Device-preview simulation: the page is hard-locked to the iMin Swan 1 Pro
+ * effective resolution (1397×786 dp).  Because the viewport-dependent cart
+ * breakpoint (28.633vw at ≥1397px) fires against the *real* browser viewport
+ * — not this constrained container — we must force the cart and main area
+ * back to their fixed-width values so the simulation is pixel-accurate.
+ */
 .pageConstrained {
   width: 1397px;
   height: 786px;
+}
+
+.pageConstrained .body .main {
+  max-width: calc(100% - 400px);
+}
+
+.pageConstrained .body aside {
+  min-width: 400px;
+  max-width: 400px;
 }
