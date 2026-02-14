@@ -38,7 +38,7 @@ function getTypeIcon(type: Product['type']) {
 export function ProductTile({ product, onClick, isMemberActive }: ProductTileProps) {
   const isCategoryTile = product.id.startsWith('cat-');
   const stripeColor = isCategoryTile ? '#AE92ED' : TYPE_STRIPE_DEFAULTS[product.type];
-  const hasImage = product.type === 'addon' && product.imageUrl;
+  const hasImage = !!product.imageUrl;
   const hasMemberPrice = isMemberActive && product.memberPrice != null;
 
   return (
@@ -71,7 +71,7 @@ export function ProductTile({ product, onClick, isMemberActive }: ProductTilePro
               className={styles.tileImage}
             />
           )}
-          <p className={styles.tileName}>{product.name}</p>
+          <p className={`${styles.tileName} ${hasMemberPrice ? styles.tileNameWithBadge : ''}`}>{product.name}</p>
         </div>
 
         {/* Bottom: price + type icon */}

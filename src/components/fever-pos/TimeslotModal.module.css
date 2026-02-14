@@ -1,0 +1,429 @@
+/* ---- Overlay ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(6, 35, 44, 0.72);
+}
+
+/* ---- Modal card ---- */
+.modal {
+  width: min(600px, 100%);
+  max-height: min(90vh, 680px);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  background: #FFFFFF;
+  box-shadow: 0 24px 24px rgba(0, 70, 121, 0.2);
+  padding: 24px;
+  position: relative;
+}
+
+/* ---- Header ---- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 0 32px;
+  flex-shrink: 0;
+}
+
+.title {
+  margin: 0;
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #031419;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.closeButton {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: #031419;
+  font-size: 14px;
+  cursor: pointer;
+  border-radius: 64px;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* ---- Divider below header ---- */
+.divider {
+  height: 1px;
+  background: #CCD2D8;
+  margin-top: 16px;
+  flex-shrink: 0;
+}
+
+/* ---- Event context banner ---- */
+.eventBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0 0;
+  flex-shrink: 0;
+}
+
+.eventThumbnail {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.eventInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.eventName {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #031419;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.eventVenue {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: #536B75;
+}
+
+.venueIcon {
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+/* ---- Scrollable content ---- */
+.content {
+  padding-top: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---- Date pills strip ---- */
+.dateSection {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.dateSectionLabel {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: #536B75;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dateStrip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  /* Hide scrollbar but keep scrollable */
+  scrollbar-width: thin;
+}
+
+.dateStrip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.dateStrip::-webkit-scrollbar-thumb {
+  background: #CCD2D8;
+  border-radius: 2px;
+}
+
+.datePill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 8px 14px;
+  min-width: 64px;
+  border-radius: 64px;
+  border: 1.5px solid #CCD2D8;
+  background: #FFFFFF;
+  color: #031419;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 150ms ease-in-out,
+              background 150ms ease-in-out,
+              color 150ms ease-in-out;
+  flex-shrink: 0;
+}
+
+.datePill:hover:not(.datePillSelected) {
+  border-color: #A7B2BA;
+  background: #F9FAFB;
+}
+
+.datePillSelected {
+  border-color: #0079CA;
+  background: #0079CA;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+.datePillDay {
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.datePillSelected .datePillDay {
+  opacity: 1;
+}
+
+.datePillDate {
+  font-size: 15px;
+  line-height: 18px;
+  font-weight: 600;
+}
+
+.datePillCheck {
+  font-size: 9px;
+  margin-top: -2px;
+}
+
+/* ---- Timeslot groups ---- */
+.timeslotSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.timeslotGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.groupLabel {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  color: #536B75;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.slotGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ---- Individual timeslot card ---- */
+.slotCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 16px;
+  min-width: 110px;
+  border-radius: 10px;
+  border: 1.5px solid #CCD2D8;
+  background: #FFFFFF;
+  cursor: pointer;
+  transition: border-color 150ms ease-in-out,
+              box-shadow 150ms ease-in-out;
+  text-align: center;
+}
+
+.slotCard:hover:not(.slotCardSelected):not(.slotCardSoldOut) {
+  border-color: #A7B2BA;
+  box-shadow: 0 2px 6px rgba(0, 70, 121, 0.08);
+}
+
+.slotCardSelected {
+  border-color: #0079CA;
+  box-shadow: inset 0 0 0 1px #0079CA;
+  background: #F0F8FF;
+}
+
+.slotCardSoldOut {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #F9FAFB;
+}
+
+.slotTime {
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
+  color: #031419;
+}
+
+.slotCardSoldOut .slotTime {
+  color: #8496A1;
+  text-decoration: line-through;
+}
+
+/* ---- Availability indicator ---- */
+.availabilityBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 500;
+}
+
+.availabilityDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Availability color variants */
+.availabilityAvailable .availabilityDot {
+  background: #24A865;
+}
+.availabilityAvailable {
+  color: #1A7A4A;
+}
+
+.availabilityFilling .availabilityDot {
+  background: #FF8C00;
+}
+.availabilityFilling {
+  color: #B86200;
+}
+
+.availabilityLow .availabilityDot {
+  background: #EB0052;
+}
+.availabilityLow {
+  color: #C00044;
+}
+
+.availabilitySoldOut .availabilityDot {
+  background: #A7B2BA;
+}
+.availabilitySoldOut {
+  color: #8496A1;
+}
+
+.availabilityCount {
+  font-weight: 600;
+}
+
+/* ---- Currently selected badge ---- */
+.currentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 600;
+  color: #0079CA;
+  margin-top: -2px;
+}
+
+.currentBadgeIcon {
+  font-size: 9px;
+}
+
+/* ---- Footer ---- */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 16px;
+  flex-shrink: 0;
+  border-top: 1px solid #CCD2D8;
+  margin-top: 4px;
+}
+
+.confirmButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 24px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #0079CA;
+  border: none;
+  border-radius: 64px;
+  cursor: pointer;
+  transition: background 150ms ease-in-out;
+}
+
+.confirmButton:hover:not(:disabled) {
+  background: #0068B0;
+}
+
+.confirmButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---- Empty state ---- */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 20px;
+  color: #8496A1;
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 28px;
+  opacity: 0.5;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 14px;
+  line-height: 20px;
+}

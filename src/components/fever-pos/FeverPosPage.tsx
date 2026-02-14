@@ -18,11 +18,17 @@ import {
   initialCartEvents,
   DEFAULT_EVENT_THUMBNAIL_URL,
   eventTicketCatalogs,
+  eventSchedules,
+  formatTimeslotForCart,
+  formatTimeslotTime,
+  formatDatePillWithMonth,
 } from '../../data/feverPosData';
+import type { Product, CartEventGroup, EventTimeslot } from '../../data/feverPosData';
 import { getEventById } from '../../data/mockData';
-import type { Product, CartEventGroup } from '../../data/feverPosData';
 import { EventSelectionModal } from './EventSelectionModal';
 import { MemberIdentifyModal } from './MemberIdentifyModal';
+import type { MemberInfo } from './MemberIdentifyModal';
+import { TimeslotModal } from './TimeslotModal';
 import styles from './FeverPosPage.module.css';
 
 /**
@@ -102,9 +108,24 @@ export function FeverPosPage() {
 
   // Member identification state
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
-  const [identifiedMember, setIdentifiedMember] = useState<{ id: string; name: string } | null>(null);
+  const [identifiedMember, setIdentifiedMember] = useState<MemberInfo | null>(null);
 
   const isMemberActive = identifiedMember !== null;
+
+  // Timeslot modal state
+  const [isTimeslotModalOpen, setIsTimeslotModalOpen] = useState(false);
+  // Track the confirmed timeslot per event: eventId -> EventTimeslot
+  // Pre-seed with timeslots matching the preloaded cart events
+  const [selectedTimeslots, setSelectedTimeslots] = useState<Record<string, EventTimeslot>>(() => {
+    const seed: Record<string, EventTimeslot> = {};
+    // evt-001: ts-001-06 (March 15, 21:30) — matches preloaded cart
+    const ts001 = eventSchedules['evt-001']?.timeslots.find((ts) => ts.id === 'ts-001-06');
+    if (ts001) seed['evt-001'] = ts001;
+    // evt-002: ts-002-01 (April 1, 10:00) — matches preloaded cart
+    const ts002 = eventSchedules['evt-002']?.timeslots.find((ts) => ts.id === 'ts-002-01');
+    if (ts002) seed['evt-002'] = ts002;
+    return seed;
+  });
 
   // Warehouse data needed for member pricing on gift shop products
   const productWarehouses = demo.getProductWarehouses();
@@ -124,7 +145,7 @@ export function FeverPosPage() {
     return map;
   }, []);
 
-  const handleIdentifyMember = useCallback((member: { id: string; name: string }) => {
+  const handleIdentifyMember = useCallback((member: MemberInfo) => {
     setIdentifiedMember(member);
     setIsMemberModalOpen(false);
 
@@ -173,6 +194,17 @@ export function FeverPosPage() {
     );
   }, []);
 
+  // Timeslot modal handlers
+  const handleOpenTimeslotModal = useCallback(() => setIsTimeslotModalOpen(true), []);
+  const handleCloseTimeslotModal = useCallback(() => setIsTimeslotModalOpen(false), []);
+
+  const handleConfirmTimeslot = useCallback((timeslot: EventTimeslot) => {
+    setSelectedTimeslots((prev) => ({ ...prev, [timeslot.eventId]: timeslot }));
+    setIsTimeslotModalOpen(false);
+    // Existing cart groups keep their own timeslot — no overwriting.
+    // New tickets will land in a group keyed by the new timeslot.
+  }, []);
+
   const salesRoutingEvents = useMemo(() => {
     const uniqueEventIds = Array.from(new Set(demo.getSalesRoutings().map((routing) => routing.eventId)));
 
@@ -210,6 +242,15 @@ export function FeverPosPage() {
   );
 
   const ticketsEventId = activeSelectedEvent?.id ?? selectedEventId;
+
+  const handleClearTimeslot = useCallback(() => {
+    setSelectedTimeslots((prev) => {
+      const next = { ...prev };
+      delete next[ticketsEventId];
+      return next;
+    });
+  }, [ticketsEventId]);
+
   const ticketCategories = useMemo(
     () => getTicketCategoriesForEvent(ticketsEventId),
     [ticketsEventId]
@@ -393,9 +434,28 @@ export function FeverPosPage() {
     // Retail/food always goes to the Box Office event group (fixed routing).
     const targetEvent = isTicketOrAddon ? activeSelectedEvent : boxOfficeEvent;
 
+    // Gate: require a timeslot before adding tickets or add-ons
+    if (isTicketOrAddon && !selectedTimeslots[targetEvent?.id ?? BOX_OFFICE_EVENT_ID]) {
+      setIsTimeslotModalOpen(true);
+      return;
+    }
+
     setCartEvents((prev) => {
       const eventId = targetEvent?.id ?? BOX_OFFICE_EVENT_ID;
-      let groupIndex = prev.findIndex((g) => g.id === eventId);
+
+      // For tickets/add-ons, use composite key eventId--timeslotId so the same
+      // event can have multiple timeslot groups in the cart.
+      // For retail, attach to the first existing group for this event (or create one).
+      const activeTimeslot = isTicketOrAddon ? selectedTimeslots[eventId] : undefined;
+      const groupKey = activeTimeslot
+        ? `${eventId}--${activeTimeslot.id}`
+        : eventId;
+
+      // For tickets: exact composite-key match.
+      // For retail: find any group belonging to this event (retail piggybacks on existing groups).
+      let groupIndex = isTicketOrAddon
+        ? prev.findIndex((g) => g.id === groupKey)
+        : prev.findIndex((g) => g.eventId === eventId);
 
       const updatedGroups = prev.map((g) => ({
         ...g,
@@ -404,18 +464,24 @@ export function FeverPosPage() {
       }));
 
       if (groupIndex === -1) {
+        const dateStr = activeTimeslot
+          ? formatTimeslotForCart(activeTimeslot.date, activeTimeslot.startTime)
+          : new Date().toLocaleDateString('en-GB', {
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            });
+
         updatedGroups.push({
-          id: eventId,
+          id: groupKey,
+          eventId,
+          timeslotId: activeTimeslot?.id,
           eventName: targetEvent?.name ?? 'Event',
           eventImageUrl: targetEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
           location: targetEvent?.city ?? '',
-          date: new Date().toLocaleDateString('en-GB', {
-            month: 'long',
-            day: 'numeric',
-            year: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          }),
+          date: dateStr,
           isExpanded: true,
           items: [],
           retailItems: [],
@@ -463,7 +529,7 @@ export function FeverPosPage() {
       targetGroup.isExpanded = true;
       return updatedGroups;
     });
-  }, [activeSelectedEvent, boxOfficeEvent, identifiedMember]);
+  }, [activeSelectedEvent, boxOfficeEvent, identifiedMember, selectedTimeslots]);
 
   const handleOpenEventSelector = useCallback(() => {
     if (salesRoutingEvents.length === 0) return;
@@ -541,16 +607,6 @@ export function FeverPosPage() {
   const handleClearAll = useCallback(() => {
     setCartEvents([]);
   }, []);
-
-  const handleClearCategory = useCallback(() => {
-    if (activeTab === 'gift-shop') {
-      const firstGiftShopCategoryId = topLevelGiftShopCategories[0]?.id ?? '';
-      setActiveCategoryId(firstGiftShopCategoryId);
-      setGiftShopPathIds(firstGiftShopCategoryId ? [firstGiftShopCategoryId] : []);
-      return;
-    }
-    setActiveCategoryId(ticketCategories[0]?.id ?? '');
-  }, [activeTab, ticketCategories, topLevelGiftShopCategories]);
 
   const handleCategoryChange = useCallback((categoryId: string) => {
     if (activeTab === 'gift-shop') {
@@ -652,7 +708,13 @@ export function FeverPosPage() {
                 categories={categories}
                 activeCategoryId={activeCategoryId}
                 onCategoryChange={handleCategoryChange}
-                onClear={activeTab === 'tickets' ? handleClearCategory : undefined}
+                onCalendarClick={activeTab === 'tickets' ? handleOpenTimeslotModal : undefined}
+                onClearTimeslot={handleClearTimeslot}
+                timeslotLabel={
+                  activeTab === 'tickets' && selectedTimeslots[ticketsEventId]
+                    ? `${formatDatePillWithMonth(selectedTimeslots[ticketsEventId].date)}, ${formatTimeslotTime(selectedTimeslots[ticketsEventId].startTime)}`
+                    : undefined
+                }
                 showBreadcrumbs={showTopBreadcrumbs}
                 breadcrumbs={topBreadcrumbItems}
                 onBreadcrumbClick={handleBreadcrumbClick}
@@ -682,6 +744,7 @@ export function FeverPosPage() {
           onRemoveItem={handleRemoveItem}
           onClearAll={handleClearAll}
           isMemberActive={isMemberActive}
+          activeTimeslots={selectedTimeslots}
         />
       </div>
 
@@ -700,6 +763,18 @@ export function FeverPosPage() {
         isOpen={isMemberModalOpen}
         onIdentify={handleIdentifyMember}
         onClose={handleCloseMemberModal}
+      />
+
+      <TimeslotModal
+        isOpen={isTimeslotModalOpen}
+        eventId={ticketsEventId}
+        eventName={activeSelectedEvent?.name ?? 'Event'}
+        eventVenue={getEventById(ticketsEventId)?.venue ?? ''}
+        eventCity={activeSelectedEvent?.city ?? ''}
+        eventImageUrl={activeSelectedEvent?.imageUrl}
+        selectedTimeslot={selectedTimeslots[ticketsEventId] ?? null}
+        onConfirm={handleConfirmTimeslot}
+        onClose={handleCloseTimeslotModal}
       />
     </div>
   );

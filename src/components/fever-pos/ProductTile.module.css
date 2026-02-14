@@ -100,6 +100,11 @@
   text-overflow: ellipsis;
 }
 
+/* Reserve space so text doesn't run under the member badge triangle */
+.tileNameWithBadge {
+  padding-right: 28px;
+}
+
 /* ---- Bottom section: price + icon ---- */
 .tileBottom {
   display: flex;

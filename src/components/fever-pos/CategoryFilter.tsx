@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faChevronRight, faCrown, faHouse } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faChevronRight, faCrown, faHouse, faXmark } from '@fortawesome/free-solid-svg-icons';
 import type { Category } from '../../data/feverPosData';
 import styles from './CategoryFilter.module.css';
 
@@ -12,7 +12,9 @@ interface CategoryFilterProps {
   categories: Category[];
   activeCategoryId: string;
   onCategoryChange: (categoryId: string) => void;
-  onClear?: () => void;
+  onCalendarClick?: () => void;
+  onClearTimeslot?: () => void;
+  timeslotLabel?: string;
   showBreadcrumbs?: boolean;
   breadcrumbs?: BreadcrumbItem[];
   onBreadcrumbClick?: (id: string) => void;
@@ -25,7 +27,9 @@ export function CategoryFilter({
   categories,
   activeCategoryId,
   onCategoryChange,
-  onClear,
+  onCalendarClick,
+  onClearTimeslot,
+  timeslotLabel,
   showBreadcrumbs = false,
   breadcrumbs = [],
   onBreadcrumbClick,
@@ -85,15 +89,30 @@ export function CategoryFilter({
       </div>
 
       <div className={styles.trailingControl}>
-        {onClear ? (
-          <button
-            className={styles.clearButton}
-            onClick={onClear}
-            type="button"
-            aria-label="Open calendar"
-          >
-            <FontAwesomeIcon icon={faCalendar} />
-          </button>
+        {onCalendarClick ? (
+          timeslotLabel ? (
+            <div className={styles.timeslotPill} role="button" tabIndex={0} onClick={onCalendarClick}>
+              <FontAwesomeIcon icon={faCalendar} className={styles.timeslotPillIcon} />
+              <span className={styles.timeslotPillLabel}>{timeslotLabel}</span>
+              <button
+                type="button"
+                className={styles.timeslotPillClose}
+                aria-label="Clear timeslot"
+                onClick={(e) => { e.stopPropagation(); onClearTimeslot?.(); }}
+              >
+                <FontAwesomeIcon icon={faXmark} />
+              </button>
+            </div>
+          ) : (
+            <button
+              className={styles.clearButton}
+              onClick={onCalendarClick}
+              type="button"
+              aria-label="Select date and time"
+            >
+              <FontAwesomeIcon icon={faCalendar} />
+            </button>
+          )
         ) : (
           <span className={styles.clearButtonPlaceholder} aria-hidden="true" />
         )}

@@ -35,7 +35,9 @@ export interface CartItemData {
 }
 
 export interface CartEventGroup {
-  id: string;
+  id: string;               // composite key: eventId--timeslotId for ticket groups, plain eventId for retail-only groups
+  eventId: string;           // the raw event ID for lookups
+  timeslotId?: string;       // which timeslot this group belongs to (ticket groups only)
   eventName: string;
   eventImageUrl?: string;
   location: string;
@@ -237,11 +239,13 @@ export const allProducts: Product[] = [
 
 export const initialCartEvents: CartEventGroup[] = [
   {
-    id: 'evt-001',
+    id: 'evt-001--ts-001-06',
+    eventId: 'evt-001',
+    timeslotId: 'ts-001-06',
     eventName: 'Candlelight: Tribute to Taylor Swift',
     eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-001'],
     location: 'Madrid',
-    date: 'March 15, 2026 8:00PM',
+    date: 'March 15, 2026 9:30PM',
     isExpanded: true,
     items: [
       {
@@ -278,11 +282,13 @@ export const initialCartEvents: CartEventGroup[] = [
     ],
   },
   {
-    id: 'evt-002',
+    id: 'evt-002--ts-002-01',
+    eventId: 'evt-002',
+    timeslotId: 'ts-002-01',
     eventName: 'Van Gogh: The Immersive Experience',
     eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-002'],
     location: 'Barcelona',
-    date: 'April 1, 2026 6:00PM',
+    date: 'April 1, 2026 10:00AM',
     isExpanded: true,
     items: [
       {
@@ -350,4 +356,236 @@ export function getProductsByCategory(products: Product[], categoryId: string): 
 
 export function formatPrice(amount: number): string {
   return `€${amount.toFixed(2).replace('.', ',')}`;
+}
+
+// ---------------------------------------------------------------------------
+// Timeslot / Schedule model
+// ---------------------------------------------------------------------------
+
+export type AvailabilityLevel = 'available' | 'filling' | 'low' | 'sold_out';
+
+export interface EventTimeslot {
+  id: string;
+  eventId: string;
+  date: string;           // ISO date, e.g. '2026-03-15'
+  startTime: string;      // 24h format, e.g. '14:00'
+  endTime?: string;       // optional, e.g. '15:30'
+  capacity: number;
+  sold: number;
+  availability: AvailabilityLevel;
+}
+
+export interface EventSchedule {
+  eventId: string;
+  timeslots: EventTimeslot[];
+}
+
+// ---------------------------------------------------------------------------
+// Mock schedules per event
+// ---------------------------------------------------------------------------
+
+export const eventSchedules: Record<string, EventSchedule> = {
+  // Taylor Swift — Wed, Fri, Sat evenings
+  'evt-001': {
+    eventId: 'evt-001',
+    timeslots: [
+      { id: 'ts-001-01', eventId: 'evt-001', date: '2026-03-13', startTime: '19:00', capacity: 200, sold: 142, availability: 'filling' },
+      { id: 'ts-001-02', eventId: 'evt-001', date: '2026-03-13', startTime: '21:30', capacity: 200, sold: 48,  availability: 'available' },
+      { id: 'ts-001-03', eventId: 'evt-001', date: '2026-03-14', startTime: '19:00', capacity: 200, sold: 190, availability: 'low' },
+      { id: 'ts-001-04', eventId: 'evt-001', date: '2026-03-14', startTime: '21:30', capacity: 200, sold: 112, availability: 'filling' },
+      { id: 'ts-001-05', eventId: 'evt-001', date: '2026-03-15', startTime: '19:00', capacity: 200, sold: 200, availability: 'sold_out' },
+      { id: 'ts-001-06', eventId: 'evt-001', date: '2026-03-15', startTime: '21:30', capacity: 200, sold: 76,  availability: 'available' },
+      { id: 'ts-001-07', eventId: 'evt-001', date: '2026-03-18', startTime: '19:00', capacity: 200, sold: 30,  availability: 'available' },
+      { id: 'ts-001-08', eventId: 'evt-001', date: '2026-03-18', startTime: '21:30', capacity: 200, sold: 12,  availability: 'available' },
+      { id: 'ts-001-09', eventId: 'evt-001', date: '2026-03-20', startTime: '19:00', capacity: 200, sold: 165, availability: 'filling' },
+      { id: 'ts-001-10', eventId: 'evt-001', date: '2026-03-20', startTime: '21:30', capacity: 200, sold: 88,  availability: 'available' },
+      { id: 'ts-001-11', eventId: 'evt-001', date: '2026-03-21', startTime: '19:00', capacity: 200, sold: 195, availability: 'low' },
+      { id: 'ts-001-12', eventId: 'evt-001', date: '2026-03-21', startTime: '21:30', capacity: 200, sold: 150, availability: 'filling' },
+    ],
+  },
+  // Van Gogh — daily, morning + afternoon sessions
+  'evt-002': {
+    eventId: 'evt-002',
+    timeslots: [
+      { id: 'ts-002-01', eventId: 'evt-002', date: '2026-04-01', startTime: '10:00', capacity: 120, sold: 110, availability: 'low' },
+      { id: 'ts-002-02', eventId: 'evt-002', date: '2026-04-01', startTime: '12:00', capacity: 120, sold: 80,  availability: 'filling' },
+      { id: 'ts-002-03', eventId: 'evt-002', date: '2026-04-01', startTime: '14:00', capacity: 120, sold: 45,  availability: 'available' },
+      { id: 'ts-002-04', eventId: 'evt-002', date: '2026-04-01', startTime: '16:00', capacity: 120, sold: 20,  availability: 'available' },
+      { id: 'ts-002-05', eventId: 'evt-002', date: '2026-04-02', startTime: '10:00', capacity: 120, sold: 60,  availability: 'filling' },
+      { id: 'ts-002-06', eventId: 'evt-002', date: '2026-04-02', startTime: '12:00', capacity: 120, sold: 30,  availability: 'available' },
+      { id: 'ts-002-07', eventId: 'evt-002', date: '2026-04-02', startTime: '14:00', capacity: 120, sold: 120, availability: 'sold_out' },
+      { id: 'ts-002-08', eventId: 'evt-002', date: '2026-04-02', startTime: '16:00', capacity: 120, sold: 55,  availability: 'filling' },
+      { id: 'ts-002-09', eventId: 'evt-002', date: '2026-04-03', startTime: '10:00', capacity: 120, sold: 15,  availability: 'available' },
+      { id: 'ts-002-10', eventId: 'evt-002', date: '2026-04-03', startTime: '12:00', capacity: 120, sold: 10,  availability: 'available' },
+      { id: 'ts-002-11', eventId: 'evt-002', date: '2026-04-03', startTime: '14:00', capacity: 120, sold: 5,   availability: 'available' },
+      { id: 'ts-002-12', eventId: 'evt-002', date: '2026-04-03', startTime: '16:00', capacity: 120, sold: 0,   availability: 'available' },
+    ],
+  },
+  // Hans Zimmer — Fri + Sat evenings
+  'evt-003': {
+    eventId: 'evt-003',
+    timeslots: [
+      { id: 'ts-003-01', eventId: 'evt-003', date: '2026-03-20', startTime: '19:30', capacity: 300, sold: 280, availability: 'low' },
+      { id: 'ts-003-02', eventId: 'evt-003', date: '2026-03-21', startTime: '17:00', capacity: 300, sold: 150, availability: 'filling' },
+      { id: 'ts-003-03', eventId: 'evt-003', date: '2026-03-21', startTime: '20:00', capacity: 300, sold: 90,  availability: 'available' },
+      { id: 'ts-003-04', eventId: 'evt-003', date: '2026-03-22', startTime: '19:30', capacity: 300, sold: 300, availability: 'sold_out' },
+      { id: 'ts-003-05', eventId: 'evt-003', date: '2026-03-27', startTime: '19:30', capacity: 300, sold: 60,  availability: 'available' },
+      { id: 'ts-003-06', eventId: 'evt-003', date: '2026-03-28', startTime: '17:00', capacity: 300, sold: 30,  availability: 'available' },
+      { id: 'ts-003-07', eventId: 'evt-003', date: '2026-03-28', startTime: '20:00', capacity: 300, sold: 10,  availability: 'available' },
+    ],
+  },
+  // Secret Food Tour — Wed + Sat mornings
+  'evt-004': {
+    eventId: 'evt-004',
+    timeslots: [
+      { id: 'ts-004-01', eventId: 'evt-004', date: '2026-04-08', startTime: '10:30', capacity: 16, sold: 14,  availability: 'low' },
+      { id: 'ts-004-02', eventId: 'evt-004', date: '2026-04-11', startTime: '10:30', capacity: 16, sold: 8,   availability: 'filling' },
+      { id: 'ts-004-03', eventId: 'evt-004', date: '2026-04-11', startTime: '13:00', capacity: 16, sold: 3,   availability: 'available' },
+      { id: 'ts-004-04', eventId: 'evt-004', date: '2026-04-15', startTime: '10:30', capacity: 16, sold: 0,   availability: 'available' },
+      { id: 'ts-004-05', eventId: 'evt-004', date: '2026-04-18', startTime: '10:30', capacity: 16, sold: 16,  availability: 'sold_out' },
+      { id: 'ts-004-06', eventId: 'evt-004', date: '2026-04-18', startTime: '13:00', capacity: 16, sold: 6,   availability: 'available' },
+    ],
+  },
+  // Stranger Things — Thu, Fri, Sat, Sun (afternoon + evening)
+  'evt-005': {
+    eventId: 'evt-005',
+    timeslots: [
+      { id: 'ts-005-01', eventId: 'evt-005', date: '2026-05-01', startTime: '14:00', capacity: 250, sold: 200, availability: 'filling' },
+      { id: 'ts-005-02', eventId: 'evt-005', date: '2026-05-01', startTime: '17:00', capacity: 250, sold: 120, availability: 'filling' },
+      { id: 'ts-005-03', eventId: 'evt-005', date: '2026-05-01', startTime: '20:00', capacity: 250, sold: 50,  availability: 'available' },
+      { id: 'ts-005-04', eventId: 'evt-005', date: '2026-05-02', startTime: '14:00', capacity: 250, sold: 250, availability: 'sold_out' },
+      { id: 'ts-005-05', eventId: 'evt-005', date: '2026-05-02', startTime: '17:00', capacity: 250, sold: 230, availability: 'low' },
+      { id: 'ts-005-06', eventId: 'evt-005', date: '2026-05-02', startTime: '20:00', capacity: 250, sold: 80,  availability: 'available' },
+      { id: 'ts-005-07', eventId: 'evt-005', date: '2026-05-03', startTime: '14:00', capacity: 250, sold: 30,  availability: 'available' },
+      { id: 'ts-005-08', eventId: 'evt-005', date: '2026-05-03', startTime: '17:00', capacity: 250, sold: 10,  availability: 'available' },
+      { id: 'ts-005-09', eventId: 'evt-005', date: '2026-05-03', startTime: '20:00', capacity: 250, sold: 5,   availability: 'available' },
+    ],
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Timeslot helpers
+// ---------------------------------------------------------------------------
+
+/**
+ * Returns the schedule for a given event, or undefined if none exists.
+ */
+export function getScheduleForEvent(eventId: string): EventSchedule | undefined {
+  return eventSchedules[eventId];
+}
+
+/**
+ * Returns the deduplicated, sorted list of dates that have at least one
+ * non-sold-out timeslot for the given event.
+ */
+export function getAvailableDatesForEvent(eventId: string): string[] {
+  const schedule = eventSchedules[eventId];
+  if (!schedule) return [];
+
+  const datesWithAvailability = new Set<string>();
+  for (const ts of schedule.timeslots) {
+    // Include the date even if all slots are sold out — the cashier may want to see it
+    datesWithAvailability.add(ts.date);
+  }
+
+  return Array.from(datesWithAvailability).sort();
+}
+
+/**
+ * Returns all timeslots for a given event on a specific date.
+ */
+export function getTimeslotsForDate(eventId: string, date: string): EventTimeslot[] {
+  const schedule = eventSchedules[eventId];
+  if (!schedule) return [];
+  return schedule.timeslots.filter((ts) => ts.date === date);
+}
+
+/**
+ * Groups timeslots by time-of-day: Morning (before 12:00), Afternoon (12:00-16:59), Evening (17:00+).
+ * Returns only groups that have at least one slot.
+ */
+export type TimeOfDay = 'morning' | 'afternoon' | 'evening';
+
+export interface TimeslotGroup {
+  label: string;
+  timeOfDay: TimeOfDay;
+  slots: EventTimeslot[];
+}
+
+export function groupTimeslotsByTimeOfDay(timeslots: EventTimeslot[]): TimeslotGroup[] {
+  const morning: EventTimeslot[] = [];
+  const afternoon: EventTimeslot[] = [];
+  const evening: EventTimeslot[] = [];
+
+  for (const ts of timeslots) {
+    const hour = parseInt(ts.startTime.split(':')[0], 10);
+    if (hour < 12) {
+      morning.push(ts);
+    } else if (hour < 17) {
+      afternoon.push(ts);
+    } else {
+      evening.push(ts);
+    }
+  }
+
+  const groups: TimeslotGroup[] = [];
+  if (morning.length > 0) groups.push({ label: 'Morning', timeOfDay: 'morning', slots: morning });
+  if (afternoon.length > 0) groups.push({ label: 'Afternoon', timeOfDay: 'afternoon', slots: afternoon });
+  if (evening.length > 0) groups.push({ label: 'Evening', timeOfDay: 'evening', slots: evening });
+  return groups;
+}
+
+/**
+ * Formats a 24h time string (e.g. '19:00') into a display string (e.g. '7:00 PM').
+ */
+export function formatTimeslotTime(time24: string): string {
+  const [hourStr, minStr] = time24.split(':');
+  let hour = parseInt(hourStr, 10);
+  const suffix = hour >= 12 ? 'PM' : 'AM';
+  if (hour > 12) hour -= 12;
+  if (hour === 0) hour = 12;
+  return `${hour}:${minStr} ${suffix}`;
+}
+
+/**
+ * Formats an ISO date string into a short display format for date pills.
+ * e.g. '2026-03-15' -> 'Sat 15'
+ */
+export function formatDatePill(isoDate: string): string {
+  const d = new Date(isoDate + 'T12:00:00'); // noon to avoid timezone issues
+  const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const dayNum = d.getDate();
+  return `${dayName} ${dayNum}`;
+}
+
+/**
+ * Formats an ISO date string for the timeslot pill, including month.
+ * e.g. '2026-03-15' -> 'Sat, Mar 15'
+ */
+export function formatDatePillWithMonth(isoDate: string): string {
+  const d = new Date(isoDate + 'T12:00:00');
+  const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
+  const month = d.toLocaleDateString('en-US', { month: 'short' });
+  const dayNum = d.getDate();
+  return `${dayName}, ${month} ${dayNum}`;
+}
+
+/**
+ * Formats an ISO date string into a longer display format for the modal header.
+ * e.g. '2026-03-15' -> 'Saturday, March 15'
+ */
+export function formatDateLong(isoDate: string): string {
+  const d = new Date(isoDate + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+}
+
+/**
+ * Formats a selected timeslot into the cart date string.
+ * e.g. date='2026-03-15', startTime='21:30' -> 'March 15, 2026 9:30PM'
+ */
+export function formatTimeslotForCart(date: string, startTime: string): string {
+  const d = new Date(date + 'T12:00:00');
+  const monthDay = d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const timeStr = formatTimeslotTime(startTime).replace(' ', '');
+  return `${monthDay} ${timeStr}`;
 }

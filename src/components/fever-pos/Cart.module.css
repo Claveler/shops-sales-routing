@@ -102,6 +102,12 @@
   overflow: hidden;
 }
 
+/* Amber tint on the ticket/timeslot section only — retail products stay neutral */
+.timeSlotSectionMismatch {
+  background: var(--fz-warning-bg, #fff8e1);
+  border-radius: 8px;
+}
+
 /* ---- Event header row ---- */
 .eventHeader {
   display: flex;
@@ -226,6 +232,27 @@
   color: var(--fz-text-primary, #031419);
 }
 
+/* Mismatch warning indicator — shown when active timeslot differs from group's */
+.timeslotMismatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.timeslotMismatchIcon {
+  font-size: 10px;
+  color: var(--fz-warning-icon, #e6a700);
+}
+
+.timeslotMismatchText {
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 500;
+  color: var(--fz-warning-text, #b38600);
+}
+
 .timeSlotLocation {
   display: flex;
   align-items: center;
@@ -293,6 +320,13 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.flatTimeSlotMismatch {
+  background: var(--fz-warning-bg, #fff8e1);
+  border: 1px solid var(--fz-warning-border, #ffe082);
+  border-radius: 8px;
+  padding: 12px;
 }
 
 .flatProductsSection {

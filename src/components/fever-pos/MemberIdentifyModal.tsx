@@ -1,48 +1,101 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faXmark, faCrosshairs, faMagicWandSparkles } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faXmark, faCrosshairs, faMagicWandSparkles, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
 import styles from './MemberIdentifyModal.module.css';
+
+/** Extended member info shown in the confirmation step. */
+export interface MemberInfo {
+  id: string;
+  name: string;
+  avatarUrl?: string;
+  household?: string;
+  householdVerified?: boolean;
+  membershipTag?: string;
+  memberSince?: string;
+}
 
 interface MemberIdentifyModalProps {
   isOpen: boolean;
-  onIdentify: (member: { id: string; name: string }) => void;
+  onIdentify: (member: MemberInfo) => void;
   onClose: () => void;
 }
 
+/** Hardcoded demo member for mockup purposes. */
+const DEMO_MEMBER: MemberInfo = {
+  id: '7261322',
+  name: 'Anderson Collingwood',
+  avatarUrl: undefined, // will use initials fallback
+  household: 'Collingwood Family',
+  householdVerified: true,
+  membershipTag: 'Member',
+  memberSince: '11/04/2022',
+};
+
+type ModalStep = 'search' | 'confirm';
+
 export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdentifyModalProps) {
   const [inputValue, setInputValue] = useState('');
+  const [step, setStep] = useState<ModalStep>('search');
+  const [pendingMember, setPendingMember] = useState<MemberInfo | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Focus the input when the modal opens
+  // Reset state when the modal opens
   useEffect(() => {
     if (isOpen) {
       setInputValue('');
-      // Small delay to let the DOM render
+      setStep('search');
+      setPendingMember(null);
       const t = setTimeout(() => inputRef.current?.focus(), 100);
       return () => clearTimeout(t);
     }
   }, [isOpen]);
 
+  /** Move to the confirmation step with the looked-up member. */
+  const showConfirmation = useCallback((member: MemberInfo) => {
+    setPendingMember(member);
+    setStep('confirm');
+  }, []);
+
   const handleSubmit = useCallback(() => {
     if (!inputValue.trim()) return;
-    // Hardcoded member for mockup purposes
-    onIdentify({ id: '7261322', name: 'Anderson Collingwood' });
-  }, [inputValue, onIdentify]);
+    // In a real implementation this would call an API; for now use the demo member
+    showConfirmation(DEMO_MEMBER);
+  }, [inputValue, showConfirmation]);
 
   const handleFillDemoMember = useCallback(() => {
-    onIdentify({ id: '7261322', name: 'Anderson Collingwood' });
-  }, [onIdentify]);
+    showConfirmation(DEMO_MEMBER);
+  }, [showConfirmation]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleSubmit();
-      }
+      if (e.key === 'Enter') handleSubmit();
     },
     [handleSubmit],
   );
 
+  /** User confirmed — apply membership. */
+  const handleApply = useCallback(() => {
+    if (pendingMember) onIdentify(pendingMember);
+  }, [pendingMember, onIdentify]);
+
+  /** User cancelled the confirmation — go back to search. */
+  const handleBackToSearch = useCallback(() => {
+    setStep('search');
+    setPendingMember(null);
+    // Re-focus input after returning
+    setTimeout(() => inputRef.current?.focus(), 100);
+  }, []);
+
   if (!isOpen) return null;
+
+  /** Helper: get initials from a full name. */
+  const getInitials = (name: string) =>
+    name
+      .split(' ')
+      .map((w) => w[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
 
   return (
     <div className={styles.overlay} role="presentation" onClick={onClose}>
@@ -68,45 +121,124 @@ export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdent
 
         <div className={styles.divider} />
 
-        {/* Content */}
-        <div className={styles.content}>
-          <div className={styles.block}>
-            {/* Instruction */}
-            <div className={styles.instruction}>
-              <FontAwesomeIcon icon={faAddressCard} className={styles.instructionIcon} />
-              <p className={styles.instructionText}>
-                Scan the QR code or enter the ID manually
-              </p>
-            </div>
+        {/* ---- STEP 1: Search ---- */}
+        {step === 'search' && (
+          <div className={styles.content}>
+            <div className={styles.block}>
+              {/* Instruction */}
+              <div className={styles.instruction}>
+                <FontAwesomeIcon icon={faAddressCard} className={styles.instructionIcon} />
+                <p className={styles.instructionText}>
+                  Scan the QR code or enter the ID manually
+                </p>
+              </div>
 
-            {/* Input field */}
-            <div className={styles.fieldWrapper}>
-              <input
-                ref={inputRef}
-                type="text"
-                className={styles.field}
-                placeholder="Member ID"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-              />
-              <span className={styles.fieldLabel}>Member ID</span>
-              <span className={styles.fieldIcon}>
-                <FontAwesomeIcon icon={faCrosshairs} />
-              </span>
-            </div>
+              {/* Input field */}
+              <div className={styles.fieldWrapper}>
+                <input
+                  ref={inputRef}
+                  type="text"
+                  className={styles.field}
+                  placeholder="Member ID"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                />
+                <span className={styles.fieldLabel}>Member ID</span>
+                <span className={styles.fieldIcon}>
+                  <FontAwesomeIcon icon={faCrosshairs} />
+                </span>
+              </div>
 
-            {/* Demo prefill */}
-            <button
-              type="button"
-              className={styles.fillDemoBtn}
-              onClick={handleFillDemoMember}
-            >
-              <FontAwesomeIcon icon={faMagicWandSparkles} />
-              Enter demo member
-            </button>
+              {/* Demo prefill */}
+              <button
+                type="button"
+                className={styles.fillDemoBtn}
+                onClick={handleFillDemoMember}
+              >
+                <FontAwesomeIcon icon={faMagicWandSparkles} />
+                Enter demo member
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* ---- STEP 2: Confirm ---- */}
+        {step === 'confirm' && pendingMember && (
+          <>
+            <div className={styles.content}>
+              <div className={styles.memberCard}>
+                {/* Member info row */}
+                <div className={styles.memberRow}>
+                  {/* Avatar */}
+                  <div className={styles.memberAvatar}>
+                    {pendingMember.avatarUrl ? (
+                      <img
+                        src={pendingMember.avatarUrl}
+                        alt={pendingMember.name}
+                        className={styles.memberAvatarImg}
+                      />
+                    ) : (
+                      <span className={styles.memberAvatarInitials}>
+                        {getInitials(pendingMember.name)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div className={styles.memberInfo}>
+                    <p className={styles.memberName}>{pendingMember.name}</p>
+
+                    {pendingMember.household && (
+                      <div className={styles.memberHousehold}>
+                        <span className={styles.memberHouseholdLink}>
+                          {pendingMember.household}
+                        </span>
+                        {pendingMember.householdVerified && (
+                          <FontAwesomeIcon
+                            icon={faCircleCheck}
+                            className={styles.memberVerifiedIcon}
+                          />
+                        )}
+                      </div>
+                    )}
+
+                    <div className={styles.memberTags}>
+                      {pendingMember.membershipTag && (
+                        <span className={styles.memberTag}>
+                          {pendingMember.membershipTag}
+                        </span>
+                      )}
+                      {pendingMember.memberSince && (
+                        <span className={styles.memberSince}>
+                          since {pendingMember.memberSince}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer actions */}
+            <div className={styles.confirmFooter}>
+              <button
+                type="button"
+                className={styles.cancelBtn}
+                onClick={handleBackToSearch}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className={styles.applyBtn}
+                onClick={handleApply}
+              >
+                Apply membership
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

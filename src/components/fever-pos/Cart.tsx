@@ -9,10 +9,11 @@ import {
   faWallet,
   faCreditCard,
   faReceipt,
+  faCircleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { CartItem } from './CartItem';
 import { MarqueeText } from './MarqueeText';
-import type { CartEventGroup } from '../../data/feverPosData';
+import type { CartEventGroup, EventTimeslot } from '../../data/feverPosData';
 import { formatPrice } from '../../data/feverPosData';
 import styles from './Cart.module.css';
 
@@ -25,6 +26,8 @@ interface CartProps {
   onRemoveItem: (itemId: string) => void;
   onClearAll: () => void;
   isMemberActive?: boolean;
+  /** Currently active timeslot per event — used to show mismatch warnings */
+  activeTimeslots?: Record<string, EventTimeslot>;
 }
 
 export function Cart({
@@ -36,6 +39,7 @@ export function Cart({
   onRemoveItem,
   onClearAll,
   isMemberActive,
+  activeTimeslots,
 }: CartProps) {
   // Calculate totals across all groups (tickets + retail)
   const totalItems = eventGroups.reduce(
@@ -91,6 +95,7 @@ export function Cart({
             onDecrementItem={onDecrementItem}
             onRemoveItem={onRemoveItem}
             isMemberActive={isMemberActive}
+            activeTimeslots={activeTimeslots}
           />
         )}
 
@@ -106,6 +111,7 @@ export function Cart({
               onDecrementItem={onDecrementItem}
               onRemoveItem={onRemoveItem}
               isMemberActive={isMemberActive}
+              activeTimeslots={activeTimeslots}
             />
           ))
         }
@@ -153,19 +159,34 @@ function SingleEventLayout({
   onDecrementItem,
   onRemoveItem,
   isMemberActive,
+  activeTimeslots,
 }: {
   group: CartEventGroup;
   onIncrementItem: (id: string) => void;
   onDecrementItem: (id: string) => void;
   onRemoveItem: (id: string) => void;
   isMemberActive?: boolean;
+  activeTimeslots?: Record<string, EventTimeslot>;
 }) {
+  // Derive eventId / timeslotId from the composite id if the explicit fields are missing
+  const derivedEventId = group.eventId ?? group.id.split('--')[0];
+  const derivedTimeslotId = group.timeslotId ?? (group.id.includes('--') ? group.id.split('--')[1] : undefined);
+
+  // Determine if the active timeslot differs from this group's timeslot
+  const activeTs = activeTimeslots?.[derivedEventId];
+  const isMismatch = !!(derivedTimeslotId && activeTs && activeTs.id !== derivedTimeslotId);
+
+  const flatTimeSlotClasses = [
+    styles.flatTimeSlot,
+    isMismatch ? styles.flatTimeSlotMismatch : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <div className={styles.flatItems}>
       {/* Ticket / add-on items with time-slot header */}
       {group.items.length > 0 && (
-        <div className={styles.flatTimeSlot}>
-          <TimeSlotHeader date={group.date} location={group.location} />
+        <div className={flatTimeSlotClasses}>
+          <TimeSlotHeader date={group.date} location={group.location} isMismatch={isMismatch} />
           <div className={styles.timeSlotItems}>
             {group.items.map((item) => (
               <CartItem
@@ -215,6 +236,7 @@ function EventGroupCard({
   onDecrementItem,
   onRemoveItem,
   isMemberActive,
+  activeTimeslots,
 }: {
   group: CartEventGroup;
   onToggleExpand: (eventId: string) => void;
@@ -223,13 +245,28 @@ function EventGroupCard({
   onDecrementItem: (id: string) => void;
   onRemoveItem: (id: string) => void;
   isMemberActive?: boolean;
+  activeTimeslots?: Record<string, EventTimeslot>;
 }) {
+  // Derive eventId / timeslotId from the composite id if the explicit fields are missing
+  // (handles groups created before the multi-timeslot refactor or surviving HMR)
+  const derivedEventId = group.eventId ?? group.id.split('--')[0];
+  const derivedTimeslotId = group.timeslotId ?? (group.id.includes('--') ? group.id.split('--')[1] : undefined);
+
+  // Determine if the active timeslot differs from this group's timeslot
+  const activeTs = activeTimeslots?.[derivedEventId];
+  const isMismatch = !!(derivedTimeslotId && activeTs && activeTs.id !== derivedTimeslotId);
+
   const headerClasses = [
     styles.eventHeader,
     group.isExpanded ? styles.eventHeaderExpanded : '',
   ]
     .filter(Boolean)
     .join(' ');
+
+  const timeSlotSectionClasses = [
+    styles.timeSlotSection,
+    isMismatch ? styles.timeSlotSectionMismatch : '',
+  ].filter(Boolean).join(' ');
 
   return (
     <div className={styles.eventGroup}>
@@ -279,8 +316,8 @@ function EventGroupCard({
         <div className={styles.eventBody}>
           {/* Time-slot section (tickets + add-ons) */}
           {group.items.length > 0 && (
-            <div className={styles.timeSlotSection}>
-              <TimeSlotHeader date={group.date} location={group.location} />
+            <div className={timeSlotSectionClasses}>
+              <TimeSlotHeader date={group.date} location={group.location} isMismatch={isMismatch} />
               <div className={styles.timeSlotItems}>
                 {group.items.map((item) => (
                   <CartItem
@@ -324,12 +361,27 @@ function EventGroupCard({
 /* Shared sub-components                                              */
 /* ------------------------------------------------------------------ */
 
-function TimeSlotHeader({ date, location }: { date: string; location: string }) {
+function TimeSlotHeader({
+  date,
+  location,
+  isMismatch,
+}: {
+  date: string;
+  location: string;
+  /** When true, the active timeslot differs from this group's timeslot */
+  isMismatch?: boolean;
+}) {
   return (
     <div className={styles.timeSlotHeader}>
       <div className={styles.timeSlotLeft}>
         <FontAwesomeIcon icon={faTicket} className={styles.timeSlotIcon} />
         <span className={styles.timeSlotText}>{date}</span>
+        {isMismatch && (
+          <span className={styles.timeslotMismatch} title="Active timeslot is different">
+            <FontAwesomeIcon icon={faCircleExclamation} className={styles.timeslotMismatchIcon} />
+            <span className={styles.timeslotMismatchText}>Different timeslot</span>
+          </span>
+        )}
       </div>
       <div className={styles.timeSlotLocation}>
         <FontAwesomeIcon icon={faLocationDot} className={styles.timeSlotLocationIcon} />

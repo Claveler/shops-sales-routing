@@ -24,23 +24,25 @@
   font-weight: var(--fz-font-weight-regular, 400);
   color: var(--fz-text-primary, #031419);
   border: 1px solid transparent;
-  border-bottom-color: transparent;
+  /* Inactive tabs show the content panel's grey border line at the bottom
+     so there is never a "flash" when switching — the line is always there. */
+  border-bottom-color: var(--fz-border-color, #ccd2d8);
   background: transparent;
   cursor: pointer;
   white-space: nowrap;
   border-radius: 12px 12px 0 0;
-  /* Push 1px below the topBar::after line so the active tab's white
-     bottom-border paints over it. */
+  /* Push 1px below the content panel's top border so the active tab's
+     white bottom-border paints over it. */
   margin-bottom: -1px;
   position: relative;
+  /* Border is NOT transitioned — it must swap instantly so the seam
+     between tab and content panel is never ambiguous. */
   transition: background var(--fz-transition-fast, 150ms ease-in-out),
               color var(--fz-transition-fast, 150ms ease-in-out);
 }
 
 .tab:hover:not(.active) {
   background: #F8F9F9;
-  /* Keep the content panel's grey top border visible beneath the hovered tab */
-  border-bottom-color: var(--fz-border-color, #ccd2d8);
 }
 
 /* Active marker: white background, grey border on top/left/right,

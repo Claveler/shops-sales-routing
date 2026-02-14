@@ -143,13 +143,25 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
 - **Purpose**: Sell tickets to the selected event and related ticket upgrades (entry priority, flexible changes, premium access, experiential upgrades)
 - **Event-specific catalog**: ticket and add-on products are not shared globally; changing the active event swaps in that event's own ticket/add-on set
 - **Event title marquee**: If the selected event name overflows, it auto-scrolls horizontally back-and-forth once when POS opens at a slower, readable pace, then returns to the truncated state; tapping the event name replays that single run.
-- **Left sidebar**: Date picker + timeslot selector (calendar, day pills, morning/afternoon slots with availability counts)
+- **Timeslot Selector modal**: opened via the calendar button in the filter row; allows the cashier to pick a date and session for the active event before selling tickets. Follows the cinema/showtime-strip paradigm optimized for speed at the register:
+  - **Event context banner**: shows event thumbnail, name, venue, and city at the top of the modal so the cashier always knows which event they are scheduling
+  - **Horizontal date pill strip**: only dates with at least one session are shown (no blank calendar grid). If an event only runs on Wed + Fri, only those days appear. First available date is pre-selected. Scrolls horizontally when many dates exist.
+  - **Timeslot cards grouped by time-of-day**: Morning (before 12:00), Afternoon (12:00-16:59), Evening (17:00+). Groups with no slots are hidden.
+  - **Availability indicator per slot**: colored dot + label: `Available` (green), `Filling up` (amber), `Almost gone` (red), `Sold out` (gray). Sold-out slots are visually muted and non-interactive. For `Filling up` and `Almost gone` levels, the remaining ticket count is shown (e.g. "Filling up -- 40 left", "Almost gone -- 5 left") so the cashier can make group allocation decisions. `Available` and `Sold out` do not show counts to keep the UI clean.
+  - **Two-step selection**: tapping a slot highlights it (blue border); a "Confirm selection" button at the bottom applies the pick. This prevents accidental selections at the register.
+  - **Current selection badge**: if a timeslot was previously confirmed, it shows a "Selected" label on the slot card and a checkmark on the date pill.
+  - **Cart integration**: confirming a timeslot sets the active timeslot for the event and is used as the default date when creating new ticket groups for that event. Existing cart groups keep their own timeslot — confirming a new timeslot does not overwrite items already in the cart.
+  - **Per-event tracking**: each event tracks its own selected timeslot independently; switching the active event in the event selector shows that event's schedule and selection state.
+  - **Multi-timeslot cart**: the same event can have **multiple timeslot groups** in the cart. For example, a cashier can sell 2x Zone A tickets for Saturday 9:30 PM, then switch to Wednesday 7:00 PM and sell 3x Zone B tickets — both groups appear in the cart under the same event name, each with its own timeslot header. Cart groups are keyed by a composite `eventId--timeslotId` identifier. Retail items (which have no timeslot) piggyback on the first existing group for their event.
+  - **Timeslot mismatch warning**: when the active timeslot (shown in the pill) differs from a cart group's timeslot for the same event, a small amber "Different timeslot" badge appears on that group's time-slot header. This is informational only — it tells the cashier that adding more tickets now will create a separate group for the active timeslot, not add to this existing group.
+  - **Timeslot required before selling**: tickets and add-ons cannot be added to the cart without a timeslot selected for the active event. Tapping a product tile when no timeslot is selected auto-opens the timeslot modal instead of adding the item. The cashier must confirm a timeslot first, then tap the product again.
+  - **Data model**: `EventTimeslot` (id, eventId, date, startTime, capacity, sold, availability) and `EventSchedule` (eventId, timeslots) in `feverPosData.ts`. `CartEventGroup` uses a composite `id` field (`eventId--timeslotId`) and explicit `eventId` / `timeslotId` fields to support multi-timeslot grouping.
 - **Top-level category behavior varies by event**:
   - some events expose explode-pipe chips (e.g., `General Admission`, `VIP Experience`, `Premium`)
   - others show all tickets and add-ons directly with no top-level chips
 - **Add-on placement rule**: add-ons are assigned to the primary/high-volume first-level group when categories exist (usually `General Admission`-style categories)
 - **Add-on scope rule**: ticket-tab add-ons must be ticket/experience upgrades only; physical inventory items belong in `Gift Shop` (retail tab)
-- **Calendar control**: shown in the top-right of the filter row only in Tickets & Add-Ons (timeslot/date concept)
+- **Calendar control**: shown in the top-right of the filter row only in Tickets & Add-Ons; opens the Timeslot Selector modal (see below). When a timeslot is already selected, the calendar button shows a filled/active state (blue background) as a visual indicator.
 - **Grid**: Ticket tiles (blue stripe `#0089E3`) and add-on tiles (orange stripe `#FF8C00`)
 - **Event selector**: Dropdown at top showing which event/plan is being sold (e.g., "Candlelight: Tribute to Taylor Swift")
 - **Event edit modal**: tapping the edit icon on the event tab opens a centered modal (`Select your event`) with:
@@ -385,12 +397,12 @@ A fundamental distinction governs how items reach the POS:
 
 ### Smart Event Grouping
 
-Cart items are grouped by event, but tickets and products follow different grouping rules:
+Cart items are grouped by event **and timeslot**, but tickets and products follow different grouping rules:
 
-- **Tickets & add-ons**: grouped under whichever event the user is currently selling tickets for (the active ticket event selector choice). The POS can sell tickets for multiple events in the same transaction. Changing the ticket event selector changes which group new tickets land in.
-- **Retail / gift-shop products**: **always** grouped under the **Box Office event** -- the single event whose sales routing was used to configure this POS device. Changing the ticket event selector does NOT change where retail products are grouped, because the product catalog comes from the Box Office setup, not the ticket event selector.
-- **Single-event mode**: when only one event exists in the cart, event subsection headers are suppressed entirely; items are shown flat with just the time-slot header and optional products sub-section
-- **Multi-event mode**: each event gets a collapsible card with its own header (thumbnail, name, location, delete, chevron)
+- **Tickets & add-ons**: grouped under a composite key of `eventId--timeslotId`. The same event can appear multiple times in the cart if the cashier sells tickets for different timeslots. Changing the active timeslot (via the timeslot selector) does **not** move existing items — it only determines where **new** tickets land.
+- **Retail / gift-shop products**: **always** grouped under the **Box Office event** -- the single event whose sales routing was used to configure this POS device. Retail items piggyback on the first existing group for their event (they have no timeslot of their own). Changing the ticket event selector does NOT change where retail products are grouped, because the product catalog comes from the Box Office setup, not the ticket event selector.
+- **Single-event mode**: when only one group exists in the cart, event subsection headers are suppressed entirely; items are shown flat with just the time-slot header and optional products sub-section
+- **Multi-event / multi-timeslot mode**: each group gets a collapsible card with its own header (thumbnail, name, location, delete, chevron). Multiple groups for the same event are visually distinguished by their different timeslot headers.
 
 > **Example**: The Box Office is configured with the Taylor Swift event (`evt-001`) as its product source. A staff member sells 2x Zone A Tickets for Taylor Swift, then switches the event selector to Van Gogh and sells 1x Standard Adult Entry. They also add a Navy T-Shirt from the Gift Shop. The cart now shows two event groups: Taylor Swift (with tickets + the T-shirt) and Van Gogh (with tickets only). The T-shirt is in the Taylor Swift group because that's the Box Office event whose sales routing provides the product catalog -- not because it's related to the Taylor Swift event specifically.
 
@@ -465,6 +477,7 @@ When a member is identified, both explode pipes and category tiles display a **c
 
 - **Explode pipe chips**: a small orange crown icon (`#FF8C00`, 10px) appears inline after the category name
 - **Category tiles**: a triangular corner badge (top-right, light yellow `#FFF3D6` background) with an orange crown icon
+- **Product tiles with member pricing**: same triangular corner badge as category tiles. The product name text reserves right padding (`padding-right: 28px`) so that long names wrap or clip before reaching the badge area, preventing text/badge overlap.
 
 This aids discovery by letting staff quickly see which categories contain member-priced products without having to drill into each one.
 
@@ -484,6 +497,7 @@ Products in the Retail tab are organized into a navigable category tree imported
 | CSS class | `tile--product tile--parent` | `tile--product` |
 | Click action | Navigate into category | Add to cart |
 | Price shown | No | Yes |
+| Thumbnail | No | Yes, when `imageUrl` is available (40x40px, rounded, top-left of tile next to name) |
 | Icon | Stacked-boxes icon (bottom-right) | Gift icon (retail/food), Cart-plus icon (add-ons) |
 
 ### Tickets & Add-Ons Categories
