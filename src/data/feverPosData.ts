@@ -1,8 +1,12 @@
 /**
  * Mock data for the Fever POS (One-Stop Shop) interface.
- * Models tickets, F&B, and retail products organized by categories,
+ * Models tickets and retail products organized by categories,
  * along with sample cart state grouped by event.
  */
+
+import type { VariantAxis, ProductVariant } from './mockData';
+
+export type { VariantAxis, ProductVariant };
 
 export type ProductType = 'ticket' | 'addon' | 'food' | 'retail';
 
@@ -21,7 +25,9 @@ export interface Product {
   type: ProductType;
   categoryId: string;
   imageUrl?: string;
-  tab: 'tickets' | 'meals' | 'shop';
+  tab: 'tickets' | 'shop';
+  variantAxes?: VariantAxis[];     // undefined = simple product (no variants)
+  variants?: ProductVariant[];     // the concrete variant combinations
 }
 
 export interface CartItemData {
@@ -32,6 +38,8 @@ export interface CartItemData {
   originalPrice?: number; // Set when member pricing is active — stores the non-discounted price for display
   quantity: number;
   bookingFee?: number;
+  variantId?: string;       // which variant was selected
+  variantLabel?: string;    // e.g. "L" — for display in cart
 }
 
 export interface CartEventGroup {
@@ -147,14 +155,6 @@ const defaultTicketEventId = 'evt-001';
 
 export const ticketCategories: Category[] = eventTicketCatalogs[defaultTicketEventId].categories;
 
-export const mealCategories: Category[] = [
-  { id: 'hot-drinks', name: 'Hot Drinks', color: '#E67E22' },
-  { id: 'cold-drinks', name: 'Cold Drinks', color: '#3498DB' },
-  { id: 'sandwiches', name: 'Sandwiches', color: '#27AE60' },
-  { id: 'snacks', name: 'Snacks', color: '#F39C12' },
-  { id: 'meal-deals', name: 'Meal Deals', color: '#8E44AD' },
-];
-
 export const shopCategories: Category[] = [
   { id: 'souvenirs', name: 'Souvenirs', color: '#E74C3C' },
   { id: 'books', name: 'Books', color: '#2ECC71' },
@@ -170,33 +170,6 @@ export const shopCategories: Category[] = [
 export const ticketProducts: Product[] = eventTicketCatalogs[defaultTicketEventId].products;
 
 // ---------------------------------------------------------------------------
-// Products — Meals tab
-// ---------------------------------------------------------------------------
-
-export const mealProducts: Product[] = [
-  { id: 'm-1', name: 'Cappuccino', price: 3.50, type: 'food', categoryId: 'hot-drinks', tab: 'meals' },
-  { id: 'm-2', name: 'Latte', price: 3.80, type: 'food', categoryId: 'hot-drinks', tab: 'meals' },
-  { id: 'm-3', name: 'English Tea', price: 2.50, type: 'food', categoryId: 'hot-drinks', tab: 'meals' },
-  { id: 'm-4', name: 'Hot Chocolate', price: 3.90, type: 'food', categoryId: 'hot-drinks', tab: 'meals' },
-  { id: 'm-5', name: 'Cola', price: 2.50, type: 'food', categoryId: 'cold-drinks', tab: 'meals' },
-  { id: 'm-6', name: 'Orange Juice', price: 3.00, type: 'food', categoryId: 'cold-drinks', tab: 'meals' },
-  { id: 'm-7', name: 'Water', price: 1.50, type: 'food', categoryId: 'cold-drinks', tab: 'meals' },
-  { id: 'm-8', name: 'Lemonade', price: 2.80, type: 'food', categoryId: 'cold-drinks', tab: 'meals' },
-  { id: 'm-9', name: 'Ham & Cheese', price: 5.50, type: 'food', categoryId: 'sandwiches', tab: 'meals' },
-  { id: 'm-10', name: 'BLT Sandwich', price: 6.00, type: 'food', categoryId: 'sandwiches', tab: 'meals' },
-  { id: 'm-11', name: 'Tuna Mayo', price: 5.00, type: 'food', categoryId: 'sandwiches', tab: 'meals' },
-  { id: 'm-12', name: 'Veggie Wrap', price: 5.50, type: 'food', categoryId: 'sandwiches', tab: 'meals' },
-  { id: 'm-13', name: 'Crisps', price: 1.50, type: 'food', categoryId: 'snacks', tab: 'meals' },
-  { id: 'm-14', name: 'Flapjack', price: 2.50, type: 'food', categoryId: 'snacks', tab: 'meals' },
-  { id: 'm-15', name: 'Cookie', price: 2.00, type: 'food', categoryId: 'snacks', tab: 'meals' },
-  { id: 'm-16', name: 'Fruit Pot', price: 3.00, type: 'food', categoryId: 'snacks', tab: 'meals' },
-  { id: 'm-17', name: 'Sandwich + Drink', price: 7.50, type: 'food', categoryId: 'meal-deals', tab: 'meals' },
-  { id: 'm-18', name: 'Soup + Roll + Drink', price: 8.00, type: 'food', categoryId: 'meal-deals', tab: 'meals' },
-  { id: 'm-19', name: 'Kids Meal Deal', price: 5.00, type: 'food', categoryId: 'meal-deals', tab: 'meals' },
-  { id: 'm-20', name: 'Afternoon Tea', price: 12.00, type: 'food', categoryId: 'meal-deals', tab: 'meals' },
-];
-
-// ---------------------------------------------------------------------------
 // Products — Shop tab
 // ---------------------------------------------------------------------------
 
@@ -209,9 +182,27 @@ export const shopProducts: Product[] = [
   { id: 's-6', name: 'Nelson Biography', price: 9.99, type: 'retail', categoryId: 'books', tab: 'shop' },
   { id: 's-7', name: 'Children\'s Guide', price: 6.99, type: 'retail', categoryId: 'books', tab: 'shop' },
   { id: 's-8', name: 'Map & Guide', price: 4.99, type: 'retail', categoryId: 'books', tab: 'shop' },
-  { id: 's-9', name: 'Navy T-Shirt', price: 18.00, type: 'retail', categoryId: 'clothing', tab: 'shop' },
+  {
+    id: 's-9', name: 'Navy T-Shirt', price: 18.00, type: 'retail', categoryId: 'clothing', tab: 'shop',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 's-9-s',  parentProductId: 's-9', sku: 'NAV-TSH-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 's-9-m',  parentProductId: 's-9', sku: 'NAV-TSH-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 's-9-l',  parentProductId: 's-9', sku: 'NAV-TSH-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 's-9-xl', parentProductId: 's-9', sku: 'NAV-TSH-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
   { id: 's-10', name: 'Cap', price: 12.00, type: 'retail', categoryId: 'clothing', tab: 'shop' },
-  { id: 's-11', name: 'Hoodie', price: 35.00, type: 'retail', categoryId: 'clothing', tab: 'shop' },
+  {
+    id: 's-11', name: 'Hoodie', price: 35.00, type: 'retail', categoryId: 'clothing', tab: 'shop',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 's-11-s',  parentProductId: 's-11', sku: 'HOOD-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 's-11-m',  parentProductId: 's-11', sku: 'HOOD-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 's-11-l',  parentProductId: 's-11', sku: 'HOOD-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 's-11-xl', parentProductId: 's-11', sku: 'HOOD-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
   { id: 's-12', name: 'Scarf', price: 15.00, type: 'retail', categoryId: 'clothing', tab: 'shop' },
   { id: 's-13', name: 'Toy Battleship', price: 8.99, type: 'retail', categoryId: 'toys', tab: 'shop' },
   { id: 's-14', name: 'Sailor Teddy', price: 14.99, type: 'retail', categoryId: 'toys', tab: 'shop' },
@@ -229,7 +220,6 @@ export const shopProducts: Product[] = [
 
 export const allProducts: Product[] = [
   ...ticketProducts,
-  ...mealProducts,
   ...shopProducts,
 ];
 
@@ -267,16 +257,18 @@ export const initialCartEvents: CartEventGroup[] = [
     retailItems: [
       {
         id: 'cp-1',
-        productId: 's-9',
-        name: 'Navy T-Shirt',
-        price: 18.00,
+        productId: 'demo-p-001',
+        name: 'Event T-Shirt (Black)',
+        price: 29.99,
         quantity: 1,
+        variantId: 'demo-p-001-l',
+        variantLabel: 'L',
       },
       {
         id: 'cp-2',
-        productId: 'm-1',
-        name: 'Cappuccino',
-        price: 3.50,
+        productId: 'demo-p-012',
+        name: 'Scented Candle Set',
+        price: 34.99,
         quantity: 2,
       },
     ],
@@ -315,19 +307,17 @@ export const initialCartEvents: CartEventGroup[] = [
 // Helpers
 // ---------------------------------------------------------------------------
 
-export function getProductsForTab(tab: 'tickets' | 'meals' | 'shop'): Product[] {
+export function getProductsForTab(tab: 'tickets' | 'shop'): Product[] {
   if (tab === 'tickets') {
     return ticketProducts;
   }
   return allProducts.filter(p => p.tab === tab);
 }
 
-export function getCategoriesForTab(tab: 'tickets' | 'meals' | 'shop'): Category[] {
+export function getCategoriesForTab(tab: 'tickets' | 'shop'): Category[] {
   switch (tab) {
     case 'tickets':
       return ticketCategories;
-    case 'meals':
-      return mealCategories;
     case 'shop':
       return shopCategories;
   }

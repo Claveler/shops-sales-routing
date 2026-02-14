@@ -483,6 +483,77 @@
   text-decoration: underline;
 }
 
+/* ---------------------------------------------------------------------------
+   Variant badge + expandable sub-rows
+   --------------------------------------------------------------------------- */
+
+.variantsBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  background: #f0f2f5;
+  border: 1px solid #dde1e6;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.variantsBadge:hover {
+  background: #e2e6eb;
+  border-color: #c4cad2;
+}
+
+.variantsChevron {
+  font-size: 10px;
+  color: #8896a6;
+}
+
+/* Variant sub-row — lighter background, indented */
+.variantSubRow td {
+  background: #f8f9fb !important;
+  border-bottom: 1px solid #eef0f3 !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.variantNameCell {
+  display: flex;
+  align-items: center;
+  padding-left: 56px; /* indent past the thumbnail column */
+}
+
+.variantLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  padding: 2px 10px;
+  background: #e8ecf1;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3d4f5f;
+}
+
+.variantSku {
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 12px;
+  color: #8896a6;
+  background: transparent;
+}
+
+.variantStockPrice {
+  font-size: 13px;
+  color: #5a6b7b;
+}
+
 /* Publication Badge (clickable) — matches warehouse link style */
 .publicationBadge {
   display: inline-flex;

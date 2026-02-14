@@ -368,9 +368,9 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     if (state.isResetMode) {
       return state.products;
     }
-    // In static mode, filter out pending sync products unless synced
-    return staticProducts.filter(p => !p.pendingSync || state.hasSynced);
-  }, [state.isResetMode, state.products, state.hasSynced]);
+    // In static mode, return all products directly
+    return staticProducts;
+  }, [state.isResetMode, state.products]);
 
   const getProductWarehouses = useCallback(() => {
     return state.isResetMode ? state.productWarehouses : staticProductWarehouses;

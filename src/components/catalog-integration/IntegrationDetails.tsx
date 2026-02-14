@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faPlus,
@@ -12,6 +12,8 @@ import {
   faCalendar,
   faChevronLeft,
   faChevronRight,
+  faChevronDown,
+  faChevronUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { faSlidersH } from '@fortawesome/free-solid-svg-icons';
 import { faShopify } from '@fortawesome/free-brands-svg-icons';
@@ -54,6 +56,7 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
     id: string;
     name: string;
     warehouses: ReturnType<typeof getWarehousesForProductLocal>;
+    variants?: Product['variants'];
   } | null>(null);
   const [publicationModalProduct, setPublicationModalProduct] = useState<{
     id: string;
@@ -80,6 +83,9 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
   const [isSyncing, setIsSyncing] = useState(false);
   const [localSyncedProductIds, setLocalSyncedProductIds] = useState<string[]>([]);
   const [showSyncToast, setShowSyncToast] = useState(false);
+  
+  // Variant expansion state
+  const [expandedVariantIds, setExpandedVariantIds] = useState<Set<string>>(new Set());
 
   // Get data from demo context
   const allWarehouses = demo.getWarehouses();
@@ -103,18 +109,30 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
   };
 
   // Get warehouses for a product with price/stock details (using demo context data)
+  // For variant products, deduplicates by warehouse and aggregates stock / shows price range
   const getWarehousesForProductLocal = (productId: string) => {
     const productWarehouseEntries = productWarehouses.filter(pw => pw.productId === productId);
     
-    return productWarehouseEntries.map(pw => {
-      const warehouse = allWarehouses.find(w => w.id === pw.warehouseId);
+    // Deduplicate by warehouseId (variant products have multiple entries per warehouse)
+    const byWarehouse = new Map<string, typeof productWarehouseEntries>();
+    for (const pw of productWarehouseEntries) {
+      const existing = byWarehouse.get(pw.warehouseId) ?? [];
+      existing.push(pw);
+      byWarehouse.set(pw.warehouseId, existing);
+    }
+    
+    return Array.from(byWarehouse.entries()).map(([warehouseId, entries]) => {
+      const warehouse = allWarehouses.find(w => w.id === warehouseId);
       if (!warehouse) return null;
+      
+      const totalStock = entries.reduce((sum, e) => sum + e.stock, 0);
+      const minPrice = Math.min(...entries.map(e => e.price));
       
       return {
         warehouse,
-        price: pw.price,
-        currency: pw.currency,
-        stock: pw.stock,
+        price: minPrice,
+        currency: entries[0].currency,
+        stock: totalStock,
       };
     }).filter(Boolean) as Array<{
       warehouse: typeof allWarehouses[0];
@@ -601,6 +619,7 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
                 <TableRow>
                   <TableCell>Name</TableCell>
                   <TableCell>SKU</TableCell>
+                  <TableCell>Variants</TableCell>
                   <TableCell>Category</TableCell>
                   <TableCell>Warehouses</TableCell>
                   <TableCell>Distribution</TableCell>
@@ -623,8 +642,14 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
                     ? getPublicationsFromRoutings(product.id)
                     : getStaticProductPublications(product.id);
                   
+                  const hasVariants = !!(product.variants && product.variants.length > 0);
+                  const isExpanded = expandedVariantIds.has(product.id);
+                  const variantCount = product.variants?.length ?? 0;
+                  const axisName = product.variantAxes?.[0]?.name?.toLowerCase() ?? 'variant';
+                  
                   return (
-                    <TableRow key={product.id}>
+                    <React.Fragment key={product.id}>
+                    <TableRow>
                       <TableCell>
                         <div className={styles.productNameCell}>
                           <div className={styles.productThumb}>
@@ -646,6 +671,30 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
                         <code className={styles.sku}>{product.sku}</code>
                       </TableCell>
                       <TableCell>
+                        {hasVariants ? (
+                          <button
+                            className={styles.variantsBadge}
+                            onClick={() => setExpandedVariantIds(prev => {
+                              const next = new Set(prev);
+                              if (next.has(product.id)) {
+                                next.delete(product.id);
+                              } else {
+                                next.add(product.id);
+                              }
+                              return next;
+                            })}
+                          >
+                            <span>{variantCount} {axisName}{variantCount > 1 ? 's' : ''}</span>
+                            <FontAwesomeIcon
+                              icon={isExpanded ? faChevronUp : faChevronDown}
+                              className={styles.variantsChevron}
+                            />
+                          </button>
+                        ) : (
+                          <span className={styles.categoryText}>—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
                         <span className={styles.categoryText}>
                           {demo.getProductCategoryPath(product.id)}
                         </span>
@@ -661,6 +710,7 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
                                 id: product.id,
                                 name: product.name,
                                 warehouses: productWarehouseDetails,
+                                variants: product.variants,
                               })}
                             >
                               {productWarehouseDetails.length} warehouse{productWarehouseDetails.length > 1 ? 's' : ''}
@@ -672,6 +722,42 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
                         {renderPublicationStatus(product, publications, unpublishedReason)}
                       </TableCell>
                     </TableRow>
+                    {/* Variant sub-rows */}
+                    {hasVariants && isExpanded && product.variants!.map((variant) => {
+                      const variantWarehouses = productWarehouses.filter(
+                        pw => pw.productId === product.id && pw.variantId === variant.id
+                      );
+                      const totalStock = variantWarehouses.reduce((sum, pw) => sum + pw.stock, 0);
+                      const prices = variantWarehouses.map(pw => pw.price);
+                      const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+                      const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+                      const currency = variantWarehouses[0]?.currency ?? 'EUR';
+                      const priceDisplay = minPrice === maxPrice
+                        ? new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(minPrice)
+                        : `${new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(minPrice)} – ${new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(maxPrice)}`;
+                      
+                      return (
+                        <TableRow key={variant.id} className={styles.variantSubRow}>
+                          <TableCell>
+                            <div className={styles.variantNameCell}>
+                              <span className={styles.variantLabel}>{variant.label}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <code className={styles.variantSku}>{variant.sku}</code>
+                          </TableCell>
+                          <TableCell />
+                          <TableCell />
+                          <TableCell>
+                            <span className={styles.variantStockPrice}>
+                              {totalStock} in stock · {priceDisplay}
+                            </span>
+                          </TableCell>
+                          <TableCell />
+                        </TableRow>
+                      );
+                    })}
+                    </React.Fragment>
                   );
                 })}
               </TableBody>
@@ -707,6 +793,12 @@ export function IntegrationDetails({ integration, autoSync }: IntegrationDetails
         isOpen={warehousePanelProduct !== null}
         productName={warehousePanelProduct?.name ?? ''}
         warehouses={warehousePanelProduct?.warehouses ?? []}
+        variants={warehousePanelProduct?.variants}
+        rawProductWarehouses={
+          warehousePanelProduct?.variants
+            ? productWarehouses.filter(pw => pw.productId === warehousePanelProduct.id)
+            : undefined
+        }
         onClose={() => setWarehousePanelProduct(null)}
       />
 

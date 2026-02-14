@@ -1,0 +1,108 @@
+/* ============================================================
+   VariantPicker — inline overlay for selecting product variants
+   (e.g. Size: S / M / L / XL) in the POS grid area.
+   ============================================================ */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 35, 44, 0.4);
+}
+
+.picker {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 70, 121, 0.18), 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 20px 24px;
+  min-width: 260px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.productName {
+  font-size: 15px;
+  font-weight: 600;
+  color: #031419;
+  line-height: 20px;
+}
+
+.axisLabel {
+  font-size: 13px;
+  color: #536b75;
+  line-height: 18px;
+}
+
+/* Pill row */
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.pill {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  flex: 1 1 56px;
+  max-width: 80px;
+  padding: 10px 16px;
+  background: #f0f4f8;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill:hover:not(:disabled) {
+  background: #e2eaf2;
+  border-color: #0089e3;
+}
+
+.pill:active:not(:disabled) {
+  background: #d0dde8;
+  border-color: #0079ca;
+}
+
+.pillDisabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pillLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: #031419;
+  line-height: 20px;
+}
+
+.pillPrice {
+  font-size: 12px;
+  font-weight: 400;
+  color: #536b75;
+  line-height: 16px;
+  margin-top: 2px;
+}
+
+.pillOos {
+  font-size: 10px;
+  font-weight: 500;
+  color: #c53030;
+  line-height: 14px;
+  margin-top: 2px;
+}

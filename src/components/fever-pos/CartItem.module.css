@@ -26,6 +26,19 @@
   overflow: hidden;
 }
 
+/* Variant label (e.g. "L", "XL") shown below product name */
+.variantLabel {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--fz-text-secondary, #536b75);
+  line-height: 14px;
+  margin-top: 2px;
+  padding: 1px 6px;
+  background: #eef1f5;
+  border-radius: 4px;
+}
+
 .priceRow {
   display: flex;
   align-items: center;

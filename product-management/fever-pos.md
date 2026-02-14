@@ -75,7 +75,7 @@ The Fever POS is a full-screen interface that renders **outside** the standard F
 |  Main Content Area                    |  Cart Panel    |
 |  +--------------------------------+   |  (400px/28.6vw)|
 |  | Navigation Tabs                |   |                |
-|  | [Event Name] [Meals] [Shop]   |   |  Cart          |
+|  | [Event Name] [Gift Shop]      |   |  Cart          |
 |  +--------------------------------+   |  Clear all     |
 |  | Category Filters / Breadcrumbs |   |                |
 |  | [Gift Aid] [Non Gift Aid] ... |   |  Event groups  |
@@ -107,7 +107,7 @@ Occupies all horizontal space left of the cart panel. Contains:
 - **Folder-like tab connection**: the active tab is visually connected to the content panel below, creating a folder-style container. The content panel has its own top border; the active tab has `margin-bottom: -1px` to overlap it and a white `border-bottom` to cover the content's grey border beneath it, producing a seamless folder cut-out effect. When the first tab is active, the content panel's top-left corner is square (flush with the tab); otherwise all top corners are rounded
 - **Folder frame spacing**: the connected tab+panel block is inset with horizontal and bottom padding so it does not touch the outer viewport/container edges
 - **Background palette**: page background `#F8F9F9`; folder surface (active tab + panel) `#FFFFFF`
-- **Tab sizing model**: only the event tab uses the expanded active width; `Meal Deals` and `Shop` keep compact active widths
+- **Tab sizing model**: only the event tab uses the expanded active width; `Gift Shop` keeps a compact active width
 - **Tab rail alignment**: all nav tabs share a consistent 48px rail height/baseline across active and inactive states to prevent visual jumps when switching tabs
 - **Top-row stability**: right-side action controls stay anchored while switching tabs; tab activation does not push or collapse the row
 - **Utility icon buttons** on the right of tabs: contacts and search as circular (44px) outlined buttons
@@ -326,6 +326,21 @@ Production tiles have a material-design-style ripple animation on click:
 }
 ```
 
+### Variant Products
+
+Products with size variants (e.g. T-shirts, hoodies) display a **"from"** prefix before the base price on the tile (e.g. "from €18,00"). Tapping a variant product tile does **not** add to cart directly; instead it opens the **Variant Picker** overlay.
+
+**Variant Picker overlay:**
+- Centered modal with semi-transparent backdrop (`rgba(6, 35, 44, 0.4)`)
+- Shows product name and axis label ("Select Size")
+- Pill-shaped buttons for each variant value (S, M, L, XL)
+- Each pill shows the variant-specific price if prices differ across variants
+- Out-of-stock variants are greyed out and disabled
+- Tapping a pill adds the selected variant to the cart and closes the picker
+- Clicking outside or pressing Escape dismisses without adding
+
+Products without variants behave exactly as before -- single tap adds to cart.
+
 ---
 
 ## 7. Responsive Grid Behavior
@@ -425,6 +440,7 @@ Cart items are grouped by event **and timeslot**, but tickets and products follo
 - **Card**: `background: #FFFFFF`, `border: 1px solid #CCD2D8`, `border-radius: 8px`, `padding: 8px`
 - **Item name**: `12px` regular weight, max 2 lines with ellipsis
 - **Price row**: current price `12px` semibold
+- **Member pricing row** (when a member is identified and the item has a member price): strikethrough original price + discounted member price + orange crown icon. When a member is identified mid-transaction, existing cart items are retroactively updated (original price stored, display price set to member price). Clearing the member reverts all prices.
 - **Booking fee**: `10px` regular `#536B75`
 
 ### Quantity Controls (Pill Counter)
@@ -459,6 +475,15 @@ The cart header includes an **Identify member** action button (address-card icon
   - **Cash**: White background, `2px solid #CCD2D8` border, wallet icon, primary blue text
   - **Card**: Primary blue `#0079CA` background, white text, credit card icon
 - **Footer shadow**: `0 -6px 6px rgba(0,70,121,0.2)` top shadow
+
+### Cart Items with Variants
+
+When a variant product is added to the cart, the cart item displays:
+- **Product name** (e.g. "Navy T-Shirt")
+- **Variant label** below the name in a small grey pill (e.g. "L", "XL")
+- Price, quantity controls, and member pricing as normal
+
+Each variant of the same product appears as a **separate cart line item**. For example, adding Size M and Size L of the same T-shirt creates two distinct rows. Deduplication matches on both `productId` and `variantId`.
 
 ---
 
@@ -563,7 +588,7 @@ Planned enhancements beyond the current scope:
 - **E-commerce Enablement**: Make inventory-managed products available in online purchase flows (marketplace, whitelabel)
 - **Mobile UI**: Optimize for Adyen mobile POS and iMin handheld validation devices
 - **Customer Facing Display**: Use the iMin Swan 1 Pro dual-screen hardware for a customer-facing display showing the cart, pricing, booking questions, and donations
-- **Memberships Integration**: Allow customers to claim perks on all purchases and log transactions against member profiles. This will introduce member pricing (strikethrough original price + discounted price) and a premium indicator (crown icon) on cart items for members. The **Identify member** modal is already implemented (see §8, Cart Panel header) and includes a demo prefill button for quick testing
+- **Memberships Integration**: Allow customers to claim perks on all purchases and log transactions against member profiles. Member identification, member pricing display (strikethrough original price + discounted price), and crown indicators on tiles and categories are already implemented (see §8 Member Identify Modal, §8 Cart Item Card, and §9 Member Pricing Crown Indicators). Remaining work: backend integration to validate membership status, apply perks server-side, and record transactions against member profiles
 - **Gift Card Sales & Redemption**: Enable sale and redemption of physical and digital gift cards
 - **Refund/Exchange Flow**: Streamlined refund and exchange process for all product types
 - **Advanced Reporting**: Deeper analytics and business intelligence dashboards

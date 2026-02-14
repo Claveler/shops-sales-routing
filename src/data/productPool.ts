@@ -8,10 +8,37 @@ export const DEMO_WAREHOUSE_3_ID = 'wh-demo-popup';
 // Products for initial sync (20 products)
 // ~30% intentionally have no image to show realistic placeholder mix
 export const DEMO_PRODUCTS: Product[] = [
-  // Apparel (6)
-  { id: 'demo-p-001', name: 'Event T-Shirt (Black)', sku: 'TSH-BLK-001', imageUrl: '/images/products/demo-p-001.jpeg' },
-  { id: 'demo-p-002', name: 'Event T-Shirt (White)', sku: 'TSH-WHT-001', imageUrl: '/images/products/demo-p-002.jpeg' },
-  { id: 'demo-p-003', name: 'Premium Hoodie (Gray)', sku: 'HOOD-GRY-001', imageUrl: '/images/products/demo-p-003.jpeg' },
+  // Apparel (6) — first 3 have size variants
+  {
+    id: 'demo-p-001', name: 'Event T-Shirt (Black)', sku: 'TSH-BLK-001', imageUrl: '/images/products/demo-p-001.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-001-s',  parentProductId: 'demo-p-001', sku: 'TSH-BLK-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-001-m',  parentProductId: 'demo-p-001', sku: 'TSH-BLK-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-001-l',  parentProductId: 'demo-p-001', sku: 'TSH-BLK-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-001-xl', parentProductId: 'demo-p-001', sku: 'TSH-BLK-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
+  {
+    id: 'demo-p-002', name: 'Event T-Shirt (White)', sku: 'TSH-WHT-001', imageUrl: '/images/products/demo-p-002.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-002-s',  parentProductId: 'demo-p-002', sku: 'TSH-WHT-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-002-m',  parentProductId: 'demo-p-002', sku: 'TSH-WHT-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-002-l',  parentProductId: 'demo-p-002', sku: 'TSH-WHT-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-002-xl', parentProductId: 'demo-p-002', sku: 'TSH-WHT-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
+  {
+    id: 'demo-p-003', name: 'Premium Hoodie (Gray)', sku: 'HOOD-GRY-001', imageUrl: '/images/products/demo-p-003.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-003-s',  parentProductId: 'demo-p-003', sku: 'HOOD-GRY-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-003-m',  parentProductId: 'demo-p-003', sku: 'HOOD-GRY-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-003-l',  parentProductId: 'demo-p-003', sku: 'HOOD-GRY-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-003-xl', parentProductId: 'demo-p-003', sku: 'HOOD-GRY-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
   { id: 'demo-p-004', name: 'Vintage Cap', sku: 'CAP-VTG-001' },
   { id: 'demo-p-005', name: 'Concert Jacket', sku: 'JKT-CNT-001', imageUrl: '/images/products/demo-p-005.jpeg' },
   { id: 'demo-p-006', name: 'Limited Edition Beanie', sku: 'BNE-LTD-001' },
@@ -42,10 +69,22 @@ export const DEMO_PRODUCTS: Product[] = [
 // Product-Warehouse mappings for initial sync
 // Main Store: 14 products, Gift Shop: 10 products, Pop-up Store: 6 products (some overlap)
 export const DEMO_PRODUCT_WAREHOUSES: ProductWarehouse[] = [
-  // Main Store products (14)
-  { productId: 'demo-p-001', warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 150 },
-  { productId: 'demo-p-002', warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 120 },
-  { productId: 'demo-p-003', warehouseId: DEMO_WAREHOUSE_1_ID, price: 59.99, currency: 'EUR', stock: 80 },
+  // Main Store products (14) — variant products have per-variant rows
+  // demo-p-001 Event T-Shirt (Black)
+  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 50 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 45 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: DEMO_WAREHOUSE_1_ID, price: 32.99, currency: 'EUR', stock: 25 },
+  // demo-p-002 Event T-Shirt (White)
+  { productId: 'demo-p-002', variantId: 'demo-p-002-s',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-m',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 40 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-l',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 29.99, currency: 'EUR', stock: 35 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-xl', warehouseId: DEMO_WAREHOUSE_1_ID, price: 32.99, currency: 'EUR', stock: 20 },
+  // demo-p-003 Premium Hoodie (Gray)
+  { productId: 'demo-p-003', variantId: 'demo-p-003-s',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 59.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-m',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 59.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-l',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 59.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-xl', warehouseId: DEMO_WAREHOUSE_1_ID, price: 64.99, currency: 'EUR', stock: 15 },
   { productId: 'demo-p-004', warehouseId: DEMO_WAREHOUSE_1_ID, price: 24.99, currency: 'EUR', stock: 100 },
   { productId: 'demo-p-005', warehouseId: DEMO_WAREHOUSE_1_ID, price: 89.99, currency: 'EUR', stock: 40 },
   { productId: 'demo-p-006', warehouseId: DEMO_WAREHOUSE_1_ID, price: 19.99, currency: 'EUR', stock: 200 },
@@ -59,8 +98,16 @@ export const DEMO_PRODUCT_WAREHOUSES: ProductWarehouse[] = [
   { productId: 'demo-p-018', warehouseId: DEMO_WAREHOUSE_1_ID, price: 24.99, currency: 'EUR', stock: 75 },
   
   // Gift Shop products (10) - some overlap with Main Store (different prices)
-  { productId: 'demo-p-001', warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 80 },
-  { productId: 'demo-p-002', warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 60 },
+  // demo-p-001 Event T-Shirt (Black)
+  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: DEMO_WAREHOUSE_2_ID, price: 35.99, currency: 'EUR', stock: 15 },
+  // demo-p-002 Event T-Shirt (White)
+  { productId: 'demo-p-002', variantId: 'demo-p-002-s',  warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 12 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-m',  warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 20 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-l',  warehouseId: DEMO_WAREHOUSE_2_ID, price: 32.99, currency: 'EUR', stock: 18 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-xl', warehouseId: DEMO_WAREHOUSE_2_ID, price: 35.99, currency: 'EUR', stock: 10 },
   { productId: 'demo-p-007', warehouseId: DEMO_WAREHOUSE_2_ID, price: 17.99, currency: 'EUR', stock: 100 },
   { productId: 'demo-p-008', warehouseId: DEMO_WAREHOUSE_2_ID, price: 14.99, currency: 'EUR', stock: 150 },
   { productId: 'demo-p-009', warehouseId: DEMO_WAREHOUSE_2_ID, price: 9.99, currency: 'EUR', stock: 200 },
@@ -71,8 +118,16 @@ export const DEMO_PRODUCT_WAREHOUSES: ProductWarehouse[] = [
   { productId: 'demo-p-020', warehouseId: DEMO_WAREHOUSE_2_ID, price: 55.00, currency: 'EUR', stock: 30 },
   
   // Pop-up Store products (6) - limited selection for pop-up events
-  { productId: 'demo-p-001', warehouseId: DEMO_WAREHOUSE_3_ID, price: 34.99, currency: 'EUR', stock: 50 },
-  { productId: 'demo-p-003', warehouseId: DEMO_WAREHOUSE_3_ID, price: 64.99, currency: 'EUR', stock: 30 },
+  // demo-p-001 Event T-Shirt (Black)
+  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: DEMO_WAREHOUSE_3_ID, price: 34.99, currency: 'EUR', stock: 10 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: DEMO_WAREHOUSE_3_ID, price: 34.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: DEMO_WAREHOUSE_3_ID, price: 34.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: DEMO_WAREHOUSE_3_ID, price: 37.99, currency: 'EUR', stock: 10 },
+  // demo-p-003 Premium Hoodie (Gray)
+  { productId: 'demo-p-003', variantId: 'demo-p-003-s',  warehouseId: DEMO_WAREHOUSE_3_ID, price: 64.99, currency: 'EUR', stock: 5 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-m',  warehouseId: DEMO_WAREHOUSE_3_ID, price: 64.99, currency: 'EUR', stock: 10 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-l',  warehouseId: DEMO_WAREHOUSE_3_ID, price: 64.99, currency: 'EUR', stock: 10 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-xl', warehouseId: DEMO_WAREHOUSE_3_ID, price: 69.99, currency: 'EUR', stock: 5 },
   { productId: 'demo-p-007', warehouseId: DEMO_WAREHOUSE_3_ID, price: 19.99, currency: 'EUR', stock: 60 },
   { productId: 'demo-p-011', warehouseId: DEMO_WAREHOUSE_3_ID, price: 22.00, currency: 'EUR', stock: 100 },
   { productId: 'demo-p-015', warehouseId: DEMO_WAREHOUSE_3_ID, price: 44.99, currency: 'EUR', stock: 25 },
@@ -81,7 +136,16 @@ export const DEMO_PRODUCT_WAREHOUSES: ProductWarehouse[] = [
 
 // Products for second sync (5 new products)
 export const SECOND_SYNC_PRODUCTS: Product[] = [
-  { id: 'demo-p-021', name: 'Anniversary Edition T-Shirt', sku: 'TSH-ANV-001', imageUrl: '/images/products/demo-p-021.jpeg' },
+  {
+    id: 'demo-p-021', name: 'Anniversary Edition T-Shirt', sku: 'TSH-ANV-001', imageUrl: '/images/products/demo-p-021.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-021-s',  parentProductId: 'demo-p-021', sku: 'TSH-ANV-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-021-m',  parentProductId: 'demo-p-021', sku: 'TSH-ANV-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-021-l',  parentProductId: 'demo-p-021', sku: 'TSH-ANV-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-021-xl', parentProductId: 'demo-p-021', sku: 'TSH-ANV-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
   { id: 'demo-p-022', name: 'Exclusive Poster Bundle', sku: 'POS-BND-001', imageUrl: '/images/products/demo-p-022.jpeg' },
   { id: 'demo-p-023', name: 'VIP Experience Add-on', sku: 'VIP-ADD-001' },
   { id: 'demo-p-024', name: 'Collector\'s Box Set', sku: 'COL-BOX-001', imageUrl: '/images/products/demo-p-024.jpeg' },
@@ -91,7 +155,11 @@ export const SECOND_SYNC_PRODUCTS: Product[] = [
 // Product-Warehouse mappings for second sync
 export const SECOND_SYNC_PRODUCT_WAREHOUSES: ProductWarehouse[] = [
   // Main Store gets 2 (will be auto-published via onsite routing)
-  { productId: 'demo-p-021', warehouseId: DEMO_WAREHOUSE_1_ID, price: 34.99, currency: 'EUR', stock: 100 },
+  // demo-p-021 Anniversary Edition T-Shirt — per-variant
+  { productId: 'demo-p-021', variantId: 'demo-p-021-s',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 34.99, currency: 'EUR', stock: 20 },
+  { productId: 'demo-p-021', variantId: 'demo-p-021-m',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 34.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-021', variantId: 'demo-p-021-l',  warehouseId: DEMO_WAREHOUSE_1_ID, price: 34.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-021', variantId: 'demo-p-021-xl', warehouseId: DEMO_WAREHOUSE_1_ID, price: 37.99, currency: 'EUR', stock: 20 },
   { productId: 'demo-p-022', warehouseId: DEMO_WAREHOUSE_1_ID, price: 49.99, currency: 'EUR', stock: 50 },
   
   // Gift Shop gets 1 (will be auto-published via onsite routing)

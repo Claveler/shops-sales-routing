@@ -27,6 +27,25 @@ export interface Warehouse {
   masterCatalogId: string;
 }
 
+// ---------------------------------------------------------------------------
+// Variant types — shared across catalog and POS
+// ---------------------------------------------------------------------------
+
+/** A single variant axis, e.g. { name: "Size", values: ["S","M","L","XL"] } */
+export interface VariantAxis {
+  name: string;
+  values: string[];
+}
+
+/** One concrete variant combination for a parent product */
+export interface ProductVariant {
+  id: string;                         // e.g. 'p-001-s'
+  parentProductId: string;
+  sku: string;
+  attributes: Record<string, string>; // e.g. { Size: "S" }
+  label: string;                      // display string, e.g. "S"
+}
+
 // Products belong to the catalog integration, not individual warehouses
 export interface Product {
   id: string;
@@ -35,6 +54,8 @@ export interface Product {
   imageUrl?: string;
   pendingSync?: boolean; // If true, product is hidden until "Sync" is clicked
   syncedAt?: string; // Timestamp when product was synced
+  variantAxes?: VariantAxis[];     // undefined = simple product (no variants)
+  variants?: ProductVariant[];     // the concrete variant combinations
 }
 
 // ProductWarehouse links products to warehouses with warehouse-specific attributes
@@ -45,6 +66,7 @@ export interface ProductWarehouse {
   memberPrice?: number; // Discounted price for identified members
   currency: string;
   stock: number;
+  variantId?: string; // references ProductVariant.id; omitted for simple products
 }
 
 export interface Channel {
@@ -189,119 +211,192 @@ export const catalogIntegration: CatalogIntegration | null = {
   createdAt: '2025-11-15'
 };
 
-// Mock Warehouses
+// Mock Warehouses — matches demo warehouses from productPool.ts
 export const warehouses: Warehouse[] = [
   {
-    id: 'wh-001',
-    name: 'ES - Shops Square Testing',
+    id: 'wh-demo-main',
+    name: 'Main Store',
     integration: 'Square',
-    externalLocationId: 'LOC_SQ_001',
-    productCount: 45,
-    masterCatalogId: 'sq0idp-X1_ry5W0fWF9BfDZ5uEPw'
+    externalLocationId: 'LOC_MAIN_001',
+    productCount: 14,
+    masterCatalogId: 'sq_merchant_demo_12345'
   },
   {
-    id: 'wh-002',
-    name: 'ES - Shops Shopify Testing',
-    integration: 'Shopify',
-    externalLocationId: 'LOC_SHOP_001',
-    productCount: 32,
-    masterCatalogId: 'b08wxf-pi.myshopify.com'
-  },
-  {
-    id: 'wh-003',
-    name: 'Deprecated',
+    id: 'wh-demo-gift',
+    name: 'Gift Shop',
     integration: 'Square',
-    externalLocationId: 'LOC_SQ_002',
-    productCount: 18,
-    masterCatalogId: 'sq0idp-z_n59C027k5_B1_C66_7DQ'
+    externalLocationId: 'LOC_GIFT_001',
+    productCount: 10,
+    masterCatalogId: 'sq_merchant_demo_12345'
   },
   {
-    id: 'wh-004',
-    name: 'Barcelona Merchandise',
-    integration: 'Shopify',
-    externalLocationId: 'LOC_SHOP_002',
-    productCount: 67,
-    masterCatalogId: 'bcn-merch.myshopify.com'
-  },
-  {
-    id: 'wh-005',
-    name: 'New Arrivals (No Routing)',
+    id: 'wh-demo-popup',
+    name: 'Pop-up Store',
     integration: 'Square',
-    externalLocationId: 'LOC_SQ_003',
-    productCount: 5,
-    masterCatalogId: 'sq0idp-new-arrivals'
-  },
-  {
-    id: 'wh-006',
-    name: 'Online-Only Merchandise',
-    integration: 'Square',
-    externalLocationId: 'LOC_SQ_004',
-    productCount: 12,
-    masterCatalogId: 'sq0idp-online-merch'
+    externalLocationId: 'LOC_POPUP_001',
+    productCount: 6,
+    masterCatalogId: 'sq_merchant_demo_12345'
   }
 ];
 
-// Mock Products - catalog-level (same across all warehouses)
-// Some products have imageUrl (via Pexels) for realistic thumbnails, others use placeholder
+// Mock Products — matches demo products from productPool.ts (DEMO_PRODUCTS + SECOND_SYNC_PRODUCTS)
+// ~30% intentionally have no image to show realistic placeholder mix
 export const products: Product[] = [
-  { id: 'p-001', name: 'Candlelight T-Shirt (Black)', sku: 'TSH-BLK-001', imageUrl: '/images/products/p-001.jpeg' },
-  { id: 'p-002', name: 'Candlelight T-Shirt (White)', sku: 'TSH-WHT-001', imageUrl: '/images/products/p-002.jpeg' },
-  { id: 'p-003', name: 'Concert Poster (A2)', sku: 'POS-A2-001', imageUrl: '/images/products/p-003.jpeg' },
-  { id: 'p-004', name: 'Vinyl Record - Classical Hits', sku: 'VNL-CLS-001' },
-  { id: 'p-005', name: 'Scented Candle Set (3 pack)', sku: 'CND-SET-001', imageUrl: '/images/products/p-005.jpeg' },
-  { id: 'p-006', name: 'Tote Bag - Candlelight Design', sku: 'BAG-TOT-001' },
-  { id: 'p-007', name: 'Van Gogh Starry Night Print', sku: 'VG-PRT-001', imageUrl: '/images/products/p-007.jpeg' },
-  { id: 'p-008', name: 'Van Gogh Sunflowers Mug', sku: 'VG-MUG-001' },
-  { id: 'p-009', name: 'Art Book - Van Gogh Collection', sku: 'VG-BK-001', imageUrl: '/images/products/p-009.jpeg' },
-  { id: 'p-010', name: 'Puzzle - Starry Night (1000pc)', sku: 'VG-PZL-001' },
-  { id: 'p-011', name: 'VR Headset Rental', sku: 'VG-VR-001' },
-  { id: 'p-012', name: 'Barcelona City Map Poster', sku: 'BCN-MAP-001', imageUrl: '/images/products/p-012.jpeg' },
-  { id: 'p-013', name: 'Tapas Recipe Book', sku: 'BCN-BK-001' },
-  { id: 'p-014', name: 'Wine Tasting Set', sku: 'BCN-WINE-001', imageUrl: '/images/products/p-014.jpeg' }, // In wh-005 (no routing) - unpublished
+  // Apparel (6) — first 3 have size variants
+  {
+    id: 'demo-p-001', name: 'Event T-Shirt (Black)', sku: 'TSH-BLK-001', imageUrl: '/images/products/demo-p-001.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-001-s',  parentProductId: 'demo-p-001', sku: 'TSH-BLK-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-001-m',  parentProductId: 'demo-p-001', sku: 'TSH-BLK-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-001-l',  parentProductId: 'demo-p-001', sku: 'TSH-BLK-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-001-xl', parentProductId: 'demo-p-001', sku: 'TSH-BLK-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
+  {
+    id: 'demo-p-002', name: 'Event T-Shirt (White)', sku: 'TSH-WHT-001', imageUrl: '/images/products/demo-p-002.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-002-s',  parentProductId: 'demo-p-002', sku: 'TSH-WHT-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-002-m',  parentProductId: 'demo-p-002', sku: 'TSH-WHT-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-002-l',  parentProductId: 'demo-p-002', sku: 'TSH-WHT-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-002-xl', parentProductId: 'demo-p-002', sku: 'TSH-WHT-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
+  {
+    id: 'demo-p-003', name: 'Premium Hoodie (Gray)', sku: 'HOOD-GRY-001', imageUrl: '/images/products/demo-p-003.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-003-s',  parentProductId: 'demo-p-003', sku: 'HOOD-GRY-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-003-m',  parentProductId: 'demo-p-003', sku: 'HOOD-GRY-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-003-l',  parentProductId: 'demo-p-003', sku: 'HOOD-GRY-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-003-xl', parentProductId: 'demo-p-003', sku: 'HOOD-GRY-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
+  { id: 'demo-p-004', name: 'Vintage Cap', sku: 'CAP-VTG-001' },
+  { id: 'demo-p-005', name: 'Concert Jacket', sku: 'JKT-CNT-001', imageUrl: '/images/products/demo-p-005.jpeg' },
+  { id: 'demo-p-006', name: 'Limited Edition Beanie', sku: 'BNE-LTD-001' },
   
-  // Pending sync products - hidden until "Sync products" is clicked
-  // p-new-001: In wh-001 (has onsite routing) → auto-published after sync
-  // p-new-002: In wh-002 (has online routing sr-002) but not in selectedProductIds → "Not in online routing"
-  // p-new-003: In wh-005 (no routing) → "No routing configured"
-  { id: 'p-new-001', name: 'Limited Edition Poster', sku: 'LTD-POST-001', pendingSync: true, imageUrl: '/images/products/p-new-001.jpeg' },
-  { id: 'p-new-002', name: 'VIP Experience Package', sku: 'VIP-EXP-001', pendingSync: true },
-  { id: 'p-new-003', name: 'Exclusive Vinyl Record', sku: 'VINYL-EXC-001', pendingSync: true },
+  // Accessories (4)
+  { id: 'demo-p-007', name: 'Canvas Tote Bag', sku: 'BAG-TOT-001', imageUrl: '/images/products/demo-p-007.jpeg' },
+  { id: 'demo-p-008', name: 'Enamel Pin Set', sku: 'PIN-SET-001', imageUrl: '/images/products/demo-p-008.jpeg' },
+  { id: 'demo-p-009', name: 'Wristband Pack (3)', sku: 'WRB-PCK-001' },
+  { id: 'demo-p-010', name: 'Lanyard with Badge Holder', sku: 'LNY-BDG-001' },
+  
+  // Home & Decor (4)
+  { id: 'demo-p-011', name: 'Concert Poster (A2)', sku: 'POS-A2-001', imageUrl: '/images/products/demo-p-011.jpeg' },
+  { id: 'demo-p-012', name: 'Scented Candle Set', sku: 'CND-SET-001', imageUrl: '/images/products/demo-p-012.jpeg' },
+  { id: 'demo-p-013', name: 'Art Print Collection', sku: 'ART-PRT-001' },
+  { id: 'demo-p-014', name: 'Photo Book', sku: 'PHO-BK-001', imageUrl: '/images/products/demo-p-014.jpeg' },
+  
+  // Collectibles (3)
+  { id: 'demo-p-015', name: 'Vinyl Record - Live Album', sku: 'VNL-LIV-001', imageUrl: '/images/products/demo-p-015.jpeg' },
+  { id: 'demo-p-016', name: 'Commemorative Coin', sku: 'CON-CMM-001' },
+  { id: 'demo-p-017', name: 'Signed Photograph', sku: 'PHO-SGN-001', imageUrl: '/images/products/demo-p-017.jpeg' },
+  
+  // Food & Beverage (3)
+  { id: 'demo-p-018', name: 'Gourmet Chocolate Box', sku: 'CHO-BOX-001', imageUrl: '/images/products/demo-p-018.jpeg' },
+  { id: 'demo-p-019', name: 'Premium Coffee Blend', sku: 'COF-PRM-001' },
+  { id: 'demo-p-020', name: 'Wine Tasting Set', sku: 'WIN-SET-001', imageUrl: '/images/products/demo-p-020.jpeg' },
+
+  // Second sync products (5)
+  {
+    id: 'demo-p-021', name: 'Anniversary Edition T-Shirt', sku: 'TSH-ANV-001', imageUrl: '/images/products/demo-p-021.jpeg',
+    variantAxes: [{ name: 'Size', values: ['S', 'M', 'L', 'XL'] }],
+    variants: [
+      { id: 'demo-p-021-s',  parentProductId: 'demo-p-021', sku: 'TSH-ANV-S',  attributes: { Size: 'S' },  label: 'S' },
+      { id: 'demo-p-021-m',  parentProductId: 'demo-p-021', sku: 'TSH-ANV-M',  attributes: { Size: 'M' },  label: 'M' },
+      { id: 'demo-p-021-l',  parentProductId: 'demo-p-021', sku: 'TSH-ANV-L',  attributes: { Size: 'L' },  label: 'L' },
+      { id: 'demo-p-021-xl', parentProductId: 'demo-p-021', sku: 'TSH-ANV-XL', attributes: { Size: 'XL' }, label: 'XL' },
+    ],
+  },
+  { id: 'demo-p-022', name: 'Exclusive Poster Bundle', sku: 'POS-BND-001', imageUrl: '/images/products/demo-p-022.jpeg' },
+  { id: 'demo-p-023', name: 'VIP Experience Add-on', sku: 'VIP-ADD-001' },
+  { id: 'demo-p-024', name: 'Collector\'s Box Set', sku: 'COL-BOX-001', imageUrl: '/images/products/demo-p-024.jpeg' },
+  { id: 'demo-p-025', name: 'Digital Download Card', sku: 'DIG-DWN-001' },
 ];
 
-// Mock ProductWarehouses - warehouse-specific stock and prices
+// Mock ProductWarehouses — matches demo data from productPool.ts
 // A product can exist in multiple warehouses with different stock/price
 export const productWarehouses: ProductWarehouse[] = [
-  // Products in wh-001 (ES - Shops Square Testing)
-  { productId: 'p-001', warehouseId: 'wh-001', price: 29.99, memberPrice: 22.49, currency: 'EUR', stock: 150 },
-  { productId: 'p-002', warehouseId: 'wh-001', price: 29.99, currency: 'EUR', stock: 120 },
-  { productId: 'p-003', warehouseId: 'wh-001', price: 15.00, currency: 'EUR', stock: 200 },
-  { productId: 'p-004', warehouseId: 'wh-001', price: 34.99, memberPrice: 26.24, currency: 'EUR', stock: 50 },
-  { productId: 'p-005', warehouseId: 'wh-001', price: 24.99, currency: 'EUR', stock: 80 },
-  { productId: 'p-006', warehouseId: 'wh-001', price: 19.99, currency: 'EUR', stock: 100 },
+  // Main Store products (14) — variant products have per-variant rows
+  // demo-p-001 Event T-Shirt (Black)
+  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 50 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 45 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: 'wh-demo-main', price: 32.99, currency: 'EUR', stock: 25 },
+  // demo-p-002 Event T-Shirt (White)
+  { productId: 'demo-p-002', variantId: 'demo-p-002-s',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-m',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 40 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-l',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 35 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-xl', warehouseId: 'wh-demo-main', price: 32.99, currency: 'EUR', stock: 20 },
+  // demo-p-003 Premium Hoodie (Gray)
+  { productId: 'demo-p-003', variantId: 'demo-p-003-s',  warehouseId: 'wh-demo-main', price: 59.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-m',  warehouseId: 'wh-demo-main', price: 59.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-l',  warehouseId: 'wh-demo-main', price: 59.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-xl', warehouseId: 'wh-demo-main', price: 64.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-004', warehouseId: 'wh-demo-main', price: 24.99, currency: 'EUR', stock: 100 },
+  { productId: 'demo-p-005', warehouseId: 'wh-demo-main', price: 89.99, currency: 'EUR', stock: 40 },
+  { productId: 'demo-p-006', warehouseId: 'wh-demo-main', price: 19.99, currency: 'EUR', stock: 200 },
+  { productId: 'demo-p-007', warehouseId: 'wh-demo-main', price: 15.99, currency: 'EUR', stock: 180 },
+  { productId: 'demo-p-008', warehouseId: 'wh-demo-main', price: 12.99, currency: 'EUR', stock: 250 },
+  { productId: 'demo-p-011', warehouseId: 'wh-demo-main', price: 18.00, currency: 'EUR', stock: 300 },
+  { productId: 'demo-p-012', warehouseId: 'wh-demo-main', price: 34.99, currency: 'EUR', stock: 60 },
+  { productId: 'demo-p-015', warehouseId: 'wh-demo-main', price: 39.99, currency: 'EUR', stock: 50 },
+  { productId: 'demo-p-016', warehouseId: 'wh-demo-main', price: 49.99, currency: 'EUR', stock: 100 },
+  { productId: 'demo-p-017', warehouseId: 'wh-demo-main', price: 99.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-018', warehouseId: 'wh-demo-main', price: 24.99, currency: 'EUR', stock: 75 },
   
-  // Some products also in wh-003 (Deprecated) - with different prices/stock
-  { productId: 'p-001', warehouseId: 'wh-003', price: 27.99, currency: 'EUR', stock: 45 },
-  { productId: 'p-002', warehouseId: 'wh-003', price: 27.99, currency: 'EUR', stock: 30 },
-  { productId: 'p-004', warehouseId: 'wh-003', price: 32.99, currency: 'EUR', stock: 20 },
+  // Gift Shop products (10) - some overlap with Main Store (different prices)
+  // demo-p-001 Event T-Shirt (Black)
+  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: 'wh-demo-gift', price: 32.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: 'wh-demo-gift', price: 32.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: 'wh-demo-gift', price: 32.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: 'wh-demo-gift', price: 35.99, currency: 'EUR', stock: 15 },
+  // demo-p-002 Event T-Shirt (White)
+  { productId: 'demo-p-002', variantId: 'demo-p-002-s',  warehouseId: 'wh-demo-gift', price: 32.99, currency: 'EUR', stock: 12 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-m',  warehouseId: 'wh-demo-gift', price: 32.99, currency: 'EUR', stock: 20 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-l',  warehouseId: 'wh-demo-gift', price: 32.99, currency: 'EUR', stock: 18 },
+  { productId: 'demo-p-002', variantId: 'demo-p-002-xl', warehouseId: 'wh-demo-gift', price: 35.99, currency: 'EUR', stock: 10 },
+  { productId: 'demo-p-007', warehouseId: 'wh-demo-gift', price: 17.99, currency: 'EUR', stock: 100 },
+  { productId: 'demo-p-008', warehouseId: 'wh-demo-gift', price: 14.99, currency: 'EUR', stock: 150 },
+  { productId: 'demo-p-009', warehouseId: 'wh-demo-gift', price: 9.99, currency: 'EUR', stock: 200 },
+  { productId: 'demo-p-010', warehouseId: 'wh-demo-gift', price: 8.99, currency: 'EUR', stock: 300 },
+  { productId: 'demo-p-013', warehouseId: 'wh-demo-gift', price: 45.00, currency: 'EUR', stock: 40 },
+  { productId: 'demo-p-014', warehouseId: 'wh-demo-gift', price: 35.00, currency: 'EUR', stock: 55 },
+  { productId: 'demo-p-019', warehouseId: 'wh-demo-gift', price: 18.99, currency: 'EUR', stock: 90 },
+  { productId: 'demo-p-020', warehouseId: 'wh-demo-gift', price: 55.00, currency: 'EUR', stock: 30 },
   
-  // Products in wh-002 (ES - Shops Shopify Testing)
-  { productId: 'p-007', warehouseId: 'wh-002', price: 45.00, memberPrice: 33.75, currency: 'EUR', stock: 75 },
-  { productId: 'p-008', warehouseId: 'wh-002', price: 18.00, currency: 'EUR', stock: 200 },
-  { productId: 'p-009', warehouseId: 'wh-002', price: 39.99, memberPrice: 29.99, currency: 'EUR', stock: 40 },
-  { productId: 'p-010', warehouseId: 'wh-002', price: 22.00, currency: 'EUR', stock: 60 },
-  { productId: 'p-011', warehouseId: 'wh-002', price: 10.00, currency: 'EUR', stock: 30 },
+  // Pop-up Store products (6) - limited selection for pop-up events
+  // demo-p-001 Event T-Shirt (Black)
+  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: 'wh-demo-popup', price: 34.99, currency: 'EUR', stock: 10 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: 'wh-demo-popup', price: 34.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: 'wh-demo-popup', price: 34.99, currency: 'EUR', stock: 15 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: 'wh-demo-popup', price: 37.99, currency: 'EUR', stock: 10 },
+  // demo-p-003 Premium Hoodie (Gray)
+  { productId: 'demo-p-003', variantId: 'demo-p-003-s',  warehouseId: 'wh-demo-popup', price: 64.99, currency: 'EUR', stock: 5 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-m',  warehouseId: 'wh-demo-popup', price: 64.99, currency: 'EUR', stock: 10 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-l',  warehouseId: 'wh-demo-popup', price: 64.99, currency: 'EUR', stock: 10 },
+  { productId: 'demo-p-003', variantId: 'demo-p-003-xl', warehouseId: 'wh-demo-popup', price: 69.99, currency: 'EUR', stock: 5 },
+  { productId: 'demo-p-007', warehouseId: 'wh-demo-popup', price: 19.99, currency: 'EUR', stock: 60 },
+  { productId: 'demo-p-011', warehouseId: 'wh-demo-popup', price: 22.00, currency: 'EUR', stock: 100 },
+  { productId: 'demo-p-015', warehouseId: 'wh-demo-popup', price: 44.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-016', warehouseId: 'wh-demo-popup', price: 54.99, currency: 'EUR', stock: 40 },
+
+  // Second sync — Main Store gets 2
+  // demo-p-021 Anniversary Edition T-Shirt — per-variant
+  { productId: 'demo-p-021', variantId: 'demo-p-021-s',  warehouseId: 'wh-demo-main', price: 34.99, currency: 'EUR', stock: 20 },
+  { productId: 'demo-p-021', variantId: 'demo-p-021-m',  warehouseId: 'wh-demo-main', price: 34.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-021', variantId: 'demo-p-021-l',  warehouseId: 'wh-demo-main', price: 34.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-021', variantId: 'demo-p-021-xl', warehouseId: 'wh-demo-main', price: 37.99, currency: 'EUR', stock: 20 },
+  { productId: 'demo-p-022', warehouseId: 'wh-demo-main', price: 49.99, currency: 'EUR', stock: 50 },
   
-  // Products in wh-004 (Barcelona Merchandise)
-  { productId: 'p-012', warehouseId: 'wh-004', price: 12.00, currency: 'EUR', stock: 150 },
-  { productId: 'p-013', warehouseId: 'wh-004', price: 28.00, currency: 'EUR', stock: 45 },
+  // Second sync — Gift Shop gets 1
+  { productId: 'demo-p-023', warehouseId: 'wh-demo-gift', price: 149.99, currency: 'EUR', stock: 20 },
   
-  // Products in wh-005 (New Arrivals - NO ROUTING configured)
-  { productId: 'p-014', warehouseId: 'wh-005', price: 55.00, memberPrice: 41.25, currency: 'EUR', stock: 25 }, // Wine Tasting Set - unpublished
-  
-  // Pending sync products - warehouse assignments
-  { productId: 'p-new-001', warehouseId: 'wh-001', price: 25.00, currency: 'EUR', stock: 100 }, // → auto-published via sr-001 (onsite)
-  { productId: 'p-new-002', warehouseId: 'wh-006', price: 89.00, currency: 'EUR', stock: 50 },  // → wh-006 has online routing sr-005, but not in selectedProductIds
-  { productId: 'p-new-003', warehouseId: 'wh-005', price: 42.00, currency: 'EUR', stock: 30 },  // → wh-005 has no routing
+  // Second sync — Pop-up Store gets 2
+  { productId: 'demo-p-024', warehouseId: 'wh-demo-popup', price: 79.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-025', warehouseId: 'wh-demo-popup', price: 14.99, currency: 'EUR', stock: 500 },
 ];
 
 // Mock Channels - Box-Office is a special onsite channel
@@ -355,41 +450,53 @@ export const hierarchyElements: HierarchyElement[] = [
   { id: 'he-004-3', hierarchyId: 'hier-001', parentId: 'he-004', name: 'Puzzles', externalId: 'SQ_CAT_PUZZLES' },
 ];
 
-// Product-Category assignments
+// Product-Category assignments — matches DEMO_HIERARCHY_ELEMENT_PRODUCTS from productPool.ts
 export const hierarchyElementProducts: HierarchyElementProduct[] = [
-  // Apparel > T-Shirts
-  { hierarchyElementId: 'he-001-1', productId: 'p-001' }, // Candlelight T-Shirt (Black)
-  { hierarchyElementId: 'he-001-1', productId: 'p-002' }, // Candlelight T-Shirt (White)
-  // Apparel > Bags
-  { hierarchyElementId: 'he-001-2', productId: 'p-006' }, // Tote Bag
+  // Apparel > T-Shirts (he-001-1)
+  { hierarchyElementId: 'he-001-1', productId: 'demo-p-001' }, // Event T-Shirt (Black)
+  { hierarchyElementId: 'he-001-1', productId: 'demo-p-002' }, // Event T-Shirt (White)
+  { hierarchyElementId: 'he-001-1', productId: 'demo-p-021' }, // Anniversary Edition T-Shirt
+  // Apparel (he-001) - other apparel
+  { hierarchyElementId: 'he-001', productId: 'demo-p-003' }, // Premium Hoodie
+  { hierarchyElementId: 'he-001', productId: 'demo-p-004' }, // Vintage Cap
+  { hierarchyElementId: 'he-001', productId: 'demo-p-005' }, // Concert Jacket
+  { hierarchyElementId: 'he-001', productId: 'demo-p-006' }, // Limited Edition Beanie
   
-  // Art & Prints
-  { hierarchyElementId: 'he-002', productId: 'p-003' },   // Concert Poster
-  { hierarchyElementId: 'he-002', productId: 'p-007' },   // Van Gogh Starry Night Print
-  { hierarchyElementId: 'he-002', productId: 'p-012' },   // Barcelona City Map Poster
-  { hierarchyElementId: 'he-002', productId: 'p-new-001' }, // Limited Edition Poster
+  // Apparel > Bags (he-001-2)
+  { hierarchyElementId: 'he-001-2', productId: 'demo-p-007' }, // Canvas Tote Bag
   
-  // Music
-  { hierarchyElementId: 'he-003', productId: 'p-004' },   // Vinyl Record - Classical Hits
-  { hierarchyElementId: 'he-003', productId: 'p-new-003' }, // Exclusive Vinyl Record
+  // Art & Prints (he-002)
+  { hierarchyElementId: 'he-002', productId: 'demo-p-011' }, // Concert Poster
+  { hierarchyElementId: 'he-002', productId: 'demo-p-013' }, // Art Print Collection
+  { hierarchyElementId: 'he-002', productId: 'demo-p-022' }, // Exclusive Poster Bundle
   
-  // Home & Living > Candles
-  { hierarchyElementId: 'he-004-1', productId: 'p-005' }, // Scented Candle Set
-  // Home & Living > Mugs
-  { hierarchyElementId: 'he-004-2', productId: 'p-008' }, // Van Gogh Sunflowers Mug
-  // Home & Living > Puzzles
-  { hierarchyElementId: 'he-004-3', productId: 'p-010' }, // Puzzle - Starry Night
+  // Music (he-003)
+  { hierarchyElementId: 'he-003', productId: 'demo-p-015' }, // Vinyl Record
+  { hierarchyElementId: 'he-003', productId: 'demo-p-025' }, // Digital Download Card
   
-  // Books
-  { hierarchyElementId: 'he-005', productId: 'p-009' },   // Art Book - Van Gogh Collection
-  { hierarchyElementId: 'he-005', productId: 'p-013' },   // Tapas Recipe Book
+  // Home & Living > Candles (he-004-1)
+  { hierarchyElementId: 'he-004-1', productId: 'demo-p-012' }, // Scented Candle Set
   
-  // Experiences
-  { hierarchyElementId: 'he-006', productId: 'p-011' },   // VR Headset Rental
-  { hierarchyElementId: 'he-006', productId: 'p-new-002' }, // VIP Experience Package
+  // Books (he-005)
+  { hierarchyElementId: 'he-005', productId: 'demo-p-014' }, // Photo Book
   
-  // Food & Wine
-  { hierarchyElementId: 'he-007', productId: 'p-014' },   // Wine Tasting Set
+  // Experiences (he-006)
+  { hierarchyElementId: 'he-006', productId: 'demo-p-023' }, // VIP Experience Add-on
+  
+  // Food & Wine (he-007)
+  { hierarchyElementId: 'he-007', productId: 'demo-p-018' }, // Gourmet Chocolate Box
+  { hierarchyElementId: 'he-007', productId: 'demo-p-019' }, // Premium Coffee Blend
+  { hierarchyElementId: 'he-007', productId: 'demo-p-020' }, // Wine Tasting Set
+  
+  // Accessories (no specific category, use root)
+  { hierarchyElementId: 'he-001', productId: 'demo-p-008' }, // Enamel Pin Set
+  { hierarchyElementId: 'he-001', productId: 'demo-p-009' }, // Wristband Pack
+  { hierarchyElementId: 'he-001', productId: 'demo-p-010' }, // Lanyard
+  
+  // Collectibles - put under Music for now
+  { hierarchyElementId: 'he-003', productId: 'demo-p-016' }, // Commemorative Coin
+  { hierarchyElementId: 'he-002', productId: 'demo-p-017' }, // Signed Photograph
+  { hierarchyElementId: 'he-003', productId: 'demo-p-024' }, // Collector's Box Set
 ];
 
 // Helper to get category for a product
@@ -423,17 +530,17 @@ export function getAllCategories(): HierarchyElement[] {
   return hierarchyElements;
 }
 
-// Mock Sales Routings - Updated to new data model with channelWarehouseMapping
+// Mock Sales Routings — updated to use demo warehouse IDs
 export const salesRoutings: SalesRouting[] = [
   {
     id: 'sr-001',
     eventId: 'evt-001',
-    warehouseIds: ['wh-001', 'wh-002'],
-    priceReferenceWarehouseId: 'wh-001',
+    warehouseIds: ['wh-demo-main', 'wh-demo-gift'],
+    priceReferenceWarehouseId: 'wh-demo-main',
     channelIds: ['box-office', 'ch-001'],
     channelWarehouseMapping: {
-      'box-office': 'wh-001', // Box Office uses wh-001 (configured per setup later)
-      'ch-001': 'wh-002', // Fever Marketplace uses wh-002
+      'box-office': 'wh-demo-main',
+      'ch-001': 'wh-demo-gift', // Fever Marketplace uses Gift Shop
     },
     status: 'active',
     createdAt: '2026-01-15T10:30:00Z',
@@ -442,11 +549,11 @@ export const salesRoutings: SalesRouting[] = [
   {
     id: 'sr-002',
     eventId: 'evt-002',
-    warehouseIds: ['wh-002'],
+    warehouseIds: ['wh-demo-gift'],
     channelIds: ['ch-001', 'ch-002'],
     channelWarehouseMapping: {
-      'ch-001': 'wh-002',
-      'ch-002': 'wh-002',
+      'ch-001': 'wh-demo-gift',
+      'ch-002': 'wh-demo-gift',
     },
     status: 'active',
     createdAt: '2026-01-10T09:00:00Z',
@@ -455,12 +562,12 @@ export const salesRoutings: SalesRouting[] = [
   {
     id: 'sr-003',
     eventId: 'evt-003',
-    warehouseIds: ['wh-001'],
+    warehouseIds: ['wh-demo-main'],
     channelIds: ['ch-001', 'ch-004', 'ch-005'],
     channelWarehouseMapping: {
-      'ch-001': 'wh-001',
-      'ch-004': 'wh-001',
-      'ch-005': 'wh-001',
+      'ch-001': 'wh-demo-main',
+      'ch-004': 'wh-demo-main',
+      'ch-005': 'wh-demo-main',
     },
     status: 'draft',
     createdAt: '2026-02-01T11:00:00Z',
@@ -469,10 +576,10 @@ export const salesRoutings: SalesRouting[] = [
   {
     id: 'sr-004',
     eventId: 'evt-004',
-    warehouseIds: ['wh-004'],
+    warehouseIds: ['wh-demo-popup'],
     channelIds: ['box-office'],
     channelWarehouseMapping: {
-      'box-office': 'wh-004',
+      'box-office': 'wh-demo-popup',
     },
     status: 'inactive',
     createdAt: '2025-12-20T08:30:00Z',
@@ -481,11 +588,11 @@ export const salesRoutings: SalesRouting[] = [
   {
     id: 'sr-005',
     eventId: 'evt-005',
-    warehouseIds: ['wh-006'],
+    warehouseIds: ['wh-demo-popup'],
     channelIds: ['ch-001', 'ch-002'],
     channelWarehouseMapping: {
-      'ch-001': 'wh-006',
-      'ch-002': 'wh-006',
+      'ch-001': 'wh-demo-popup',
+      'ch-002': 'wh-demo-popup',
     },
     status: 'active',
     createdAt: '2026-01-28T09:00:00Z',
@@ -582,10 +689,10 @@ export interface ProductPublication {
 }
 
 export const boxOfficeSetups: BoxOfficeSetup[] = [
-  { id: 'bos-001', name: 'Main Entrance POS', salesRoutingId: 'sr-001', warehouseId: 'wh-001' },
-  { id: 'bos-002', name: 'Gift Shop', salesRoutingId: 'sr-001', warehouseId: 'wh-002' },
-  { id: 'bos-003', name: 'VIP Lounge', salesRoutingId: 'sr-001', warehouseId: 'wh-001' },
-  { id: 'bos-004', name: 'Food Court Kiosk', salesRoutingId: 'sr-004', warehouseId: 'wh-004' },
+  { id: 'bos-001', name: 'Main Entrance POS', salesRoutingId: 'sr-001', warehouseId: 'wh-demo-main' },
+  { id: 'bos-002', name: 'Gift Shop', salesRoutingId: 'sr-001', warehouseId: 'wh-demo-gift' },
+  { id: 'bos-003', name: 'VIP Lounge', salesRoutingId: 'sr-001', warehouseId: 'wh-demo-main' },
+  { id: 'bos-004', name: 'Pop-up Kiosk', salesRoutingId: 'sr-004', warehouseId: 'wh-demo-popup' },
 ];
 
 export function getBoxOfficeSetupsByRoutingId(routingId: string): BoxOfficeSetup[] {
@@ -602,41 +709,95 @@ export function getWarehousesByIntegration(provider: IntegrationProvider): Wareh
   return warehouses.filter(w => w.integration === providerName);
 }
 
-// Mock Product Publications
-// These are created when a sales routing is set up - each product gets a session type in the event
+// Mock Product Publications — derived from routing warehouse mappings
+// sr-001: wh-demo-main (box-office) + wh-demo-gift (ch-001) → union of products in both warehouses
+// sr-002: wh-demo-gift (ch-001, ch-002) → products in Gift Shop
+// sr-003: wh-demo-main (ch-001, ch-004, ch-005) → products in Main Store
+// sr-004: wh-demo-popup (box-office) → products in Pop-up Store
+// sr-005: wh-demo-popup (ch-001, ch-002) → products in Pop-up Store
 export const productPublications: ProductPublication[] = [
-  // Products from wh-001 published via sr-001 (Candlelight Taylor Swift - Onsite)
-  { productId: 'p-001', salesRoutingId: 'sr-001', sessionTypeId: '10234567' },
-  { productId: 'p-002', salesRoutingId: 'sr-001', sessionTypeId: '10234568' },
-  { productId: 'p-003', salesRoutingId: 'sr-001', sessionTypeId: '10234569' },
-  { productId: 'p-004', salesRoutingId: 'sr-001', sessionTypeId: '10234570' },
-  { productId: 'p-005', salesRoutingId: 'sr-001', sessionTypeId: '10234571' },
-  { productId: 'p-006', salesRoutingId: 'sr-001', sessionTypeId: '10234572' },
+  // sr-001 — Candlelight Taylor Swift: Main Store (box-office) + Gift Shop (marketplace)
+  // Main Store products: 001-008, 011, 012, 015-018, 021, 022
+  // Gift Shop products: 001, 002, 007-010, 013, 014, 019, 020, 023
+  // Union (deduplicated):
+  { productId: 'demo-p-001', salesRoutingId: 'sr-001', sessionTypeId: '10234501' },
+  { productId: 'demo-p-002', salesRoutingId: 'sr-001', sessionTypeId: '10234502' },
+  { productId: 'demo-p-003', salesRoutingId: 'sr-001', sessionTypeId: '10234503' },
+  { productId: 'demo-p-004', salesRoutingId: 'sr-001', sessionTypeId: '10234504' },
+  { productId: 'demo-p-005', salesRoutingId: 'sr-001', sessionTypeId: '10234505' },
+  { productId: 'demo-p-006', salesRoutingId: 'sr-001', sessionTypeId: '10234506' },
+  { productId: 'demo-p-007', salesRoutingId: 'sr-001', sessionTypeId: '10234507' },
+  { productId: 'demo-p-008', salesRoutingId: 'sr-001', sessionTypeId: '10234508' },
+  { productId: 'demo-p-009', salesRoutingId: 'sr-001', sessionTypeId: '10234509' },
+  { productId: 'demo-p-010', salesRoutingId: 'sr-001', sessionTypeId: '10234510' },
+  { productId: 'demo-p-011', salesRoutingId: 'sr-001', sessionTypeId: '10234511' },
+  { productId: 'demo-p-012', salesRoutingId: 'sr-001', sessionTypeId: '10234512' },
+  { productId: 'demo-p-013', salesRoutingId: 'sr-001', sessionTypeId: '10234513' },
+  { productId: 'demo-p-014', salesRoutingId: 'sr-001', sessionTypeId: '10234514' },
+  { productId: 'demo-p-015', salesRoutingId: 'sr-001', sessionTypeId: '10234515' },
+  { productId: 'demo-p-016', salesRoutingId: 'sr-001', sessionTypeId: '10234516' },
+  { productId: 'demo-p-017', salesRoutingId: 'sr-001', sessionTypeId: '10234517' },
+  { productId: 'demo-p-018', salesRoutingId: 'sr-001', sessionTypeId: '10234518' },
+  { productId: 'demo-p-019', salesRoutingId: 'sr-001', sessionTypeId: '10234519' },
+  { productId: 'demo-p-020', salesRoutingId: 'sr-001', sessionTypeId: '10234520' },
+  { productId: 'demo-p-021', salesRoutingId: 'sr-001', sessionTypeId: '10234521' },
+  { productId: 'demo-p-022', salesRoutingId: 'sr-001', sessionTypeId: '10234522' },
+  { productId: 'demo-p-023', salesRoutingId: 'sr-001', sessionTypeId: '10234523' },
   
-  // Products from wh-001 also published via sr-003 (Hans Zimmer - VIP Merchandise)
-  { productId: 'p-001', salesRoutingId: 'sr-003', sessionTypeId: '30567891' },
-  { productId: 'p-002', salesRoutingId: 'sr-003', sessionTypeId: '30567892' },
-  { productId: 'p-004', salesRoutingId: 'sr-003', sessionTypeId: '30567893' },
+  // sr-002 — Van Gogh Experience: Gift Shop (marketplace + whitelabel)
+  // Gift Shop products: 001, 002, 007-010, 013, 014, 019, 020, 023
+  { productId: 'demo-p-001', salesRoutingId: 'sr-002', sessionTypeId: '20456701' },
+  { productId: 'demo-p-002', salesRoutingId: 'sr-002', sessionTypeId: '20456702' },
+  { productId: 'demo-p-007', salesRoutingId: 'sr-002', sessionTypeId: '20456707' },
+  { productId: 'demo-p-008', salesRoutingId: 'sr-002', sessionTypeId: '20456708' },
+  { productId: 'demo-p-009', salesRoutingId: 'sr-002', sessionTypeId: '20456709' },
+  { productId: 'demo-p-010', salesRoutingId: 'sr-002', sessionTypeId: '20456710' },
+  { productId: 'demo-p-013', salesRoutingId: 'sr-002', sessionTypeId: '20456713' },
+  { productId: 'demo-p-014', salesRoutingId: 'sr-002', sessionTypeId: '20456714' },
+  { productId: 'demo-p-019', salesRoutingId: 'sr-002', sessionTypeId: '20456719' },
+  { productId: 'demo-p-020', salesRoutingId: 'sr-002', sessionTypeId: '20456720' },
+  { productId: 'demo-p-023', salesRoutingId: 'sr-002', sessionTypeId: '20456723' },
   
-  // Products from wh-002 published via sr-001 (Candlelight Taylor Swift - uses both warehouses)
-  { productId: 'p-007', salesRoutingId: 'sr-001', sessionTypeId: '10234580' },
-  { productId: 'p-008', salesRoutingId: 'sr-001', sessionTypeId: '10234581' },
+  // sr-003 — Hans Zimmer: Main Store (marketplace + OTAs)
+  // Main Store products: 001-008, 011, 012, 015-018, 021, 022
+  { productId: 'demo-p-001', salesRoutingId: 'sr-003', sessionTypeId: '30567801' },
+  { productId: 'demo-p-002', salesRoutingId: 'sr-003', sessionTypeId: '30567802' },
+  { productId: 'demo-p-003', salesRoutingId: 'sr-003', sessionTypeId: '30567803' },
+  { productId: 'demo-p-004', salesRoutingId: 'sr-003', sessionTypeId: '30567804' },
+  { productId: 'demo-p-005', salesRoutingId: 'sr-003', sessionTypeId: '30567805' },
+  { productId: 'demo-p-006', salesRoutingId: 'sr-003', sessionTypeId: '30567806' },
+  { productId: 'demo-p-007', salesRoutingId: 'sr-003', sessionTypeId: '30567807' },
+  { productId: 'demo-p-008', salesRoutingId: 'sr-003', sessionTypeId: '30567808' },
+  { productId: 'demo-p-011', salesRoutingId: 'sr-003', sessionTypeId: '30567811' },
+  { productId: 'demo-p-012', salesRoutingId: 'sr-003', sessionTypeId: '30567812' },
+  { productId: 'demo-p-015', salesRoutingId: 'sr-003', sessionTypeId: '30567815' },
+  { productId: 'demo-p-016', salesRoutingId: 'sr-003', sessionTypeId: '30567816' },
+  { productId: 'demo-p-017', salesRoutingId: 'sr-003', sessionTypeId: '30567817' },
+  { productId: 'demo-p-018', salesRoutingId: 'sr-003', sessionTypeId: '30567818' },
+  { productId: 'demo-p-021', salesRoutingId: 'sr-003', sessionTypeId: '30567821' },
+  { productId: 'demo-p-022', salesRoutingId: 'sr-003', sessionTypeId: '30567822' },
   
-  // Products from wh-002 published via sr-002 (Van Gogh Experience - Online Store)
-  { productId: 'p-007', salesRoutingId: 'sr-002', sessionTypeId: '20456789' },
-  { productId: 'p-008', salesRoutingId: 'sr-002', sessionTypeId: '20456790' },
-  { productId: 'p-009', salesRoutingId: 'sr-002', sessionTypeId: '20456791' },
-  { productId: 'p-010', salesRoutingId: 'sr-002', sessionTypeId: '20456792' },
-  { productId: 'p-011', salesRoutingId: 'sr-002', sessionTypeId: '20456793' },
+  // sr-004 — Tapas Tour: Pop-up Store (box-office only)
+  // Pop-up Store products: 001, 003, 007, 011, 015, 016, 024, 025
+  { productId: 'demo-p-001', salesRoutingId: 'sr-004', sessionTypeId: '40123401' },
+  { productId: 'demo-p-003', salesRoutingId: 'sr-004', sessionTypeId: '40123403' },
+  { productId: 'demo-p-007', salesRoutingId: 'sr-004', sessionTypeId: '40123407' },
+  { productId: 'demo-p-011', salesRoutingId: 'sr-004', sessionTypeId: '40123411' },
+  { productId: 'demo-p-015', salesRoutingId: 'sr-004', sessionTypeId: '40123415' },
+  { productId: 'demo-p-016', salesRoutingId: 'sr-004', sessionTypeId: '40123416' },
+  { productId: 'demo-p-024', salesRoutingId: 'sr-004', sessionTypeId: '40123424' },
+  { productId: 'demo-p-025', salesRoutingId: 'sr-004', sessionTypeId: '40123425' },
   
-  // Products from wh-004 published via sr-004 (Tapas Tour - Food & Gifts)
-  { productId: 'p-012', salesRoutingId: 'sr-004', sessionTypeId: '40123456' },
-  { productId: 'p-013', salesRoutingId: 'sr-004', sessionTypeId: '40123457' },
-  // Note: p-014 (Wine Tasting Set) is NOT published - in wh-005 which has no routing
-  
-  // Pending sync product p-new-001 - auto-published via onsite routing sr-001
-  // (Hidden until sync because product has pendingSync: true)
-  { productId: 'p-new-001', salesRoutingId: 'sr-001', sessionTypeId: '10234599' },
+  // sr-005 — Stranger Things: Pop-up Store (marketplace + whitelabel)
+  // Pop-up Store products: 001, 003, 007, 011, 015, 016, 024, 025
+  { productId: 'demo-p-001', salesRoutingId: 'sr-005', sessionTypeId: '50234501' },
+  { productId: 'demo-p-003', salesRoutingId: 'sr-005', sessionTypeId: '50234503' },
+  { productId: 'demo-p-007', salesRoutingId: 'sr-005', sessionTypeId: '50234507' },
+  { productId: 'demo-p-011', salesRoutingId: 'sr-005', sessionTypeId: '50234511' },
+  { productId: 'demo-p-015', salesRoutingId: 'sr-005', sessionTypeId: '50234515' },
+  { productId: 'demo-p-016', salesRoutingId: 'sr-005', sessionTypeId: '50234516' },
+  { productId: 'demo-p-024', salesRoutingId: 'sr-005', sessionTypeId: '50234524' },
+  { productId: 'demo-p-025', salesRoutingId: 'sr-005', sessionTypeId: '50234525' },
 ];
 
 // Get all publications for a product with resolved data
@@ -716,11 +877,8 @@ export function getUnpublishedReason(productId: string): UnpublishedReason | nul
 }
 
 /**
- * Get all unpublished products (excluding pending sync products)
+ * Get all unpublished products
  */
-export function getUnpublishedProducts(includePendingSync = false): Product[] {
-  return products.filter(p => {
-    if (!includePendingSync && p.pendingSync) return false;
-    return !isProductPublished(p.id);
-  });
+export function getUnpublishedProducts(): Product[] {
+  return products.filter(p => !isProductPublished(p.id));
 }

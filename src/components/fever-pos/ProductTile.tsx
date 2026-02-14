@@ -40,6 +40,16 @@ export function ProductTile({ product, onClick, isMemberActive }: ProductTilePro
   const stripeColor = isCategoryTile ? '#AE92ED' : TYPE_STRIPE_DEFAULTS[product.type];
   const hasImage = !!product.imageUrl;
   const hasMemberPrice = isMemberActive && product.memberPrice != null;
+  const hasVariants = !!(product.variants && product.variants.length > 0);
+
+  // Compute price display for variant products
+  // (The tile shows the parent product.price which is the base price;
+  //  the variant picker shows per-variant prices. We just add a "from" hint.)
+  const priceDisplay = (() => {
+    if (isCategoryTile) return null;
+    if (hasMemberPrice) return null; // handled separately below
+    return formatPrice(product.price);
+  })();
 
   return (
     <button
@@ -83,7 +93,12 @@ export function ProductTile({ product, onClick, isMemberActive }: ProductTilePro
                 <span className={styles.memberPrice}>{formatPrice(product.memberPrice!)}</span>
               </div>
             ) : (
-              !isCategoryTile && <span className={styles.tilePrice}>{formatPrice(product.price)}</span>
+              priceDisplay && (
+                <span className={styles.tilePrice}>
+                  {hasVariants && <span className={styles.fromLabel}>from </span>}
+                  {priceDisplay}
+                </span>
+              )
             )}
           </div>
           <div className={styles.bottomTrail}>

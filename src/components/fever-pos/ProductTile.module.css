@@ -186,3 +186,10 @@
   color: var(--fz-text-primary, #031419);
   white-space: nowrap;
 }
+
+/* ---- "from" label for variant products ---- */
+.fromLabel {
+  font-size: 0.75em;
+  font-weight: 400;
+  color: var(--fz-text-secondary, #536b75);
+}

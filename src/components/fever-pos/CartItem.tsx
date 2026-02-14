@@ -20,6 +20,9 @@ export function CartItem({ item, onIncrement, onDecrement, onRemove, isMemberAct
     <div className={styles.cartItem}>
       <div className={styles.itemInfo}>
         <p className={styles.itemName}>{item.name}</p>
+        {item.variantLabel && (
+          <span className={styles.variantLabel}>{item.variantLabel}</span>
+        )}
         <div className={styles.priceRow}>
           {hasMemberDiscount ? (
             <>

@@ -193,6 +193,11 @@ Product categories imported from the external system (e.g., Square categories). 
 5. **BoxOfficeSetup determines stock source** for onsite sales when multiple warehouses exist.
 6. **Price Reference determines pricing** for SessionTypes; channel-warehouse mapping determines stock source only.
 7. **HierarchyElement** represents product categories imported from the external system. Categories form a tree via `parentId` (null = root category). The `HierarchyElementProduct` junction table maps products to categories.
+8. **Product Variants** — Products may optionally have variants (e.g. sizes S/M/L/XL). Variant support uses three types:
+   - **VariantAxis**: Defines a variant dimension (`name`: e.g. "Size", `values`: e.g. ["S","M","L","XL"])
+   - **ProductVariant**: A concrete combination with its own `id`, `sku`, `attributes` map, and display `label`
+   - Products gain optional `variantAxes` and `variants` arrays; products without variants are unchanged
+   - **ProductWarehouse** gains an optional `variantId` field. For variant products, each variant has its own warehouse entry with independent price and stock. For simple products, `variantId` is omitted.
 
 ---
 
@@ -431,6 +436,8 @@ Single-page layout with all configuration in one scrollable view.
 - **Empty state**: Prompts to create first integration; shows benefits and supported providers
 - **Provider Modal**: Full-screen overlay for choosing Square/Shopify
 - **Existing integration**: Integration header, "Sync products" button, tab-based view (Products / Warehouses), search/pagination/filters
+- **Variants column**: The Products table includes a "Variants" column. Products with variants show a clickable badge (e.g. "4 sizes") that expands inline sub-rows showing each variant's label, SKU, total stock, and price range across warehouses. Products without variants show "—".
+- **Warehouse side panel with variants**: When viewing warehouse details for a variant product, the side panel shows a per-variant breakdown within each warehouse (variant label pill, stock count, and price).
 
 ### Guide Page
 
@@ -440,20 +447,26 @@ In-app onboarding reference for ops teams. Sections: Overview, Step 1 (Catalog I
 
 ## 9. Demo Flow
 
-The mockup supports a full end-to-end demo starting from a blank slate.
+The mockup supports two modes: a **preloaded static mode** with existing data, and a **reset demo mode** that walks through the full setup from a blank slate.
 
-### Prerequisites
+### Unified Data
 
-- Click "Reset Demo" in footer to clear all state
+The preloaded (static) product data is identical to the demo data used during the reset flow. Both modes use the same 25 products (`demo-p-001` through `demo-p-025`), 3 warehouses (Main Store, Gift Shop, Pop-up Store), and the same product-warehouse mappings. This ensures a consistent product catalog regardless of which mode is active.
 
-### Step-by-Step
+### Static Mode (Default)
+
+The app loads with a pre-configured catalog integration, 3 warehouses, 25 products, 5 sales routings, and 4 Box Office setups already in place. Users can browse the full UI, edit routings, and explore channel visibility without running the setup wizard.
+
+### Reset Demo Mode
+
+Click "Reset Demo" in the footer to clear all state and walk through the full end-to-end setup:
 
 1. **Create Catalog Integration**: Navigate to Catalog Integration > create integration > select Square > enter Master Catalog ID > add 3 warehouses (Main Store, Gift Shop, Pop-up Store) > review and create
-2. **First Product Sync**: Click "Sync products" > ~20 products imported across 3 warehouses > all show as "Unpublished"
+2. **First Product Sync**: Click "Sync products" > 20 products imported across 3 warehouses > all show as "Unpublished"
 3. **Single-Channel Online Routing (simplest)**: Select event (Taylor Swift) > Fever Marketplace only > single warehouse > create
 4. **Multi-Channel Online Routing (medium)**: Select event (Van Gogh) > Fever Marketplace + Whitelabel > 2 warehouses > set price reference > assign channels > create
 5. **Hybrid Routing with Box Office (complex)**: Select event (Hans Zimmer) > Box Office + Fever Marketplace > unlimited warehouses > set price reference > map channels > create
-6. **Second Product Sync**: Return to Catalog Integration > sync new products > auto-distributed based on channel mappings > warnings for unmapped products
+6. **Second Product Sync**: Return to Catalog Integration > sync 5 new products > auto-distributed based on channel mappings > warnings for unmapped products
 
 ---
 

@@ -23,12 +23,13 @@ import {
   formatTimeslotTime,
   formatDatePillWithMonth,
 } from '../../data/feverPosData';
-import type { Product, CartEventGroup, EventTimeslot } from '../../data/feverPosData';
+import type { Product, ProductVariant, CartEventGroup, EventTimeslot } from '../../data/feverPosData';
 import { getEventById } from '../../data/mockData';
 import { EventSelectionModal } from './EventSelectionModal';
 import { MemberIdentifyModal } from './MemberIdentifyModal';
 import type { MemberInfo } from './MemberIdentifyModal';
 import { TimeslotModal } from './TimeslotModal';
+import { VariantPicker } from './VariantPicker';
 import styles from './FeverPosPage.module.css';
 
 /**
@@ -111,6 +112,9 @@ export function FeverPosPage() {
   const [identifiedMember, setIdentifiedMember] = useState<MemberInfo | null>(null);
 
   const isMemberActive = identifiedMember !== null;
+
+  // Variant picker state
+  const [variantPickerProduct, setVariantPickerProduct] = useState<Product | null>(null);
 
   // Timeslot modal state
   const [isTimeslotModalOpen, setIsTimeslotModalOpen] = useState(false);
@@ -362,6 +366,9 @@ export function FeverPosPage() {
           categoryId: currentGiftShopCategoryId,
           imageUrl: product.imageUrl,
           tab: 'shop' as const,
+          // Carry variant data through to POS tiles
+          variantAxes: product.variantAxes,
+          variants: product.variants,
         };
       });
   }, [hierarchyElementProducts, currentGiftShopCategoryId, catalogProducts, productWarehouses]);
@@ -425,6 +432,12 @@ export function FeverPosPage() {
     if (product.id.startsWith('cat-')) {
       const categoryId = product.id.replace('cat-', '');
       setGiftShopPathIds((prev) => [...prev, categoryId]);
+      return;
+    }
+
+    // Gate: if product has variants, open the variant picker instead of adding directly
+    if (product.variants && product.variants.length > 0) {
+      setVariantPickerProduct(product);
       return;
     }
 
@@ -530,6 +543,84 @@ export function FeverPosPage() {
       return updatedGroups;
     });
   }, [activeSelectedEvent, boxOfficeEvent, identifiedMember, selectedTimeslots]);
+
+  // Handler for when a variant is selected from the VariantPicker
+  const handleVariantSelected = useCallback((product: Product, variant: ProductVariant) => {
+    setVariantPickerProduct(null);
+
+    // Resolve variant-specific price from warehouse data (gift shop products)
+    // or fall back to the parent product price
+    const variantWarehouseEntry = productWarehouses.find(
+      (pw) => pw.productId === product.id && pw.variantId === variant.id
+    );
+    const variantPrice = variantWarehouseEntry?.price ?? product.price;
+    const variantMemberPrice = variantWarehouseEntry?.memberPrice ?? product.memberPrice;
+
+    // Retail products always go to the Box Office event group
+    const targetEvent = boxOfficeEvent;
+
+    setCartEvents((prev) => {
+      const eventId = targetEvent?.id ?? BOX_OFFICE_EVENT_ID;
+      let groupIndex = prev.findIndex((g) => g.eventId === eventId);
+
+      const updatedGroups = prev.map((g) => ({
+        ...g,
+        items: g.items.map((i) => ({ ...i })),
+        retailItems: g.retailItems.map((i) => ({ ...i })),
+      }));
+
+      if (groupIndex === -1) {
+        const dateStr = new Date().toLocaleDateString('en-GB', {
+          month: 'long',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+
+        updatedGroups.push({
+          id: eventId,
+          eventId,
+          eventName: targetEvent?.name ?? 'Event',
+          eventImageUrl: targetEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
+          location: targetEvent?.city ?? '',
+          date: dateStr,
+          isExpanded: true,
+          items: [],
+          retailItems: [],
+        });
+        groupIndex = updatedGroups.length - 1;
+      }
+
+      const targetGroup = updatedGroups[groupIndex];
+
+      // Determine effective price: use member price when member is active and eligible
+      const useMemberPrice = identifiedMember != null && variantMemberPrice != null;
+      const effectivePrice = useMemberPrice ? variantMemberPrice! : variantPrice;
+
+      // Match by both productId AND variantId for deduplication
+      const existingItem = targetGroup.retailItems.find(
+        (i) => i.productId === product.id && i.variantId === variant.id
+      );
+      if (existingItem) {
+        existingItem.quantity += 1;
+      } else {
+        targetGroup.retailItems.push({
+          id: `cp-${Date.now()}`,
+          productId: product.id,
+          variantId: variant.id,
+          variantLabel: variant.label,
+          name: product.name,
+          price: effectivePrice,
+          originalPrice: useMemberPrice ? variantPrice : undefined,
+          quantity: 1,
+        });
+      }
+
+      targetGroup.isExpanded = true;
+      return updatedGroups;
+    });
+  }, [boxOfficeEvent, identifiedMember, productWarehouses]);
 
   const handleOpenEventSelector = useCallback(() => {
     if (salesRoutingEvents.length === 0) return;
@@ -776,6 +867,38 @@ export function FeverPosPage() {
         onConfirm={handleConfirmTimeslot}
         onClose={handleCloseTimeslotModal}
       />
+
+      {variantPickerProduct && (
+        <VariantPicker
+          product={variantPickerProduct}
+          onSelectVariant={handleVariantSelected}
+          onClose={() => setVariantPickerProduct(null)}
+          variantPrices={
+            variantPickerProduct.variants
+              ? Object.fromEntries(
+                  variantPickerProduct.variants.map((v) => {
+                    const pw = productWarehouses.find(
+                      (e) => e.productId === variantPickerProduct.id && e.variantId === v.id
+                    );
+                    return [v.id, pw?.price ?? variantPickerProduct.price];
+                  })
+                )
+              : undefined
+          }
+          variantStock={
+            variantPickerProduct.variants
+              ? Object.fromEntries(
+                  variantPickerProduct.variants.map((v) => {
+                    const entries = productWarehouses.filter(
+                      (e) => e.productId === variantPickerProduct.id && e.variantId === v.id
+                    );
+                    return [v.id, entries.reduce((sum, e) => sum + e.stock, 0)];
+                  })
+                )
+              : undefined
+          }
+        />
+      )}
     </div>
   );
 
