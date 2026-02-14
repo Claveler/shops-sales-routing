@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { CartItem } from './CartItem';
 import { MarqueeText } from './MarqueeText';
-import type { CartEventGroup, CartItemData } from '../../data/feverPosData';
+import type { CartEventGroup } from '../../data/feverPosData';
 import { formatPrice } from '../../data/feverPosData';
 import styles from './Cart.module.css';
 
