@@ -1,6 +1,6 @@
 ---
 description: After any UI-affecting change (CSS, component markup, styles), verify visually with agent-browser in headless mode
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Visual UI Verification with agent-browser
@@ -42,7 +42,14 @@ agent-browser screenshot screenshots/verify-<description>-hover.png --session ui
    - Hover/focus/active states change appearance as expected (no blank, missing, or invisible elements)
    - Layout is not broken
 
-6. **Close the session** when done:
+6. **Iterate until it matches the requested visual goal**:
+
+   - Compare the screenshot against the user request (and Figma when provided), not just against "no errors".
+   - If anything is off, make another UI adjustment and re-run screenshot verification.
+   - Repeat this loop until the requested visual outcome is achieved.
+   - Do not report "done" while known visual mismatches remain.
+
+7. **Close the session** when done:
 
 ```bash
 agent-browser close --session ui-check
@@ -54,3 +61,5 @@ agent-browser close --session ui-check
 - Text contrast is sufficient on all interactive states
 - No layout shifts or overflow issues
 - Disabled states look distinct from enabled states
+- Controls are not unintentionally overlapping borders/seams or container edges
+- Spacing to surrounding borders matches the target design intent (not only spacing between controls)

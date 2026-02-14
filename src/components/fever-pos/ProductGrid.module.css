@@ -1,0 +1,39 @@
+/* ============================================================
+   ProductGrid — matches live Fever Zone POS grid
+   
+   Key specs from production:
+   - grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr))
+   - grid-auto-rows: minmax(7rem, auto)
+   - gap: 0.75rem (12px)
+   - Columns and tile sizes adapt fluidly to container width
+   ============================================================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  grid-auto-rows: minmax(7rem, auto);
+  gap: 0.75rem;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 0;
+  align-content: start;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Small screens: tighter min column */
+@media (max-width: 575.98px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(max(9rem, 34%), 1fr));
+    margin-bottom: 5.5rem;
+  }
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: var(--fz-text-secondary, #536b75);
+  font-size: var(--fz-font-size-sm, 14px);
+}

@@ -1,0 +1,95 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  background: #F8F9F9;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ---- Main content area (left side) ---- */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.topBar {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 16px 16px 0 16px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
+}
+
+.topBar > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Keep action circles visibly above the folder border seam. */
+  padding-bottom: 6px;
+  flex-shrink: 0;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 18px;
+  color: var(--fz-primary-600, #0079CA);
+  background: var(--fz-bg-card, #fff);
+  border: 2px solid #BCC5CD;
+  cursor: pointer;
+  transition: background var(--fz-transition-fast, 150ms ease-in-out);
+}
+
+.actionBtn:hover {
+  background: var(--fz-bg-subtle, #f9fafb);
+}
+
+/* ---- Content: filters + grid ---- */
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 8px 16px 16px;
+  min-height: 0;
+  overflow: hidden;
+  background: #FFFFFF;
+  border: 1px solid var(--fz-border-color, #ccd2d8);
+  border-radius: 0 12px 12px 12px;
+  margin: -1px 16px 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.contentInner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 8px 16px 16px;
+  background: #FFFFFF;
+  border-radius: var(--fz-border-radius, 8px);
+}

@@ -1,0 +1,27 @@
+---
+description: Keep product-management specs updated after UI or product-scope changes
+alwaysApply: true
+---
+
+# Product Management Spec Sync
+
+Whenever you make changes to UI behavior, UI structure, UX flows, or the overall description/scope of what is being built, you must update the docs in `product-management/` in the same task.
+
+## Always update docs after relevant changes
+
+- If changes affect sales routing, catalog integration, channels, warehouse logic, or related concepts, update `product-management/sales-routing-and-catalog-integration.md`.
+- If changes affect POS layout, tabs, tile behavior, cart logic, permissions, or POS UX, update `product-management/fever-pos.md`.
+- If a change impacts both domains, update both files.
+
+## What counts as a triggering change
+
+- UI changes: styles, spacing, layout, component structure, responsive behavior, interaction states.
+- UX/flow changes: navigation, wizard steps, tab behavior, filtering, cart behavior, checkout flow.
+- Product-definition changes: feature scope, naming, constraints, permissions, business rules, roadmap direction.
+
+## Update quality bar
+
+- Keep specs accurate to the implemented behavior and current product intent.
+- Keep terminology consistent across both files.
+- Update relevant sections only; do not add filler.
+- Preserve independent-file structure and keep `PRODUCT_SPEC.md` untouched unless explicitly requested.
