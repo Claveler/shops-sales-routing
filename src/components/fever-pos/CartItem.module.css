@@ -1,22 +1,25 @@
+/* ---- Cart item card ---- */
 .cartItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: #FAFBFB;
+  gap: 4px;
+  padding: 8px;
+  background: var(--fz-bg-card, #fff);
+  border: 1px solid var(--fz-border-color, #ccd2d8);
   border-radius: var(--fz-border-radius, 8px);
 }
 
+/* ---- Item info (left side) ---- */
 .itemInfo {
   flex: 1;
   min-width: 0;
 }
 
 .itemName {
-  font-size: var(--fz-font-size-sm, 14px);
-  font-weight: var(--fz-font-weight-semibold, 600);
+  font-size: 12px;
+  font-weight: 400;
   color: var(--fz-text-primary, #031419);
-  line-height: 20px;
+  line-height: 16px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -26,78 +29,88 @@
 .priceRow {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 2px;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .originalPrice {
-  font-size: var(--fz-font-size-xs, 12px);
-  line-height: 16px;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 400;
   color: var(--fz-text-secondary, #536b75);
   text-decoration: line-through;
 }
 
 .price {
-  font-size: var(--fz-font-size-sm, 14px);
-  font-weight: var(--fz-font-weight-semibold, 600);
-  line-height: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
   color: var(--fz-text-primary, #031419);
 }
 
 .premiumIcon {
   font-size: 12px;
-  color: #F39C12;
+  color: #FFA639;
 }
 
 .bookingFee {
-  font-size: var(--fz-font-size-xs, 12px);
-  line-height: 16px;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 400;
   color: var(--fz-text-secondary, #536b75);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
-.quantityControls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.quantity {
-  font-size: var(--fz-font-size-sm, 14px);
-  font-weight: var(--fz-font-weight-semibold, 600);
-  color: var(--fz-text-primary, #031419);
-  min-width: 24px;
-  text-align: center;
-}
-
-.removeBtn,
-.addBtn {
+/* ---- Pill-shaped quantity counter ---- */
+.pillCounter {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  gap: 4px;
+  border: 1px solid #A7B2BA;
+  border-radius: 200px;
+  padding: 2px;
+  max-width: 140px;
+  width: 132px;
+  flex-shrink: 0;
+}
+
+.pillBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   font-size: 14px;
   cursor: pointer;
-  transition: opacity var(--fz-transition-fast, 150ms ease-in-out);
+  transition: opacity 150ms ease-in-out;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
 }
 
-.removeBtn {
-  background: var(--fz-danger, #EB0052);
-  color: #fff;
-}
-
-.removeBtn:hover {
+.pillBtn:hover {
   opacity: 0.85;
 }
 
-.addBtn {
+.pillBtnLeft {
   background: var(--fz-primary-600, #0079CA);
   color: #fff;
 }
 
-.addBtn:hover {
-  opacity: 0.85;
+.pillBtnRight {
+  background: var(--fz-primary-600, #0079CA);
+  color: #fff;
+}
+
+.pillCount {
+  flex: 1;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--fz-text-secondary, #536b75);
+  max-width: 40px;
+  min-width: 0;
 }

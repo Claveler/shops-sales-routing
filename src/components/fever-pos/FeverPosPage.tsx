@@ -1,7 +1,9 @@
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import type { CSSProperties } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faMagnifyingGlass, faTabletScreenButton } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
+import iminDeviceImg from '../../assets/imin-swan-1-pro-3d.webp';
 import { FeverPosHeader } from './FeverPosHeader';
 import { NavigationTabs } from './NavigationTabs';
 import type { PosTab } from './NavigationTabs';
@@ -14,13 +16,19 @@ import {
   getEventThumbnailById,
   getProductsByCategory,
   initialCartEvents,
-  initialCartProducts,
   DEFAULT_EVENT_THUMBNAIL_URL,
 } from '../../data/feverPosData';
 import { getEventById } from '../../data/mockData';
-import type { Product, CartEventGroup, CartItemData } from '../../data/feverPosData';
+import type { Product, CartEventGroup } from '../../data/feverPosData';
 import { EventSelectionModal } from './EventSelectionModal';
 import styles from './FeverPosPage.module.css';
+
+/**
+ * The Box Office is configured against a single sales routing (= one event).
+ * That event's routing determines which retail products are available at this POS.
+ * Changing the ticket event selector does NOT change the retail product source.
+ */
+const BOX_OFFICE_EVENT_ID = 'evt-001';
 
 export function FeverPosPage() {
   const demo = useDemo();
@@ -38,9 +46,43 @@ export function FeverPosPage() {
     [demo]
   );
 
+  // Device preview state (iMin Swan 1 Pro: 1397×786 dp)
+  const [isDevicePreview, setIsDevicePreview] = useState(false);
+  const handleToggleDevicePreview = useCallback(() => setIsDevicePreview((prev) => !prev), []);
+
+  // Scale the device frame to fit within the browser viewport
+  const TABLET_OUTER_W = 7680; // 3D image width
+  const TABLET_OUTER_H = 4320; // 3D image height
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const [tabletScale, setTabletScale] = useState(1);
+
+  useEffect(() => {
+    if (!isDevicePreview) return;
+    const el = backdropRef.current;
+    if (!el) return;
+
+    const computeScale = () => {
+      const vw = el.clientWidth;
+      const vh = el.clientHeight;
+      const pad = 40; // breathing room around the tablet
+      const sx = (vw - pad) / TABLET_OUTER_W;
+      const sy = (vh - pad) / TABLET_OUTER_H;
+      setTabletScale(Math.min(1, sx, sy));
+    };
+
+    computeScale();
+    const ro = new ResizeObserver(computeScale);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isDevicePreview]);
+
+  const tabletStyle = useMemo<CSSProperties>(
+    () => ({ transform: `scale(${tabletScale})` }),
+    [tabletScale],
+  );
+
   // Cart state
   const [cartEvents, setCartEvents] = useState<CartEventGroup[]>(initialCartEvents);
-  const [cartProducts, setCartProducts] = useState<CartItemData[]>(initialCartProducts);
   const [isEventSelectorOpen, setIsEventSelectorOpen] = useState(false);
   const [selectedEventId, setSelectedEventId] = useState('');
   const [pendingEventId, setPendingEventId] = useState('');
@@ -69,6 +111,12 @@ export function FeverPosPage() {
   const activeSelectedEvent = useMemo(
     () => salesRoutingEvents.find((event) => event.id === selectedEventId) ?? salesRoutingEvents[0],
     [salesRoutingEvents, selectedEventId]
+  );
+
+  // The Box Office event whose sales routing provides all retail products
+  const boxOfficeEvent = useMemo(
+    () => salesRoutingEvents.find((event) => event.id === BOX_OFFICE_EVENT_ID) ?? salesRoutingEvents[0],
+    [salesRoutingEvents]
   );
 
   const cityFilteredEvents = useMemo(
@@ -211,43 +259,46 @@ export function FeverPosPage() {
       return;
     }
 
-    if (product.type === 'ticket' || product.type === 'addon') {
-      // Add to the first event group (or create one)
-      setCartEvents((prev) => {
-        if (prev.length === 0) {
-          return [
-            {
-              id: `evt-new-${Date.now()}`,
-              eventName: activeSelectedEvent?.name ?? 'Candlelight: Tribute to Taylor Swift',
-              eventImageUrl: activeSelectedEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
-              location: activeSelectedEvent?.city ?? 'Madrid',
-              date: new Date().toLocaleDateString('en-GB', {
-                month: 'long',
-                day: 'numeric',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-              }),
-              isExpanded: true,
-              items: [
-                {
-                  id: `ci-${Date.now()}`,
-                  productId: product.id,
-                  name: product.name,
-                  price: product.price,
-                  originalPrice: product.originalPrice,
-                  quantity: 1,
-                  bookingFee: 0.60,
-                },
-              ],
-            },
-          ];
-        }
+    const isTicketOrAddon = product.type === 'ticket' || product.type === 'addon';
 
-        const updatedGroups = [...prev];
-        const targetGroup = updatedGroups[updatedGroups.length - 1];
+    // Tickets/add-ons go to the active ticket event group.
+    // Retail/food always goes to the Box Office event group (fixed routing).
+    const targetEvent = isTicketOrAddon ? activeSelectedEvent : boxOfficeEvent;
+
+    setCartEvents((prev) => {
+      const eventId = targetEvent?.id ?? BOX_OFFICE_EVENT_ID;
+      let groupIndex = prev.findIndex((g) => g.id === eventId);
+
+      const updatedGroups = prev.map((g) => ({
+        ...g,
+        items: g.items.map((i) => ({ ...i })),
+        retailItems: g.retailItems.map((i) => ({ ...i })),
+      }));
+
+      if (groupIndex === -1) {
+        updatedGroups.push({
+          id: eventId,
+          eventName: targetEvent?.name ?? 'Event',
+          eventImageUrl: targetEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
+          location: targetEvent?.city ?? '',
+          date: new Date().toLocaleDateString('en-GB', {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          isExpanded: true,
+          items: [],
+          retailItems: [],
+        });
+        groupIndex = updatedGroups.length - 1;
+      }
+
+      const targetGroup = updatedGroups[groupIndex];
+
+      if (isTicketOrAddon) {
         const existingItem = targetGroup.items.find((i) => i.productId === product.id);
-
         if (existingItem) {
           existingItem.quantity += 1;
         } else {
@@ -261,32 +312,26 @@ export function FeverPosPage() {
             bookingFee: 0.60,
           });
         }
-        targetGroup.isExpanded = true;
-        return updatedGroups;
-      });
-    } else {
-      // Food / retail goes to products
-      setCartProducts((prev) => {
-        const existing = prev.find((i) => i.productId === product.id);
-        if (existing) {
-          return prev.map((i) =>
-            i.productId === product.id ? { ...i, quantity: i.quantity + 1 } : i
-          );
-        }
-        return [
-          ...prev,
-          {
+      } else {
+        const existingItem = targetGroup.retailItems.find((i) => i.productId === product.id);
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          targetGroup.retailItems.push({
             id: `cp-${Date.now()}`,
             productId: product.id,
             name: product.name,
             price: product.price,
             originalPrice: product.originalPrice,
             quantity: 1,
-          },
-        ];
-      });
-    }
-  }, [activeSelectedEvent]);
+          });
+        }
+      }
+
+      targetGroup.isExpanded = true;
+      return updatedGroups;
+    });
+  }, [activeSelectedEvent, boxOfficeEvent]);
 
   const handleOpenEventSelector = useCallback(() => {
     if (salesRoutingEvents.length === 0) return;
@@ -328,15 +373,12 @@ export function FeverPosPage() {
   }, []);
 
   const handleIncrementItem = useCallback((itemId: string) => {
-    // Check event items first
     setCartEvents((prev) =>
       prev.map((g) => ({
         ...g,
         items: g.items.map((i) => (i.id === itemId ? { ...i, quantity: i.quantity + 1 } : i)),
+        retailItems: g.retailItems.map((i) => (i.id === itemId ? { ...i, quantity: i.quantity + 1 } : i)),
       }))
-    );
-    setCartProducts((prev) =>
-      prev.map((i) => (i.id === itemId ? { ...i, quantity: i.quantity + 1 } : i))
     );
   }, []);
 
@@ -347,10 +389,10 @@ export function FeverPosPage() {
         items: g.items.map((i) =>
           i.id === itemId ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i
         ),
+        retailItems: g.retailItems.map((i) =>
+          i.id === itemId ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i
+        ),
       }))
-    );
-    setCartProducts((prev) =>
-      prev.map((i) => (i.id === itemId ? { ...i, quantity: Math.max(1, i.quantity - 1) } : i))
     );
   }, []);
 
@@ -359,14 +401,13 @@ export function FeverPosPage() {
       prev.map((g) => ({
         ...g,
         items: g.items.filter((i) => i.id !== itemId),
+        retailItems: g.retailItems.filter((i) => i.id !== itemId),
       }))
     );
-    setCartProducts((prev) => prev.filter((i) => i.id !== itemId));
   }, []);
 
   const handleClearAll = useCallback(() => {
     setCartEvents([]);
-    setCartProducts([]);
   }, []);
 
   const handleClearCategory = useCallback(() => {
@@ -423,9 +464,16 @@ export function FeverPosPage() {
     setActiveCategoryId(firstTicketCategoryId);
   }, [activeTab, ticketCategories, topLevelGiftShopCategories]);
 
-  return (
-    <div className={styles.page}>
-      <FeverPosHeader />
+  const pageClasses = isDevicePreview
+    ? `${styles.page} ${styles.pageConstrained}`
+    : styles.page;
+
+  const pageContent = (
+    <div className={pageClasses}>
+      <FeverPosHeader
+        isDevicePreview={isDevicePreview}
+        onToggleDevicePreview={isDevicePreview ? undefined : handleToggleDevicePreview}
+      />
 
       <div className={styles.body}>
         {/* Main content area */}
@@ -478,7 +526,6 @@ export function FeverPosPage() {
         {/* Cart panel */}
         <Cart
           eventGroups={cartEvents}
-          productItems={cartProducts}
           onToggleEventExpand={handleToggleEventExpand}
           onRemoveEvent={handleRemoveEvent}
           onIncrementItem={handleIncrementItem}
@@ -498,6 +545,40 @@ export function FeverPosPage() {
         onSelectEvent={handleSelectEventAndApply}
         onClose={handleCloseEventSelector}
       />
+    </div>
+  );
+
+  if (!isDevicePreview) return pageContent;
+
+  return (
+    <div className={styles.devicePreviewRoot}>
+      {/* Toggle sits outside the backdrop, fixed at the top center of the viewport */}
+      <button
+        className={styles.devicePreviewToggleFloat}
+        onClick={handleToggleDevicePreview}
+        type="button"
+        aria-label="Toggle iMin device preview"
+        aria-pressed={isDevicePreview}
+      >
+        <FontAwesomeIcon icon={faTabletScreenButton} />
+        <span>iMin Swan 1 Pro</span>
+      </button>
+
+      <div ref={backdropRef} className={styles.devicePreviewBackdrop}>
+        <div className={styles.deviceFrame} style={tabletStyle}>
+          <img
+            src={iminDeviceImg}
+            alt="iMin Swan 1 Pro"
+            className={styles.deviceImage}
+            draggable={false}
+          />
+          <div className={styles.deviceScreen}>
+            {pageContent}
+            <div className={styles.deviceScreenDofOverlay} />
+            <div className={styles.deviceScreenGlare} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { CSSProperties, KeyboardEvent, MouseEvent } from 'react';
+import { useCallback } from 'react';
+import type { KeyboardEvent, MouseEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faGift, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { useMarquee } from './useMarquee';
 import styles from './NavigationTabs.module.css';
 
 export type PosTab = 'tickets' | 'gift-shop';
@@ -21,124 +22,21 @@ export function NavigationTabs({
   eventImageUrl,
   onEditEvent,
 }: NavigationTabsProps) {
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const measureRef = useRef<HTMLSpanElement>(null);
-  const hasAutoPlayedRef = useRef(false);
-  const rafRef = useRef<number | null>(null);
-
-  const [overflowPx, setOverflowPx] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const [runKey, setRunKey] = useState(0);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-
-  const canAnimate = overflowPx > 0 && !prefersReducedMotion;
-
-  const marqueeDurationSec = useMemo(() => {
-    // Keep speed perceptually stable across different overflow distances.
-    return Math.min(6, Math.max(3, overflowPx / 45 + 2.6));
-  }, [overflowPx]);
-
-  const measureOverflow = useCallback(() => {
-    if (!viewportRef.current || !measureRef.current) {
-      return;
-    }
-
-    const viewportWidth = viewportRef.current.clientWidth;
-    const textWidth = measureRef.current.getBoundingClientRect().width;
-    const nextOverflow = Math.max(0, Math.ceil(textWidth - viewportWidth));
-    setOverflowPx(nextOverflow);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const updatePreference = () => setPrefersReducedMotion(mediaQuery.matches);
-
-    updatePreference();
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', updatePreference);
-      return () => mediaQuery.removeEventListener('change', updatePreference);
-    }
-
-    mediaQuery.addListener(updatePreference);
-    return () => mediaQuery.removeListener(updatePreference);
-  }, []);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    measureOverflow();
-    const resizeObserver = new ResizeObserver(() => measureOverflow());
-    if (viewportRef.current) {
-      resizeObserver.observe(viewportRef.current);
-    }
-    if (measureRef.current) {
-      resizeObserver.observe(measureRef.current);
-    }
-
-    return () => {
-      resizeObserver.disconnect();
-    };
-  }, [measureOverflow, eventName]);
-
-  useEffect(() => {
-    if (hasAutoPlayedRef.current || !canAnimate) {
-      return;
-    }
-    hasAutoPlayedRef.current = true;
-    setRunKey((prev) => prev + 1);
-    setIsAnimating(true);
-  }, [canAnimate]);
-
-  useEffect(() => {
-    if (!prefersReducedMotion) {
-      return;
-    }
-    setIsAnimating(false);
-  }, [prefersReducedMotion]);
-
-  useEffect(() => {
-    return () => {
-      if (rafRef.current !== null) {
-        window.cancelAnimationFrame(rafRef.current);
-      }
-    };
-  }, []);
-
-  const replayMarquee = useCallback(() => {
-    if (!canAnimate) {
-      return;
-    }
-
-    setIsAnimating(false);
-    if (rafRef.current !== null) {
-      window.cancelAnimationFrame(rafRef.current);
-    }
-    rafRef.current = window.requestAnimationFrame(() => {
-      setRunKey((prev) => prev + 1);
-      setIsAnimating(true);
-    });
-  }, [canAnimate]);
+  const {
+    viewportRef,
+    measureRef,
+    isAnimating,
+    runKey,
+    marqueeStyle,
+    replay: replayMarquee,
+    handleAnimationEnd,
+  } = useMarquee({ text: eventName });
 
   const handleEventNameClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     onTabChange('tickets');
     replayMarquee();
   }, [onTabChange, replayMarquee]);
-
-  const marqueeStyle = useMemo(
-    () =>
-      ({
-        '--event-name-marquee-shift': `-${overflowPx}px`,
-        '--event-name-marquee-duration': `${marqueeDurationSec.toFixed(2)}s`,
-      } as CSSProperties),
-    [overflowPx, marqueeDurationSec]
-  );
 
   const handleEditClick = useCallback((event: MouseEvent<HTMLSpanElement>) => {
     event.stopPropagation();
@@ -182,7 +80,7 @@ export function NavigationTabs({
                 key={runKey}
                 className={styles.eventNameAnimated}
                 style={marqueeStyle}
-                onAnimationEnd={() => setIsAnimating(false)}
+                onAnimationEnd={handleAnimationEnd}
               >
                 {eventName}
               </span>

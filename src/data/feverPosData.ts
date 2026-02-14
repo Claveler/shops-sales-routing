@@ -42,10 +42,8 @@ export interface CartEventGroup {
   date: string;
   isExpanded: boolean;
   items: CartItemData[];
-}
-
-export interface CartProductGroup {
-  items: CartItemData[];
+  /** Retail / gift-shop products linked to this event via sales routing */
+  retailItems: CartItemData[];
 }
 
 export const DEFAULT_EVENT_THUMBNAIL_URL =
@@ -257,6 +255,22 @@ export const initialCartEvents: CartEventGroup[] = [
         isPremium: true,
       },
     ],
+    retailItems: [
+      {
+        id: 'cp-1',
+        productId: 'p-001',
+        name: 'Candlelight T-Shirt (Black)',
+        price: 29.99,
+        quantity: 1,
+      },
+      {
+        id: 'cp-2',
+        productId: 'p-008',
+        name: 'Van Gogh Sunflowers Mug',
+        price: 18.00,
+        quantity: 1,
+      },
+    ],
   },
   {
     id: 'evt-2',
@@ -285,23 +299,7 @@ export const initialCartEvents: CartEventGroup[] = [
         bookingFee: 0.60,
       },
     ],
-  },
-];
-
-export const initialCartProducts: CartItemData[] = [
-  {
-    id: 'cp-1',
-    productId: 'p-001',
-    name: 'Candlelight T-Shirt (Black)',
-    price: 29.99,
-    quantity: 1,
-  },
-  {
-    id: 'cp-2',
-    productId: 'p-008',
-    name: 'Van Gogh Sunflowers Mug',
-    price: 18.00,
-    quantity: 1,
+    retailItems: [],
   },
 ];
 

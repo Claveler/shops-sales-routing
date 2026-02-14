@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
-import { faBars, faPlay, faUserCircle } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPlay, faUserCircle, faTabletScreenButton } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './FeverPosHeader.module.css';
 import feverLogo from '../../assets/fever-logo.svg';
+
+interface FeverPosHeaderProps {
+  isDevicePreview?: boolean;
+  onToggleDevicePreview?: () => void;
+}
 
 function formatHeaderDate(date: Date): string {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -13,7 +18,7 @@ function formatHeaderDate(date: Date): string {
   return `${dayNames[date.getDay()]} ${date.getDate()} ${monthNames[date.getMonth()]}, ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
 }
 
-export function FeverPosHeader() {
+export function FeverPosHeader({ isDevicePreview = false, onToggleDevicePreview }: FeverPosHeaderProps) {
   const navigate = useNavigate();
   const [dateStr, setDateStr] = useState(() => formatHeaderDate(new Date()));
 
@@ -40,6 +45,26 @@ export function FeverPosHeader() {
           <img src={feverLogo} alt="Fever Zone" />
         </a>
       </div>
+
+      {onToggleDevicePreview && (
+        <div className={styles.centerSection}>
+          <div className={styles.devicePreviewWrap}>
+            <button
+              className={`${styles.devicePreviewBtn} ${isDevicePreview ? styles.devicePreviewBtnActive : ''}`}
+              onClick={onToggleDevicePreview}
+              type="button"
+              aria-label="Toggle iMin device preview"
+              aria-pressed={isDevicePreview}
+            >
+              <FontAwesomeIcon icon={faTabletScreenButton} />
+              <span>iMin Swan 1 Pro</span>
+            </button>
+            <span className={styles.devicePreviewTooltip}>
+              Simulate the iMin Swan 1 Pro display (1397&times;786 dp)
+            </span>
+          </div>
+        </div>
+      )}
 
       <div className={styles.trailSide}>
         <div className={styles.shiftWidget}>

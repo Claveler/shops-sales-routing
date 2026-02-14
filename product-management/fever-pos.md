@@ -361,40 +361,67 @@ The cart panel occupies the right side of the POS interface.
 
 ### Structure
 
-- **Header**: "Cart" title + "Clear all" link (danger-red text)
-- **Scrollable body**: Event-grouped items and standalone product items
+- **Header**: "Cart" title (14px bold) + "Clear all" link (14px, danger-red `#EB0052`)
+- **Scrollable body**: Event-grouped items (unified: tickets, add-ons, AND retail products per event)
 - **Sticky footer**: Total, discount link, and payment buttons
-- **Surfaces**: cart panel background `#FFFFFF`; cart item cards `#FAFBFB`
-- **Empty state**: centered receipt icon in a 60px area + text "The cart is empty" in subtle `18px/24px` heading style with 16px icon/text gap
+- **Surfaces**: cart panel background `#FFFFFF`; event group wrapper `#FAFBFB`; cart item cards `#FFFFFF` with `1px solid #CCD2D8` border
+- **Empty state**: centered receipt icon in a 60px area + text "The cart is empty" in subtle `18px/24px` heading style with 16px icon/text gap; the cart header ("Cart" title and "Clear all" button) is hidden when the cart is empty
+- **Shadow**: left-side shadow `-2px 0 5px rgba(167,178,186,0.5)` on the cart panel
 
-### Event-Grouped Cart Items
+### Smart Event Grouping
 
-Ticket and add-on items are grouped by event:
+Cart items are grouped by event, but tickets and retail products follow different routing rules:
 
-- **Event header**: Event image placeholder, event name (bold), location (with map-pin icon), trash icon, expand/collapse chevron
-- **Expanded body**: Date row (calendar icon + date + location), list of cart item rows
-- **Cart item row**: Item name (max 2 lines, semibold), price row (strikethrough original price + current price + optional crown icon for premium), booking fee line, quantity controls
+- **Tickets & add-ons**: grouped under whichever event the user is currently selling tickets for (the active ticket event selector choice). Changing the ticket event changes which group new tickets land in.
+- **Retail / gift-shop products**: **always** grouped under the **Box Office event** -- the single event whose sales routing was used to configure this POS device. Changing the ticket event selector does NOT change where retail products are grouped. This is because the Box Office setup is configured against one sales routing, and that routing determines which retail products are available at this POS.
+- **Single-event mode**: when only one event exists in the cart, event subsection headers are suppressed entirely; items are shown flat with just the time-slot header and optional products sub-section
+- **Multi-event mode**: each event gets a collapsible card with its own header (thumbnail, name, location, delete, chevron)
 
-### Quantity Controls
+> **Example**: The Box Office is configured for the Taylor Swift event (`evt-001`). A staff member sells Taylor Swift tickets, then switches to Van Gogh tickets. If they also add a T-shirt from the Gift Shop, that T-shirt goes into the Taylor Swift cart group (the Box Office event), not the Van Gogh group.
 
-- **Decrement/Remove button**: Pink circular button (36px) with trash icon; decrements quantity or removes item when quantity is 1
-- **Quantity display**: Number centered between buttons
-- **Increment button**: Blue circular button (36px) with plus icon
+### Event Group Card (multi-event mode)
 
-### Products Section
+- **Wrapper**: `#FAFBFB` background, `border-radius: 8px`, 16px bottom margin between groups
+- **Event header row**: 8px vertical padding, 16px horizontal padding
+  - Thumbnail: `32x32px`, `border-radius: 4px`
+  - Event name: `14px` bold, single-line with ellipsis
+  - Location: location-dot icon + text, `12px` regular
+  - Delete button: `44x44px` tap area, `16px` icon, subtle (no background, `#536B75` color)
+  - Chevron button: `44x44px` tap area, `16px` icon, subtle style
+- **Border separator**: when expanded, the event header row gets a `border-bottom: 1px solid #CCD2D8`
+- **Expanded body**:
+  - **Time-slot section**: ticket icon + date/time (left), location-dot + location (right), all `12px` caption; followed by cart item cards
+  - **Products sub-section**: gift icon + "Products" label (`12px`), followed by retail cart item cards
 
-Non-ticket items (F&B, retail) listed separately under a "Products" heading with a box icon.
+### Cart Item Card
 
-Demo cart seed data is aligned to currently available POS inventory sources (event-specific tickets/add-ons and Gift Shop retail products) to avoid showing stale/unavailable items.
+- **Card**: `background: #FFFFFF`, `border: 1px solid #CCD2D8`, `border-radius: 8px`, `padding: 8px`
+- **Item name**: `12px` regular weight, max 2 lines with ellipsis
+- **Price row**: original price `10px` regular `#536B75` with strikethrough, current price `12px` semibold, optional crown icon `12px` `#FFA639`
+- **Booking fee**: `10px` regular `#536B75`
+
+### Quantity Controls (Pill Counter)
+
+The quantity control is a **pill-shaped capsule** containing both action buttons and the count:
+
+- **Pill container**: `border: 1px solid #A7B2BA`, `border-radius: 200px`, `padding: 2px`, `max-width: 140px`, `width: 132px`
+- **Left button** (40x40 circle):
+  - **Quantity = 1**: trash-can icon, `background: #0079CA`, white icon -- removes the item
+  - **Quantity >= 2**: minus icon, `background: #0079CA`, white icon -- decrements quantity
+- **Count text**: centered, `16px` regular, `color: #536B75`
+- **Right button** (plus): 40x40 circle, `background: #0079CA`, white icon -- increments quantity
 
 ### Footer
 
-- **Total row**: "Total (N items)" left-aligned, total amount right-aligned (18px semibold)
-- **Discount link**: "Select discount type" right-aligned (12px, primary blue)
+- **Top divider**: `1px solid #CCD2D8` full-width line
+- **Total row**: "Total (N items)" left-aligned `14px` regular, total amount right-aligned `14px` bold
+- **Discount link**: "Select discount type" right-aligned below amount (`12px` semibold, primary blue `#0079CA`)
+- **Bottom divider**: `1px solid #CCD2D8` full-width line
 - **Currency display**: POS prices are displayed in euros (`€`) for consistency with Sales Routing and Catalog Integration
-- **Payment buttons**: Two pill-shaped buttons side-by-side:
-  - **Cash**: White background, gray border, wallet icon
-  - **Card**: Primary blue background, white text, credit card icon
+- **Payment buttons**: Two pill-shaped buttons side-by-side (`48px` height, `border-radius: 64px`, `16px` font, `24px` horizontal padding):
+  - **Cash**: White background, `2px solid #CCD2D8` border, wallet icon, primary blue text
+  - **Card**: Primary blue `#0079CA` background, white text, credit card icon
+- **Footer shadow**: `0 -6px 6px rgba(0,70,121,0.2)` top shadow
 
 ---
 

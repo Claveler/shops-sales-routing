@@ -1,4 +1,5 @@
 .header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -40,10 +41,92 @@
   display: block;
 }
 
+.centerSection {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .trailSide {
   display: flex;
   align-items: center;
   gap: 32px;
+}
+
+/* iMin device preview toggle */
+.devicePreviewWrap {
+  position: relative;
+}
+
+.devicePreviewWrap:hover .devicePreviewTooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.devicePreviewTooltip {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: var(--fz-text-primary, #031419);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 150ms ease, transform 150ms ease, visibility 150ms ease;
+  z-index: 100;
+}
+
+.devicePreviewTooltip::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: var(--fz-text-primary, #031419);
+}
+
+.devicePreviewBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: var(--fz-text-inverse, #fff);
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 200ms ease, border-color 200ms ease;
+  flex-shrink: 0;
+}
+
+.devicePreviewBtn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.devicePreviewBtnActive {
+  background: var(--fz-primary-600, #0079CA);
+  border-color: var(--fz-primary-600, #0079CA);
+  color: #fff;
+}
+
+.devicePreviewBtnActive:hover {
+  background: #006bb5;
+  border-color: #006bb5;
 }
 
 .shiftWidget {

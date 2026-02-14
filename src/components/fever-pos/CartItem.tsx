@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrashCan, faPlus, faCrown } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan, faPlus, faMinus, faCrown } from '@fortawesome/free-solid-svg-icons';
 import type { CartItemData } from '../../data/feverPosData';
 import { formatPrice } from '../../data/feverPosData';
 import styles from './CartItem.module.css';
@@ -12,6 +12,8 @@ interface CartItemProps {
 }
 
 export function CartItem({ item, onIncrement, onDecrement, onRemove }: CartItemProps) {
+  const isOne = item.quantity <= 1;
+
   return (
     <div className={styles.cartItem}>
       <div className={styles.itemInfo}>
@@ -29,18 +31,20 @@ export function CartItem({ item, onIncrement, onDecrement, onRemove }: CartItemP
           <p className={styles.bookingFee}>+ {formatPrice(item.bookingFee)} booking fee</p>
         )}
       </div>
-      <div className={styles.quantityControls}>
+
+      {/* Pill-shaped quantity counter */}
+      <div className={styles.pillCounter}>
         <button
-          className={styles.removeBtn}
-          onClick={() => item.quantity <= 1 ? onRemove(item.id) : onDecrement(item.id)}
+          className={`${styles.pillBtn} ${styles.pillBtnLeft}`}
+          onClick={() => isOne ? onRemove(item.id) : onDecrement(item.id)}
           type="button"
-          aria-label={item.quantity <= 1 ? 'Remove item' : 'Decrease quantity'}
+          aria-label={isOne ? 'Remove item' : 'Decrease quantity'}
         >
-          <FontAwesomeIcon icon={faTrashCan} />
+          <FontAwesomeIcon icon={isOne ? faTrashCan : faMinus} />
         </button>
-        <span className={styles.quantity}>{item.quantity}</span>
+        <span className={styles.pillCount}>{item.quantity}</span>
         <button
-          className={styles.addBtn}
+          className={`${styles.pillBtn} ${styles.pillBtnRight}`}
           onClick={() => onIncrement(item.id)}
           type="button"
           aria-label="Increase quantity"

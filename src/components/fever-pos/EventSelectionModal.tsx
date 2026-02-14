@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBuildingColumns, faTicket, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faBuildingColumns, faXmark } from '@fortawesome/free-solid-svg-icons';
 
 import styles from './EventSelectionModal.module.css';
 
@@ -38,31 +38,48 @@ export function EventSelectionModal({
 
   return (
     <div className={styles.overlay} role="presentation" onClick={onClose}>
-      <div className={styles.modal} role="dialog" aria-modal="true" aria-label="Select your event" onClick={(event) => event.stopPropagation()}>
+      <div
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Select your event"
+        onClick={(event) => event.stopPropagation()}
+      >
+        {/* Header */}
         <div className={styles.header}>
           <h2 className={styles.title}>Select your event</h2>
-          <button type="button" className={styles.closeButton} aria-label="Close event selector" onClick={onClose}>
+          <button
+            type="button"
+            className={styles.closeButton}
+            aria-label="Close event selector"
+            onClick={onClose}
+          >
             <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>
 
+        <div className={styles.divider} />
+
+        {/* Scrollable content */}
         <div className={styles.content}>
+          {/* Intro */}
           <div className={styles.intro}>
             <p className={styles.introTitle}>
-              <FontAwesomeIcon icon={faTicket} className={styles.ticketIcon} />
+              <span className={styles.introEmoji} aria-hidden="true">🎟️</span>
               Let&apos;s start selling tickets!
             </p>
             <p className={styles.introBody}>Which event are you looking to sell today?</p>
           </div>
 
+          {/* Selector panel */}
           <div className={styles.selectorPanel}>
+            {/* City selector */}
             {cities.length > 1 && (
               <section className={styles.section}>
                 <h3 className={styles.sectionTitle}>Select the city</h3>
                 <div className={styles.cityGrid}>
                   {cities.map((city) => {
                     const isSelected = city === selectedCity;
-
                     return (
                       <button
                         key={city}
@@ -78,12 +95,12 @@ export function EventSelectionModal({
               </section>
             )}
 
+            {/* Event selector */}
             <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>Select the event and the venue</h3>
+              <h3 className={styles.sectionTitle}>Select the event</h3>
               <div className={styles.eventGrid}>
                 {events.map((event) => {
                   const isSelected = event.id === selectedEventId;
-
                   return (
                     <button
                       key={event.id}
@@ -91,13 +108,17 @@ export function EventSelectionModal({
                       className={`${styles.eventCard} ${isSelected ? styles.eventCardSelected : ''}`}
                       onClick={() => onSelectEvent(event.id)}
                     >
-                      <img src={event.imageUrl} alt={event.name} className={styles.eventImage} />
+                      <img
+                        src={event.imageUrl}
+                        alt={event.name}
+                        className={styles.eventImage}
+                      />
                       <div className={styles.eventInfo}>
                         <p className={styles.eventName}>{event.name}</p>
-                        <p className={styles.eventVenue}>
-                          <FontAwesomeIcon icon={faBuildingColumns} />
-                          {event.venue}
-                        </p>
+                        <div className={styles.eventVenue}>
+                          <FontAwesomeIcon icon={faBuildingColumns} className={styles.venueIcon} />
+                          <span>{event.venue}</span>
+                        </div>
                       </div>
                     </button>
                   );
