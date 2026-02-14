@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
 import { faBars, faPlay, faUserCircle } from '@fortawesome/free-solid-svg-icons';
@@ -5,12 +6,23 @@ import { useNavigate } from 'react-router-dom';
 import styles from './FeverPosHeader.module.css';
 import feverLogo from '../../assets/fever-logo.svg';
 
-export function FeverPosHeader() {
-  const navigate = useNavigate();
-  const now = new Date();
+function formatHeaderDate(date: Date): string {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const dateStr = `${dayNames[now.getDay()]} ${now.getDate()} ${monthNames[now.getMonth()]}, ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  return `${dayNames[date.getDay()]} ${date.getDate()} ${monthNames[date.getMonth()]}, ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+}
+
+export function FeverPosHeader() {
+  const navigate = useNavigate();
+  const [dateStr, setDateStr] = useState(() => formatHeaderDate(new Date()));
+
+  useEffect(() => {
+    const updateTime = () => setDateStr(formatHeaderDate(new Date()));
+    updateTime();
+    const timerId = window.setInterval(updateTime, 30_000);
+    return () => window.clearInterval(timerId);
+  }, []);
 
   return (
     <header className={styles.header}>

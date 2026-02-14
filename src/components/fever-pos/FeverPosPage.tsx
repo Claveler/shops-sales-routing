@@ -311,11 +311,11 @@ export function FeverPosPage() {
     });
   }, [salesRoutingEvents]);
 
-  const handleConfirmEventChange = useCallback(() => {
-    if (!pendingEventId) return;
-    setSelectedEventId(pendingEventId);
+  const handleSelectEventAndApply = useCallback((eventId: string) => {
+    setPendingEventId(eventId);
+    setSelectedEventId(eventId);
     setIsEventSelectorOpen(false);
-  }, [pendingEventId]);
+  }, []);
 
   const handleToggleEventExpand = useCallback((eventId: string) => {
     setCartEvents((prev) =>
@@ -495,9 +495,8 @@ export function FeverPosPage() {
         events={cityFilteredEvents}
         selectedEventId={pendingEventId}
         onSelectCity={handleSelectEventCity}
-        onSelectEvent={setPendingEventId}
+        onSelectEvent={handleSelectEventAndApply}
         onClose={handleCloseEventSelector}
-        onConfirm={handleConfirmEventChange}
       />
     </div>
   );

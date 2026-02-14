@@ -92,7 +92,8 @@ The Fever POS is a full-screen interface that renders **outside** the standard F
 - Height: 72px (matches `--fz-header-height`)
 - Header parity with standard Fever Zone: same hamburger control, same Fever Zone logo asset, and same user identity block (name, profile icon, and partner/org)
 - POS difference: sidebar is collapsed for Box Office context and a dedicated shifts widget appears (date/time + "Start shift")
-- The date/time banner has a muted background (`#F2F3F3`) with a shadow overlay
+- The shifts widget follows live Fever Zone density: 48px high white card, muted left time panel, subtle divider, and 32px outlined rounded `Start shift` CTA
+- Date/time label reflects current system time while the POS is open (live updates)
 
 ### Main Content Area
 
@@ -110,6 +111,7 @@ Occupies all horizontal space left of the cart panel. Contains:
 - **Explode pipes spacing**: the category-filter row ("Gift Aid", "Non Gift Aid", "Groups", etc.) sits close to the top of the folder panel with a compact top inset, matching the Figma density
 - **Home icon in nav row**: a house button is always shown before chips/breadcrumbs; it is disabled at root and enabled while nested
 - **Calendar utility button** beside category filters is Tickets-only (circular 44px, blue icon style) and is hidden in Gift Shop
+- **No layout shift on tab switch**: when calendar is hidden (Gift Shop), an equal-width trailing slot is reserved so chips/breadcrumbs keep the same horizontal alignment as Tickets
 - **Control alignment to folder border**: top-right utility buttons are right-aligned to the folder outer border line; the calendar button is right-aligned to the inner tile area edge below
 - **Circular control borders**: utility circle buttons use a thicker border stroke to match Figma
 - **Product Tile Grid** filling the remaining space
@@ -143,10 +145,11 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
 - **Grid**: Ticket tiles (blue stripe `#0089E3`) and add-on tiles (orange stripe `#FF8C00`)
 - **Event selector**: Dropdown at top showing which event/plan is being sold (e.g., "Candlelight: Tribute to Taylor Swift")
 - **Event edit modal**: tapping the edit icon on the event tab opens a centered modal (`Select your event`) with:
-  - city chips under **Select the city**
-  - event cards under **Select the event** (thumbnail, event title, venue)
-  - `Cancel` and `Change event` actions
-  - typography aligned to the POS base scale (16px body/event text, 14px section labels, 16px modal title) for consistency with the rest of the UI
+  - compact header/title row with close action
+  - city chips under **Select the city** only when more than one city is available
+  - event cards under **Select the event and the venue** (thumbnail, event title, venue)
+  - immediate event switch on card click (no footer CTA row)
+  - compact Fever Zone-like spacing/typography (dense card list, 14px labels, ~13px event-title text, small venue text, tighter panel paddings)
 - **Data source for modal options**: city chips and event cards are generated from loaded Sales Routing events (via `getSalesRoutings()` + event lookup), so the selector only shows currently loaded routing cities/events (currently Madrid and Barcelona in demo data)
 - **Event switch behavior**: confirming `Change event` updates the active tickets event context shown on the top tab and is used as the default event metadata when creating a new ticket event group in cart state
 - **Per-event thumbnails**: each event uses its own thumbnail image (not a shared placeholder) in the event tab, event-selection modal, and cart event headers
@@ -381,6 +384,8 @@ Ticket and add-on items are grouped by event:
 ### Products Section
 
 Non-ticket items (F&B, retail) listed separately under a "Products" heading with a box icon.
+
+Demo cart seed data is aligned to currently available POS inventory sources (event-specific tickets/add-ons and Gift Shop retail products) to avoid showing stale/unavailable items.
 
 ### Footer
 

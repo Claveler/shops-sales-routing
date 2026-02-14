@@ -20,7 +20,6 @@ interface EventSelectionModalProps {
   onSelectCity: (city: string) => void;
   onSelectEvent: (eventId: string) => void;
   onClose: () => void;
-  onConfirm: () => void;
 }
 
 export function EventSelectionModal({
@@ -32,7 +31,6 @@ export function EventSelectionModal({
   onSelectCity,
   onSelectEvent,
   onClose,
-  onConfirm,
 }: EventSelectionModalProps) {
   if (!isOpen) {
     return null;
@@ -58,28 +56,30 @@ export function EventSelectionModal({
           </div>
 
           <div className={styles.selectorPanel}>
-            <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>Select the city</h3>
-              <div className={styles.cityGrid}>
-                {cities.map((city) => {
-                  const isSelected = city === selectedCity;
+            {cities.length > 1 && (
+              <section className={styles.section}>
+                <h3 className={styles.sectionTitle}>Select the city</h3>
+                <div className={styles.cityGrid}>
+                  {cities.map((city) => {
+                    const isSelected = city === selectedCity;
 
-                  return (
-                    <button
-                      key={city}
-                      type="button"
-                      className={`${styles.cityButton} ${isSelected ? styles.cityButtonSelected : ''}`}
-                      onClick={() => onSelectCity(city)}
-                    >
-                      {city}
-                    </button>
-                  );
-                })}
-              </div>
-            </section>
+                    return (
+                      <button
+                        key={city}
+                        type="button"
+                        className={`${styles.cityButton} ${isSelected ? styles.cityButtonSelected : ''}`}
+                        onClick={() => onSelectCity(city)}
+                      >
+                        {city}
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+            )}
 
             <section className={styles.section}>
-              <h3 className={styles.sectionTitle}>Select the event</h3>
+              <h3 className={styles.sectionTitle}>Select the event and the venue</h3>
               <div className={styles.eventGrid}>
                 {events.map((event) => {
                   const isSelected = event.id === selectedEventId;
@@ -105,15 +105,6 @@ export function EventSelectionModal({
               </div>
             </section>
           </div>
-        </div>
-
-        <div className={styles.footer}>
-          <button type="button" className={styles.cancelButton} onClick={onClose}>
-            Cancel
-          </button>
-          <button type="button" className={styles.confirmButton} onClick={onConfirm} disabled={!selectedEventId}>
-            Change event
-          </button>
         </div>
       </div>
     </div>

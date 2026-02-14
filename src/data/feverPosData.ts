@@ -291,17 +291,17 @@ export const initialCartEvents: CartEventGroup[] = [
 export const initialCartProducts: CartItemData[] = [
   {
     id: 'cp-1',
-    productId: 's-1',
-    name: 'HMS Victory Model',
-    price: 24.99,
+    productId: 'p-001',
+    name: 'Candlelight T-Shirt (Black)',
+    price: 29.99,
     quantity: 1,
   },
   {
     id: 'cp-2',
-    productId: 'm-1',
-    name: 'Cappuccino',
-    price: 3.50,
-    quantity: 2,
+    productId: 'p-008',
+    name: 'Van Gogh Sunflowers Mug',
+    price: 18.00,
+    quantity: 1,
   },
 ];
 

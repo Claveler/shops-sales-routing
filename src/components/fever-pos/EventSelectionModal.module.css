@@ -5,18 +5,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  background: rgba(6, 35, 44, 0.45);
+  padding: 20px;
+  background: rgba(6, 35, 44, 0.72);
 }
 
 .modal {
-  width: min(920px, 100%);
-  max-height: min(90vh, 760px);
+  width: min(720px, 100%);
+  max-height: min(90vh, 620px);
   display: flex;
   flex-direction: column;
-  border-radius: 16px;
+  border-radius: 12px;
   background: #FFFFFF;
-  box-shadow: 0 24px 24px rgba(0, 70, 121, 0.2);
+  box-shadow: 0 16px 24px rgba(6, 35, 44, 0.24);
 }
 
 .header {
@@ -24,22 +24,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 72px;
+  min-height: 56px;
   border-bottom: 1px solid #CCD2D8;
 }
 
 .title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: #031419;
 }
 
 .closeButton {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 6px;
+  right: 6px;
   width: 44px;
   height: 44px;
   display: inline-flex;
@@ -53,12 +53,12 @@
 }
 
 .content {
-  padding: 24px;
+  padding: 16px 24px;
   overflow: auto;
 }
 
 .intro {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .introTitle {
@@ -66,44 +66,44 @@
   align-items: center;
   gap: 8px;
   margin: 0 0 8px;
-  font-size: 18px;
-  line-height: 24px;
-  font-weight: 700;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 600;
   color: #031419;
 }
 
 .ticketIcon {
   color: #0079CA;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .introBody {
   margin: 0;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 20px;
   color: #031419;
 }
 
 .selectorPanel {
   background: #FAFBFB;
-  border-radius: 16px;
-  padding: 24px;
+  border-radius: 12px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 12px;
 }
 
 .section {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 .sectionTitle {
   margin: 0;
   font-size: 14px;
   line-height: 20px;
-  font-weight: 700;
+  font-weight: 600;
   color: #06232C;
 }
 
@@ -114,13 +114,13 @@
 }
 
 .cityButton {
-  min-height: 56px;
+  min-height: 44px;
   border-radius: 8px;
   border: 1px solid #BCC5CD;
   background: #FFFFFF;
   color: #031419;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -132,15 +132,16 @@
 
 .eventGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
 }
 
 .eventCard {
   display: flex;
   align-items: stretch;
-  gap: 12px;
-  padding: 8px;
+  gap: 8px;
+  padding: 0;
+  min-height: 60px;
   border-radius: 8px;
   border: 1px solid #BCC5CD;
   background: #FFFFFF;
@@ -154,69 +155,41 @@
 }
 
 .eventImage {
-  width: 88px;
-  height: 88px;
+  width: 56px;
+  height: 56px;
   border-radius: 6px;
   object-fit: cover;
   flex-shrink: 0;
+  margin: 4px 0 0 4px;
 }
 
 .eventInfo {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 8px;
+  gap: 2px;
   min-width: 0;
+  padding-right: 8px;
 }
 
 .eventName {
   margin: 0;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 700;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 600;
   color: #031419;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .eventVenue {
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   color: #415A65;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 0 24px 24px;
-}
-
-.cancelButton,
-.confirmButton {
-  min-width: 140px;
-  height: 44px;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.cancelButton {
-  border: 1px solid #BCC5CD;
-  background: #FFFFFF;
-  color: #031419;
-}
-
-.confirmButton {
-  border: none;
-  background: #0079CA;
-  color: #FFFFFF;
-}
-
-.confirmButton:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  font-size: 11px;
+  line-height: 15px;
 }

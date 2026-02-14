@@ -79,16 +79,20 @@ export function CategoryFilter({
         )}
       </div>
 
-      {onClear && (
-        <button
-          className={styles.clearButton}
-          onClick={onClear}
-          type="button"
-          aria-label="Open calendar"
-        >
-          <FontAwesomeIcon icon={faCalendar} />
-        </button>
-      )}
+      <div className={styles.trailingControl}>
+        {onClear ? (
+          <button
+            className={styles.clearButton}
+            onClick={onClear}
+            type="button"
+            aria-label="Open calendar"
+          >
+            <FontAwesomeIcon icon={faCalendar} />
+          </button>
+        ) : (
+          <span className={styles.clearButtonPlaceholder} aria-hidden="true" />
+        )}
+      </div>
     </div>
   );
 }

@@ -43,15 +43,16 @@
 .trailSide {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 32px;
 }
 
 .shiftWidget {
   display: flex;
   align-items: center;
-  background: var(--fz-bg-card, #fff);
-  border-radius: var(--fz-border-radius, 8px);
-  box-shadow: 0 8px 16px rgba(6, 35, 44, 0.25);
+  height: 48px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
   overflow: hidden;
   flex-shrink: 0;
 }
@@ -59,32 +60,48 @@
 .dateTime {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 16px;
-  background: var(--fz-bg-muted, #f2f3f3);
-  font-size: var(--fz-font-size-sm, 14px);
+  gap: 12px;
+  padding: 0 16px;
+  background: #F2F3F3;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
   color: var(--fz-text-primary, #031419);
   white-space: nowrap;
   align-self: stretch;
+  border-right: 1px solid #E3E6E8;
 }
 
 .clockIcon {
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .startShift {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  font-size: var(--fz-font-size-sm, 14px);
-  font-weight: var(--fz-font-weight-semibold, 600);
-  color: var(--fz-text-primary, #031419);
+  justify-content: center;
+  gap: 4px;
+  margin: 8px 16px;
+  padding: 0 12px;
+  height: 32px;
+  border-radius: 999px;
+  border: 2px solid #000000;
+  background: transparent;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #000000;
   white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--fz-transition-base, 200ms ease-in-out);
+}
+
+.startShift:hover {
+  background: #F6F7F7;
 }
 
 .playIcon {
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .userMenu {
