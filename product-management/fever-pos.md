@@ -130,7 +130,7 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
 
 ### Tickets & Add-Ons Tab
 
-- **Purpose**: Sell tickets to the selected event and related add-ons (audio guides, guidebooks, tours, etc.)
+- **Purpose**: Sell tickets to the selected event and related ticket upgrades (entry priority, flexible changes, premium access, experiential upgrades)
 - **Event-specific catalog**: ticket and add-on products are not shared globally; changing the active event swaps in that event's own ticket/add-on set
 - **Event title marquee**: If the selected event name overflows, it auto-scrolls horizontally back-and-forth once when POS opens at a slower, readable pace, then returns to the truncated state; tapping the event name replays that single run.
 - **Left sidebar**: Date picker + timeslot selector (calendar, day pills, morning/afternoon slots with availability counts)
@@ -138,6 +138,7 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
   - some events expose explode-pipe chips (e.g., `General Admission`, `VIP Experience`, `Premium`)
   - others show all tickets and add-ons directly with no top-level chips
 - **Add-on placement rule**: add-ons are assigned to the primary/high-volume first-level group when categories exist (usually `General Admission`-style categories)
+- **Add-on scope rule**: ticket-tab add-ons must be ticket/experience upgrades only; physical inventory items belong in `Gift Shop` (retail tab)
 - **Calendar control**: shown in the top-right of the filter row only in Tickets & Add-Ons (timeslot/date concept)
 - **Grid**: Ticket tiles (blue stripe `#0089E3`) and add-on tiles (orange stripe `#FF8C00`)
 - **Event selector**: Dropdown at top showing which event/plan is being sold (e.g., "Candlelight: Tribute to Taylor Swift")
@@ -148,6 +149,7 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
   - typography aligned to the POS base scale (16px body/event text, 14px section labels, 16px modal title) for consistency with the rest of the UI
 - **Data source for modal options**: city chips and event cards are generated from loaded Sales Routing events (via `getSalesRoutings()` + event lookup), so the selector only shows currently loaded routing cities/events (currently Madrid and Barcelona in demo data)
 - **Event switch behavior**: confirming `Change event` updates the active tickets event context shown on the top tab and is used as the default event metadata when creating a new ticket event group in cart state
+- **Per-event thumbnails**: each event uses its own thumbnail image (not a shared placeholder) in the event tab, event-selection modal, and cart event headers
 
 ### Gift Shop Tab
 
@@ -494,7 +496,7 @@ Planned enhancements beyond the current scope:
 | **One-Stop Shop (OSS)** | Original name for the Fever POS initiative |
 | **Tile** | A clickable product or category card in the POS grid |
 | **Session / Ticket** | A purchasable ticket type with a specific timeslot |
-| **Add-on** | An optional extra purchasable alongside a ticket (audio guide, guidebook, tour, etc.) |
+| **Add-on** | An optional ticket-linked upgrade (priority access, flexible change, premium/experience upgrade); physical inventory is sold via Gift Shop |
 | **Category (Parent)** | A navigable category tile in the Retail tab (purple stripe) |
 | **Product (Leaf)** | A purchasable retail item tile (green stripe) |
 | **Stripe** | The 8px colored bar on the left edge of each tile indicating its type |

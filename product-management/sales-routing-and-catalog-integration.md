@@ -211,6 +211,7 @@ Sales routings create **SessionTypes and Sessions** in Fever plans. Each Session
 - **Single online channel** keeps things simple: one warehouse serves as both the price source and stock source. No price reference needed, no channel routing decisions.
 - **Multiple online channels** unlock multi-warehouse selection, capped at the number of online channels (one warehouse per channel). This allows different channels to pull stock from different locations. Since multiple warehouses may have different prices, a price reference is required to unify pricing across all SessionTypes.
 - **Box Office (with or without online channels)** removes the warehouse cap entirely. Box Office is a physical POS channel where individual devices can pull from different stock locations (configured separately in Box Office Setup). This naturally requires unlimited warehouse access. Online channels in this scenario follow the same assignment rules.
+- In the Fever POS UX split, physical inventory is surfaced in the Gift Shop (retail) tab, while the Tickets & Add-Ons tab is reserved for ticket products and ticket-linked upgrades.
 
 ### Price Reference vs Channel-Warehouse Mapping
 

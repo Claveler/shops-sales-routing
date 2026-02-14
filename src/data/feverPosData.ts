@@ -51,6 +51,15 @@ export interface CartProductGroup {
 export const DEFAULT_EVENT_THUMBNAIL_URL =
   'https://images.unsplash.com/photo-1473773508845-188df298d2d1?auto=format&fit=crop&w=256&q=80';
 
+export const EVENT_THUMBNAIL_BY_ID: Record<string, string> = {
+  'evt-001': 'https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=256&q=80',
+  'evt-002': 'https://images.unsplash.com/photo-1547891654-e66ed7ebb968?auto=format&fit=crop&w=256&q=80',
+  'evt-003': 'https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=256&q=80',
+  'evt-004': 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=256&q=80',
+  'evt-005': 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=256&q=80',
+  'evt-006': 'https://images.unsplash.com/photo-1503095396549-807759245b35?auto=format&fit=crop&w=256&q=80',
+};
+
 // ---------------------------------------------------------------------------
 // Categories
 // ---------------------------------------------------------------------------
@@ -72,8 +81,8 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
       { id: 't-3', name: 'Balcony View Ticket', price: 24.00, type: 'ticket', categoryId: 'taylor-general', tab: 'tickets' },
       { id: 't-4', name: 'VIP Front Row Ticket', price: 89.00, type: 'ticket', categoryId: 'taylor-vip', tab: 'tickets' },
       { id: 't-5', name: 'VIP Meet & Greet Pass', price: 129.00, type: 'ticket', categoryId: 'taylor-vip', tab: 'tickets' },
-      { id: 'a-1', name: 'LED Candle Add-on', price: 6.00, type: 'addon', categoryId: 'taylor-general', tab: 'tickets' },
-      { id: 'a-2', name: 'Commemorative Program', price: 9.00, type: 'addon', categoryId: 'taylor-general', tab: 'tickets' },
+      { id: 'a-1', name: 'Seat Selection Upgrade', price: 6.00, type: 'addon', categoryId: 'taylor-general', tab: 'tickets' },
+      { id: 'a-2', name: 'Flexible Ticket Change', price: 9.00, type: 'addon', categoryId: 'taylor-general', tab: 'tickets' },
       { id: 'a-3', name: 'Fast Track Entry', price: 12.00, type: 'addon', categoryId: 'taylor-general', tab: 'tickets' },
     ],
   },
@@ -84,9 +93,9 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
       { id: 'vg-2', name: 'Child Entry (4-12)', price: 14.00, type: 'ticket', categoryId: 'all', tab: 'tickets' },
       { id: 'vg-3', name: 'Student Entry', price: 18.00, type: 'ticket', categoryId: 'all', tab: 'tickets' },
       { id: 'vg-4', name: 'Family Pack (2+2)', price: 62.00, type: 'ticket', categoryId: 'all', tab: 'tickets' },
-      { id: 'vg-a1', name: 'Audio Narrative Guide', price: 5.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
+      { id: 'vg-a1', name: 'Audio Narrative Access', price: 5.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
       { id: 'vg-a2', name: 'VR Masterpieces Add-on', price: 8.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
-      { id: 'vg-a3', name: 'Souvenir Photo', price: 10.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
+      { id: 'vg-a3', name: 'Priority Access Lane', price: 10.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
     ],
   },
   'evt-003': {
@@ -100,8 +109,8 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
       { id: 'hz-3', name: 'Restricted View Seat', price: 27.00, type: 'ticket', categoryId: 'hans-general', tab: 'tickets' },
       { id: 'hz-4', name: 'Premium Orchestra Seat', price: 78.00, type: 'ticket', categoryId: 'hans-premium', tab: 'tickets' },
       { id: 'hz-5', name: 'Premium Lounge Access', price: 99.00, type: 'ticket', categoryId: 'hans-premium', tab: 'tickets' },
-      { id: 'hz-a1', name: 'Score Booklet', price: 11.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
-      { id: 'hz-a2', name: 'Collector Poster', price: 7.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
+      { id: 'hz-a1', name: 'Fast Track Check-in', price: 11.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
+      { id: 'hz-a2', name: 'Premium Seat Upgrade', price: 7.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
       { id: 'hz-a3', name: 'Aftershow Q&A Access', price: 16.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
     ],
   },
@@ -111,9 +120,9 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
       { id: 'sf-1', name: 'Tapas Route Ticket', price: 49.00, type: 'ticket', categoryId: 'all', tab: 'tickets' },
       { id: 'sf-2', name: 'Tapas + Dessert Route', price: 57.00, type: 'ticket', categoryId: 'all', tab: 'tickets' },
       { id: 'sf-3', name: 'Veggie Friendly Route', price: 49.00, type: 'ticket', categoryId: 'all', tab: 'tickets' },
-      { id: 'sf-a1', name: 'Premium Wine Pairing', price: 15.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
+      { id: 'sf-a1', name: 'Private Guide Upgrade', price: 15.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
       { id: 'sf-a2', name: 'Chef-led Market Stop', price: 12.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
-      { id: 'sf-a3', name: 'Recipe Zine Pack', price: 6.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
+      { id: 'sf-a3', name: 'Flexible Route Reschedule', price: 6.00, type: 'addon', categoryId: 'all', tab: 'tickets' },
     ],
   },
   'evt-005': {
@@ -127,9 +136,9 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
       { id: 'st-3', name: 'Priority Entry Pass', price: 43.00, type: 'ticket', categoryId: 'st-standard', tab: 'tickets' },
       { id: 'st-4', name: 'VIP Hawkins Lab Access', price: 74.00, type: 'ticket', categoryId: 'st-vip', tab: 'tickets' },
       { id: 'st-5', name: 'VIP Actor Photo Moment', price: 94.00, type: 'ticket', categoryId: 'st-vip', tab: 'tickets' },
-      { id: 'st-a1', name: 'Arcade Token Bundle', price: 8.00, type: 'addon', categoryId: 'st-standard', tab: 'tickets' },
+      { id: 'st-a1', name: 'Arcade Access Add-on', price: 8.00, type: 'addon', categoryId: 'st-standard', tab: 'tickets' },
       { id: 'st-a2', name: 'Demogorgon Photo Add-on', price: 10.00, type: 'addon', categoryId: 'st-standard', tab: 'tickets' },
-      { id: 'st-a3', name: 'Upside Down Lanyard', price: 5.00, type: 'addon', categoryId: 'st-standard', tab: 'tickets' },
+      { id: 'st-a3', name: 'Fast Queue Access', price: 5.00, type: 'addon', categoryId: 'st-standard', tab: 'tickets' },
     ],
   },
 };
@@ -232,7 +241,7 @@ export const initialCartEvents: CartEventGroup[] = [
   {
     id: 'evt-1',
     eventName: 'Candlelight: Tribute to Taylor Swift',
-    eventImageUrl: DEFAULT_EVENT_THUMBNAIL_URL,
+    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-001'],
     location: 'Madrid',
     date: 'April 17, 2025 12:00PM',
     isExpanded: false,
@@ -252,7 +261,7 @@ export const initialCartEvents: CartEventGroup[] = [
   {
     id: 'evt-2',
     eventName: 'Van Gogh: The Immersive Experience',
-    eventImageUrl: DEFAULT_EVENT_THUMBNAIL_URL,
+    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-002'],
     location: 'Barcelona',
     date: 'April 17, 2025 12:00PM',
     isExpanded: true,
@@ -270,7 +279,7 @@ export const initialCartEvents: CartEventGroup[] = [
       {
         id: 'ci-3',
         productId: 'vg-a1',
-        name: 'Audio Narrative Guide',
+        name: 'Audio Narrative Access',
         price: 5.00,
         quantity: 2,
         bookingFee: 0.60,
@@ -326,6 +335,13 @@ export function getTicketProductsForEvent(eventId?: string): Product[] {
 export function getTicketCategoriesForEvent(eventId?: string): Category[] {
   const catalog = (eventId && eventTicketCatalogs[eventId]) ? eventTicketCatalogs[eventId] : eventTicketCatalogs[defaultTicketEventId];
   return catalog.categories;
+}
+
+export function getEventThumbnailById(eventId?: string): string {
+  if (!eventId) {
+    return DEFAULT_EVENT_THUMBNAIL_URL;
+  }
+  return EVENT_THUMBNAIL_BY_ID[eventId] ?? DEFAULT_EVENT_THUMBNAIL_URL;
 }
 
 export function getProductsByCategory(products: Product[], categoryId: string): Product[] {

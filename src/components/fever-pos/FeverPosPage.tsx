@@ -11,6 +11,7 @@ import { Cart } from './Cart';
 import {
   getTicketProductsForEvent,
   getTicketCategoriesForEvent,
+  getEventThumbnailById,
   getProductsByCategory,
   initialCartEvents,
   initialCartProducts,
@@ -56,7 +57,7 @@ export function FeverPosPage() {
         city: event.city,
         name: event.name,
         venue: event.venue,
-        imageUrl: DEFAULT_EVENT_THUMBNAIL_URL,
+        imageUrl: getEventThumbnailById(event.id),
       }));
   }, [demo]);
 
