@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faAddressCard, faMagnifyingGlass, faTabletScreenButton, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faAddressCard, faMagnifyingGlass, faStar, faTabletScreenButton, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
 import iminDeviceImg from '../../assets/imin-swan-1-pro-3d.webp';
 import { FeverPosHeader } from './FeverPosHeader';
@@ -38,6 +38,11 @@ import styles from './FeverPosPage.module.css';
  * Changing the ticket event selector does NOT change the retail product source.
  */
 const BOX_OFFICE_EVENT_ID = 'evt-001';
+const MEMBERSHIP_TIER_COLORS: Record<'Gold' | 'Silver' | 'Basic', string> = {
+  Gold: '#B8860B',
+  Silver: '#5C6B7A',
+  Basic: '#8B7355',
+};
 
 export function FeverPosPage() {
   const demo = useDemo();
@@ -133,6 +138,92 @@ export function FeverPosPage() {
 
   // Warehouse data needed for member pricing on gift shop products
   const productWarehouses = demo.getProductWarehouses();
+  const salesRoutings = demo.getSalesRoutings();
+
+  const boxOfficeSalesRouting = useMemo(
+    () => salesRoutings.find((routing) => routing.eventId === BOX_OFFICE_EVENT_ID) ?? salesRoutings[0],
+    [salesRoutings]
+  );
+
+  const priceReferenceWarehouseId = useMemo(
+    () => boxOfficeSalesRouting?.priceReferenceWarehouseId ?? boxOfficeSalesRouting?.warehouseIds[0],
+    [boxOfficeSalesRouting]
+  );
+
+  const warehouseScopedEntries = useMemo(
+    () =>
+      priceReferenceWarehouseId
+        ? productWarehouses.filter((pw) => pw.warehouseId === priceReferenceWarehouseId)
+        : [],
+    [productWarehouses, priceReferenceWarehouseId]
+  );
+
+  const retailPricingLookup = useMemo(() => {
+    const lookup = new Map<
+      string,
+      {
+        productPrice?: number;
+        productMemberPrice?: number;
+        variantPrices: Record<string, number>;
+        variantMemberPrices: Record<string, number>;
+        variantStock: Record<string, number>;
+      }
+    >();
+
+    for (const entry of warehouseScopedEntries) {
+      const current = lookup.get(entry.productId) ?? {
+        variantPrices: {},
+        variantMemberPrices: {},
+        variantStock: {},
+      };
+
+      if (entry.variantId) {
+        current.variantPrices[entry.variantId] = entry.price;
+        if (entry.memberPrice != null) {
+          current.variantMemberPrices[entry.variantId] = entry.memberPrice;
+        }
+        current.variantStock[entry.variantId] = (current.variantStock[entry.variantId] ?? 0) + entry.stock;
+      } else {
+        current.productPrice = entry.price;
+        current.productMemberPrice = entry.memberPrice;
+      }
+
+      lookup.set(entry.productId, current);
+    }
+
+    for (const value of lookup.values()) {
+      if (value.productPrice == null) {
+        const variantPrices = Object.values(value.variantPrices);
+        if (variantPrices.length > 0) {
+          value.productPrice = Math.min(...variantPrices);
+        }
+      }
+
+      if (value.productMemberPrice == null) {
+        const variantMemberPrices = Object.values(value.variantMemberPrices);
+        if (variantMemberPrices.length > 0) {
+          value.productMemberPrice = Math.min(...variantMemberPrices);
+        }
+      }
+    }
+
+    return lookup;
+  }, [warehouseScopedEntries]);
+
+  const getRetailVariantPricing = useCallback((productId: string, variantId?: string) => {
+    const pricing = retailPricingLookup.get(productId);
+    if (!pricing) return null;
+    if (!variantId) {
+      return {
+        price: pricing.productPrice,
+        memberPrice: pricing.productMemberPrice,
+      };
+    }
+    return {
+      price: pricing.variantPrices[variantId] ?? pricing.productPrice,
+      memberPrice: pricing.variantMemberPrices[variantId] ?? pricing.productMemberPrice,
+    };
+  }, [retailPricingLookup]);
 
   const handleOpenMemberModal = useCallback(() => setIsMemberModalOpen(true), []);
   const handleCloseMemberModal = useCallback(() => setIsMemberModalOpen(false), []);
@@ -165,9 +256,7 @@ export function FeverPosPage() {
           return item;
         }),
         retailItems: group.retailItems.map((item) => {
-          // Gift shop products: look up memberPrice from warehouse data
-          const warehouseEntry = productWarehouses.find((pw) => pw.productId === item.productId);
-          const mp = warehouseEntry?.memberPrice;
+          const mp = getRetailVariantPricing(item.productId, item.variantId)?.memberPrice;
           if (mp != null && item.originalPrice == null) {
             return { ...item, originalPrice: item.price, price: mp };
           }
@@ -175,7 +264,7 @@ export function FeverPosPage() {
         }),
       }))
     );
-  }, [memberPriceLookup, productWarehouses]);
+  }, [getRetailVariantPricing, memberPriceLookup]);
 
   const handleClearMember = useCallback(() => {
     setIdentifiedMember(null);
@@ -210,7 +299,7 @@ export function FeverPosPage() {
   }, []);
 
   const salesRoutingEvents = useMemo(() => {
-    const uniqueEventIds = Array.from(new Set(demo.getSalesRoutings().map((routing) => routing.eventId)));
+    const uniqueEventIds = Array.from(new Set(salesRoutings.map((routing) => routing.eventId)));
 
     return uniqueEventIds
       .map((eventId) => getEventById(eventId))
@@ -222,7 +311,7 @@ export function FeverPosPage() {
         venue: event.venue,
         imageUrl: getEventThumbnailById(event.id),
       }));
-  }, [demo]);
+  }, [salesRoutings]);
 
   const availableCities = useMemo(
     () => Array.from(new Set(salesRoutingEvents.map((event) => event.city))),
@@ -356,12 +445,12 @@ export function FeverPosPage() {
     return catalogProducts
       .filter((product) => productIds.includes(product.id))
       .map((product) => {
-        const warehouseEntry = productWarehouses.find((pw) => pw.productId === product.id);
+        const pricing = getRetailVariantPricing(product.id);
         return {
           id: product.id,
           name: product.name,
-          price: warehouseEntry?.price ?? 0,
-          memberPrice: warehouseEntry?.memberPrice,
+          price: pricing?.price ?? 0,
+          memberPrice: pricing?.memberPrice,
           type: 'retail' as const,
           categoryId: currentGiftShopCategoryId,
           imageUrl: product.imageUrl,
@@ -371,7 +460,7 @@ export function FeverPosPage() {
           variants: product.variants,
         };
       });
-  }, [hierarchyElementProducts, currentGiftShopCategoryId, catalogProducts, productWarehouses]);
+  }, [hierarchyElementProducts, currentGiftShopCategoryId, catalogProducts, getRetailVariantPricing]);
 
   // Check whether a hierarchy category (or its descendants) contains any
   // product with member pricing, so we can show a crown on the folder tile.
@@ -383,8 +472,7 @@ export function FeverPosPage() {
         .map((link) => link.productId);
 
       const hasDirect = directProductIds.some((pid) => {
-        const pw = productWarehouses.find((w) => w.productId === pid);
-        return pw?.memberPrice != null;
+        return getRetailVariantPricing(pid)?.memberPrice != null;
       });
       if (hasDirect) return true;
 
@@ -392,7 +480,7 @@ export function FeverPosPage() {
       const children = hierarchyElements.filter((he) => he.parentId === categoryId);
       return children.some((child) => categoryHasMemberPricing(child.id));
     },
-    [hierarchyElements, hierarchyElementProducts, productWarehouses]
+    [getRetailVariantPricing, hierarchyElements, hierarchyElementProducts]
   );
 
   const topLevelGiftShopCategoriesWithMember = useMemo(
@@ -550,11 +638,9 @@ export function FeverPosPage() {
 
     // Resolve variant-specific price from warehouse data (gift shop products)
     // or fall back to the parent product price
-    const variantWarehouseEntry = productWarehouses.find(
-      (pw) => pw.productId === product.id && pw.variantId === variant.id
-    );
-    const variantPrice = variantWarehouseEntry?.price ?? product.price;
-    const variantMemberPrice = variantWarehouseEntry?.memberPrice ?? product.memberPrice;
+    const variantPricing = getRetailVariantPricing(product.id, variant.id);
+    const variantPrice = variantPricing?.price ?? product.price;
+    const variantMemberPrice = variantPricing?.memberPrice ?? product.memberPrice;
 
     // Retail products always go to the Box Office event group
     const targetEvent = boxOfficeEvent;
@@ -620,7 +706,7 @@ export function FeverPosPage() {
       targetGroup.isExpanded = true;
       return updatedGroups;
     });
-  }, [boxOfficeEvent, identifiedMember, productWarehouses]);
+  }, [boxOfficeEvent, getRetailVariantPricing, identifiedMember]);
 
   const handleOpenEventSelector = useCallback(() => {
     if (salesRoutingEvents.length === 0) return;
@@ -771,6 +857,22 @@ export function FeverPosPage() {
                 <div className={styles.memberPill} role="button" tabIndex={0} onClick={handleOpenMemberModal}>
                   <FontAwesomeIcon icon={faAddressCard} className={styles.memberPillIcon} />
                   <span className={styles.memberPillName}>{identifiedMember.name}</span>
+                  {identifiedMember.membershipTier && (
+                    <span
+                      className={styles.memberPillTier}
+                      style={{
+                        color: MEMBERSHIP_TIER_COLORS[identifiedMember.membershipTier],
+                        borderColor: MEMBERSHIP_TIER_COLORS[identifiedMember.membershipTier],
+                      }}
+                    >
+                      <FontAwesomeIcon
+                        icon={identifiedMember.membershipRole === 'primary' ? faStar : faUserPlus}
+                        className={styles.memberPillTierIcon}
+                        title={identifiedMember.membershipRoleLabel || (identifiedMember.membershipRole === 'primary' ? 'Primary Member' : 'Beneficiary')}
+                      />
+                      {identifiedMember.membershipTier}
+                    </span>
+                  )}
                   <button
                     type="button"
                     className={styles.memberPillClose}
@@ -873,14 +975,23 @@ export function FeverPosPage() {
           product={variantPickerProduct}
           onSelectVariant={handleVariantSelected}
           onClose={() => setVariantPickerProduct(null)}
+          isMemberActive={isMemberActive}
           variantPrices={
             variantPickerProduct.variants
               ? Object.fromEntries(
                   variantPickerProduct.variants.map((v) => {
-                    const pw = productWarehouses.find(
-                      (e) => e.productId === variantPickerProduct.id && e.variantId === v.id
-                    );
-                    return [v.id, pw?.price ?? variantPickerProduct.price];
+                    const pricing = getRetailVariantPricing(variantPickerProduct.id, v.id);
+                    return [v.id, pricing?.price ?? variantPickerProduct.price];
+                  })
+                )
+              : undefined
+          }
+          variantMemberPrices={
+            variantPickerProduct.variants
+              ? Object.fromEntries(
+                  variantPickerProduct.variants.map((v) => {
+                    const pricing = getRetailVariantPricing(variantPickerProduct.id, v.id);
+                    return [v.id, pricing?.memberPrice];
                   })
                 )
               : undefined
@@ -889,10 +1000,8 @@ export function FeverPosPage() {
             variantPickerProduct.variants
               ? Object.fromEntries(
                   variantPickerProduct.variants.map((v) => {
-                    const entries = productWarehouses.filter(
-                      (e) => e.productId === variantPickerProduct.id && e.variantId === v.id
-                    );
-                    return [v.id, entries.reduce((sum, e) => sum + e.stock, 0)];
+                    const pricing = retailPricingLookup.get(variantPickerProduct.id);
+                    return [v.id, pricing?.variantStock[v.id] ?? 0];
                   })
                 )
               : undefined

@@ -13,6 +13,10 @@ interface VariantPickerProps {
   variantStock?: Record<string, number>;
   /** Optional: per-variant price overrides (e.g. from warehouse). Key = variantId. */
   variantPrices?: Record<string, number>;
+  /** Optional: per-variant member price overrides (e.g. from warehouse). Key = variantId. */
+  variantMemberPrices?: Partial<Record<string, number>>;
+  /** Controls whether member pricing should be shown for eligible variants. */
+  isMemberActive?: boolean;
 }
 
 export function VariantPicker({
@@ -21,6 +25,8 @@ export function VariantPicker({
   onClose,
   variantStock,
   variantPrices,
+  variantMemberPrices,
+  isMemberActive,
 }: VariantPickerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +72,8 @@ export function VariantPicker({
             const stock = variantStock?.[variant.id];
             const isOutOfStock = stock !== undefined && stock <= 0;
             const price = variantPrices?.[variant.id] ?? product.price;
+            const memberPrice = variantMemberPrices?.[variant.id];
+            const showMemberPrice = isMemberActive && memberPrice != null;
 
             return (
               <button
@@ -76,7 +84,12 @@ export function VariantPicker({
                 type="button"
               >
                 <span className={styles.pillLabel}>{variant.label}</span>
-                {variantPrices && variantPrices[variant.id] !== undefined && (
+                {showMemberPrice ? (
+                  <span className={styles.pillPriceRow}>
+                    <span className={styles.pillPriceOriginal}>{formatPrice(price)}</span>
+                    <span className={styles.pillPriceMember}>{formatPrice(memberPrice!)}</span>
+                  </span>
+                ) : (
                   <span className={styles.pillPrice}>{formatPrice(price)}</span>
                 )}
                 {isOutOfStock && (

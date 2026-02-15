@@ -57,16 +57,17 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-width: 56px;
-  flex: 1 1 56px;
-  max-width: 80px;
-  padding: 10px 16px;
+  justify-content: flex-start;
+  min-width: 64px;
+  flex: 1 1 64px;
+  max-width: 84px;
+  padding: 8px 8px;
   background: #f0f4f8;
   border: 2px solid transparent;
   border-radius: 10px;
   cursor: pointer;
   transition: all 0.15s ease;
+  overflow: hidden;
 }
 
 .pill:hover:not(:disabled) {
@@ -97,6 +98,32 @@
   color: #536b75;
   line-height: 16px;
   margin-top: 2px;
+}
+
+.pillPriceRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: center;
+  margin-top: 2px;
+  width: 100%;
+}
+
+.pillPriceOriginal {
+  font-size: 10px;
+  font-weight: 400;
+  color: #536b75;
+  line-height: 12px;
+  text-decoration: line-through;
+  white-space: nowrap;
+}
+
+.pillPriceMember {
+  font-size: 11px;
+  font-weight: 600;
+  color: #031419;
+  line-height: 14px;
+  white-space: nowrap;
 }
 
 .pillOos {

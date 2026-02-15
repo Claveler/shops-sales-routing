@@ -104,7 +104,7 @@ The Fever POS is a full-screen interface that renders **outside** the standard F
 Occupies all horizontal space left of the cart panel. Contains:
 
 - **Navigation Tabs** at the top
-- **Folder-like tab connection**: the active tab is visually connected to the content panel below, creating a folder-style container. The content panel has its own top border; the active tab has `margin-bottom: -1px` to overlap it and a white `border-bottom` to cover the content's grey border beneath it, producing a seamless folder cut-out effect. When the first tab is active, the content panel's top-left corner is square (flush with the tab); otherwise all top corners are rounded
+- **Folder-like tab connection**: the active tab is visually connected to the content panel below, creating a folder-style container. The content panel has its own top border; the active tab has `margin-bottom: -1px` to overlap it and a white `border-bottom` to cover the content's grey border beneath it, producing a seamless folder cut-out effect. When the first tab is active, the content panel's top-left corner is square (flush with the tab); otherwise all top corners are rounded, and the inactive first tab does not paint an extra bottom seam into that rounded corner
 - **Folder frame spacing**: the connected tab+panel block is inset with horizontal and bottom padding so it does not touch the outer viewport/container edges
 - **Background palette**: page background `#F8F9F9`; folder surface (active tab + panel) `#FFFFFF`
 - **Tab sizing model**: only the event tab uses the expanded active width; `Gift Shop` keeps a compact active width
@@ -330,11 +330,16 @@ Production tiles have a material-design-style ripple animation on click:
 
 Products with size variants (e.g. T-shirts, hoodies) display a **"from"** prefix before the base price on the tile (e.g. "from €18,00"). Tapping a variant product tile does **not** add to cart directly; instead it opens the **Variant Picker** overlay.
 
+For Gift Shop products, variant and member pricing are resolved from the Box Office routing's **price reference warehouse**:
+- Tile-level variant price uses the warehouse-scoped **base "from" price**.
+- When a member is identified, variant tiles show a crown badge if at least one variant has member pricing, but the tile price remains `from €X,XX` (no strikethrough row on the tile itself).
+
 **Variant Picker overlay:**
 - Centered modal with semi-transparent backdrop (`rgba(6, 35, 44, 0.4)`)
 - Shows product name and axis label ("Select Size")
 - Pill-shaped buttons for each variant value (S, M, L, XL)
-- Each pill shows the variant-specific price if prices differ across variants
+- Each pill shows the variant-specific price from the price reference warehouse
+- When member pricing exists for a selected variant, that variant pill shows original (strikethrough) + member price; variants without member pricing keep regular price only
 - Out-of-stock variants are greyed out and disabled
 - Tapping a pill adds the selected variant to the cart and closes the picker
 - Clicking outside or pressing Escape dismisses without adding
@@ -441,6 +446,8 @@ Cart items are grouped by event **and timeslot**, but tickets and products follo
 - **Item name**: `12px` regular weight, max 2 lines with ellipsis
 - **Price row**: current price `12px` semibold
 - **Member pricing row** (when a member is identified and the item has a member price): strikethrough original price + discounted member price + orange crown icon. When a member is identified mid-transaction, existing cart items are retroactively updated (original price stored, display price set to member price). Clearing the member reverts all prices.
+- **Warehouse-scoped member pricing**: for Gift Shop variant lines, member and regular prices are resolved per variant from the Box Office routing's price reference warehouse, so cart pricing matches tile/picker pricing.
+- **Demo data coverage**: the Gift Shop catalog seed includes multiple member-priced retail products (including variant and non-variant SKUs), so member pricing is visible in normal POS browse/add-to-cart flows without extra setup.
 - **Booking fee**: `10px` regular `#536B75`
 
 ### Quantity Controls (Pill Counter)
@@ -461,8 +468,9 @@ The cart header includes an **Identify member** action button (address-card icon
 - **Header**: "Identify member" title + close (×) button
 - **Instruction row**: address-card icon + "Scan the QR code or enter the ID manually"
 - **Input field**: floating-label text input ("Member ID") with a crosshairs icon
-- **Demo prefill button**: a purple-gradient "Enter demo member" button (magic-wand icon) that immediately identifies demo member **Anderson Collingwood** (ID `7261322`) without requiring manual input. This button uses the same `fillDemoBtn` visual style (purple gradient, white text, wand icon) as the demo prefill buttons in the Sales Routing wizard.
-- **Behavior**: on successful identification the modal closes and the header shows the member's name in a badge; tapping the badge's × clears the member
+- **Demo prefill button**: a purple-gradient "Enter demo member" button (magic-wand icon) that immediately identifies demo member **Anderson Collingwood** (ID `7261322`) without requiring manual input. The demo member is configured as a **Gold** membership **primary** contact. This button uses the same `fillDemoBtn` visual style (purple gradient, white text, wand icon) as the demo prefill buttons in the Sales Routing wizard.
+- **Pill indicator behavior**: on successful identification the top-row member pill shows the member name plus a compact outlined membership tier indicator (`Gold`, `Silver`, or `Basic`) tinted by tier color. The indicator prepends a role icon (`star` for primary, `user-plus` for beneficiary) matching patron-list semantics.
+- **Clear behavior**: tapping the member pill's × action clears the identified member and removes member pricing
 
 ### Footer
 

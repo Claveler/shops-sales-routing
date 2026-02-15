@@ -54,6 +54,12 @@
   z-index: 3;
 }
 
+/* Keep the rounded content corner clean when the first tab is inactive. */
+.firstTab:not(.active) {
+  border-bottom-color: transparent;
+  margin-bottom: 0;
+}
+
 .eventTab {
   min-width: 250px;
   padding: 8px 12px;

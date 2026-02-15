@@ -10,7 +10,9 @@ export interface MemberInfo {
   avatarUrl?: string;
   household?: string;
   householdVerified?: boolean;
-  membershipTag?: string;
+  membershipTier?: 'Gold' | 'Silver' | 'Basic';
+  membershipRole?: 'primary' | 'beneficiary';
+  membershipRoleLabel?: string;
   memberSince?: string;
 }
 
@@ -27,7 +29,9 @@ const DEMO_MEMBER: MemberInfo = {
   avatarUrl: undefined, // will use initials fallback
   household: 'Collingwood Family',
   householdVerified: true,
-  membershipTag: 'Member',
+  membershipTier: 'Gold',
+  membershipRole: 'primary',
+  membershipRoleLabel: 'Primary Member',
   memberSince: '11/04/2022',
 };
 
@@ -204,9 +208,14 @@ export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdent
                     )}
 
                     <div className={styles.memberTags}>
-                      {pendingMember.membershipTag && (
+                      {pendingMember.membershipTier && (
                         <span className={styles.memberTag}>
-                          {pendingMember.membershipTag}
+                          {pendingMember.membershipTier}
+                        </span>
+                      )}
+                      {pendingMember.membershipRoleLabel && (
+                        <span className={styles.memberSince}>
+                          {pendingMember.membershipRoleLabel}
                         </span>
                       )}
                       {pendingMember.memberSince && (

@@ -55,7 +55,7 @@ export function NavigationTabs({
   return (
     <div className={styles.navigation}>
       <button
-        className={`${styles.tab} ${styles.eventTab} ${activeTab === 'tickets' ? styles.active : ''}`}
+        className={`${styles.tab} ${styles.eventTab} ${styles.firstTab} ${activeTab === 'tickets' ? styles.active : ''}`}
         onClick={() => onTabChange('tickets')}
         type="button"
       >

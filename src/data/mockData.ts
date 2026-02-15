@@ -321,10 +321,10 @@ export const products: Product[] = [
 export const productWarehouses: ProductWarehouse[] = [
   // Main Store products (14) — variant products have per-variant rows
   // demo-p-001 Event T-Shirt (Black)
-  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 30 },
-  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 50 },
-  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 45 },
-  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: 'wh-demo-main', price: 32.99, currency: 'EUR', stock: 25 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-s',  warehouseId: 'wh-demo-main', price: 29.99, memberPrice: 24.99, currency: 'EUR', stock: 30 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-m',  warehouseId: 'wh-demo-main', price: 29.99, memberPrice: 24.99, currency: 'EUR', stock: 50 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-l',  warehouseId: 'wh-demo-main', price: 29.99, memberPrice: 24.99, currency: 'EUR', stock: 45 },
+  { productId: 'demo-p-001', variantId: 'demo-p-001-xl', warehouseId: 'wh-demo-main', price: 32.99, memberPrice: 27.99, currency: 'EUR', stock: 25 },
   // demo-p-002 Event T-Shirt (White)
   { productId: 'demo-p-002', variantId: 'demo-p-002-s',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 25 },
   { productId: 'demo-p-002', variantId: 'demo-p-002-m',  warehouseId: 'wh-demo-main', price: 29.99, currency: 'EUR', stock: 40 },
@@ -335,17 +335,17 @@ export const productWarehouses: ProductWarehouse[] = [
   { productId: 'demo-p-003', variantId: 'demo-p-003-m',  warehouseId: 'wh-demo-main', price: 59.99, currency: 'EUR', stock: 25 },
   { productId: 'demo-p-003', variantId: 'demo-p-003-l',  warehouseId: 'wh-demo-main', price: 59.99, currency: 'EUR', stock: 25 },
   { productId: 'demo-p-003', variantId: 'demo-p-003-xl', warehouseId: 'wh-demo-main', price: 64.99, currency: 'EUR', stock: 15 },
-  { productId: 'demo-p-004', warehouseId: 'wh-demo-main', price: 24.99, currency: 'EUR', stock: 100 },
+  { productId: 'demo-p-004', warehouseId: 'wh-demo-main', price: 24.99, memberPrice: 19.99, currency: 'EUR', stock: 100 },
   { productId: 'demo-p-005', warehouseId: 'wh-demo-main', price: 89.99, currency: 'EUR', stock: 40 },
   { productId: 'demo-p-006', warehouseId: 'wh-demo-main', price: 19.99, currency: 'EUR', stock: 200 },
-  { productId: 'demo-p-007', warehouseId: 'wh-demo-main', price: 15.99, currency: 'EUR', stock: 180 },
+  { productId: 'demo-p-007', warehouseId: 'wh-demo-main', price: 15.99, memberPrice: 12.99, currency: 'EUR', stock: 180 },
   { productId: 'demo-p-008', warehouseId: 'wh-demo-main', price: 12.99, currency: 'EUR', stock: 250 },
   { productId: 'demo-p-011', warehouseId: 'wh-demo-main', price: 18.00, currency: 'EUR', stock: 300 },
-  { productId: 'demo-p-012', warehouseId: 'wh-demo-main', price: 34.99, currency: 'EUR', stock: 60 },
+  { productId: 'demo-p-012', warehouseId: 'wh-demo-main', price: 34.99, memberPrice: 29.99, currency: 'EUR', stock: 60 },
   { productId: 'demo-p-015', warehouseId: 'wh-demo-main', price: 39.99, currency: 'EUR', stock: 50 },
   { productId: 'demo-p-016', warehouseId: 'wh-demo-main', price: 49.99, currency: 'EUR', stock: 100 },
   { productId: 'demo-p-017', warehouseId: 'wh-demo-main', price: 99.99, currency: 'EUR', stock: 25 },
-  { productId: 'demo-p-018', warehouseId: 'wh-demo-main', price: 24.99, currency: 'EUR', stock: 75 },
+  { productId: 'demo-p-018', warehouseId: 'wh-demo-main', price: 24.99, memberPrice: 19.99, currency: 'EUR', stock: 75 },
   
   // Gift Shop products (10) - some overlap with Main Store (different prices)
   // demo-p-001 Event T-Shirt (Black)
