@@ -481,30 +481,37 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
   height: 48px;
   background: var(--fz-bg-card, #ffffff);
-  border: 1px solid var(--fz-border-color, #ccd2d8);
   border-radius: var(--fz-border-radius, 8px);
-  padding-left: 12px;
-  padding-right: 36px;
+  box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
   cursor: pointer;
-  transition: border-color var(--fz-transition-fast, 150ms ease-in-out), box-shadow var(--fz-transition-fast, 150ms ease-in-out);
+  transition: box-shadow var(--fz-transition-fast, 150ms ease-in-out);
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .configField:hover {
-  border-color: var(--fz-neutral-600, #536b75);
+  box-shadow: 0 2px 12px rgba(24, 54, 66, 0.14);
 }
 
 .configFieldOpen {
-  border-color: var(--fz-primary, #0089e3);
-  box-shadow: 0 0 0 2px rgba(0, 137, 227, 0.12);
+  box-shadow: 0 2px 12px rgba(0, 137, 227, 0.2);
+}
+
+.configFieldIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: stretch;
+  padding: 0 14px;
+  background: #F2F3F3;
+  border-right: 1px solid #E3E6E8;
 }
 
 .configFieldIcon {
   font-size: 16px;
-  color: var(--fz-primary-600, #0079CA);
+  color: var(--fz-text-primary, #031419);
   flex-shrink: 0;
 }
 
@@ -515,6 +522,7 @@
   gap: 1px;
   justify-content: center;
   min-width: 0;
+  padding: 0 36px 0 12px;
 }
 
 .configFieldLabel {
@@ -651,10 +659,6 @@
   transition: background-color 150ms ease;
 }
 
-.setupVenueHeader:hover {
-  background: var(--fz-bg-hover, #eef0f1);
-}
-
 .setupVenueChevron {
   font-size: 10px;
   color: var(--fz-text-secondary, #536b75);
@@ -691,16 +695,8 @@
   transition: background-color 150ms ease;
 }
 
-.setupItem:hover {
-  background: var(--fz-bg-hover, #f6f7f7);
-}
-
 .setupItemSelected {
   background: rgba(0, 121, 202, 0.08);
-}
-
-.setupItemSelected:hover {
-  background: rgba(0, 121, 202, 0.12);
 }
 
 .setupItemName {
@@ -738,16 +734,8 @@
   transition: background-color 150ms ease;
 }
 
-.deviceItem:hover {
-  background: var(--fz-bg-hover, #f6f7f7);
-}
-
 .deviceItemSelected {
   background: rgba(0, 121, 202, 0.08);
-}
-
-.deviceItemSelected:hover {
-  background: rgba(0, 121, 202, 0.12);
 }
 
 .deviceItemName {

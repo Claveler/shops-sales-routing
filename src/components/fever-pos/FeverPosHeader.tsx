@@ -337,7 +337,9 @@ export function FeverPosHeader({
             aria-expanded={isConfigDropdownOpen}
             aria-haspopup="dialog"
           >
-            <FontAwesomeIcon icon={faGear} className={styles.configFieldIcon} />
+            <div className={styles.configFieldIconWrap}>
+              <FontAwesomeIcon icon={faGear} className={styles.configFieldIcon} />
+            </div>
             <div className={styles.configFieldInner}>
               <span className={styles.configFieldLabel}>
                 <FontAwesomeIcon icon={faLandmarkDome} className={styles.configFieldVenueIcon} />
