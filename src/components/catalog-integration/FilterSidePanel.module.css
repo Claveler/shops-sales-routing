@@ -8,7 +8,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: var(--fz-bg-scrim, rgba(6, 35, 44, 0.88));
+  background: var(--fz-bg-scrim, rgba(16, 26, 35, 0.9));
   z-index: 2000;
   opacity: 0;
   pointer-events: none;

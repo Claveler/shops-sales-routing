@@ -46,8 +46,8 @@
   --fz-bg-muted: #F3F4F6;            /* Muted background (tags, preview chips) */
   --fz-bg-sidebar-active: #2C4751;   /* Active sidebar menu item highlight */
   --fz-bg-disabled: #F2F3F3;         /* Disabled button background */
-  --fz-bg-overlay: rgba(6, 35, 44, 0.8);   /* Sidebar backdrop overlay */
-  --fz-bg-scrim: rgba(6, 35, 44, 0.88);    /* Modal scrim overlay */
+  --fz-bg-overlay: rgba(16, 26, 35, 0.9);  /* Sidebar backdrop overlay */
+  --fz-bg-scrim: rgba(16, 26, 35, 0.9);    /* Modal scrim overlay */
 
   /* ---- Text Colors ---- */
   --fz-text-primary: #06232C;        /* Default body text (DS neutral-900) */

@@ -13,8 +13,8 @@
 |-------|-----|-----|-------|
 | `--fz-bg-dark` | `#06232C` | `rgb(6, 35, 44)` | Header, sidebar, page title bar, filter bar |
 | `--fz-bg-sidebar-active` | `#2C4751` | `rgb(44, 71, 81)` | Active sidebar menu item background |
-| `--fz-bg-overlay` | `rgba(6, 35, 44, 0.8)` | — | Sidebar backdrop overlay |
-| `--fz-bg-scrim` | `rgba(6, 35, 44, 0.88)` | — | Modal scrim overlay |
+| `--fz-bg-overlay` | `rgba(16, 26, 35, 0.9)` | — | Sidebar backdrop overlay |
+| `--fz-bg-scrim` | `rgba(16, 26, 35, 0.9)` | — | Modal scrim overlay |
 
 ### Light Theme (Content Area)
 
@@ -188,7 +188,7 @@ Tags are compact inline status indicators using `border-radius: 4px`, `padding: 
 - **Dialog**: max-width `500px`
 - **Close button**: `btn-close` class, border-radius 6px, padding ~19px 16px
 - **Primary action button**: Same as primary button variant (pill, `#0079CA`)
-- **Scrim/backdrop**: `rgba(6, 35, 44, 0.88)`
+- **Scrim/backdrop**: `rgba(16, 26, 35, 0.9)`
 
 ### Dropdowns
 

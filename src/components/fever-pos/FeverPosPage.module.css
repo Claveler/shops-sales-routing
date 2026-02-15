@@ -209,27 +209,37 @@
   overflow: hidden;
 }
 
-/* Centered toggle that sits outside the device frame, at the top of
-   the viewport.  Uses the same visual style as the header button. */
+/* Greyed logo for simulation view - positioned using exact measured values from header.
+   Measured: left: 72px, top: 20px */
+.devicePreviewLogo {
+  position: absolute;
+  top: 20px;
+  left: 72px;
+  height: 32px;
+  display: block;
+  filter: brightness(0.4);
+  z-index: 2;
+}
+
+/* Toggle button - positioned using exact measured values from header.
+   Measured: left: 228px, top: 16px */
 .devicePreviewToggleFloat {
   position: absolute;
   top: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 2; /* above the backdrop */
+  left: 228px;
+  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   height: 40px;
-  padding: 0 14px;
+  padding: 0 10px;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.25);
   background: var(--fz-primary-600, #0079CA);
   color: #fff;
   font-size: 14px;
   font-weight: 500;
-  white-space: nowrap;
   cursor: pointer;
   transition: background-color 200ms ease, border-color 200ms ease;
 }
@@ -237,6 +247,14 @@
 .devicePreviewToggleFloat:hover {
   background: #006bb5;
   border-color: #006bb5;
+}
+
+.devicePreviewToggleText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  font-size: 12px;
 }
 
 /*

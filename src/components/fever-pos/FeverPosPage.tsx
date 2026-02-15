@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAddressCard, faMagnifyingGlass, faStar, faTabletScreenButton, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { useDemo } from '../../context/DemoContext';
 import iminDeviceImg from '../../assets/imin-swan-1-pro-3d.webp';
+import feverLogo from '../../assets/fever-logo.svg';
 import { FeverPosHeader } from './FeverPosHeader';
 import { NavigationTabs } from './NavigationTabs';
 import type { PosTab } from './NavigationTabs';
@@ -30,7 +31,56 @@ import { MemberIdentifyModal } from './MemberIdentifyModal';
 import type { MemberInfo } from './MemberIdentifyModal';
 import { TimeslotModal } from './TimeslotModal';
 import { VariantPicker } from './VariantPicker';
+import type { PaymentDevice, Venue, CashRegister, ShiftInfo } from './FeverPosHeader';
 import styles from './FeverPosPage.module.css';
+
+// Mock Adyen payment devices for demo
+const MOCK_PAYMENT_DEVICES: PaymentDevice[] = [
+  { id: 'S1F2-000158243349174', name: 'S1F2-000158243349174' },
+  { id: 'S1F2-000158243349175', name: 'S1F2-000158243349175' },
+  { id: 'V400m-324689123', name: 'V400m-324689123' },
+];
+
+// Mock cash registers for demo
+const MOCK_CASH_REGISTERS: CashRegister[] = [
+  { id: 'cr-001', name: 'Main Lobby Register' },
+  { id: 'cr-002', name: 'Gift Shop Register' },
+  { id: 'cr-003', name: 'VIP Lounge Register' },
+  { id: 'cr-004', name: 'Mobile Register 1' },
+];
+
+// Mock venues and POS setups for demo (Fonck Museum context)
+const MOCK_VENUES: Venue[] = [
+  {
+    id: 'venue-fonck-concert',
+    name: 'Fonck Concert Hall',
+    setups: [
+      { id: 'setup-concert-lobby', name: 'Main Lobby' },
+      { id: 'setup-concert-balcony', name: 'Balcony Bar' },
+      { id: 'setup-concert-vip', name: 'VIP Lounge' },
+      { id: 'setup-concert-merch', name: 'Merchandise Stand' },
+    ],
+  },
+  {
+    id: 'venue-fonck-barcelona',
+    name: 'Fonck Barcelona',
+    setups: [
+      { id: 'setup-bcn-entrance', name: 'Main Entrance' },
+      { id: 'setup-bcn-cafe', name: 'Café' },
+      { id: 'setup-bcn-gift', name: 'Gift Shop' },
+      { id: 'setup-bcn-mobile', name: 'Mobile POS' },
+    ],
+  },
+  {
+    id: 'venue-fonck-madrid',
+    name: 'Fonck Madrid',
+    setups: [
+      { id: 'setup-mad-entrance', name: 'Main Entrance' },
+      { id: 'setup-mad-terrace', name: 'Rooftop Terrace' },
+      { id: 'setup-mad-gift', name: 'Gift Shop' },
+    ],
+  },
+];
 
 /**
  * The Box Office is configured against a single sales routing (= one event).
@@ -118,11 +168,45 @@ export function FeverPosPage() {
 
   const isMemberActive = identifiedMember !== null;
 
+  // Device selection state
+  const [linkedDeviceId, setLinkedDeviceId] = useState<string | null>(MOCK_PAYMENT_DEVICES[0].id);
+
+  const handleSelectDevice = useCallback((deviceId: string) => {
+    setLinkedDeviceId(deviceId);
+  }, []);
+
+  // POS Setup selection state
+  const [selectedSetupId, setSelectedSetupId] = useState<string | null>('setup-concert-lobby');
+
+  const handleSelectSetup = useCallback((setupId: string, _venueId: string) => {
+    setSelectedSetupId(setupId);
+  }, []);
+
+  // Shift state
+  const [activeShift, setActiveShift] = useState<ShiftInfo | null>(null);
+
+  const handleStartShift = useCallback((cashRegisterId: string, openingCash: number) => {
+    const cashRegister = MOCK_CASH_REGISTERS.find((cr) => cr.id === cashRegisterId);
+    setActiveShift({
+      id: `shift-${Date.now()}`,
+      startTime: new Date(),
+      cashRegisterId,
+      cashRegisterName: cashRegister?.name ?? 'Unknown Register',
+      openingCash,
+    });
+  }, []);
+
+  const handleEndShift = useCallback(() => {
+    setActiveShift(null);
+  }, []);
+
   // Variant picker state
   const [variantPickerProduct, setVariantPickerProduct] = useState<Product | null>(null);
 
   // Timeslot modal state
   const [isTimeslotModalOpen, setIsTimeslotModalOpen] = useState(false);
+  // Track pending product to add after timeslot selection
+  const [pendingProductForTimeslot, setPendingProductForTimeslot] = useState<Product | null>(null);
   // Track the confirmed timeslot per event: eventId -> EventTimeslot
   // Pre-seed with timeslots matching the preloaded cart events
   const [selectedTimeslots, setSelectedTimeslots] = useState<Record<string, EventTimeslot>>(() => {
@@ -289,13 +373,9 @@ export function FeverPosPage() {
 
   // Timeslot modal handlers
   const handleOpenTimeslotModal = useCallback(() => setIsTimeslotModalOpen(true), []);
-  const handleCloseTimeslotModal = useCallback(() => setIsTimeslotModalOpen(false), []);
-
-  const handleConfirmTimeslot = useCallback((timeslot: EventTimeslot) => {
-    setSelectedTimeslots((prev) => ({ ...prev, [timeslot.eventId]: timeslot }));
+  const handleCloseTimeslotModal = useCallback(() => {
     setIsTimeslotModalOpen(false);
-    // Existing cart groups keep their own timeslot — no overwriting.
-    // New tickets will land in a group keyed by the new timeslot.
+    setPendingProductForTimeslot(null);
   }, []);
 
   const salesRoutingEvents = useMemo(() => {
@@ -343,6 +423,93 @@ export function FeverPosPage() {
       return next;
     });
   }, [ticketsEventId]);
+
+  const handleConfirmTimeslot = useCallback((timeslot: EventTimeslot) => {
+    setSelectedTimeslots((prev) => ({ ...prev, [timeslot.eventId]: timeslot }));
+    setIsTimeslotModalOpen(false);
+    // Existing cart groups keep their own timeslot — no overwriting.
+    // New tickets will land in a group keyed by the new timeslot.
+
+    // If there's a pending product waiting for timeslot selection, add it now
+    if (pendingProductForTimeslot) {
+      const product = pendingProductForTimeslot;
+      setPendingProductForTimeslot(null);
+
+      const isTicketOrAddon = product.type === 'ticket' || product.type === 'addon';
+      const targetEvent = isTicketOrAddon ? activeSelectedEvent : boxOfficeEvent;
+
+      setCartEvents((prev) => {
+        const eventId = targetEvent?.id ?? BOX_OFFICE_EVENT_ID;
+        const groupKey = `${eventId}--${timeslot.id}`;
+
+        let groupIndex = prev.findIndex((g) => g.id === groupKey);
+
+        const updatedGroups = prev.map((g) => ({
+          ...g,
+          items: g.items.map((i) => ({ ...i })),
+          retailItems: g.retailItems.map((i) => ({ ...i })),
+        }));
+
+        if (groupIndex === -1) {
+          const dateStr = formatTimeslotForCart(timeslot.date, timeslot.startTime);
+
+          updatedGroups.push({
+            id: groupKey,
+            eventId,
+            timeslotId: timeslot.id,
+            eventName: targetEvent?.name ?? 'Event',
+            eventImageUrl: targetEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
+            location: targetEvent?.venue ?? '',
+            date: dateStr,
+            isExpanded: true,
+            items: [],
+            retailItems: [],
+          });
+          groupIndex = updatedGroups.length - 1;
+        }
+
+        const targetGroup = updatedGroups[groupIndex];
+
+        // Determine effective price: use member price when member is active and eligible
+        const useMemberPrice = identifiedMember != null && product.memberPrice != null;
+        const effectivePrice = useMemberPrice ? product.memberPrice! : product.price;
+
+        if (isTicketOrAddon) {
+          const existingItem = targetGroup.items.find((i) => i.productId === product.id);
+          if (existingItem) {
+            existingItem.quantity += 1;
+          } else {
+            targetGroup.items.push({
+              id: `ci-${Date.now()}`,
+              productId: product.id,
+              name: product.name,
+              price: effectivePrice,
+              originalPrice: useMemberPrice ? product.price : undefined,
+              quantity: 1,
+              bookingFee: 0.60,
+            });
+          }
+        } else {
+          const existingItem = targetGroup.retailItems.find((i) => i.productId === product.id);
+          if (existingItem) {
+            existingItem.quantity += 1;
+          } else {
+            targetGroup.retailItems.push({
+              id: `cp-${Date.now()}`,
+              productId: product.id,
+              name: product.name,
+              price: effectivePrice,
+              originalPrice: useMemberPrice ? product.price : undefined,
+              quantity: 1,
+            });
+          }
+        }
+
+        targetGroup.isExpanded = true;
+        return updatedGroups;
+      });
+    }
+  }, [pendingProductForTimeslot, activeSelectedEvent, boxOfficeEvent, identifiedMember]);
 
   const ticketCategories = useMemo(
     () => getTicketCategoriesForEvent(ticketsEventId),
@@ -537,6 +704,7 @@ export function FeverPosPage() {
 
     // Gate: require a timeslot before adding tickets or add-ons
     if (isTicketOrAddon && !selectedTimeslots[targetEvent?.id ?? BOX_OFFICE_EVENT_ID]) {
+      setPendingProductForTimeslot(product);
       setIsTimeslotModalOpen(true);
       return;
     }
@@ -581,7 +749,7 @@ export function FeverPosPage() {
           timeslotId: activeTimeslot?.id,
           eventName: targetEvent?.name ?? 'Event',
           eventImageUrl: targetEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
-          location: targetEvent?.city ?? '',
+          location: targetEvent?.venue ?? '',
           date: dateStr,
           isExpanded: true,
           items: [],
@@ -669,7 +837,7 @@ export function FeverPosPage() {
           eventId,
           eventName: targetEvent?.name ?? 'Event',
           eventImageUrl: targetEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
-          location: targetEvent?.city ?? '',
+          location: targetEvent?.venue ?? '',
           date: dateStr,
           isExpanded: true,
           items: [],
@@ -773,11 +941,14 @@ export function FeverPosPage() {
 
   const handleRemoveItem = useCallback((itemId: string) => {
     setCartEvents((prev) =>
-      prev.map((g) => ({
-        ...g,
-        items: g.items.filter((i) => i.id !== itemId),
-        retailItems: g.retailItems.filter((i) => i.id !== itemId),
-      }))
+      prev
+        .map((g) => ({
+          ...g,
+          items: g.items.filter((i) => i.id !== itemId),
+          retailItems: g.retailItems.filter((i) => i.id !== itemId),
+        }))
+        // Remove groups that have no items left
+        .filter((g) => g.items.length > 0 || g.retailItems.length > 0)
     );
   }, []);
 
@@ -838,6 +1009,16 @@ export function FeverPosPage() {
       <FeverPosHeader
         isDevicePreview={isDevicePreview}
         onToggleDevicePreview={isDevicePreview ? undefined : handleToggleDevicePreview}
+        linkedDeviceId={linkedDeviceId}
+        paymentDevices={MOCK_PAYMENT_DEVICES}
+        onSelectDevice={handleSelectDevice}
+        venues={MOCK_VENUES}
+        selectedSetupId={selectedSetupId}
+        onSelectSetup={handleSelectSetup}
+        activeShift={activeShift}
+        cashRegisters={MOCK_CASH_REGISTERS}
+        onStartShift={handleStartShift}
+        onEndShift={handleEndShift}
       />
 
       <div className={styles.body}>
@@ -938,6 +1119,7 @@ export function FeverPosPage() {
           onClearAll={handleClearAll}
           isMemberActive={isMemberActive}
           activeTimeslots={selectedTimeslots}
+          selectedTicketEventId={ticketsEventId}
         />
       </div>
 
@@ -1015,7 +1197,9 @@ export function FeverPosPage() {
 
   return (
     <div className={styles.devicePreviewRoot}>
-      {/* Toggle sits outside the backdrop, fixed at the top center of the viewport */}
+      {/* Logo positioned to match header placement (after hamburger menu space) */}
+      <img src={feverLogo} alt="Fever Zone" className={styles.devicePreviewLogo} />
+      {/* Toggle button positioned to match exact header placement */}
       <button
         className={styles.devicePreviewToggleFloat}
         onClick={handleToggleDevicePreview}
@@ -1024,7 +1208,10 @@ export function FeverPosPage() {
         aria-pressed={isDevicePreview}
       >
         <FontAwesomeIcon icon={faTabletScreenButton} />
-        <span>iMin Swan 1 Pro</span>
+        <span className={styles.devicePreviewToggleText}>
+          <span>Simulate</span>
+          <span>iMin Swan 1 Pro</span>
+        </span>
       </button>
 
       <div ref={backdropRef} className={styles.devicePreviewBackdrop}>

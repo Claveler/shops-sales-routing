@@ -28,6 +28,8 @@ interface CartProps {
   isMemberActive?: boolean;
   /** Currently active timeslot per event — used to show mismatch warnings */
   activeTimeslots?: Record<string, EventTimeslot>;
+  /** The event currently selected in the tickets tab — used to determine if grouped view should be shown */
+  selectedTicketEventId?: string;
 }
 
 export function Cart({
@@ -40,6 +42,7 @@ export function Cart({
   onClearAll,
   isMemberActive,
   activeTimeslots,
+  selectedTicketEventId,
 }: CartProps) {
   // Calculate totals across all groups (tickets + retail)
   const totalItems = eventGroups.reduce(
@@ -62,7 +65,14 @@ export function Cart({
   );
 
   const hasItems = totalItems > 0;
-  const isSingleEvent = eventGroups.length === 1;
+  
+  // Show grouped view if there are multiple events OR if the single event in cart
+  // is different from the currently selected ticket event (to make it clear the cart
+  // contains items from a different event)
+  const cartHasDifferentEvent = eventGroups.length === 1 && 
+    selectedTicketEventId && 
+    eventGroups[0].eventId !== selectedTicketEventId;
+  const useGroupedView = eventGroups.length > 1 || cartHasDifferentEvent;
 
   return (
     <aside className={styles.cart}>
@@ -88,7 +98,7 @@ export function Cart({
         )}
 
         {/* Single event: flat layout, no event header */}
-        {hasItems && isSingleEvent && (
+        {hasItems && !useGroupedView && (
           <SingleEventLayout
             group={eventGroups[0]}
             onIncrementItem={onIncrementItem}
@@ -99,8 +109,8 @@ export function Cart({
           />
         )}
 
-        {/* Multiple events: grouped with event headers */}
-        {hasItems && !isSingleEvent &&
+        {/* Multiple events (or different event from selector): grouped with event headers */}
+        {hasItems && useGroupedView &&
           eventGroups.map((group) => (
             <EventGroupCard
               key={group.id}
@@ -288,10 +298,12 @@ function EventGroupCard({
             className={styles.eventName}
             autoPlay={false}
           />
-          <div className={styles.eventLocation}>
-            <FontAwesomeIcon icon={faLocationDot} className={styles.metaIcon} />
-            <span>{group.location}</span>
-          </div>
+          {!group.isExpanded && (
+            <div className={styles.eventLocation}>
+              <FontAwesomeIcon icon={faLocationDot} className={styles.metaIcon} />
+              <span>{group.location}</span>
+            </div>
+          )}
         </div>
         <button
           className={`${styles.eventIconBtn} ${styles.eventDeleteBtn}`}

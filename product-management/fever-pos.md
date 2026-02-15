@@ -39,8 +39,10 @@ Before the Fever POS, partners who needed to sell tickets alongside F&B and reta
 6. **Unified Checkout**: A single checkout process handles tickets, F&B, and merchandise.
 7. **Real-time Inventory Syncing**: Inventory synced in real-time with external systems (initially Square).
 8. **Payment Gateway Integration**: Integrates with onsite payment gateways (e.g., Adyen).
-9. **Centralized Reporting**: All onsite transactions consolidated for centralized reporting.
-10. **Scalability**: Designed to support future integrations beyond Square.
+9. **Payment Device Linking**: Desktop POS can be linked to a specific Adyen payment terminal for card transactions.
+10. **Venue & Setup Selection**: POS can be configured for a specific venue and setup via an accordion dropdown that organizes setups by venue.
+11. **Centralized Reporting**: All onsite transactions consolidated for centralized reporting.
+12. **Scalability**: Designed to support future integrations beyond Square.
 
 ---
 
@@ -60,6 +62,12 @@ The customer-facing display (second screen) is planned for a future phase. After
 ### Device Preview Simulation
 
 The POS includes a browser-based device preview that renders the full POS UI inside a 3D photo of the iMin Swan 1 Pro. The device frame image (7680 x 4320 `.webp`) is eagerly preloaded on page mount so it is typically cached before the user enters preview mode. If the image has not finished loading when the user toggles into device preview, a lightweight loading indicator is shown in place of the device frame. Once the image is ready, the device frame fades in (0.4 s ease-out) to avoid a jarring pop-in of content before the frame appears.
+
+#### Simulation Toggle Placement
+
+- **Normal mode**: the iMin simulation toggle button is positioned in the header, next to the Fever Zone logo (left side), using absolute positioning
+- **Simulation mode**: the toggle floats at the top-left of the viewport alongside a greyed Fever Zone logo (CSS filter `brightness(0.4)` for visibility on the white simulation backdrop)
+- **Consistent position**: the toggle uses absolute positioning in both modes so it remains in the same screen location when entering/exiting simulation, enabling quick mouse toggling without pointer movement
 
 ---
 
@@ -95,9 +103,66 @@ The Fever POS is a full-screen interface that renders **outside** the standard F
 - Dark background (`#06232C`)
 - Height: 72px (matches `--fz-header-height`)
 - Header parity with standard Fever Zone: same hamburger control, same Fever Zone logo asset, and same user identity block (name, profile icon, and partner/org)
-- POS difference: sidebar is collapsed for Box Office context and a dedicated shifts widget appears (date/time + "Start shift")
-- The shifts widget follows live Fever Zone density: 48px high white card, muted left time panel, subtle divider, and 32px outlined rounded `Start shift` CTA
-- Date/time label reflects current system time while the POS is open (live updates)
+- POS difference: sidebar is collapsed for Box Office context and a dedicated shifts widget appears (date/time + shift controls)
+- The shifts widget follows live Fever Zone density: 48px high white card, muted left time panel (`#F2F3F3` background), subtle divider, and shift action controls
+- Date/time label reflects current system time while the POS is open (live updates every 30 seconds)
+
+#### Shifts Widget States
+
+**No Active Shift (Start Shift mode)**:
+- Left section: clock icon + current date/time (e.g., "Sun 15 Feb, 23:49")
+- Right section: 32px outlined rounded "Start shift" button with play icon
+- Clicking "Start shift" opens the Start Shift modal
+
+**Active Shift mode**:
+- Left section: clock icon + shift start date/time (grey `#F2F3F3` background)
+- Right section: "See shift details" link (blue `#0079CA`) + "End shift" button (red text `#EB0052`, stop icon, outlined pill)
+- "End shift" button has 2px black border, transparent background, and red text/icon
+
+#### Start Shift Modal
+
+A centered modal for starting a new shift:
+
+- **Title**: "Start shift" (20px, semibold)
+- **Cash register dropdown**: searchable dropdown listing available cash registers
+  - Trigger button: 48px height, white background, grey border, chevron indicator
+  - Dropdown list: max-height 300px, 6px border-radius, shadow `rgba(0,0,0,0.3) 0px 2px 4px`
+  - Items: 47px height, 16px font, hover state `#F6F7F7`
+- **Cash amount input**: text input with auto-currency formatting
+  - 48px height, white background, grey border, 6px border-radius
+  - `inputMode="numeric"` for mobile keyboard optimization
+  - Auto-prepends currency symbol (€) when user types numbers
+  - Placeholder: "€0"
+- **Actions**: Cancel (outlined pill) + Start shift (blue filled pill) buttons
+- **Close behavior**: clicking backdrop or Cancel closes modal without starting shift
+
+#### POS Configuration Dropdown
+
+The header includes a **combined POS Configuration dropdown** that consolidates venue/setup selection and payment device linking into a single compact widget:
+
+- **Location**: positioned in the trail side (right side of header), left of the shifts widget
+- **Display**: shows a gear icon + floating label showing the **venue name** (e.g., `Portsmouth Historic Dockyard`) + compact value line showing `{Setup Name} • {Device ID}` (e.g., `Explosion Museum • S1F2-…9174`)
+- **All three values visible**: venue (label), setup (value), and device (value) are all shown at a glance without opening the dropdown
+- **Device ID truncation**: long device IDs are truncated to show prefix and last 4 characters (e.g., `S1F2-…9174`)
+- **Styling**: white background, 48px height, 8px border-radius; matches shifts widget aesthetic
+- **Interaction**: clicking toggles a two-section dropdown panel
+
+**Dropdown sections**:
+
+1. **Box Office Setup** (top section):
+   - Section header with cash register icon and "BOX OFFICE SETUP" label
+   - Accordion-style venue list (collapsible headers with chevron indicators)
+   - Only one venue expanded at a time; venue containing selected setup auto-expands on open
+   - Setups listed under their venue; selected setup shows checkmark
+   - Selecting a setup updates the header (both venue label and setup value) but keeps dropdown open (allows changing device too)
+
+2. **Payment Device** (bottom section):
+   - Section header with handheld POS icon and "PAYMENT DEVICE" label
+   - Flat list of available Adyen terminals with full device IDs
+   - Selected device shows checkmark
+   - Selecting a device updates the header but keeps dropdown open (allows changing setup too)
+
+- **Close behavior**: dropdown closes when clicking outside; stays open when making selections to allow configuring both settings in one interaction
 
 ### Main Content Area
 
@@ -154,7 +219,7 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
   - **Per-event tracking**: each event tracks its own selected timeslot independently; switching the active event in the event selector shows that event's schedule and selection state.
   - **Multi-timeslot cart**: the same event can have **multiple timeslot groups** in the cart. For example, a cashier can sell 2x Zone A tickets for Saturday 9:30 PM, then switch to Wednesday 7:00 PM and sell 3x Zone B tickets — both groups appear in the cart under the same event name, each with its own timeslot header. Cart groups are keyed by a composite `eventId--timeslotId` identifier. Retail items (which have no timeslot) piggyback on the first existing group for their event.
   - **Timeslot mismatch warning**: when the active timeslot (shown in the pill) differs from a cart group's timeslot for the same event, a small amber "Different timeslot" badge appears on that group's time-slot header. This is informational only — it tells the cashier that adding more tickets now will create a separate group for the active timeslot, not add to this existing group.
-  - **Timeslot required before selling**: tickets and add-ons cannot be added to the cart without a timeslot selected for the active event. Tapping a product tile when no timeslot is selected auto-opens the timeslot modal instead of adding the item. The cashier must confirm a timeslot first, then tap the product again.
+  - **Timeslot required before selling**: tickets and add-ons cannot be added to the cart without a timeslot selected for the active event. Tapping a product tile when no timeslot is selected auto-opens the timeslot modal instead of adding the item. After the cashier confirms a timeslot, the originally tapped product is automatically added to the cart — no need to tap the product again.
   - **Data model**: `EventTimeslot` (id, eventId, date, startTime, capacity, sold, availability) and `EventSchedule` (eventId, timeslots) in `feverPosData.ts`. `CartEventGroup` uses a composite `id` field (`eventId--timeslotId`) and explicit `eventId` / `timeslotId` fields to support multi-timeslot grouping.
 - **Top-level category behavior varies by event**:
   - some events expose explode-pipe chips (e.g., `General Admission`, `VIP Experience`, `Premium`)

@@ -196,7 +196,7 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: var(--fz-bg-overlay, rgba(6, 35, 44, 0.8));
+    background: var(--fz-bg-overlay, rgba(16, 26, 35, 0.9));
     z-index: 899;
     opacity: 0;
     pointer-events: none;

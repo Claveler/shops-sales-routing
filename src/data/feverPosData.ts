@@ -234,7 +234,7 @@ export const initialCartEvents: CartEventGroup[] = [
     timeslotId: 'ts-001-06',
     eventName: 'Candlelight: Tribute to Taylor Swift',
     eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-001'],
-    location: 'Madrid',
+    location: 'St. James Church',
     date: 'March 15, 2026 9:30PM',
     isExpanded: true,
     items: [
@@ -279,7 +279,7 @@ export const initialCartEvents: CartEventGroup[] = [
     timeslotId: 'ts-002-01',
     eventName: 'Van Gogh: The Immersive Experience',
     eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-002'],
-    location: 'Barcelona',
+    location: 'Exhibition Hall',
     date: 'April 1, 2026 10:00AM',
     isExpanded: true,
     items: [
