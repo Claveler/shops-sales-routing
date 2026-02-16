@@ -211,7 +211,6 @@ export function MockSeatingChart({
             </text>
 
             {MOCK_SECTIONS.map((section) => {
-              const tier = tierMap.get(section.tierId);
               const isVisible = isTierVisible(section.tierId);
               const isHovered = hoveredItem?.id === section.id;
 

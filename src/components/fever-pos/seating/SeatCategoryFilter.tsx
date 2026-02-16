@@ -22,11 +22,12 @@ export function SeatCategoryFilter({
   tiers,
   visibleTierIds,
   onToggleTier,
-  onShowAllTiers,
+  onShowAllTiers: _onShowAllTiers,
   selectedSeatCount,
   onClearSelection,
 }: SeatCategoryFilterProps) {
-  const allVisible = visibleTierIds.length === 0 || visibleTierIds.length === tiers.length;
+  // Reserved for future use
+  void _onShowAllTiers;
 
   const handleTierClick = useCallback((tierId: string) => {
     onToggleTier(tierId);

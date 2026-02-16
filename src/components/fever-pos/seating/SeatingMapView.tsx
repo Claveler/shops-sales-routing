@@ -28,11 +28,13 @@ interface SeatingMapViewProps {
 export function SeatingMapView({
   seatingConfig,
   onAddToCart,
-  eventId,
+  eventId: _eventId,
   timeslotLabel,
   onCalendarClick,
   onClearTimeslot,
 }: SeatingMapViewProps) {
+  // Reserved for future use (e.g., fetching seat availability per event)
+  void _eventId;
   const { tiers } = seatingConfig;
   const hasTimeslot = Boolean(timeslotLabel);
 
