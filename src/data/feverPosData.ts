@@ -200,7 +200,7 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
   },
 };
 
-const defaultTicketEventId = 'evt-003';
+const defaultTicketEventId = 'evt-001';
 
 export const ticketCategories: Category[] = eventTicketCatalogs[defaultTicketEventId].categories;
 
@@ -277,6 +277,7 @@ export const allProducts: Product[] = [
 // ---------------------------------------------------------------------------
 
 export const initialCartEvents: CartEventGroup[] = [
+  // Hans Zimmer event with seated tickets (demonstrates seating feature)
   {
     id: 'evt-003--ts-003-05',
     eventId: 'evt-003',
@@ -288,7 +289,7 @@ export const initialCartEvents: CartEventGroup[] = [
     isExpanded: true,
     items: [
       {
-        id: 'ci-1',
+        id: 'ci-hz-1',
         productId: 'hz-seat-1',
         name: 'General Admission Adult - Tier 1',
         price: 50.00,
@@ -302,7 +303,7 @@ export const initialCartEvents: CartEventGroup[] = [
         },
       },
       {
-        id: 'ci-2',
+        id: 'ci-hz-2',
         productId: 'hz-seat-2',
         name: 'General Admission Child - Tier 1',
         price: 40.00,
@@ -316,6 +317,35 @@ export const initialCartEvents: CartEventGroup[] = [
         },
       },
     ],
+    retailItems: [],
+  },
+  // Taylor Swift event (Box Office event - source of retail products)
+  {
+    id: 'evt-001--ts-001-06',
+    eventId: 'evt-001',
+    timeslotId: 'ts-001-06',
+    eventName: 'Candlelight: Tribute to Taylor Swift',
+    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-001'],
+    location: 'St. James Church',
+    date: 'Sun, Mar 15, 9:30 PM',
+    isExpanded: true,
+    items: [
+      {
+        id: 'ci-1',
+        productId: 't-1',
+        name: 'Zone A Ticket',
+        price: 39.00,
+        quantity: 2,
+        bookingFee: 0.60,
+      },
+      {
+        id: 'ci-2',
+        productId: 'a-1',
+        name: 'Seat Selection Upgrade',
+        price: 6.00,
+        quantity: 2,
+      },
+    ],
     retailItems: [
       {
         id: 'cp-1',
@@ -325,6 +355,13 @@ export const initialCartEvents: CartEventGroup[] = [
         quantity: 1,
         variantId: 'demo-p-001-l',
         variantLabel: 'L',
+      },
+      {
+        id: 'cp-2',
+        productId: 'demo-p-012',
+        name: 'Scented Candle Set',
+        price: 34.99,
+        quantity: 2,
       },
     ],
   },

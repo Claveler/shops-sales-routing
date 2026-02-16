@@ -248,7 +248,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
   // Cart state
   const [cartEvents, setCartEvents] = useState<CartEventGroup[]>(initialCartEvents);
   const [isEventSelectorOpen, setIsEventSelectorOpen] = useState(false);
-  const [selectedEventId, setSelectedEventId] = useState('evt-003');
+  const [selectedEventId, setSelectedEventId] = useState('evt-001');
   const [pendingEventId, setPendingEventId] = useState('');
   const [eventPickerCity, setEventPickerCity] = useState('');
 
@@ -318,6 +318,9 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
   // Pre-seed with timeslots matching the preloaded cart events
   const [selectedTimeslots, setSelectedTimeslots] = useState<Record<string, EventTimeslot>>(() => {
     const seed: Record<string, EventTimeslot> = {};
+    // evt-001: ts-001-06 (March 15, 21:30) — matches preloaded cart (Taylor Swift)
+    const ts001 = eventSchedules['evt-001']?.timeslots.find((ts) => ts.id === 'ts-001-06');
+    if (ts001) seed['evt-001'] = ts001;
     // evt-003: ts-003-05 (March 27, 19:30) — matches preloaded cart (Hans Zimmer seated event)
     const ts003 = eventSchedules['evt-003']?.timeslots.find((ts) => ts.id === 'ts-003-05');
     if (ts003) seed['evt-003'] = ts003;
