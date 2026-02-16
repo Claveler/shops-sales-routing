@@ -235,7 +235,7 @@ export const initialCartEvents: CartEventGroup[] = [
     eventName: 'Candlelight: Tribute to Taylor Swift',
     eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-001'],
     location: 'St. James Church',
-    date: 'Sun, Mar 15 9:30PM',
+    date: 'Sun, Mar 15, 9:30 PM',
     isExpanded: true,
     items: [
       {
@@ -280,7 +280,7 @@ export const initialCartEvents: CartEventGroup[] = [
     eventName: 'Van Gogh: The Immersive Experience',
     eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-002'],
     location: 'Exhibition Hall',
-    date: 'Wed, Apr 1 10:00AM',
+    date: 'Wed, Apr 1, 10:00 AM',
     isExpanded: true,
     items: [
       {
@@ -571,13 +571,13 @@ export function formatDateLong(isoDate: string): string {
 
 /**
  * Formats a selected timeslot into the cart date string.
- * e.g. date='2026-03-15', startTime='21:30' -> 'Sat, Mar 15 9:30PM'
+ * e.g. date='2026-03-15', startTime='21:30' -> 'Sat, Mar 15, 9:30 PM'
  */
 export function formatTimeslotForCart(date: string, startTime: string): string {
   const d = new Date(date + 'T12:00:00');
   const dayName = d.toLocaleDateString('en-US', { weekday: 'short' });
   const month = d.toLocaleDateString('en-US', { month: 'short' });
   const dayNum = d.getDate();
-  const timeStr = formatTimeslotTime(startTime).replace(' ', '');
-  return `${dayName}, ${month} ${dayNum} ${timeStr}`;
+  const timeStr = formatTimeslotTime(startTime);
+  return `${dayName}, ${month} ${dayNum}, ${timeStr}`;
 }
