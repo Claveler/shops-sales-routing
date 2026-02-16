@@ -32,6 +32,7 @@ export function MockSeatingChart({
   selectedSeats,
   visibleTierIds,
   callbacks,
+  disableHover = false,
 }: SeatingChartProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
@@ -100,20 +101,23 @@ export function MockSeatingChart({
     }
   }, [tierMap, isTierVisible, isSeatSelected, callbacks]);
 
-  // Handle section hover
+  // Handle section hover (disabled for touch devices)
   const handleSectionHover = useCallback((sectionId: string, x: number, y: number) => {
+    if (disableHover) return;
     setHoveredItem({ type: 'section', id: sectionId, x, y });
-  }, []);
+  }, [disableHover]);
 
-  // Handle seat hover
+  // Handle seat hover (disabled for touch devices)
   const handleSeatHover = useCallback((seat: MockSeatData, x: number, y: number) => {
+    if (disableHover) return;
     setHoveredItem({ type: 'seat', id: seat.id, x, y });
-  }, []);
+  }, [disableHover]);
 
   // Clear hover
   const handleMouseLeave = useCallback(() => {
+    if (disableHover) return;
     setHoveredItem(null);
-  }, []);
+  }, [disableHover]);
 
   // Get seats for the active section
   const sectionSeats = useMemo(() => {

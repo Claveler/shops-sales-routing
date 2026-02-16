@@ -36,6 +36,8 @@ export interface SeatingChartProps {
   visibleTierIds: string[];
   /** Interaction callbacks */
   callbacks: SeatingChartCallbacks;
+  /** When true, disables hover effects (for touch devices like iMin) */
+  disableHover?: boolean;
 }
 
 /** Seat data for the mock chart (defines venue layout) */

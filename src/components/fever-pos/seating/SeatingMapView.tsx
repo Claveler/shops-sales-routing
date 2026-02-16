@@ -23,6 +23,8 @@ interface SeatingMapViewProps {
   onCalendarClick?: () => void;
   /** Called when the timeslot clear button is clicked */
   onClearTimeslot?: () => void;
+  /** When true, disables hover effects (for touch devices like iMin) */
+  isDevicePreview?: boolean;
 }
 
 export function SeatingMapView({
@@ -32,6 +34,7 @@ export function SeatingMapView({
   timeslotLabel,
   onCalendarClick,
   onClearTimeslot,
+  isDevicePreview = false,
 }: SeatingMapViewProps) {
   // Reserved for future use (e.g., fetching seat availability per event)
   void _eventId;
@@ -189,6 +192,7 @@ export function SeatingMapView({
             selectedSeats={selectedSeats}
             visibleTierIds={visibleTierIds}
             callbacks={chartCallbacks}
+            disableHover={isDevicePreview}
           />
 
           {/* Ticket selection modal - positioned within chart area */}

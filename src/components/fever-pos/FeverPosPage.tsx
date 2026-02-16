@@ -1350,6 +1350,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
                   }
                   onCalendarClick={handleOpenTimeslotModal}
                   onClearTimeslot={handleClearTimeslot}
+                  isDevicePreview={isDevicePreview}
                 />
               )}
 
