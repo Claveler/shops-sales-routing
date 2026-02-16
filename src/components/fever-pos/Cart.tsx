@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faAngleDown,
@@ -23,6 +24,7 @@ interface CartProps {
   onRemoveEvent: (eventId: string) => void;
   onIncrementItem: (itemId: string) => void;
   onDecrementItem: (itemId: string) => void;
+  onSetItemQuantity: (itemId: string, quantity: number) => void;
   onRemoveItem: (itemId: string) => void;
   onClearAll: () => void;
   isMemberActive?: boolean;
@@ -30,6 +32,8 @@ interface CartProps {
   activeTimeslots?: Record<string, EventTimeslot>;
   /** The event currently selected in the tickets tab — used to determine if grouped view should be shown */
   selectedTicketEventId?: string;
+  /** Whether the POS is in iMin device preview mode — enables on-screen keyboard */
+  isDevicePreview?: boolean;
 }
 
 export function Cart({
@@ -38,12 +42,25 @@ export function Cart({
   onRemoveEvent,
   onIncrementItem,
   onDecrementItem,
+  onSetItemQuantity,
   onRemoveItem,
   onClearAll,
   isMemberActive,
   activeTimeslots,
   selectedTicketEventId,
+  isDevicePreview,
 }: CartProps) {
+  // Track whether any cart item has its keyboard open (for adding bottom padding)
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+  const handleKeyboardOpen = useCallback(() => {
+    setIsKeyboardOpen(true);
+  }, []);
+
+  const handleKeyboardClose = useCallback(() => {
+    setIsKeyboardOpen(false);
+  }, []);
+
   // Calculate totals across all groups (tickets + retail)
   const totalItems = eventGroups.reduce(
     (sum, group) =>
@@ -87,7 +104,7 @@ export function Cart({
       )}
 
       {/* Scrollable content */}
-      <div className={styles.cartBody}>
+      <div className={`${styles.cartBody} ${isKeyboardOpen ? styles.cartBodyKeyboardOpen : ''}`}>
         {!hasItems && (
           <div className={styles.emptyCart}>
             <div className={styles.emptyIconWrap}>
@@ -103,9 +120,13 @@ export function Cart({
             group={eventGroups[0]}
             onIncrementItem={onIncrementItem}
             onDecrementItem={onDecrementItem}
+            onSetItemQuantity={onSetItemQuantity}
             onRemoveItem={onRemoveItem}
             isMemberActive={isMemberActive}
             activeTimeslots={activeTimeslots}
+            isDevicePreview={isDevicePreview}
+            onKeyboardOpen={handleKeyboardOpen}
+            onKeyboardClose={handleKeyboardClose}
           />
         )}
 
@@ -119,9 +140,13 @@ export function Cart({
               onRemoveEvent={onRemoveEvent}
               onIncrementItem={onIncrementItem}
               onDecrementItem={onDecrementItem}
+              onSetItemQuantity={onSetItemQuantity}
               onRemoveItem={onRemoveItem}
               isMemberActive={isMemberActive}
               activeTimeslots={activeTimeslots}
+              isDevicePreview={isDevicePreview}
+              onKeyboardOpen={handleKeyboardOpen}
+              onKeyboardClose={handleKeyboardClose}
             />
           ))
         }
@@ -167,16 +192,24 @@ function SingleEventLayout({
   group,
   onIncrementItem,
   onDecrementItem,
+  onSetItemQuantity,
   onRemoveItem,
   isMemberActive,
   activeTimeslots,
+  isDevicePreview,
+  onKeyboardOpen,
+  onKeyboardClose,
 }: {
   group: CartEventGroup;
   onIncrementItem: (id: string) => void;
   onDecrementItem: (id: string) => void;
+  onSetItemQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
   isMemberActive?: boolean;
   activeTimeslots?: Record<string, EventTimeslot>;
+  isDevicePreview?: boolean;
+  onKeyboardOpen?: () => void;
+  onKeyboardClose?: () => void;
 }) {
   // Derive eventId / timeslotId from the composite id if the explicit fields are missing
   const derivedEventId = group.eventId ?? group.id.split('--')[0];
@@ -204,8 +237,12 @@ function SingleEventLayout({
                 item={item}
                 onIncrement={onIncrementItem}
                 onDecrement={onDecrementItem}
+                onSetQuantity={onSetItemQuantity}
                 onRemove={onRemoveItem}
                 isMemberActive={isMemberActive}
+                isDevicePreview={isDevicePreview}
+                onKeyboardOpen={onKeyboardOpen}
+                onKeyboardClose={onKeyboardClose}
               />
             ))}
           </div>
@@ -223,8 +260,12 @@ function SingleEventLayout({
                 item={item}
                 onIncrement={onIncrementItem}
                 onDecrement={onDecrementItem}
+                onSetQuantity={onSetItemQuantity}
                 onRemove={onRemoveItem}
                 isMemberActive={isMemberActive}
+                isDevicePreview={isDevicePreview}
+                onKeyboardOpen={onKeyboardOpen}
+                onKeyboardClose={onKeyboardClose}
               />
             ))}
           </div>
@@ -244,18 +285,26 @@ function EventGroupCard({
   onRemoveEvent,
   onIncrementItem,
   onDecrementItem,
+  onSetItemQuantity,
   onRemoveItem,
   isMemberActive,
   activeTimeslots,
+  isDevicePreview,
+  onKeyboardOpen,
+  onKeyboardClose,
 }: {
   group: CartEventGroup;
   onToggleExpand: (eventId: string) => void;
   onRemoveEvent: (eventId: string) => void;
   onIncrementItem: (id: string) => void;
   onDecrementItem: (id: string) => void;
+  onSetItemQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
   isMemberActive?: boolean;
   activeTimeslots?: Record<string, EventTimeslot>;
+  isDevicePreview?: boolean;
+  onKeyboardOpen?: () => void;
+  onKeyboardClose?: () => void;
 }) {
   // Derive eventId / timeslotId from the composite id if the explicit fields are missing
   // (handles groups created before the multi-timeslot refactor or surviving HMR)
@@ -337,8 +386,12 @@ function EventGroupCard({
                     item={item}
                     onIncrement={onIncrementItem}
                     onDecrement={onDecrementItem}
+                    onSetQuantity={onSetItemQuantity}
                     onRemove={onRemoveItem}
                     isMemberActive={isMemberActive}
+                    isDevicePreview={isDevicePreview}
+                    onKeyboardOpen={onKeyboardOpen}
+                    onKeyboardClose={onKeyboardClose}
                   />
                 ))}
               </div>
@@ -356,8 +409,12 @@ function EventGroupCard({
                     item={item}
                     onIncrement={onIncrementItem}
                     onDecrement={onDecrementItem}
+                    onSetQuantity={onSetItemQuantity}
                     onRemove={onRemoveItem}
                     isMemberActive={isMemberActive}
+                    isDevicePreview={isDevicePreview}
+                    onKeyboardOpen={onKeyboardOpen}
+                    onKeyboardClose={onKeyboardClose}
                   />
                 ))}
               </div>

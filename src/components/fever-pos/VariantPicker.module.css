@@ -70,6 +70,12 @@
   overflow: hidden;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .pill:hover:not(:disabled) {
+  background: #f0f4f8;
+  border-color: transparent;
+}
+
 .pill:hover:not(:disabled) {
   background: #e2eaf2;
   border-color: #0089e3;

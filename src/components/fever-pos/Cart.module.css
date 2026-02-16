@@ -53,6 +53,11 @@
   padding: 4px;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .clearAll:hover {
+  text-decoration: none;
+}
+
 .clearAll:hover {
   text-decoration: underline;
 }
@@ -62,6 +67,12 @@
   flex: 1;
   overflow-y: auto;
   padding: 0 16px 16px;
+  transition: padding-bottom 200ms ease-out;
+}
+
+/* Extra bottom padding when on-screen keyboard is open, allowing last item to scroll above keyboard */
+.cartBodyKeyboardOpen {
+  padding-bottom: 280px;
 }
 
 /* ---- Empty state ---- */
@@ -179,6 +190,11 @@
   border: none;
   padding: 0;
   color: var(--fz-text-secondary, #536b75);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .eventIconBtn:hover {
+  background: none;
 }
 
 .eventIconBtn:hover {
@@ -400,6 +416,11 @@
   white-space: nowrap;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .discountLink:hover {
+  text-decoration: none;
+}
+
 .discountLink:hover {
   text-decoration: underline;
 }
@@ -439,6 +460,11 @@
   border: 2px solid var(--fz-border-color, #ccd2d8);
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .cashBtn:hover {
+  border-color: var(--fz-border-color, #ccd2d8);
+}
+
 .cashBtn:hover {
   border-color: var(--fz-neutral-400, #a7b2ba);
 }
@@ -447,6 +473,11 @@
   background: var(--fz-primary-600, #0079CA);
   color: #fff;
   border: 2px solid var(--fz-primary-600, #0079CA);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .cardBtn:hover {
+  opacity: 1;
 }
 
 .cardBtn:hover {

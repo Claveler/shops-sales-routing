@@ -345,7 +345,7 @@ export function getProductsByCategory(products: Product[], categoryId: string): 
 }
 
 export function formatPrice(amount: number): string {
-  return `€${amount.toFixed(2).replace('.', ',')}`;
+  return `€${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 // ---------------------------------------------------------------------------

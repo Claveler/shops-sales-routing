@@ -37,6 +37,11 @@
   cursor: not-allowed;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .homeButton:not(:disabled):hover {
+  background: var(--fz-bg-card, #fff);
+}
+
 .homeButton:not(:disabled):hover {
   background: var(--fz-bg-subtle, #f9fafb);
 }
@@ -62,6 +67,11 @@
   white-space: nowrap;
   transition: border-color var(--fz-transition-fast, 150ms ease-in-out),
               color var(--fz-transition-fast, 150ms ease-in-out);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .chip:hover:not(.active) {
+  border-color: var(--fz-border-color, #ccd2d8);
 }
 
 .chip:hover:not(.active) {
@@ -96,6 +106,11 @@
   transition: background var(--fz-transition-fast, 150ms ease-in-out);
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .clearButton:hover {
+  background: var(--fz-bg-card, #fff);
+}
+
 .clearButton:hover {
   background: var(--fz-bg-subtle, #f9fafb);
 }
@@ -118,6 +133,11 @@
   overflow: hidden;
   white-space: nowrap;
   transition: background var(--fz-transition-fast, 150ms ease-in-out);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .timeslotPill:hover {
+  background: #FFFFFF;
 }
 
 .timeslotPill:hover {
@@ -151,6 +171,11 @@
   cursor: pointer;
   flex-shrink: 0;
   border-radius: 50%;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .timeslotPillClose:hover {
+  background: none;
 }
 
 .timeslotPillClose:hover {

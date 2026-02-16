@@ -8,6 +8,14 @@
   justify-content: center;
   padding: 20px;
   background: rgba(16, 26, 35, 0.9);
+  transition: align-items 200ms ease-out;
+}
+
+/* When keyboard is open, center modal in the space above the keyboard */
+.overlayKeyboardOpen {
+  /* Keep centering but exclude the keyboard area from the centering calculation */
+  /* Keyboard is ~260px tall, so we add that as bottom padding to shift the center point up */
+  padding-bottom: 260px;
 }
 
 /* ---- Modal card ---- */
@@ -20,6 +28,12 @@
   box-shadow: 0 24px 24px rgba(0, 70, 121, 0.2);
   padding: 24px;
   position: relative;
+  transition: transform 200ms ease-out;
+}
+
+/* Modal shifts up when keyboard is open */
+.modalKeyboardOpen {
+  transform: translateY(0);
 }
 
 /* ---- Header ---- */
@@ -59,6 +73,11 @@
   font-size: 14px;
   cursor: pointer;
   border-radius: 64px;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .closeButton:hover {
+  background: transparent;
 }
 
 .closeButton:hover {
@@ -185,6 +204,12 @@
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
   flex-shrink: 0;
   align-self: flex-start;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .fillDemoBtn:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .fillDemoBtn:hover {
@@ -335,6 +360,11 @@
   border-radius: 64px;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .cancelBtn:hover {
+  background: transparent;
+}
+
 .cancelBtn:hover {
   background: rgba(0, 121, 202, 0.06);
 }
@@ -354,6 +384,11 @@
   line-height: 24px;
   cursor: pointer;
   border-radius: 64px;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .applyBtn:hover {
+  background: #0079CA;
 }
 
 .applyBtn:hover {

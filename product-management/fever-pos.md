@@ -69,6 +69,28 @@ The POS includes a browser-based device preview that renders the full POS UI ins
 - **Simulation mode**: the toggle floats at the top-left of the viewport alongside a greyed Fever Zone logo (CSS filter `brightness(0.4)` for visibility on the white simulation backdrop)
 - **Consistent position**: the toggle uses absolute positioning in both modes so it remains in the same screen location when entering/exiting simulation, enabling quick mouse toggling without pointer movement
 
+#### Touchscreen Circle Cursor
+
+When in device preview mode, the default mouse cursor is hidden **only within the device screen area** (the POS UI container) and replaced with a **touchscreen-style circle cursor** that simulates finger touch interactions. The rest of the simulation backdrop (device frame, toggle button, logo) uses the normal mouse cursor.
+
+- **Appearance**: 44px diameter semi-transparent blue circle (`rgba(0, 121, 202, 0.12)` fill, `rgba(0, 121, 202, 0.35)` border)
+- **SVG skewed ellipse**: the cursor is an SVG ellipse with a `skewX(-12)` transform that creates non-perpendicular axes matching the device screen's parallelogram perspective (the screen maps to a parallelogram, not a rectangle, due to the 3D tilt)
+- **Scope**: the circle cursor only appears when hovering over the device screen (the POS UI), not the device frame or backdrop
+- **Follows mouse**: the cursor tracks the mouse position in real-time within the device screen
+- **Pressed state**: on mousedown, the cursor scales down to 85% (maintaining the perspective transform) and becomes more opaque (`rgba(0, 121, 202, 0.25)` fill, `rgba(0, 121, 202, 0.5)` border) to simulate touch pressure feedback
+- **Visibility**: the cursor fades in (0.15s ease) when entering the device screen and fades out when leaving
+- **Smooth transitions**: position updates use a subtle ease-out transition (0.08s) for natural movement feel
+- **Non-interactive**: the cursor element has `pointer-events: none` so it doesn't interfere with actual click interactions
+
+#### Hover States Disabled
+
+Since touchscreen devices don't support hover interactions, all hover effects are disabled when in device preview mode:
+
+- **Implementation**: the page container receives a `data-touch-mode="true"` attribute when in simulation mode
+- **CSS overrides**: each component's CSS module includes `:global([data-touch-mode="true"])` selectors that reset hover styles to their non-hover values
+- **Affected elements**: buttons, tiles, links, dropdowns, modals, keyboard keys, and all other interactive elements
+- **Active states preserved**: `:active` states still work to provide visual feedback on tap/click
+
 ---
 
 ## 4. Page Layout
@@ -535,8 +557,19 @@ The quantity control is a **pill-shaped capsule** containing both action buttons
 - **Left button** (40x40 circle):
   - **Quantity = 1**: trash-can icon, `background: #0079CA`, white icon -- removes the item
   - **Quantity >= 2**: minus icon, `background: #0079CA`, white icon -- decrements quantity
-- **Count text**: centered, `16px` regular, `color: #536B75`
+- **Count text**: centered, `16px` regular, `color: #536B75`, clickable to enable manual input
 - **Right button** (plus): 40x40 circle, `background: #0079CA`, white icon -- increments quantity
+
+**Manual quantity input**: Clicking/tapping the quantity number enters edit mode, replacing the count with a text input field. Staff can type a new quantity directly (e.g., "10" instead of clicking + ten times). Pressing Enter or clicking away commits the change. Entering "0" removes the item from the cart. Pressing Escape cancels the edit and reverts to the previous quantity. The input field uses `inputMode="numeric"` for optimized mobile keyboard display.
+
+**On-screen keyboard (iMin simulation)**: When using the iMin device preview mode, tapping the quantity number displays a Gboard-style on-screen numeric keyboard instead of relying on a physical keyboard. The keyboard matches the authentic Android Gboard design:
+- Light gray background (`#D3D6DA`), no backdrop overlay
+- Centered 3x4 numpad layout (64px wide keys)
+- White number keys (1-9) in a 3x3 grid, with 0 centered in the bottom row
+- Gray function keys: checkmark (confirm) on bottom-left, backspace on bottom-right
+- Bottom row with disabled comma/period keys and a "Cancel" spacebar to dismiss without saving
+- Tapping a quantity clears the existing value for fresh input; tapping Cancel restores the original quantity
+- Tapping outside the keyboard (anywhere on the screen except the keyboard or input fields) dismisses the keyboard
 
 ### Member Identify Modal
 
@@ -548,6 +581,15 @@ The cart header includes an **Identify member** action button (address-card icon
 - **Demo prefill button**: a purple-gradient "Enter demo member" button (magic-wand icon) that immediately identifies demo member **Anderson Collingwood** (ID `7261322`) without requiring manual input. The demo member is configured as a **Gold** membership **primary** contact. This button uses the same `fillDemoBtn` visual style (purple gradient, white text, wand icon) as the demo prefill buttons in the Sales Routing wizard.
 - **Pill indicator behavior**: on successful identification the top-row member pill shows the member name plus a compact outlined membership tier indicator (`Gold`, `Silver`, or `Basic`) tinted by tier color. The indicator prepends a role icon (`star` for primary, `user-plus` for beneficiary) matching patron-list semantics.
 - **Clear behavior**: tapping the member pill's × action clears the identified member and removes member pricing
+
+**On-screen keyboard (iMin simulation)**: In device preview mode, tapping the Member ID input field displays a full-width tablet-style alphanumeric QWERTY keyboard at the bottom of the screen, without a backdrop overlay. The modal automatically repositions to be vertically centered in the remaining space above the keyboard. The keyboard matches an authentic Android Gboard tablet layout:
+- Light gray background (`#D3D6DA`), no backdrop overlay
+- Full-width keys spanning the entire device width (tablet layout, not centered phone-style)
+- Number row (1-0) at the top
+- Three QWERTY letter rows with shift toggle for uppercase
+- Function keys: Shift (toggles case), Backspace
+- Bottom row: Cancel button (dismisses keyboard), wide Space bar, Done button (blue, submits the member ID lookup)
+- Tapping outside the keyboard and modal dismisses the keyboard
 
 ### Footer
 

@@ -62,6 +62,11 @@
   border-radius: 64px;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .closeButton:hover {
+  background: transparent;
+}
+
 .closeButton:hover {
   background: rgba(0, 0, 0, 0.04);
 }
@@ -194,6 +199,12 @@
   flex-shrink: 0;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .datePill:hover:not(.datePillSelected) {
+  border-color: #CCD2D8;
+  background: #FFFFFF;
+}
+
 .datePill:hover:not(.datePillSelected) {
   border-color: #A7B2BA;
   background: #F9FAFB;
@@ -272,6 +283,12 @@
   transition: border-color 150ms ease-in-out,
               box-shadow 150ms ease-in-out;
   text-align: center;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .slotCard:hover:not(.slotCardSelected):not(.slotCardSoldOut) {
+  border-color: #CCD2D8;
+  box-shadow: none;
 }
 
 .slotCard:hover:not(.slotCardSelected):not(.slotCardSoldOut) {
@@ -394,6 +411,11 @@
   border-radius: 64px;
   cursor: pointer;
   transition: background 150ms ease-in-out;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .confirmButton:hover:not(:disabled) {
+  background: #0079CA;
 }
 
 .confirmButton:hover:not(:disabled) {

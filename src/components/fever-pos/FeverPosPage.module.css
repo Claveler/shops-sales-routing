@@ -70,6 +70,11 @@
   transition: background var(--fz-transition-fast, 150ms ease-in-out);
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .actionBtn:hover {
+  background: var(--fz-bg-card, #fff);
+}
+
 .actionBtn:hover {
   background: var(--fz-bg-subtle, #f9fafb);
 }
@@ -88,6 +93,11 @@
   overflow: hidden;
   white-space: nowrap;
   transition: background var(--fz-transition-fast, 150ms ease-in-out);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .memberPill:hover {
+  background: #FFFFFF;
 }
 
 .memberPill:hover {
@@ -147,6 +157,11 @@
   cursor: pointer;
   flex-shrink: 0;
   border-radius: 50%;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .memberPillClose:hover {
+  background: none;
 }
 
 .memberPillClose:hover {
@@ -282,8 +297,8 @@
 /*
  * The POS content (1397×786) is perspective-warped via matrix3d to land
  * on the screen quadrilateral measured from the product photo (Photopea):
- *   TL (2253, 821.34)     TR (5070.92, 915.66)
- *   BL (2641.73, 2778.30) BR (5497.92, 2629.11)
+ *   TL (2252, 821.34)     TR (5070.92, 915.66)
+ *   BL (2639.73, 2778.30) BR (5497.92, 2629.11)
  *
  * TL X visually calibrated to 2254, Y to 822.34 (Photopea raw was 2553.53 but that
  * left the screen wallpaper exposed at the top-left corner).
@@ -300,13 +315,56 @@
   overflow: hidden;
   transform-origin: 0 0;
   transform: matrix3d(
-    2.5221779402,  0.1587143802, 0, 0.0000995984,
-    0.3796211677,  2.3688823325, 0, -0.0000435117,
+    2.5227920715,  0.1586960179, 0, 0.0000995784,
+    0.3773553358,  2.3677450168, 0, -0.0000439211,
     0,              0,            1,  0,
-    2253,           821.34,       0,  1
+    2252,           821.34,       0,  1
   );
   /* Subtle overall softening to reduce the "too crisp for a photo" look */
   filter: blur(0.2px);
+  /* Hide default cursor within the device screen for touchscreen simulation */
+  cursor: none;
+}
+
+/* Ensure cursor is hidden on all interactive elements within the device screen */
+.deviceScreen * {
+  cursor: none !important;
+}
+
+/* Touchscreen-style cursor for simulation mode (SVG-based) */
+.touchCursor {
+  position: fixed;
+  pointer-events: none;
+  z-index: 99999;
+  /* Center the SVG on the cursor position */
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  /* Only transition opacity, not position (left/top) for instant tracking */
+  transition: opacity 0.15s ease;
+  /* Use will-change for GPU acceleration */
+  will-change: left, top, opacity;
+  overflow: visible;
+}
+
+.touchCursor.visible {
+  opacity: 1;
+}
+
+.touchCursor.pressed ellipse {
+  fill: rgba(0, 121, 202, 0.25);
+  stroke: rgba(0, 121, 202, 0.5);
+}
+
+/* Device preview backdrop - normal cursor here */
+.devicePreviewBackdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F7F8FB;
+  z-index: 1;
+  overflow: hidden;
 }
 
 /*

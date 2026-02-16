@@ -25,6 +25,11 @@
   transition: background-color var(--fz-transition-base, 200ms ease-in-out);
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .menuButton:hover {
+  background-color: transparent;
+}
+
 .menuButton:hover {
   background-color: var(--fz-neutral-800, #0c3644);
 }
@@ -50,6 +55,12 @@
 /* iMin device preview toggle */
 .devicePreviewWrap {
   position: relative;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .devicePreviewWrap:hover .devicePreviewTooltip {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .devicePreviewWrap:hover .devicePreviewTooltip {
@@ -106,6 +117,12 @@
   flex-shrink: 0;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .devicePreviewBtn:hover {
+  background-color: transparent;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .devicePreviewBtn:hover {
   background-color: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.35);
@@ -115,6 +132,12 @@
   background: var(--fz-primary-600, #0079CA);
   border-color: var(--fz-primary-600, #0079CA);
   color: #fff;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .devicePreviewBtnActive:hover {
+  background: var(--fz-primary-600, #0079CA);
+  border-color: var(--fz-primary-600, #0079CA);
 }
 
 .devicePreviewBtnActive:hover {
@@ -180,6 +203,11 @@
   transition: background-color var(--fz-transition-base, 200ms ease-in-out);
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .startShift:hover {
+  background: transparent;
+}
+
 .startShift:hover {
   background: #F6F7F7;
 }
@@ -204,6 +232,11 @@
   white-space: nowrap;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .shiftDetailsLink:hover {
+  text-decoration: none;
+}
+
 .shiftDetailsLink:hover {
   text-decoration: underline;
 }
@@ -225,6 +258,11 @@
   white-space: nowrap;
   cursor: pointer;
   transition: background-color var(--fz-transition-base, 200ms ease-in-out);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .endShift:hover {
+  background: transparent;
 }
 
 .endShift:hover {
@@ -313,6 +351,11 @@
   transition: border-color 150ms ease, box-shadow 150ms ease;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .cashRegisterDropdownTrigger:hover {
+  border-color: rgb(16, 26, 35);
+}
+
 .cashRegisterDropdownTrigger:hover {
   border-color: rgb(0, 121, 202);
 }
@@ -378,11 +421,21 @@
   align-items: center;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .cashRegisterDropdownItem:hover {
+  background: transparent;
+}
+
 .cashRegisterDropdownItem:hover {
   background: #F6F7F7;
 }
 
 .cashRegisterDropdownItemSelected {
+  background: rgba(0, 121, 202, 0.08);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .cashRegisterDropdownItemSelected:hover {
   background: rgba(0, 121, 202, 0.08);
 }
 
@@ -403,6 +456,11 @@
   font-weight: 400;
   color: rgb(6, 35, 44);
   transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .cashAmountInput:hover {
+  border-color: rgb(204, 210, 216);
 }
 
 .cashAmountInput:hover {
@@ -442,6 +500,12 @@
   transition: background-color 150ms ease, border-color 150ms ease;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .startShiftCancelBtn:hover {
+  background: transparent;
+  border-color: rgb(204, 210, 216);
+}
+
 .startShiftCancelBtn:hover {
   background: #FEF2F5;
   border-color: rgb(235, 0, 82);
@@ -460,6 +524,11 @@
   color: #FFFFFF;
   cursor: pointer;
   transition: background-color 150ms ease;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .startShiftSubmitBtn:hover {
+  background: rgb(0, 121, 202);
 }
 
 .startShiftSubmitBtn:hover {
@@ -489,6 +558,11 @@
   transition: box-shadow var(--fz-transition-fast, 150ms ease-in-out);
   flex-shrink: 0;
   overflow: hidden;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .configField:hover {
+  box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
 }
 
 .configField:hover {
@@ -767,6 +841,11 @@
   color: var(--fz-text-inverse, #fff);
   border-radius: var(--fz-border-radius-sm, 4px);
   transition: background-color var(--fz-transition, 200ms ease);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .userButton:hover {
+  background-color: transparent;
 }
 
 .userButton:hover {

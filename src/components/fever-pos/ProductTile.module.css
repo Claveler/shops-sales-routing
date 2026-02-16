@@ -29,6 +29,11 @@
   transition: border-color 150ms ease-in-out;
 }
 
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .tile:hover {
+  border-color: #ccd2d8;
+}
+
 .tile:hover {
   border-color: var(--fz-primary-700, #0068b0);
 }

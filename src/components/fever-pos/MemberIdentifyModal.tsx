@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAddressCard, faXmark, faCrosshairs, faMagicWandSparkles, faCircleCheck } from '@fortawesome/free-solid-svg-icons';
+import { AlphanumericKeyboard } from './AlphanumericKeyboard';
 import styles from './MemberIdentifyModal.module.css';
 
 /** Extended member info shown in the confirmation step. */
@@ -20,6 +21,8 @@ interface MemberIdentifyModalProps {
   isOpen: boolean;
   onIdentify: (member: MemberInfo) => void;
   onClose: () => void;
+  /** When true, shows on-screen keyboard instead of native input */
+  isDevicePreview?: boolean;
 }
 
 /** Hardcoded demo member for mockup purposes. */
@@ -37,10 +40,11 @@ const DEMO_MEMBER: MemberInfo = {
 
 type ModalStep = 'search' | 'confirm';
 
-export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdentifyModalProps) {
+export function MemberIdentifyModal({ isOpen, onIdentify, onClose, isDevicePreview }: MemberIdentifyModalProps) {
   const [inputValue, setInputValue] = useState('');
   const [step, setStep] = useState<ModalStep>('search');
   const [pendingMember, setPendingMember] = useState<MemberInfo | null>(null);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Reset state when the modal opens
@@ -49,10 +53,14 @@ export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdent
       setInputValue('');
       setStep('search');
       setPendingMember(null);
-      const t = setTimeout(() => inputRef.current?.focus(), 100);
-      return () => clearTimeout(t);
+      setIsKeyboardOpen(false);
+      // Only auto-focus if not in device preview mode
+      if (!isDevicePreview) {
+        const t = setTimeout(() => inputRef.current?.focus(), 100);
+        return () => clearTimeout(t);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, isDevicePreview]);
 
   /** Move to the confirmation step with the looked-up member. */
   const showConfirmation = useCallback((member: MemberInfo) => {
@@ -76,6 +84,28 @@ export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdent
     },
     [handleSubmit],
   );
+
+  // Handlers for on-screen keyboard
+  const handleInputClick = useCallback(() => {
+    if (isDevicePreview) {
+      setIsKeyboardOpen(true);
+    }
+  }, [isDevicePreview]);
+
+  const handleKeyboardChange = useCallback((value: string) => {
+    setInputValue(value);
+  }, []);
+
+  const handleKeyboardConfirm = useCallback(() => {
+    setIsKeyboardOpen(false);
+    if (inputValue.trim()) {
+      handleSubmit();
+    }
+  }, [inputValue, handleSubmit]);
+
+  const handleKeyboardCancel = useCallback(() => {
+    setIsKeyboardOpen(false);
+  }, []);
 
   /** User confirmed — apply membership. */
   const handleApply = useCallback(() => {
@@ -101,10 +131,20 @@ export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdent
       .toUpperCase()
       .slice(0, 2);
 
+  const overlayClasses = [
+    styles.overlay,
+    isKeyboardOpen ? styles.overlayKeyboardOpen : '',
+  ].filter(Boolean).join(' ');
+
+  const modalClasses = [
+    styles.modal,
+    isKeyboardOpen ? styles.modalKeyboardOpen : '',
+  ].filter(Boolean).join(' ');
+
   return (
-    <div className={styles.overlay} role="presentation" onClick={onClose}>
+    <div className={overlayClasses} role="presentation" onClick={isKeyboardOpen ? undefined : onClose}>
       <div
-        className={styles.modal}
+        className={modalClasses}
         role="dialog"
         aria-modal="true"
         aria-label="Identify member"
@@ -147,6 +187,8 @@ export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdent
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  onClick={handleInputClick}
+                  readOnly={isDevicePreview}
                 />
                 <span className={styles.fieldLabel}>Member ID</span>
                 <span className={styles.fieldIcon}>
@@ -249,6 +291,16 @@ export function MemberIdentifyModal({ isOpen, onIdentify, onClose }: MemberIdent
           </>
         )}
       </div>
+
+      {/* On-screen keyboard for device preview mode */}
+      {isKeyboardOpen && isDevicePreview && (
+        <AlphanumericKeyboard
+          value={inputValue}
+          onChange={handleKeyboardChange}
+          onConfirm={handleKeyboardConfirm}
+          onCancel={handleKeyboardCancel}
+        />
+      )}
     </div>
   );
 }

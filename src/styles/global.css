@@ -70,3 +70,17 @@ img {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--fz-text-secondary);
 }
+
+/*
+ * Touch mode: disables all hover effects for touchscreen simulation.
+ * When data-touch-mode="true" is set on a container, all hover states
+ * within that container are disabled to simulate a touchscreen device
+ * which doesn't have hover capability.
+ *
+ * Individual component CSS modules use :not([data-touch-mode="true"] *)
+ * or check for the data attribute to conditionally apply hover styles.
+ * This global rule provides a fallback for any missed hover states.
+ */
+[data-touch-mode="true"] a:hover {
+  text-decoration: none;
+}

@@ -1,0 +1,171 @@
+/* Gboard-style numeric keyboard - no backdrop */
+.keyboardOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* Invisible layer to capture taps outside keyboard */
+.dismissLayer {
+  position: absolute;
+  inset: 0;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+.keyboardContainer {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  background: #D3D6DA;
+  padding: 8px 16px 12px;
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.1);
+  animation: slideUp 150ms ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* Keyboard grid - 4 rows x 3 columns, centered with fixed width */
+.keyboardGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 64px);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+/* Individual number key button - Gboard style */
+.key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 48px;
+  background: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 22px;
+  font-weight: 400;
+  color: #202124;
+  cursor: pointer;
+  transition: background-color 80ms ease;
+  font-family: 'Google Sans', 'Roboto', 'Montserrat', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .key:hover {
+  background: #FFFFFF;
+}
+
+.key:hover {
+  background: #F1F3F4;
+}
+
+.key:active {
+  background: #DADCE0;
+}
+
+/* Function keys (backspace, done) - slightly darker like Gboard */
+.keyFunction {
+  background: #DFE1E5;
+  box-shadow: none;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .keyFunction:hover {
+  background: #DFE1E5;
+}
+
+.keyFunction:hover {
+  background: #D2D4D8;
+}
+
+.keyFunction:active {
+  background: #C6C8CC;
+}
+
+.keyFunctionIcon {
+  font-size: 18px;
+  color: #5F6368;
+}
+
+/* Bottom row - centered cancel button */
+.bottomRow {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  width: 208px; /* Same width as the grid (3 * 64px + 2 * 8px) */
+}
+
+.keyComma,
+.keyPeriod {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #DFE1E5;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #5F6368;
+  cursor: default;
+  font-family: 'Google Sans', 'Roboto', 'Montserrat', sans-serif;
+}
+
+.keyComma:disabled,
+.keyPeriod:disabled {
+  opacity: 0.5;
+}
+
+.keySpace {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  background: #FFFFFF;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #5F6368;
+  cursor: pointer;
+  transition: background-color 80ms ease;
+  font-family: 'Google Sans', 'Roboto', 'Montserrat', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .keySpace:hover {
+  background: #FFFFFF;
+}
+
+.keySpace:hover {
+  background: #F1F3F4;
+}
+
+.keySpace:active {
+  background: #DADCE0;
+}
+
+.spaceLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: #5F6368;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

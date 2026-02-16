@@ -128,7 +128,60 @@ export function FeverPosPage() {
   const TABLET_OUTER_W = 7680; // 3D image width
   const TABLET_OUTER_H = 4320; // 3D image height
   const backdropRef = useRef<HTMLDivElement>(null);
+  const deviceScreenRef = useRef<HTMLDivElement>(null);
+  const touchCursorRef = useRef<SVGSVGElement>(null);
   const [tabletScale, setTabletScale] = useState(1);
+
+  // Touch cursor - uses direct DOM manipulation for zero-latency updates
+  useEffect(() => {
+    if (!isDevicePreview) {
+      // Hide cursor when not in device preview
+      const cursor = touchCursorRef.current;
+      if (cursor) {
+        cursor.classList.remove(styles.visible, styles.pressed);
+      }
+      return;
+    }
+
+    const cursor = touchCursorRef.current;
+    const screen = deviceScreenRef.current;
+    if (!cursor || !screen) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Direct DOM manipulation - no React state updates
+      cursor.style.left = `${e.clientX}px`;
+      cursor.style.top = `${e.clientY}px`;
+      cursor.classList.add(styles.visible);
+    };
+
+    const handleMouseLeave = () => {
+      cursor.classList.remove(styles.visible);
+    };
+
+    const handleMouseDown = () => {
+      cursor.classList.add(styles.pressed);
+    };
+
+    const handleMouseUp = () => {
+      cursor.classList.remove(styles.pressed);
+    };
+
+    screen.addEventListener('mousemove', handleMouseMove);
+    screen.addEventListener('mouseleave', handleMouseLeave);
+    screen.addEventListener('mousedown', handleMouseDown);
+    screen.addEventListener('mouseup', handleMouseUp);
+
+    // Also listen globally for mouseup in case cursor leaves while pressed
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      screen.removeEventListener('mousemove', handleMouseMove);
+      screen.removeEventListener('mouseleave', handleMouseLeave);
+      screen.removeEventListener('mousedown', handleMouseDown);
+      screen.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDevicePreview]);
 
   useEffect(() => {
     if (!isDevicePreview) return;
@@ -939,6 +992,29 @@ export function FeverPosPage() {
     );
   }, []);
 
+  const handleSetItemQuantity = useCallback((itemId: string, quantity: number) => {
+    if (quantity <= 0) {
+      // Remove the item if quantity is 0 or less
+      setCartEvents((prev) =>
+        prev
+          .map((g) => ({
+            ...g,
+            items: g.items.filter((i) => i.id !== itemId),
+            retailItems: g.retailItems.filter((i) => i.id !== itemId),
+          }))
+          .filter((g) => g.items.length > 0 || g.retailItems.length > 0)
+      );
+    } else {
+      setCartEvents((prev) =>
+        prev.map((g) => ({
+          ...g,
+          items: g.items.map((i) => (i.id === itemId ? { ...i, quantity } : i)),
+          retailItems: g.retailItems.map((i) => (i.id === itemId ? { ...i, quantity } : i)),
+        }))
+      );
+    }
+  }, []);
+
   const handleRemoveItem = useCallback((itemId: string) => {
     setCartEvents((prev) =>
       prev
@@ -1005,7 +1081,7 @@ export function FeverPosPage() {
     : styles.page;
 
   const pageContent = (
-    <div className={pageClasses}>
+    <div className={pageClasses} data-touch-mode={isDevicePreview ? 'true' : undefined}>
       <FeverPosHeader
         isDevicePreview={isDevicePreview}
         onToggleDevicePreview={isDevicePreview ? undefined : handleToggleDevicePreview}
@@ -1115,11 +1191,13 @@ export function FeverPosPage() {
           onRemoveEvent={handleRemoveEvent}
           onIncrementItem={handleIncrementItem}
           onDecrementItem={handleDecrementItem}
+          onSetItemQuantity={handleSetItemQuantity}
           onRemoveItem={handleRemoveItem}
           onClearAll={handleClearAll}
           isMemberActive={isMemberActive}
           activeTimeslots={selectedTimeslots}
           selectedTicketEventId={ticketsEventId}
+          isDevicePreview={isDevicePreview}
         />
       </div>
 
@@ -1138,6 +1216,7 @@ export function FeverPosPage() {
         isOpen={isMemberModalOpen}
         onIdentify={handleIdentifyMember}
         onClose={handleCloseMemberModal}
+        isDevicePreview={isDevicePreview}
       />
 
       <TimeslotModal
@@ -1229,7 +1308,7 @@ export function FeverPosPage() {
               draggable={false}
               onLoad={handleDeviceImageLoad}
             />
-            <div className={styles.deviceScreen}>
+            <div ref={deviceScreenRef} className={styles.deviceScreen}>
               {pageContent}
               <div className={styles.deviceScreenDofOverlay} />
               <div className={styles.deviceScreenGlare} />
@@ -1237,6 +1316,34 @@ export function FeverPosPage() {
           </div>
         )}
       </div>
+
+      {/* Touchscreen-style cursor - SVG ellipse skewed to match device screen perspective */}
+      <svg
+        ref={touchCursorRef}
+        className={styles.touchCursor}
+        aria-hidden="true"
+        width="38"
+        height="38"
+        viewBox="0 0 38 38"
+      >
+        {/*
+          * The device screen maps to a parallelogram, not a rectangle.
+          * From the matrix3d corner coordinates:
+          *   - Vertical edges tilt ~12.6° from true vertical (average of left/right edges)
+          *   - Horizontal edges tilt ~-0.5° from true horizontal (average of top/bottom)
+          * We apply a skewX to make the ellipse axes non-perpendicular, matching the screen.
+          */}
+        <ellipse
+          cx="19"
+          cy="19"
+          rx="14"
+          ry="17"
+          fill="rgba(0, 121, 202, 0.12)"
+          stroke="rgba(0, 121, 202, 0.35)"
+          strokeWidth="2"
+          transform="skewX(12)"
+        />
+      </svg>
     </div>
   );
 }
