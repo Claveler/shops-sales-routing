@@ -200,7 +200,7 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
   },
 };
 
-const defaultTicketEventId = 'evt-001';
+const defaultTicketEventId = 'evt-003';
 
 export const ticketCategories: Category[] = eventTicketCatalogs[defaultTicketEventId].categories;
 
@@ -278,29 +278,42 @@ export const allProducts: Product[] = [
 
 export const initialCartEvents: CartEventGroup[] = [
   {
-    id: 'evt-001--ts-001-06',
-    eventId: 'evt-001',
-    timeslotId: 'ts-001-06',
-    eventName: 'Candlelight: Tribute to Taylor Swift',
-    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-001'],
-    location: 'St. James Church',
-    date: 'Sun, Mar 15, 9:30 PM',
+    id: 'evt-003--ts-003-05',
+    eventId: 'evt-003',
+    timeslotId: 'ts-003-05',
+    eventName: 'Candlelight: Best of Hans Zimmer',
+    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-003'],
+    location: 'Teatro Real',
+    date: 'Fri, Mar 27, 7:30 PM',
     isExpanded: true,
     items: [
       {
         id: 'ci-1',
-        productId: 't-1',
-        name: 'Zone A Ticket',
-        price: 39.00,
-        quantity: 2,
-        bookingFee: 0.60,
+        productId: 'hz-seat-1',
+        name: 'General Admission Adult - Tier 1',
+        price: 50.00,
+        quantity: 1,
+        bookingFee: 7.50,
+        seatInfo: {
+          section: 'Balcony Left',
+          row: 'B',
+          seat: '6',
+          tier: 'General Admission - Tier 1',
+        },
       },
       {
         id: 'ci-2',
-        productId: 'a-1',
-        name: 'Seat Selection Upgrade',
-        price: 6.00,
-        quantity: 2,
+        productId: 'hz-seat-2',
+        name: 'General Admission Child - Tier 1',
+        price: 40.00,
+        quantity: 1,
+        bookingFee: 6.00,
+        seatInfo: {
+          section: 'Balcony Left',
+          row: 'B',
+          seat: '11',
+          tier: 'General Admission - Tier 1',
+        },
       },
     ],
     retailItems: [
@@ -313,42 +326,7 @@ export const initialCartEvents: CartEventGroup[] = [
         variantId: 'demo-p-001-l',
         variantLabel: 'L',
       },
-      {
-        id: 'cp-2',
-        productId: 'demo-p-012',
-        name: 'Scented Candle Set',
-        price: 34.99,
-        quantity: 2,
-      },
     ],
-  },
-  {
-    id: 'evt-002--ts-002-01',
-    eventId: 'evt-002',
-    timeslotId: 'ts-002-01',
-    eventName: 'Van Gogh: The Immersive Experience',
-    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-002'],
-    location: 'Exhibition Hall',
-    date: 'Wed, Apr 1, 10:00 AM',
-    isExpanded: true,
-    items: [
-      {
-        id: 'ci-3',
-        productId: 'vg-1',
-        name: 'Standard Adult Entry',
-        price: 22.00,
-        quantity: 1,
-        bookingFee: 0.60,
-      },
-      {
-        id: 'ci-4',
-        productId: 'vg-a1',
-        name: 'Audio Narrative Access',
-        price: 5.00,
-        quantity: 1,
-      },
-    ],
-    retailItems: [],
   },
 ];
 
