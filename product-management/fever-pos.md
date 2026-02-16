@@ -74,7 +74,8 @@ The POS includes a browser-based device preview that renders the full POS UI ins
 When in device preview mode, the default mouse cursor is hidden **only within the device screen area** (the POS UI container) and replaced with a **touchscreen-style circle cursor** that simulates finger touch interactions. The rest of the simulation backdrop (device frame, toggle button, logo) uses the normal mouse cursor.
 
 - **Appearance**: 44px diameter semi-transparent blue circle (`rgba(0, 121, 202, 0.12)` fill, `rgba(0, 121, 202, 0.35)` border)
-- **SVG skewed ellipse**: the cursor is an SVG ellipse with a `skewX(-12)` transform that creates non-perpendicular axes matching the device screen's parallelogram perspective (the screen maps to a parallelogram, not a rectangle, due to the 3D tilt)
+- **SVG skewed ellipse**: the cursor is an SVG ellipse with a `skewX(12)` transform that creates non-perpendicular axes matching the device screen's parallelogram perspective (the screen maps to a parallelogram, not a rectangle, due to the 3D tilt)
+- **Real touchscreen detection**: when using a real touchscreen device (e.g., Surface Pro, iPad), the simulated cursor is automatically disabled upon the first touch event, restoring normal cursor behavior so the simulation doesn't interfere with native touch input
 - **Scope**: the circle cursor only appears when hovering over the device screen (the POS UI), not the device frame or backdrop
 - **Follows mouse**: the cursor tracks the mouse position in real-time within the device screen
 - **Pressed state**: on mousedown, the cursor scales down to 85% (maintaining the perspective transform) and becomes more opaque (`rgba(0, 121, 202, 0.25)` fill, `rgba(0, 121, 202, 0.5)` border) to simulate touch pressure feedback

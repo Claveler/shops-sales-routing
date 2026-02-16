@@ -133,6 +133,7 @@ export function FeverPosPage() {
   const [tabletScale, setTabletScale] = useState(1);
 
   // Touch cursor - uses direct DOM manipulation for zero-latency updates
+  // Disabled when using a real touchscreen device (detected via touch events)
   useEffect(() => {
     if (!isDevicePreview) {
       // Hide cursor when not in device preview
@@ -147,7 +148,23 @@ export function FeverPosPage() {
     const screen = deviceScreenRef.current;
     if (!cursor || !screen) return;
 
+    // Track whether we're using touch input - if so, disable the simulated cursor
+    let isTouchDevice = false;
+
+    const handleTouchStart = () => {
+      // Real touch detected - disable simulated cursor and restore normal cursor
+      isTouchDevice = true;
+      cursor.classList.remove(styles.visible, styles.pressed);
+      screen.style.cursor = '';
+      // Remove cursor: none from all children
+      screen.querySelectorAll('*').forEach((el) => {
+        (el as HTMLElement).style.cursor = '';
+      });
+    };
+
     const handleMouseMove = (e: MouseEvent) => {
+      // Skip if using real touch input
+      if (isTouchDevice) return;
       // Direct DOM manipulation - no React state updates
       cursor.style.left = `${e.clientX}px`;
       cursor.style.top = `${e.clientY}px`;
@@ -155,17 +172,22 @@ export function FeverPosPage() {
     };
 
     const handleMouseLeave = () => {
+      if (isTouchDevice) return;
       cursor.classList.remove(styles.visible);
     };
 
     const handleMouseDown = () => {
+      if (isTouchDevice) return;
       cursor.classList.add(styles.pressed);
     };
 
     const handleMouseUp = () => {
+      if (isTouchDevice) return;
       cursor.classList.remove(styles.pressed);
     };
 
+    // Listen for touch events to detect real touchscreen usage
+    screen.addEventListener('touchstart', handleTouchStart, { passive: true });
     screen.addEventListener('mousemove', handleMouseMove);
     screen.addEventListener('mouseleave', handleMouseLeave);
     screen.addEventListener('mousedown', handleMouseDown);
@@ -175,6 +197,7 @@ export function FeverPosPage() {
     window.addEventListener('mouseup', handleMouseUp);
 
     return () => {
+      screen.removeEventListener('touchstart', handleTouchStart);
       screen.removeEventListener('mousemove', handleMouseMove);
       screen.removeEventListener('mouseleave', handleMouseLeave);
       screen.removeEventListener('mousedown', handleMouseDown);
