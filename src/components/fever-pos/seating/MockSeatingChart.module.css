@@ -177,7 +177,17 @@
   color: #031419;
 }
 
-/* Disable hover states in touch mode */
+/* Disable hover states via class (for touch devices) */
+.noHover {
+  pointer-events: auto; /* Keep click working */
+}
+
+.noHover:hover {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Also disable via data attribute for global touch mode */
 :global([data-touch-mode="true"]) .section:hover {
   opacity: 1;
 }

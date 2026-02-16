@@ -130,9 +130,9 @@ export function MockSeatingChart({
     return MOCK_SECTIONS.find(s => s.id === activeSectionId);
   }, [activeSectionId]);
 
-  // Render tooltip content
+  // Render tooltip content (disabled for touch devices)
   const renderTooltip = () => {
-    if (!hoveredItem) return null;
+    if (disableHover || !hoveredItem) return null;
 
     if (hoveredItem.type === 'section') {
       const section = MOCK_SECTIONS.find(s => s.id === hoveredItem.id);
@@ -223,13 +223,13 @@ export function MockSeatingChart({
                   <path
                     d={section.path}
                     fill={isVisible ? getTierColor(section.tierId) : '#E5E7EB'}
-                    stroke={isHovered ? '#0079CA' : '#FFFFFF'}
-                    strokeWidth={isHovered ? 3 : 1.5}
-                    className={`${styles.section} ${!isVisible ? styles.sectionDisabled : ''}`}
+                    stroke={isHovered && !disableHover ? '#0079CA' : '#FFFFFF'}
+                    strokeWidth={isHovered && !disableHover ? 3 : 1.5}
+                    className={`${styles.section} ${!isVisible ? styles.sectionDisabled : ''} ${disableHover ? styles.noHover : ''}`}
                     onClick={() => handleSectionClick(section.id)}
-                    onMouseEnter={(e) => handleSectionHover(section.id, e.clientX, e.clientY)}
-                    onMouseMove={(e) => handleSectionHover(section.id, e.clientX, e.clientY)}
-                    onMouseLeave={handleMouseLeave}
+                    onMouseEnter={disableHover ? undefined : (e) => handleSectionHover(section.id, e.clientX, e.clientY)}
+                    onMouseMove={disableHover ? undefined : (e) => handleSectionHover(section.id, e.clientX, e.clientY)}
+                    onMouseLeave={disableHover ? undefined : handleMouseLeave}
                   />
                   {isVisible && (
                     <text
@@ -289,7 +289,7 @@ export function MockSeatingChart({
                 {/* Seats */}
                 {sectionSeats.map((seat) => {
                   const isSelected = isSeatSelected(seat.id);
-                  const isHovered = hoveredItem?.id === seat.id;
+                  const isHovered = !disableHover && hoveredItem?.id === seat.id;
 
                   // Transform coordinates for zoomed view
                   const x = seat.x * zoomScale + offsetX;
@@ -303,14 +303,14 @@ export function MockSeatingChart({
                         cy={y}
                         r={20}
                         fill="transparent"
-                        className={styles.seat}
+                        className={`${styles.seat} ${disableHover ? styles.noHover : ''}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleSeatClick(seat);
                         }}
-                        onMouseEnter={(e) => handleSeatHover(seat, e.clientX, e.clientY)}
-                        onMouseMove={(e) => handleSeatHover(seat, e.clientX, e.clientY)}
-                        onMouseLeave={handleMouseLeave}
+                        onMouseEnter={disableHover ? undefined : (e) => handleSeatHover(seat, e.clientX, e.clientY)}
+                        onMouseMove={disableHover ? undefined : (e) => handleSeatHover(seat, e.clientX, e.clientY)}
+                        onMouseLeave={disableHover ? undefined : handleMouseLeave}
                       />
                       {/* Visible seat circle */}
                       <circle
