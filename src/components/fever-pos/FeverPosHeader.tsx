@@ -14,6 +14,7 @@ export interface PaymentDevice {
 export interface PosSetup {
   id: string;
   name: string;
+  linkedDeviceIds?: string[]; // Payment devices physically located at this setup
 }
 
 export interface Venue {
@@ -265,8 +266,15 @@ export function FeverPosHeader({
     .flatMap((v) => v.setups.map((s) => ({ ...s, venueName: v.name, venueId: v.id })))
     .find((s) => s.id === selectedSetupId);
 
-  // Find the selected device for display
-  const selectedDevice = paymentDevices.find((d) => d.id === linkedDeviceId);
+  // Filter payment devices to only those linked to the selected setup
+  // If linkedDeviceIds is defined (even if empty), filter to those devices
+  // If linkedDeviceIds is undefined, show all devices (legacy/unconfigured setups)
+  const availableDevices = selectedSetup?.linkedDeviceIds !== undefined
+    ? paymentDevices.filter((d) => selectedSetup.linkedDeviceIds!.includes(d.id))
+    : paymentDevices;
+
+  // Find the selected device for display (must be in available devices)
+  const selectedDevice = availableDevices.find((d) => d.id === linkedDeviceId);
 
   // Auto-expand the venue containing the selected setup when dropdown opens
   useEffect(() => {
@@ -292,7 +300,12 @@ export function FeverPosHeader({
   // Build compact summary for the button
   const venueSummary = selectedSetup ? selectedSetup.venueName : 'Select venue';
   const setupSummary = selectedSetup ? selectedSetup.name : 'No setup';
-  const deviceSummary = selectedDevice ? truncateDeviceId(selectedDevice.id) : 'No device';
+  const hasNoLinkedDevices = selectedSetup && availableDevices.length === 0;
+  const deviceSummary = selectedDevice
+    ? truncateDeviceId(selectedDevice.id)
+    : hasNoLinkedDevices
+      ? 'No devices linked'
+      : 'No device';
 
   return (
     <header className={styles.header}>
@@ -422,25 +435,31 @@ export function FeverPosHeader({
                   <span className={styles.configSectionTitle}>Payment Device</span>
                 </div>
                 <div className={styles.configSectionContent}>
-                  <ul className={styles.deviceList}>
-                    {paymentDevices.map((device) => {
-                      const isSelected = device.id === linkedDeviceId;
-                      return (
-                        <li key={device.id} role="option" aria-selected={isSelected}>
-                          <button
-                            type="button"
-                            className={`${styles.deviceItem} ${isSelected ? styles.deviceItemSelected : ''}`}
-                            onClick={() => handleSelectDevice(device.id)}
-                          >
-                            <span className={styles.deviceItemName}>{device.name}</span>
-                            {isSelected && (
-                              <FontAwesomeIcon icon={faCheck} className={styles.deviceItemCheck} />
-                            )}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  {availableDevices.length > 0 ? (
+                    <ul className={styles.deviceList}>
+                      {availableDevices.map((device) => {
+                        const isSelected = device.id === linkedDeviceId;
+                        return (
+                          <li key={device.id} role="option" aria-selected={isSelected}>
+                            <button
+                              type="button"
+                              className={`${styles.deviceItem} ${isSelected ? styles.deviceItemSelected : ''}`}
+                              onClick={() => handleSelectDevice(device.id)}
+                            >
+                              <span className={styles.deviceItemName}>{device.name}</span>
+                              {isSelected && (
+                                <FontAwesomeIcon icon={faCheck} className={styles.deviceItemCheck} />
+                              )}
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <div className={styles.deviceEmptyState}>
+                      <span>No payment devices linked to this setup</span>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

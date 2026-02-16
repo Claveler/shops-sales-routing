@@ -1,0 +1,128 @@
+/* Main seating content container */
+.container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  background: #FFFFFF;
+  overflow: hidden;
+}
+
+/* Main content area (timeslot header + chart) */
+.mainContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+/* Timeslot header - aligned with CategoryFilter in other tabs */
+/* Parent .contentInner has padding: 8px 16px 16px for other tabs, so we match that here */
+.timeslotHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px 0;
+  background: #FFFFFF;
+}
+
+.timeslotSpacer {
+  flex: 1;
+}
+
+/* Calendar button - matches CategoryFilter.clearButton exactly */
+.calendarButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-size: 16px;
+  color: var(--fz-primary-600, #0079CA);
+  background: var(--fz-bg-card, #fff);
+  border: 2px solid #BCC5CD;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background var(--fz-transition-fast, 150ms ease-in-out);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .calendarButton:hover {
+  background: var(--fz-bg-card, #fff);
+}
+
+.calendarButton:hover {
+  background: var(--fz-bg-subtle, #f9fafb);
+}
+
+/* Timeslot pill - matches CategoryFilter.timeslotPill exactly */
+.timeslotPill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 64px;
+  border: 2px solid #CCD2D8;
+  background: #FFFFFF;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: background var(--fz-transition-fast, 150ms ease-in-out);
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .timeslotPill:hover {
+  background: #FFFFFF;
+}
+
+.timeslotPill:hover {
+  background: var(--fz-bg-subtle, #f9fafb);
+}
+
+.timeslotPillIcon {
+  font-size: 14px;
+  color: var(--fz-primary-600, #0079CA);
+  flex-shrink: 0;
+}
+
+.timeslotPillLabel {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #031419;
+}
+
+.timeslotPillClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  color: #031419;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+/* Hover disabled in touch mode (iMin simulation) */
+:global([data-touch-mode="true"]) .timeslotPillClose:hover {
+  background: none;
+}
+
+.timeslotPillClose:hover {
+  background: rgba(0, 0, 0, 0.08);
+}
+
+.chartContainer {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  padding: 16px;
+  background: #FFFFFF;
+}

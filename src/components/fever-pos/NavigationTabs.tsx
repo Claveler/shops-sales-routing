@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGift, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faGift, faPenToSquare, faCartPlus } from '@fortawesome/free-solid-svg-icons';
 import { useMarquee } from './useMarquee';
 import styles from './NavigationTabs.module.css';
 
-export type PosTab = 'tickets' | 'gift-shop';
+export type PosTab = 'tickets' | 'seating' | 'addons' | 'gift-shop';
 
 interface NavigationTabsProps {
   activeTab: PosTab;
@@ -13,6 +13,8 @@ interface NavigationTabsProps {
   eventName?: string;
   eventImageUrl?: string;
   onEditEvent?: () => void;
+  /** When true, shows Seating + Add-Ons tabs instead of Tickets & Add-Ons */
+  eventHasSeating?: boolean;
 }
 
 export function NavigationTabs({
@@ -21,6 +23,7 @@ export function NavigationTabs({
   eventName = 'Candlelight: Tribute to Taylor Swift',
   eventImageUrl,
   onEditEvent,
+  eventHasSeating = false,
 }: NavigationTabsProps) {
   const {
     viewportRef,
@@ -32,11 +35,15 @@ export function NavigationTabs({
     handleAnimationEnd,
   } = useMarquee({ text: eventName });
 
+  // The first tab is either 'tickets' (non-seated) or 'seating' (seated)
+  const firstTab: PosTab = eventHasSeating ? 'seating' : 'tickets';
+  const isFirstTabActive = activeTab === firstTab;
+
   const handleEventNameClick = useCallback((event: MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
-    onTabChange('tickets');
+    onTabChange(firstTab);
     replayMarquee();
-  }, [onTabChange, replayMarquee]);
+  }, [onTabChange, replayMarquee, firstTab]);
 
   const handleEditClick = useCallback((event: MouseEvent<HTMLSpanElement>) => {
     event.stopPropagation();
@@ -54,9 +61,10 @@ export function NavigationTabs({
 
   return (
     <div className={styles.navigation}>
+      {/* First tab: Event tab (Seating for seated events, Tickets & Add-Ons for non-seated) */}
       <button
-        className={`${styles.tab} ${styles.eventTab} ${styles.firstTab} ${activeTab === 'tickets' ? styles.active : ''}`}
-        onClick={() => onTabChange('tickets')}
+        className={`${styles.tab} ${styles.eventTab} ${styles.firstTab} ${isFirstTabActive ? styles.active : ''}`}
+        onClick={() => onTabChange(firstTab)}
         type="button"
       >
         <div className={styles.eventInfo}>
@@ -104,6 +112,19 @@ export function NavigationTabs({
         </div>
       </button>
 
+      {/* Add-Ons tab (only shown for seated events) */}
+      {eventHasSeating && (
+        <button
+          className={`${styles.tab} ${styles.standardTab} ${activeTab === 'addons' ? styles.active : ''}`}
+          onClick={() => onTabChange('addons')}
+          type="button"
+        >
+          <FontAwesomeIcon icon={faCartPlus} className={styles.tabIcon} />
+          <span className={styles.tabLabel}>Add-Ons</span>
+        </button>
+      )}
+
+      {/* Merch tab */}
       <button
         className={`${styles.tab} ${styles.standardTab} ${activeTab === 'gift-shop' ? styles.active : ''}`}
         onClick={() => onTabChange('gift-shop')}

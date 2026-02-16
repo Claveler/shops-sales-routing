@@ -24,6 +24,8 @@ interface CartItemProps {
 export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemove, isMemberActive, isDevicePreview, onKeyboardOpen, onKeyboardClose }: CartItemProps) {
   const isOne = item.quantity <= 1;
   const hasMemberDiscount = isMemberActive && item.originalPrice != null;
+  // Seated tickets have fixed quantity of 1 - disable quantity controls
+  const isSeatedTicket = Boolean(item.seatInfo);
   
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(String(item.quantity));
@@ -60,6 +62,9 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
   }, [isEditing, isDevicePreview]);
 
   const handleQuantityClick = () => {
+    // Seated tickets cannot have quantity changed
+    if (isSeatedTicket) return;
+    
     // In device preview mode, start with empty value for fresh input
     // In regular mode, keep existing value for inline editing
     if (isDevicePreview) {
@@ -121,6 +126,15 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
         {item.variantLabel && (
           <span className={styles.variantLabel}>{item.variantLabel}</span>
         )}
+        {/* Seat information for assigned seating tickets */}
+        {item.seatInfo && (
+          <div className={styles.seatInfo}>
+            <span className={styles.seatSection}>{item.seatInfo.section}</span>
+            <span className={styles.seatDetails}>
+              Row {item.seatInfo.row}, Seat {item.seatInfo.seat}
+            </span>
+          </div>
+        )}
         <div className={styles.priceRow}>
           {hasMemberDiscount ? (
             <>
@@ -138,48 +152,73 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
       </div>
 
       {/* Pill-shaped quantity counter */}
-      <div className={styles.pillCounter}>
-        <button
-          className={`${styles.pillBtn} ${styles.pillBtnLeft}`}
-          onClick={() => isOne ? onRemove(item.id) : onDecrement(item.id)}
-          type="button"
-          aria-label={isOne ? 'Remove item' : 'Decrease quantity'}
-        >
-          <FontAwesomeIcon icon={isOne ? faTrashCan : faMinus} />
-        </button>
-        {isEditing && !isDevicePreview ? (
-          <input
-            ref={inputRef}
-            type="text"
-            inputMode="numeric"
-            className={styles.pillInput}
-            value={editValue}
-            onChange={handleInputChange}
-            onBlur={handleInputBlur}
-            onKeyDown={handleInputKeyDown}
-            aria-label="Quantity"
-          />
-        ) : (
-          <span 
-            className={`${styles.pillCount} ${isEditing && isDevicePreview ? styles.pillCountEditing : ''}`}
-            onClick={handleQuantityClick}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && handleQuantityClick()}
-            aria-label={`Quantity ${item.quantity}, click to edit`}
+      {isSeatedTicket ? (
+        /* Seated tickets: only show remove button, no quantity controls */
+        <div className={styles.pillCounter}>
+          <button
+            className={`${styles.pillBtn} ${styles.pillBtnSingle}`}
+            onClick={() => onRemove(item.id)}
+            type="button"
+            aria-label="Remove seat"
           >
-            {isEditing && isDevicePreview ? editValue || '0' : item.quantity}
+            <FontAwesomeIcon icon={faTrashCan} />
+          </button>
+          <span className={`${styles.pillCount} ${styles.pillCountDisabled}`}>
+            {item.quantity}
           </span>
-        )}
-        <button
-          className={`${styles.pillBtn} ${styles.pillBtnRight}`}
-          onClick={() => onIncrement(item.id)}
-          type="button"
-          aria-label="Increase quantity"
-        >
-          <FontAwesomeIcon icon={faPlus} />
-        </button>
-      </div>
+          <button
+            className={`${styles.pillBtn} ${styles.pillBtnRight} ${styles.pillBtnDisabled}`}
+            type="button"
+            aria-label="Cannot increase quantity for seated tickets"
+            disabled
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
+        </div>
+      ) : (
+        <div className={styles.pillCounter}>
+          <button
+            className={`${styles.pillBtn} ${styles.pillBtnLeft}`}
+            onClick={() => isOne ? onRemove(item.id) : onDecrement(item.id)}
+            type="button"
+            aria-label={isOne ? 'Remove item' : 'Decrease quantity'}
+          >
+            <FontAwesomeIcon icon={isOne ? faTrashCan : faMinus} />
+          </button>
+          {isEditing && !isDevicePreview ? (
+            <input
+              ref={inputRef}
+              type="text"
+              inputMode="numeric"
+              className={styles.pillInput}
+              value={editValue}
+              onChange={handleInputChange}
+              onBlur={handleInputBlur}
+              onKeyDown={handleInputKeyDown}
+              aria-label="Quantity"
+            />
+          ) : (
+            <span 
+              className={`${styles.pillCount} ${isEditing && isDevicePreview ? styles.pillCountEditing : ''}`}
+              onClick={handleQuantityClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === 'Enter' && handleQuantityClick()}
+              aria-label={`Quantity ${item.quantity}, click to edit`}
+            >
+              {isEditing && isDevicePreview ? editValue || '0' : item.quantity}
+            </span>
+          )}
+          <button
+            className={`${styles.pillBtn} ${styles.pillBtnRight}`}
+            onClick={() => onIncrement(item.id)}
+            type="button"
+            aria-label="Increase quantity"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
+        </div>
+      )}
 
       {/* On-screen keyboard for device preview mode */}
       {isEditing && isDevicePreview && (

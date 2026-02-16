@@ -181,9 +181,11 @@ The header includes a **combined POS Configuration dropdown** that consolidates 
 
 2. **Payment Device** (bottom section):
    - Section header with handheld POS icon and "PAYMENT DEVICE" label
-   - Flat list of available Adyen terminals with full device IDs
+   - **Cascading selection**: the device list is filtered to show only devices linked to the currently selected Box Office Setup. Each setup has a `linkedDeviceIds` array defining which Adyen terminals are physically located at that station.
    - Selected device shows checkmark
    - Selecting a device updates the header but keeps dropdown open (allows changing setup too)
+   - **Empty state**: when no devices are linked to the selected setup, shows "No payment devices linked to this setup" in italic muted text
+   - **Auto-selection on setup change**: when the user selects a different setup, the system checks if the currently selected device is still valid for the new setup. If not, it auto-selects the first available device (or clears the selection if none are linked).
 
 - **Close behavior**: dropdown closes when clicking outside; stays open when making selections to allow configuring both settings in one interaction
 
@@ -238,7 +240,7 @@ Tabs are configured through a self-service **Quick Picks Configuration** screen 
 
 The first tab is always the **Tickets & Add-Ons** tab (event-specific, not part of Quick Picks configuration). Additional tabs are partner-configurable retail/F&B tabs.
 
-### Tickets & Add-Ons Tab
+### Tickets & Add-Ons Tab (Non-Seated Events)
 
 - **Purpose**: Sell tickets to the selected event and related ticket upgrades (entry priority, flexible changes, premium access, experiential upgrades)
 - **Event-specific catalog**: ticket and add-on products are not shared globally; changing the active event swaps in that event's own ticket/add-on set
@@ -273,6 +275,90 @@ The first tab is always the **Tickets & Add-Ons** tab (event-specific, not part 
 - **Data source for modal options**: city chips and event cards are generated from loaded Sales Routing events (via `getSalesRoutings()` + event lookup), so the selector only shows currently loaded routing cities/events (currently Madrid and Barcelona in demo data)
 - **Event switch behavior**: confirming `Change event` updates the active tickets event context shown on the top tab and is used as the default event metadata when creating a new ticket event group in cart state
 - **Per-event thumbnails**: each event uses its own thumbnail image (not a shared placeholder) in the event tab, event-selection modal, and cart event headers
+
+### Seating Tab + Add-Ons Tab (Seated Events)
+
+Events with assigned seating (e.g., theatre performances, concerts with reserved seats) use a different tab structure than general admission events. Instead of a single "Tickets & Add-Ons" tab, seated events display two separate tabs:
+
+1. **Seating Tab** (first tab, shows event name): Interactive seating map for seat selection
+2. **Add-Ons Tab**: Grid of add-on products (same layout as non-seated events, but tickets are excluded since they're handled via the seating map)
+
+The Merch tab remains unchanged regardless of seating configuration.
+
+#### Seating Map View
+
+The seating tab displays an interactive venue map with the following components:
+
+- **Timeslot header bar**: 
+  - Appears at the top of the seating content area (above the map, to the right of the sidebar)
+  - **Calendar button**: opens the timeslot selection modal; highlighted when a timeslot is selected
+  - **Timeslot pill**: when a timeslot is selected, displays the date/time (e.g., "Sat, Mar 21, 5:00 PM") with an X button to clear
+  - **Placeholder text**: when no timeslot is selected, shows "Select a date and time" in italic grey
+  - **Auto-prompt**: when entering the seating tab without a timeslot selected, the timeslot modal automatically opens to prompt the user to select a date/time (since capacity depends on the timeslot)
+
+- **Left sidebar (SeatCategoryFilter)**: 
+  - "Assigned seats" counter showing how many seats are currently selected
+  - "Clear selection" link to deselect all seats
+  - Tier filter list with color-coded checkboxes for each price tier
+  - Clicking a tier toggles its visibility on the map (for filtering by price range)
+  - Zoom controls (decorative in mock implementation)
+
+- **Main chart area (MockSeatingChart)**:
+  - SVG-based venue layout showing sections arranged around a central stage
+  - **Overview mode**: displays section polygons colored by their price tier; clicking a section zooms into that section
+  - **Section mode**: displays individual seats as circles; clicking a seat opens the ticket type selection modal
+  - Hover tooltips show section/seat details and pricing
+  - "Back to overview" button to return from section view to full venue view
+  - Selected seats are highlighted with a checkmark
+
+- **Seat Selection Modal (SeatSelectionModal)**:
+  - Opens when a seat is clicked in section view
+  - Displays seat location: section name, row letter, seat number
+  - Shows the tier name and color
+  - Two ticket type options: Adult and Child, each with price + booking fee
+  - Selecting a ticket type adds the seat to the cart and closes the modal
+  - Cancel button dismisses without adding
+
+#### Seating Data Model
+
+Events with seating are configured via the `hasSeating` flag and `seatingConfig` object in `EventTicketCatalog`:
+
+```typescript
+interface SeatingTier {
+  id: string;
+  name: string;             // e.g., "General Admission - Tier 6"
+  color: string;            // Hex color for map display
+  priceRange: string;       // e.g., "$111.00-$121.00"
+  adultPrice: number;
+  childPrice: number;
+  adultFee: number;
+  childFee: number;
+}
+
+interface SeatingConfig {
+  tiers: SeatingTier[];
+  seatsioWorkspaceKey?: string;  // Future: seats.io integration
+  seatsioEventKey?: string;      // Future: seats.io integration
+}
+```
+
+#### Cart Integration for Seated Tickets
+
+Seated tickets appear in the cart with additional seat information:
+
+- **Seat info block**: displays section, row, and seat number in a compact blue-bordered block below the ticket name
+- Each seat is a separate cart line item (quantity is always 1 per seat)
+- Booking fees are displayed per seat
+
+#### Future: seats.io Integration
+
+The seating components are designed with an abstraction layer (`SeatingChartProps`, `SeatingChartCallbacks`) that allows swapping the mock SVG chart with a real seats.io integration:
+
+1. Create a `SeatsioSeatingChart` component implementing the same `SeatingChartProps` interface
+2. Replace the `MockSeatingChart` import in `SeatingMapView`
+3. Populate `seatsioWorkspaceKey` and `seatsioEventKey` in the event's `seatingConfig`
+
+The mock implementation demonstrates the full UX flow without requiring seats.io credentials.
 
 ### Merch Tab
 
@@ -748,6 +834,10 @@ Planned enhancements beyond the current scope:
 | **Shift** | A staff work session that must be started before processing transactions |
 | **Breadcrumbs** | Top-row navigation path shown after drilling into nested Retail categories |
 | **Price Reference** | The warehouse whose prices determine the SessionType pricing |
+| **Assigned Seating** | Events where customers select specific seats from a venue map rather than general admission tickets |
+| **Seating Tier** | A price category for seats, typically based on proximity to stage or view quality (e.g., "Tier 1" through "Tier 12") |
+| **seats.io** | Third-party seating chart service that can be integrated for real venue maps |
+| **Seating Map** | Interactive SVG or seats.io chart showing venue layout with selectable seats |
 
 ---
 

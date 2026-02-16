@@ -24,8 +24,12 @@ import {
   formatTimeslotForCart,
   formatTimeslotTime,
   formatDatePillWithMonth,
+  eventHasSeating,
+  getSeatingConfigForEvent,
+  getAddOnProductsForEvent,
 } from '../../data/feverPosData';
-import type { Product, ProductVariant, CartEventGroup, EventTimeslot } from '../../data/feverPosData';
+import type { Product, ProductVariant, CartEventGroup, EventTimeslot, CartItemData } from '../../data/feverPosData';
+import { SeatingMapView } from './seating';
 import { getEventById } from '../../data/mockData';
 import { EventSelectionModal } from './EventSelectionModal';
 import { MemberIdentifyModal } from './MemberIdentifyModal';
@@ -35,11 +39,11 @@ import { VariantPicker } from './VariantPicker';
 import type { PaymentDevice, Venue, CashRegister, ShiftInfo } from './FeverPosHeader';
 import styles from './FeverPosPage.module.css';
 
-// Mock Adyen payment devices for demo
+// Mock Adyen payment devices for demo (S1F1 = Adyen S1F1 terminal series)
 const MOCK_PAYMENT_DEVICES: PaymentDevice[] = [
-  { id: 'S1F2-000158243349174', name: 'S1F2-000158243349174' },
-  { id: 'S1F2-000158243349175', name: 'S1F2-000158243349175' },
-  { id: 'V400m-324689123', name: 'V400m-324689123' },
+  { id: 'S1F1-000158243349174', name: 'S1F1-000158243349174' },
+  { id: 'S1F1-000158243349175', name: 'S1F1-000158243349175' },
+  { id: 'S1F1-000158243349176', name: 'S1F1-000158243349176' },
 ];
 
 // Mock cash registers for demo
@@ -51,34 +55,35 @@ const MOCK_CASH_REGISTERS: CashRegister[] = [
 ];
 
 // Mock venues and POS setups for demo (Fonck Museum context)
+// Each setup can have 0, 1, 2, or 3 linked payment devices (Adyen terminals physically at that station)
 const MOCK_VENUES: Venue[] = [
   {
     id: 'venue-fonck-concert',
     name: 'Fonck Concert Hall',
     setups: [
-      { id: 'setup-concert-lobby', name: 'Main Lobby' },
-      { id: 'setup-concert-balcony', name: 'Balcony Bar' },
-      { id: 'setup-concert-vip', name: 'VIP Lounge' },
-      { id: 'setup-concert-merch', name: 'Merchandise Stand' },
+      { id: 'setup-concert-lobby', name: 'Main Lobby', linkedDeviceIds: ['S1F1-000158243349174', 'S1F1-000158243349175', 'S1F1-000158243349176'] }, // 3 devices
+      { id: 'setup-concert-balcony', name: 'Balcony Bar', linkedDeviceIds: ['S1F1-000158243349175', 'S1F1-000158243349176'] }, // 2 devices
+      { id: 'setup-concert-vip', name: 'VIP Lounge', linkedDeviceIds: ['S1F1-000158243349176'] }, // 1 device
+      { id: 'setup-concert-merch', name: 'Merchandise Stand', linkedDeviceIds: [] }, // 0 devices
     ],
   },
   {
     id: 'venue-fonck-barcelona',
     name: 'Fonck Barcelona',
     setups: [
-      { id: 'setup-bcn-entrance', name: 'Main Entrance' },
-      { id: 'setup-bcn-cafe', name: 'Café' },
-      { id: 'setup-bcn-gift', name: 'Gift Shop' },
-      { id: 'setup-bcn-mobile', name: 'Mobile POS' },
+      { id: 'setup-bcn-entrance', name: 'Main Entrance', linkedDeviceIds: ['S1F1-000158243349174', 'S1F1-000158243349175'] }, // 2 devices
+      { id: 'setup-bcn-cafe', name: 'Café', linkedDeviceIds: ['S1F1-000158243349174'] }, // 1 device
+      { id: 'setup-bcn-gift', name: 'Gift Shop', linkedDeviceIds: ['S1F1-000158243349175'] }, // 1 device
+      { id: 'setup-bcn-mobile', name: 'Mobile POS', linkedDeviceIds: [] }, // 0 devices
     ],
   },
   {
     id: 'venue-fonck-madrid',
     name: 'Fonck Madrid',
     setups: [
-      { id: 'setup-mad-entrance', name: 'Main Entrance' },
-      { id: 'setup-mad-terrace', name: 'Rooftop Terrace' },
-      { id: 'setup-mad-gift', name: 'Gift Shop' },
+      { id: 'setup-mad-entrance', name: 'Main Entrance', linkedDeviceIds: ['S1F1-000158243349174', 'S1F1-000158243349175', 'S1F1-000158243349176'] }, // 3 devices
+      { id: 'setup-mad-terrace', name: 'Rooftop Terrace', linkedDeviceIds: [] }, // 0 devices
+      { id: 'setup-mad-gift', name: 'Gift Shop', linkedDeviceIds: ['S1F1-000158243349174', 'S1F1-000158243349176'] }, // 2 devices
     ],
   },
 ];
@@ -265,6 +270,23 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
 
   const handleSelectSetup = useCallback((setupId: string, _venueId: string) => {
     setSelectedSetupId(setupId);
+
+    // Find the new setup to check its linked devices
+    const newSetup = MOCK_VENUES
+      .flatMap((v) => v.setups)
+      .find((s) => s.id === setupId);
+
+    if (newSetup?.linkedDeviceIds) {
+      // Check if current device is still valid for the new setup
+      setLinkedDeviceId((currentDeviceId) => {
+        if (currentDeviceId && newSetup.linkedDeviceIds!.includes(currentDeviceId)) {
+          // Current device is valid, keep it
+          return currentDeviceId;
+        }
+        // Auto-select first available device, or null if none
+        return newSetup.linkedDeviceIds!.length > 0 ? newSetup.linkedDeviceIds![0] : null;
+      });
+    }
   }, []);
 
   // Shift state
@@ -604,6 +626,33 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
     () => getTicketProductsForEvent(ticketsEventId),
     [ticketsEventId]
   );
+
+  // Check if the current event has assigned seating
+  const currentEventHasSeating = useMemo(
+    () => eventHasSeating(ticketsEventId),
+    [ticketsEventId]
+  );
+
+  // Get seating configuration for seated events
+  const seatingConfig = useMemo(
+    () => getSeatingConfigForEvent(ticketsEventId),
+    [ticketsEventId]
+  );
+
+  // Get add-on products for seated events (shown in Add-Ons tab)
+  const addOnProducts = useMemo(
+    () => getAddOnProductsForEvent(ticketsEventId),
+    [ticketsEventId]
+  );
+
+  // Filter add-on products by active category (for Add-Ons tab)
+  const filteredAddOnProducts = useMemo(() => {
+    if (!activeCategoryId || addOnProducts.length === 0) {
+      return addOnProducts;
+    }
+    return addOnProducts.filter((p) => p.categoryId === activeCategoryId);
+  }, [addOnProducts, activeCategoryId]);
+
   const ticketCategoriesWithMember = useMemo(
     () =>
       ticketCategories.map((cat) => ({
@@ -618,7 +667,12 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
   // When switching tabs, reset to first category
   const handleTabChange = useCallback((tab: PosTab) => {
     setActiveTab(tab);
-    if (tab === 'tickets') {
+    if (tab === 'tickets' || tab === 'seating') {
+      setActiveCategoryId(ticketCategories[0]?.id ?? '');
+      return;
+    }
+    if (tab === 'addons') {
+      // Add-ons tab uses the same categories as tickets
       setActiveCategoryId(ticketCategories[0]?.id ?? '');
       return;
     }
@@ -627,6 +681,22 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
     setActiveCategoryId(firstGiftShopCategoryId);
     setGiftShopPathIds(firstGiftShopCategoryId ? [firstGiftShopCategoryId] : []);
   }, [ticketCategories, topLevelGiftShopCategories]);
+
+  // When event changes and has seating, switch to seating tab; otherwise to tickets
+  useEffect(() => {
+    if (currentEventHasSeating && activeTab === 'tickets') {
+      setActiveTab('seating');
+    } else if (!currentEventHasSeating && (activeTab === 'seating' || activeTab === 'addons')) {
+      setActiveTab('tickets');
+    }
+  }, [currentEventHasSeating, activeTab]);
+
+  // Auto-open timeslot modal when entering seating tab without a timeslot selected
+  useEffect(() => {
+    if (activeTab === 'seating' && !selectedTimeslots[ticketsEventId]) {
+      setIsTimeslotModalOpen(true);
+    }
+  }, [activeTab, ticketsEventId, selectedTimeslots]);
 
   useEffect(() => {
     if (activeTab !== 'gift-shop') return;
@@ -744,7 +814,10 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
     [topLevelGiftShopCategories, categoryHasMemberPricing]
   );
 
-  const categories = activeTab === 'tickets' ? ticketCategoriesWithMember : topLevelGiftShopCategoriesWithMember;
+  // Categories for the filter bar - tickets and addons use ticket categories, gift-shop uses merch categories
+  const categories = (activeTab === 'tickets' || activeTab === 'seating' || activeTab === 'addons')
+    ? ticketCategoriesWithMember
+    : topLevelGiftShopCategoriesWithMember;
 
   const giftShopCategoryTiles = useMemo(
     () =>
@@ -768,6 +841,61 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
   const filteredProducts = activeTab === 'tickets' ? ticketFilteredProducts : giftShopProducts;
 
   // ---- Cart handlers ----
+
+  // Handler for adding seated tickets from the seating map
+  const handleAddSeatedTicketToCart = useCallback((item: Omit<CartItemData, 'id'>) => {
+    const targetEvent = activeSelectedEvent;
+    const activeTimeslot = selectedTimeslots[ticketsEventId];
+
+    // Gate: require a timeslot before adding seated tickets
+    if (!activeTimeslot) {
+      setIsTimeslotModalOpen(true);
+      return;
+    }
+
+    setCartEvents((prev) => {
+      const eventId = targetEvent?.id ?? BOX_OFFICE_EVENT_ID;
+      const groupKey = `${eventId}--${activeTimeslot.id}`;
+
+      let groupIndex = prev.findIndex((g) => g.id === groupKey);
+
+      const updatedGroups = prev.map((g) => ({
+        ...g,
+        items: g.items.map((i) => ({ ...i })),
+        retailItems: g.retailItems.map((i) => ({ ...i })),
+      }));
+
+      if (groupIndex === -1) {
+        const dateStr = formatTimeslotForCart(activeTimeslot.date, activeTimeslot.startTime);
+
+        updatedGroups.push({
+          id: groupKey,
+          eventId,
+          timeslotId: activeTimeslot.id,
+          eventName: targetEvent?.name ?? 'Event',
+          eventImageUrl: targetEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL,
+          location: targetEvent?.venue ?? '',
+          date: dateStr,
+          isExpanded: true,
+          items: [],
+          retailItems: [],
+        });
+        groupIndex = updatedGroups.length - 1;
+      }
+
+      const targetGroup = updatedGroups[groupIndex];
+
+      // Add the seated ticket item
+      targetGroup.items.push({
+        id: `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+        ...item,
+      });
+
+      targetGroup.isExpanded = true;
+      return updatedGroups;
+    });
+  }, [activeSelectedEvent, selectedTimeslots, ticketsEventId]);
+
   const handleAddToCart = useCallback((product: Product) => {
     if (product.id.startsWith('cat-')) {
       const categoryId = product.id.replace('cat-', '');
@@ -1140,6 +1268,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
               eventName={activeSelectedEvent?.name ?? 'Candlelight: Tribute to Taylor Swift'}
               eventImageUrl={activeSelectedEvent?.imageUrl ?? DEFAULT_EVENT_THUMBNAIL_URL}
               onEditEvent={handleOpenEventSelector}
+              eventHasSeating={currentEventHasSeating}
             />
             <div className={styles.actions}>
               {identifiedMember ? (
@@ -1183,35 +1312,55 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
           </div>
 
           {/* Content area */}
-          <div className={`${styles.content} ${activeTab === 'tickets' ? styles.contentFirstTab : ''}`}>
-            <div className={styles.contentInner}>
-              {/* Category filters */}
-              <CategoryFilter
-                categories={categories}
-                activeCategoryId={activeCategoryId}
-                onCategoryChange={handleCategoryChange}
-                onCalendarClick={activeTab === 'tickets' ? handleOpenTimeslotModal : undefined}
-                onClearTimeslot={handleClearTimeslot}
-                timeslotLabel={
-                  activeTab === 'tickets' && selectedTimeslots[ticketsEventId]
-                    ? `${formatDatePillWithMonth(selectedTimeslots[ticketsEventId].date)}, ${formatTimeslotTime(selectedTimeslots[ticketsEventId].startTime)}`
-                    : undefined
-                }
-                showBreadcrumbs={showTopBreadcrumbs}
-                breadcrumbs={topBreadcrumbItems}
-                onBreadcrumbClick={handleBreadcrumbClick}
-                onHomeClick={handleHomeClick}
-                isHomeDisabled={!showTopBreadcrumbs}
-                isMemberActive={isMemberActive}
-              />
+          <div className={`${styles.content} ${activeTab === 'tickets' || activeTab === 'seating' ? styles.contentFirstTab : ''}`}>
+            <div className={`${styles.contentInner} ${activeTab === 'seating' ? styles.contentInnerSeating : ''}`}>
+              {/* Category filters - shown for non-seating tabs */}
+              {activeTab !== 'seating' && (
+                <CategoryFilter
+                  categories={categories}
+                  activeCategoryId={activeCategoryId}
+                  onCategoryChange={handleCategoryChange}
+                  onCalendarClick={activeTab === 'tickets' || activeTab === 'addons' ? handleOpenTimeslotModal : undefined}
+                  onClearTimeslot={handleClearTimeslot}
+                  timeslotLabel={
+                    (activeTab === 'tickets' || activeTab === 'addons') && selectedTimeslots[ticketsEventId]
+                      ? `${formatDatePillWithMonth(selectedTimeslots[ticketsEventId].date)}, ${formatTimeslotTime(selectedTimeslots[ticketsEventId].startTime)}`
+                      : undefined
+                  }
+                  showBreadcrumbs={showTopBreadcrumbs}
+                  breadcrumbs={topBreadcrumbItems}
+                  onBreadcrumbClick={handleBreadcrumbClick}
+                  onHomeClick={handleHomeClick}
+                  isHomeDisabled={!showTopBreadcrumbs}
+                  isMemberActive={isMemberActive}
+                />
+              )}
 
-              {/* Product grid */}
-              <ProductGrid
-                products={filteredProducts}
-                onProductClick={handleAddToCart}
-                isMemberActive={isMemberActive}
-              />
+              {/* Seating map view (for seated events) - includes its own timeslot selector */}
+              {activeTab === 'seating' && seatingConfig && (
+                <SeatingMapView
+                  key={ticketsEventId}
+                  seatingConfig={seatingConfig}
+                  onAddToCart={handleAddSeatedTicketToCart}
+                  eventId={ticketsEventId}
+                  timeslotLabel={
+                    selectedTimeslots[ticketsEventId]
+                      ? `${formatDatePillWithMonth(selectedTimeslots[ticketsEventId].date)}, ${formatTimeslotTime(selectedTimeslots[ticketsEventId].startTime)}`
+                      : undefined
+                  }
+                  onCalendarClick={handleOpenTimeslotModal}
+                  onClearTimeslot={handleClearTimeslot}
+                />
+              )}
 
+              {/* Product grid (for non-seating tabs) */}
+              {activeTab !== 'seating' && (
+                <ProductGrid
+                  products={activeTab === 'addons' ? filteredAddOnProducts : filteredProducts}
+                  onProductClick={handleAddToCart}
+                  isMemberActive={isMemberActive}
+                />
+              )}
             </div>
           </div>
         </div>

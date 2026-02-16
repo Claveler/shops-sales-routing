@@ -21,6 +21,8 @@ interface CategoryFilterProps {
   onHomeClick?: () => void;
   isHomeDisabled?: boolean;
   isMemberActive?: boolean;
+  /** Hide the home button entirely (e.g., for seating tab) */
+  hideHomeButton?: boolean;
 }
 
 export function CategoryFilter({
@@ -36,18 +38,21 @@ export function CategoryFilter({
   onHomeClick,
   isHomeDisabled = true,
   isMemberActive = false,
+  hideHomeButton = false,
 }: CategoryFilterProps) {
   return (
     <div className={styles.filterBar}>
-      <button
-        className={styles.homeButton}
-        type="button"
-        aria-label="Back to root category"
-        onClick={onHomeClick}
-        disabled={isHomeDisabled}
-      >
-        <FontAwesomeIcon icon={faHouse} />
-      </button>
+      {!hideHomeButton && (
+        <button
+          className={styles.homeButton}
+          type="button"
+          aria-label="Back to root category"
+          onClick={onHomeClick}
+          disabled={isHomeDisabled}
+        >
+          <FontAwesomeIcon icon={faHouse} />
+        </button>
+      )}
 
       <div className={styles.primaryNav}>
         {showBreadcrumbs ? (

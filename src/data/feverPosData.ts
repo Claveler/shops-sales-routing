@@ -40,6 +40,36 @@ export interface CartItemData {
   bookingFee?: number;
   variantId?: string;       // which variant was selected
   variantLabel?: string;    // e.g. "L" — for display in cart
+  /** Seat information for assigned seating events */
+  seatInfo?: {
+    section: string;        // e.g. "Door 2 - Section 200"
+    row: string;            // e.g. "P"
+    seat: string;           // e.g. "25"
+    tier: string;           // e.g. "General Admission - Tier 6"
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Seating configuration for assigned seating events
+// ---------------------------------------------------------------------------
+
+export interface SeatingTier {
+  id: string;
+  name: string;             // e.g. "General Admission - Tier 6"
+  color: string;            // Hex color for map display
+  priceRange: string;       // e.g. "$111.00-$121.00"
+  adultPrice: number;
+  childPrice: number;
+  adultFee: number;
+  childFee: number;
+}
+
+export interface SeatingConfig {
+  tiers: SeatingTier[];
+  /** Future: seats.io workspace key for real integration */
+  seatsioWorkspaceKey?: string;
+  /** Future: seats.io event key for real integration */
+  seatsioEventKey?: string;
 }
 
 export interface CartEventGroup {
@@ -72,9 +102,13 @@ export const EVENT_THUMBNAIL_BY_ID: Record<string, string> = {
 // Categories
 // ---------------------------------------------------------------------------
 
-interface EventTicketCatalog {
+export interface EventTicketCatalog {
   categories: Category[];
   products: Product[];
+  /** When true, event uses assigned seating (seating map instead of product grid) */
+  hasSeating?: boolean;
+  /** Seating configuration for assigned seating events */
+  seatingConfig?: SeatingConfig;
 }
 
 export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
@@ -112,15 +146,30 @@ export const eventTicketCatalogs: Record<string, EventTicketCatalog> = {
       { id: 'hans-premium', name: 'Premium', color: '#0079CA' },
     ],
     products: [
-      { id: 'hz-1', name: 'Stalls Seat', price: 44.00, type: 'ticket', categoryId: 'hans-general', tab: 'tickets' },
-      { id: 'hz-2', name: 'Circle Seat', price: 38.00, type: 'ticket', categoryId: 'hans-general', tab: 'tickets' },
-      { id: 'hz-3', name: 'Restricted View Seat', price: 27.00, type: 'ticket', categoryId: 'hans-general', tab: 'tickets' },
-      { id: 'hz-4', name: 'Premium Orchestra Seat', price: 78.00, memberPrice: 58.50, type: 'ticket', categoryId: 'hans-premium', tab: 'tickets' },
-      { id: 'hz-5', name: 'Premium Lounge Access', price: 99.00, memberPrice: 74.25, type: 'ticket', categoryId: 'hans-premium', tab: 'tickets' },
+      // Tickets are handled via seating map for this event, but we keep add-ons
       { id: 'hz-a1', name: 'Fast Track Check-in', price: 11.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
       { id: 'hz-a2', name: 'Premium Seat Upgrade', price: 7.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
       { id: 'hz-a3', name: 'Aftershow Q&A Access', price: 16.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
+      { id: 'hz-a4', name: 'Commemorative Program', price: 15.00, type: 'addon', categoryId: 'hans-general', tab: 'tickets' },
+      { id: 'hz-a5', name: 'VIP Lounge Pre-Show', price: 35.00, memberPrice: 26.25, type: 'addon', categoryId: 'hans-premium', tab: 'tickets' },
     ],
+    hasSeating: true,
+    seatingConfig: {
+      tiers: [
+        { id: 'tier-1',  name: 'General Admission - Tier 1',  color: '#1E3A5F', priceRange: '$40.00-$50.00',   adultPrice: 50.00,  childPrice: 40.00,  adultFee: 7.50,  childFee: 6.00 },
+        { id: 'tier-2',  name: 'General Admission - Tier 2',  color: '#2E5984', priceRange: '$61.00',          adultPrice: 61.00,  childPrice: 51.00,  adultFee: 9.15,  childFee: 7.65 },
+        { id: 'tier-3',  name: 'General Admission - Tier 3',  color: '#3D78A8', priceRange: '$62.00-$72.00',   adultPrice: 72.00,  childPrice: 62.00,  adultFee: 10.80, childFee: 9.30 },
+        { id: 'tier-4',  name: 'General Admission - Tier 4',  color: '#4A8BBF', priceRange: '$63.00',          adultPrice: 63.00,  childPrice: 53.00,  adultFee: 9.45,  childFee: 7.95 },
+        { id: 'tier-5',  name: 'General Admission - Tier 5',  color: '#5A9ED4', priceRange: '$66.00-$76.00',   adultPrice: 76.00,  childPrice: 66.00,  adultFee: 11.40, childFee: 9.90 },
+        { id: 'tier-6',  name: 'General Admission - Tier 6',  color: '#6BB1E9', priceRange: '$111.00-$121.00', adultPrice: 121.00, childPrice: 111.00, adultFee: 18.15, childFee: 16.65 },
+        { id: 'tier-7',  name: 'General Admission - Tier 7',  color: '#7EC4F5', priceRange: '$73.00-$83.00',   adultPrice: 83.00,  childPrice: 73.00,  adultFee: 12.45, childFee: 10.95 },
+        { id: 'tier-8',  name: 'General Admission - Tier 8',  color: '#91D7FF', priceRange: '$79.00-$89.00',   adultPrice: 89.00,  childPrice: 79.00,  adultFee: 13.35, childFee: 11.85 },
+        { id: 'tier-9',  name: 'General Admission - Tier 9',  color: '#A4E0FF', priceRange: '$87.00-$97.00',   adultPrice: 97.00,  childPrice: 87.00,  adultFee: 14.55, childFee: 13.05 },
+        { id: 'tier-10', name: 'General Admission - Tier 10', color: '#B7E9FF', priceRange: '$92.00-$102.00',  adultPrice: 102.00, childPrice: 92.00,  adultFee: 15.30, childFee: 13.80 },
+        { id: 'tier-11', name: 'General Admission - Tier 11', color: '#CAF2FF', priceRange: '$98.00-$108.00',  adultPrice: 108.00, childPrice: 98.00,  adultFee: 16.20, childFee: 14.70 },
+        { id: 'tier-12', name: 'General Admission - Tier 12', color: '#DDFBFF', priceRange: '$102.00',         adultPrice: 102.00, childPrice: 92.00,  adultFee: 15.30, childFee: 13.80 },
+      ],
+    },
   },
   'evt-004': {
     categories: [],
@@ -346,6 +395,33 @@ export function getProductsByCategory(products: Product[], categoryId: string): 
 
 export function formatPrice(amount: number): string {
   return `€${amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * Returns true if the event uses assigned seating (seating map instead of product grid).
+ */
+export function eventHasSeating(eventId?: string): boolean {
+  if (!eventId) return false;
+  const catalog = eventTicketCatalogs[eventId];
+  return catalog?.hasSeating ?? false;
+}
+
+/**
+ * Returns the seating configuration for an event, or undefined if not a seated event.
+ */
+export function getSeatingConfigForEvent(eventId?: string): SeatingConfig | undefined {
+  if (!eventId) return undefined;
+  const catalog = eventTicketCatalogs[eventId];
+  return catalog?.seatingConfig;
+}
+
+/**
+ * Returns only add-on products for an event (excludes tickets).
+ * Used for the Add-Ons tab in seated events.
+ */
+export function getAddOnProductsForEvent(eventId?: string): Product[] {
+  const catalog = (eventId && eventTicketCatalogs[eventId]) ? eventTicketCatalogs[eventId] : eventTicketCatalogs[defaultTicketEventId];
+  return catalog.products.filter(p => p.type === 'addon');
 }
 
 // ---------------------------------------------------------------------------

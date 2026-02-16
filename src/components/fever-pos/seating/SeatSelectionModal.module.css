@@ -1,0 +1,154 @@
+/* No backdrop - modal floats within the seating area */
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 340px;
+  background: #FFFFFF;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sectionLabel {
+  font-size: 10px;
+  font-weight: 600;
+  color: #536B75;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sectionName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: #031419;
+}
+
+.rowSeatBox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 12px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #031419;
+  background: #F6F7F7;
+  border: 1px solid #CCD2D8;
+  border-radius: 6px;
+}
+
+.tierName {
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ticketOptions {
+  display: flex;
+  flex-direction: column;
+  padding: 0 24px;
+}
+
+.ticketOption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #E5E7EB;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms ease;
+}
+
+.ticketOption:last-child {
+  border-bottom: none;
+}
+
+.ticketOption:hover {
+  background: #F6F7F7;
+  margin: 0 -24px;
+  padding: 16px 24px;
+}
+
+.ticketName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #031419;
+}
+
+.ticketPricing {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.ticketPrice {
+  font-size: 16px;
+  font-weight: 700;
+  color: #031419;
+}
+
+.ticketFee {
+  font-size: 11px;
+  color: #536B75;
+}
+
+.cancelButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px 24px 24px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #1A1A2E;
+  border: none;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.cancelButton:hover {
+  background: #2D2D44;
+}
+
+/* Disable hover states in touch mode */
+:global([data-touch-mode="true"]) .ticketOption:hover {
+  background: transparent;
+  margin: 0;
+  padding: 16px 0;
+}
+
+:global([data-touch-mode="true"]) .cancelButton:hover {
+  background: #1A1A2E;
+}

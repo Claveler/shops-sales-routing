@@ -39,6 +39,32 @@
   border-radius: 4px;
 }
 
+/* Seat information for assigned seating tickets */
+.seatInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 4px;
+  padding: 4px 6px;
+  background: #F0F7FC;
+  border-radius: 4px;
+  border-left: 3px solid var(--fz-primary-600, #0079CA);
+}
+
+.seatSection {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--fz-text-secondary, #536b75);
+  line-height: 12px;
+}
+
+.seatDetails {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fz-text-primary, #031419);
+  line-height: 14px;
+}
+
 .priceRow {
   display: flex;
   align-items: center;
@@ -172,4 +198,30 @@
   border-radius: 4px;
   padding: 0;
   margin: 0;
+}
+
+/* Seated ticket styles - quantity is fixed at 1 */
+.pillBtnSingle {
+  background: var(--fz-primary-600, #0079CA);
+  color: #fff;
+}
+
+.pillBtnDisabled {
+  background: #E5E7EB;
+  color: #9CA3AF;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.pillBtnDisabled:hover {
+  opacity: 0.6;
+}
+
+.pillCountDisabled {
+  cursor: default;
+  color: var(--fz-text-tertiary, #8496a1);
+}
+
+.pillCountDisabled:hover {
+  background-color: transparent;
 }

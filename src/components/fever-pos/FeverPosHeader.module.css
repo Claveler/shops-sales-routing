@@ -827,6 +827,19 @@
   flex-shrink: 0;
 }
 
+.deviceEmptyState {
+  padding: 16px 12px;
+  text-align: center;
+}
+
+.deviceEmptyState span {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 13px;
+  font-weight: var(--fz-font-weight-regular, 400);
+  color: var(--fz-text-muted, #536B75);
+  font-style: italic;
+}
+
 .userMenu {
   position: relative;
 }
