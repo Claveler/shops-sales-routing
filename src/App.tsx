@@ -23,6 +23,7 @@ function App() {
         <Routes>
           {/* Fever POS — renders full-screen without the standard Layout */}
           <Route path="/box-office" element={<FeverPosPage />} />
+          <Route path="/box-office/simulation" element={<FeverPosPage isSimulation />} />
 
           {/* All other routes use the standard Layout (header + sidebar) */}
           <Route element={<LayoutWrapper />}>

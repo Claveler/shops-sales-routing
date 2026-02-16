@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import type { CSSProperties } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAddressCard, faMagnifyingGlass, faStar, faTabletScreenButton, faUserPlus, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 import { useDemo } from '../../context/DemoContext';
 import iminDeviceImg from '../../assets/imin-swan-1-pro-3d.webp';
 import feverLogo from '../../assets/fever-logo.svg';
@@ -94,8 +95,14 @@ const MEMBERSHIP_TIER_COLORS: Record<'Gold' | 'Silver' | 'Basic', string> = {
   Basic: '#8B7355',
 };
 
-export function FeverPosPage() {
+interface FeverPosPageProps {
+  /** When true, renders in iMin Swan 1 Pro simulation mode */
+  isSimulation?: boolean;
+}
+
+export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
   const demo = useDemo();
+  const navigate = useNavigate();
   // Tab & category state
   const [activeTab, setActiveTab] = useState<PosTab>('tickets');
   const [activeCategoryId, setActiveCategoryId] = useState(getTicketCategoriesForEvent()[0]?.id ?? '');
@@ -110,9 +117,11 @@ export function FeverPosPage() {
     [demo]
   );
 
-  // Device preview state (iMin Swan 1 Pro: 1397×786 dp)
-  const [isDevicePreview, setIsDevicePreview] = useState(false);
-  const handleToggleDevicePreview = useCallback(() => setIsDevicePreview((prev) => !prev), []);
+  // Device preview mode is now controlled via URL route
+  const isDevicePreview = isSimulation;
+  const handleToggleDevicePreview = useCallback(() => {
+    navigate(isSimulation ? '/box-office' : '/box-office/simulation');
+  }, [navigate, isSimulation]);
 
   // Preload the device frame image so it's cached before the user enters preview
   const [deviceImageLoaded, setDeviceImageLoaded] = useState(false);
