@@ -277,48 +277,6 @@ export const allProducts: Product[] = [
 // ---------------------------------------------------------------------------
 
 export const initialCartEvents: CartEventGroup[] = [
-  // Hans Zimmer event with seated tickets (demonstrates seating feature)
-  {
-    id: 'evt-003--ts-003-05',
-    eventId: 'evt-003',
-    timeslotId: 'ts-003-05',
-    eventName: 'Candlelight: Best of Hans Zimmer',
-    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-003'],
-    location: 'Teatro Real',
-    date: 'Fri, Mar 27, 7:30 PM',
-    isExpanded: true,
-    items: [
-      {
-        id: 'ci-hz-1',
-        productId: 'hz-seat-1',
-        name: 'General Admission Adult - Tier 1',
-        price: 50.00,
-        quantity: 1,
-        bookingFee: 7.50,
-        seatInfo: {
-          section: 'Balcony Left',
-          row: 'B',
-          seat: '6',
-          tier: 'General Admission - Tier 1',
-        },
-      },
-      {
-        id: 'ci-hz-2',
-        productId: 'hz-seat-2',
-        name: 'General Admission Child - Tier 1',
-        price: 40.00,
-        quantity: 1,
-        bookingFee: 6.00,
-        seatInfo: {
-          section: 'Balcony Left',
-          row: 'B',
-          seat: '11',
-          tier: 'General Admission - Tier 1',
-        },
-      },
-    ],
-    retailItems: [],
-  },
   // Taylor Swift event (Box Office event - source of retail products)
   {
     id: 'evt-001--ts-001-06',
@@ -364,6 +322,48 @@ export const initialCartEvents: CartEventGroup[] = [
         quantity: 2,
       },
     ],
+  },
+  // Hans Zimmer event with seated tickets (demonstrates seating feature)
+  {
+    id: 'evt-003--ts-003-05',
+    eventId: 'evt-003',
+    timeslotId: 'ts-003-05',
+    eventName: 'Candlelight: Best of Hans Zimmer',
+    eventImageUrl: EVENT_THUMBNAIL_BY_ID['evt-003'],
+    location: 'Teatro Real',
+    date: 'Fri, Mar 27, 7:30 PM',
+    isExpanded: true,
+    items: [
+      {
+        id: 'ci-hz-1',
+        productId: 'hz-seat-1',
+        name: 'General Admission Adult - Tier 1',
+        price: 50.00,
+        quantity: 1,
+        bookingFee: 7.50,
+        seatInfo: {
+          section: 'Balcony Left',
+          row: 'B',
+          seat: '6',
+          tier: 'General Admission - Tier 1',
+        },
+      },
+      {
+        id: 'ci-hz-2',
+        productId: 'hz-seat-2',
+        name: 'General Admission Child - Tier 1',
+        price: 40.00,
+        quantity: 1,
+        bookingFee: 6.00,
+        seatInfo: {
+          section: 'Balcony Left',
+          row: 'B',
+          seat: '11',
+          tier: 'General Admission - Tier 1',
+        },
+      },
+    ],
+    retailItems: [],
   },
 ];
 
