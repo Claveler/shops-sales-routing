@@ -83,7 +83,7 @@ The Fever POS is a full-screen interface that renders **outside** the standard F
 |  Main Content Area                    |  Cart Panel    |
 |  +--------------------------------+   |  (400px/28.6vw)|
 |  | Navigation Tabs                |   |                |
-|  | [Event Name] [Gift Shop]      |   |  Cart          |
+|  | [Event Name] [Merch]          |   |  Cart          |
 |  +--------------------------------+   |  Clear all     |
 |  | Category Filters / Breadcrumbs |   |                |
 |  | [Gift Aid] [Non Gift Aid] ... |   |  Event groups  |
@@ -172,15 +172,15 @@ Occupies all horizontal space left of the cart panel. Contains:
 - **Folder-like tab connection**: the active tab is visually connected to the content panel below, creating a folder-style container. The content panel has its own top border; the active tab has `margin-bottom: -1px` to overlap it and a white `border-bottom` to cover the content's grey border beneath it, producing a seamless folder cut-out effect. When the first tab is active, the content panel's top-left corner is square (flush with the tab); otherwise all top corners are rounded, and the inactive first tab does not paint an extra bottom seam into that rounded corner
 - **Folder frame spacing**: the connected tab+panel block is inset with horizontal and bottom padding so it does not touch the outer viewport/container edges
 - **Background palette**: page background `#F8F9F9`; folder surface (active tab + panel) `#FFFFFF`
-- **Tab sizing model**: only the event tab uses the expanded active width; `Gift Shop` keeps a compact active width
+- **Tab sizing model**: only the event tab uses the expanded active width; `Merch` keeps a compact active width
 - **Tab rail alignment**: all nav tabs share a consistent 48px rail height/baseline across active and inactive states to prevent visual jumps when switching tabs
 - **Top-row stability**: right-side action controls stay anchored while switching tabs; tab activation does not push or collapse the row
 - **Utility icon buttons** on the right of tabs: contacts and search as circular (44px) outlined buttons
 - **Top navigation row below tabs**: a compact row that switches between explode pipes (root) and breadcrumbs (nested)
 - **Explode pipes spacing**: the category-filter row ("Gift Aid", "Non Gift Aid", "Groups", etc.) sits close to the top of the folder panel with a compact top inset, matching the Figma density
 - **Home icon in nav row**: a house button is always shown before chips/breadcrumbs; it is disabled at root and enabled while nested
-- **Calendar utility button** beside category filters is Tickets-only (circular 44px, blue icon style) and is hidden in Gift Shop
-- **No layout shift on tab switch**: when calendar is hidden (Gift Shop), an equal-width trailing slot is reserved so chips/breadcrumbs keep the same horizontal alignment as Tickets
+- **Calendar utility button** beside category filters is Tickets-only (circular 44px, blue icon style) and is hidden in Merch
+- **No layout shift on tab switch**: when calendar is hidden (Merch), an equal-width trailing slot is reserved so chips/breadcrumbs keep the same horizontal alignment as Tickets
 - **Control alignment to folder border**: top-right utility buttons are right-aligned to the folder outer border line; the calendar button is right-aligned to the inner tile area edge below
 - **Circular control borders**: utility circle buttons use a thicker border stroke to match Figma
 - **Product Tile Grid** filling the remaining space
@@ -201,7 +201,19 @@ Occupies all horizontal space left of the cart panel. Contains:
 
 ## 5. Navigation Tabs
 
-The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
+The POS uses a **configurable tab system** where partners can define custom tabs (historically called "Quick Picks") for their POS devices. Each tab has a name, icon, and its own grid of products/categories. The demo implementation shows two tabs: `Tickets & Add-Ons` (the event-specific ticket tab) and `Merch` (a retail/F&B tab).
+
+### Tab Configuration (Quick Picks)
+
+Tabs are configured through a self-service **Quick Picks Configuration** screen in Fever Zone (Box Office > Settings > Quick Picks). Key concepts:
+
+- **Multiple tabs per configuration**: Partners can define multiple tabs (e.g., "Retail", "F&B", "Meal Deals"), each with its own name, icon, and tile grid
+- **Visual grid editor**: A drag-and-drop editor lets partners arrange products and categories on each tab's grid, with customizable tile colors and display text overrides
+- **Warehouse association**: Each Quick Picks configuration is linked to a warehouse, determining which products/categories are available for selection
+- **Box Office Setup linkage**: Quick Picks configurations are deployed to POS devices by linking them to Box Office Setups. Multiple setups can share the same configuration to avoid redundant effort
+- **Muscle memory optimization**: Tile colors and fixed positions help staff build muscle memory for faster transactions
+
+The first tab is always the **Tickets & Add-Ons** tab (event-specific, not part of Quick Picks configuration). Additional tabs are partner-configurable retail/F&B tabs.
 
 ### Tickets & Add-Ons Tab
 
@@ -225,7 +237,7 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
   - some events expose explode-pipe chips (e.g., `General Admission`, `VIP Experience`, `Premium`)
   - others show all tickets and add-ons directly with no top-level chips
 - **Add-on placement rule**: add-ons are assigned to the primary/high-volume first-level group when categories exist (usually `General Admission`-style categories)
-- **Add-on scope rule**: ticket-tab add-ons must be ticket/experience upgrades only; physical inventory items belong in `Gift Shop` (retail tab)
+- **Add-on scope rule**: ticket-tab add-ons must be ticket/experience upgrades only; physical inventory items belong in `Merch` (retail tab)
 - **Calendar control**: shown in the top-right of the filter row only in Tickets & Add-Ons; opens the Timeslot Selector modal (see below). When a timeslot is already selected, the calendar button shows a filled/active state (blue background) as a visual indicator.
 - **Grid**: Ticket tiles (blue stripe `#0089E3`) and add-on tiles (orange stripe `#FF8C00`)
 - **Event selector**: Dropdown at top showing which event/plan is being sold (e.g., "Candlelight: Tribute to Taylor Swift")
@@ -239,11 +251,11 @@ The POS now uses two primary tabs: `Tickets & Add-Ons` and `Gift Shop`.
 - **Event switch behavior**: confirming `Change event` updates the active tickets event context shown on the top tab and is used as the default event metadata when creating a new ticket event group in cart state
 - **Per-event thumbnails**: each event uses its own thumbnail image (not a shared placeholder) in the event tab, event-selection modal, and cart event headers
 
-### Gift Shop Tab
+### Merch Tab
 
 - **Purpose**: Sell products from the same catalog/hierarchy source used in Catalog Integration's Products view
 - **No calendar sidebar**: Full-width grid
-- **No calendar control in top row**: Gift Shop does not show the calendar icon/button
+- **No calendar control in top row**: Merch does not show the calendar icon/button
 - **Root state nav**: top row shows disabled home icon + explode pipes for top-level categories (e.g., Apparel, Books, Home & Living)
 - **Nested category navigation**: second/third level categories appear as tiles with purple left indicator stripe; tapping drills into that category view
 - **Nested state nav**: once drilled into category depth, explode pipes are hidden and replaced by breadcrumbs in the same top row; home icon becomes clickable and returns to root
@@ -395,7 +407,7 @@ Production tiles have a material-design-style ripple animation on click:
 
 Products with size variants (e.g. T-shirts, hoodies) display a **"from"** prefix before the base price on the tile (e.g. "from €18,00"). Tapping a variant product tile does **not** add to cart directly; instead it opens the **Variant Picker** overlay.
 
-For Gift Shop products, variant and member pricing are resolved from the Box Office routing's **price reference warehouse**:
+For Merch products, variant and member pricing are resolved from the Box Office routing's **price reference warehouse**:
 - Tile-level variant price uses the warehouse-scoped **base "from" price**.
 - When a member is identified, variant tiles show a crown badge if at least one variant has member pricing, but the tile price remains `from €X,XX` (no strikethrough row on the tile itself).
 
@@ -489,7 +501,7 @@ Cart items are grouped by event **and timeslot**, but tickets and products follo
 - **Single-event mode**: when only one group exists in the cart, event subsection headers are suppressed entirely; items are shown flat with just the time-slot header and optional products sub-section
 - **Multi-event / multi-timeslot mode**: each group gets a collapsible card with its own header (thumbnail, name, location, delete, chevron). Multiple groups for the same event are visually distinguished by their different timeslot headers.
 
-> **Example**: The Box Office is configured with the Taylor Swift event (`evt-001`) as its product source. A staff member sells 2x Zone A Tickets for Taylor Swift, then switches the event selector to Van Gogh and sells 1x Standard Adult Entry. They also add a Navy T-Shirt from the Gift Shop. The cart now shows two event groups: Taylor Swift (with tickets + the T-shirt) and Van Gogh (with tickets only). The T-shirt is in the Taylor Swift group because that's the Box Office event whose sales routing provides the product catalog -- not because it's related to the Taylor Swift event specifically.
+> **Example**: The Box Office is configured with the Taylor Swift event (`evt-001`) as its product source. A staff member sells 2x Zone A Tickets for Taylor Swift, then switches the event selector to Van Gogh and sells 1x Standard Adult Entry. They also add a Navy T-Shirt from the Merch tab. The cart now shows two event groups: Taylor Swift (with tickets + the T-shirt) and Van Gogh (with tickets only). The T-shirt is in the Taylor Swift group because that's the Box Office event whose sales routing provides the product catalog -- not because it's related to the Taylor Swift event specifically.
 
 ### Event Group Card (multi-event mode)
 
@@ -511,8 +523,8 @@ Cart items are grouped by event **and timeslot**, but tickets and products follo
 - **Item name**: `12px` regular weight, max 2 lines with ellipsis
 - **Price row**: current price `12px` semibold
 - **Member pricing row** (when a member is identified and the item has a member price): strikethrough original price + discounted member price + orange crown icon. When a member is identified mid-transaction, existing cart items are retroactively updated (original price stored, display price set to member price). Clearing the member reverts all prices.
-- **Warehouse-scoped member pricing**: for Gift Shop variant lines, member and regular prices are resolved per variant from the Box Office routing's price reference warehouse, so cart pricing matches tile/picker pricing.
-- **Demo data coverage**: the Gift Shop catalog seed includes multiple member-priced retail products (including variant and non-variant SKUs), so member pricing is visible in normal POS browse/add-to-cart flows without extra setup.
+- **Warehouse-scoped member pricing**: for Merch variant lines, member and regular prices are resolved per variant from the Box Office routing's price reference warehouse, so cart pricing matches tile/picker pricing.
+- **Demo data coverage**: the Merch catalog seed includes multiple member-priced retail products (including variant and non-variant SKUs), so member pricing is visible in normal POS browse/add-to-cart flows without extra setup.
 - **Booking fee**: `10px` regular `#536B75`
 
 ### Quantity Controls (Pill Counter)
@@ -566,8 +578,8 @@ Each variant of the same product appears as a **separate cart line item**. For e
 
 The POS uses two distinct category navigation mechanisms. These are separate UI elements and should not be confused:
 
-- **Explode pipes** are the **first-level category chip buttons** in the top filter bar. They appear as compact pill-shaped chips (e.g., "General Admission", "VIP Experience" on the Tickets tab; "Apparel", "Art & Prints", "Music" on the Gift Shop tab). Explode pipes are always visible at the root navigation level and are replaced by breadcrumbs when the user drills into nested categories (Gift Shop only).
-- **Category tiles** are **second-level and deeper folder tiles** in the product grid. They appear as full-sized tiles with a purple left stripe (`#AE92ED`) and a stacked-boxes icon. Clicking a category tile navigates deeper into the hierarchy. Category tiles are only present in the Gift Shop tab.
+- **Explode pipes** are the **first-level category chip buttons** in the top filter bar. They appear as compact pill-shaped chips (e.g., "General Admission", "VIP Experience" on the Tickets tab; "Apparel", "Art & Prints", "Music" on the Merch tab). Explode pipes are always visible at the root navigation level and are replaced by breadcrumbs when the user drills into nested categories (Merch only).
+- **Category tiles** are **second-level and deeper folder tiles** in the product grid. They appear as full-sized tiles with a purple left stripe (`#AE92ED`) and a stacked-boxes icon. Clicking a category tile navigates deeper into the hierarchy. Category tiles are only present in the Merch tab.
 
 ### Member Pricing Crown Indicators
 
@@ -681,12 +693,13 @@ Planned enhancements beyond the current scope:
 | **One-Stop Shop (OSS)** | Original name for the Fever POS initiative |
 | **Tile** | A clickable product or category card in the POS grid |
 | **Session / Ticket** | A purchasable ticket type with a specific timeslot |
-| **Add-on** | An optional ticket-linked upgrade (priority access, flexible change, premium/experience upgrade); physical inventory is sold via Gift Shop |
+| **Add-on** | An optional ticket-linked upgrade (priority access, flexible change, premium/experience upgrade); physical inventory is sold via Merch |
 | **Explode pipes** | First-level category chip buttons in the top filter bar (e.g., "General Admission", "VIP Experience", "Apparel"). Distinct from category tiles |
-| **Category tile** | A second-level or deeper navigable category tile in the Gift Shop grid (purple stripe). Distinct from explode pipes |
+| **Category tile** | A second-level or deeper navigable category tile in the Merch grid (purple stripe). Distinct from explode pipes |
 | **Product (Leaf)** | A purchasable retail item tile (green stripe) |
 | **Stripe** | The 8px colored bar on the left edge of each tile indicating its type |
-| **Quick Picks** | A configurable favorites grid for frequently-sold items (touchscreen muscle memory) |
+| **Quick Picks** | Partner-configurable POS tabs with customizable tile grids. Each Quick Picks configuration can have multiple tabs (e.g., "Retail", "F&B", "Meal Deals") with drag-and-drop tile arrangement, custom colors, and display text overrides. Configurations are linked to Box Office Setups for deployment. |
+| **Quick Picks Configuration** | A saved set of custom tabs and tile arrangements that can be shared across multiple Box Office Setups |
 | **Box Office Setup** | Configuration linking a physical POS device to a sales routing and warehouse |
 | **iMin Swan 1 Pro** | The preferred dual-screen POS hardware for Fever POS deployments |
 | **Shift** | A staff work session that must be started before processing transactions |

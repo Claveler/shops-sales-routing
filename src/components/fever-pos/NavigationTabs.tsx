@@ -110,7 +110,7 @@ export function NavigationTabs({
         type="button"
       >
         <FontAwesomeIcon icon={faGift} className={styles.tabIcon} />
-        <span className={styles.tabLabel}>Gift Shop</span>
+        <span className={styles.tabLabel}>Merch</span>
       </button>
     </div>
   );

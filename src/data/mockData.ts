@@ -218,7 +218,7 @@ export const warehouses: Warehouse[] = [
     name: 'Main Store',
     integration: 'Square',
     externalLocationId: 'LOC_MAIN_001',
-    productCount: 14,
+    productCount: 25,
     masterCatalogId: 'sq_merchant_demo_12345'
   },
   {
@@ -346,6 +346,17 @@ export const productWarehouses: ProductWarehouse[] = [
   { productId: 'demo-p-016', warehouseId: 'wh-demo-main', price: 49.99, currency: 'EUR', stock: 100 },
   { productId: 'demo-p-017', warehouseId: 'wh-demo-main', price: 99.99, currency: 'EUR', stock: 25 },
   { productId: 'demo-p-018', warehouseId: 'wh-demo-main', price: 24.99, memberPrice: 19.99, currency: 'EUR', stock: 75 },
+  // Products that were previously only in Gift Shop — now also in Main Store
+  { productId: 'demo-p-009', warehouseId: 'wh-demo-main', price: 8.99, currency: 'EUR', stock: 150 },  // Wristband Pack (3)
+  { productId: 'demo-p-010', warehouseId: 'wh-demo-main', price: 7.99, currency: 'EUR', stock: 200 },  // Lanyard with Badge Holder
+  { productId: 'demo-p-013', warehouseId: 'wh-demo-main', price: 42.00, currency: 'EUR', stock: 35 },  // Art Print Collection
+  { productId: 'demo-p-014', warehouseId: 'wh-demo-main', price: 32.00, currency: 'EUR', stock: 45 },  // Photo Book
+  { productId: 'demo-p-019', warehouseId: 'wh-demo-main', price: 16.99, currency: 'EUR', stock: 80 },  // Premium Coffee Blend
+  { productId: 'demo-p-020', warehouseId: 'wh-demo-main', price: 52.00, currency: 'EUR', stock: 25 },  // Wine Tasting Set
+  // Products that were only in other warehouses — now also in Main Store
+  { productId: 'demo-p-023', warehouseId: 'wh-demo-main', price: 139.99, currency: 'EUR', stock: 15 }, // VIP Experience Add-on
+  { productId: 'demo-p-024', warehouseId: 'wh-demo-main', price: 74.99, currency: 'EUR', stock: 25 },  // Collector's Box Set
+  { productId: 'demo-p-025', warehouseId: 'wh-demo-main', price: 12.99, currency: 'EUR', stock: 400 }, // Digital Download Card
   
   // Gift Shop products (10) - some overlap with Main Store (different prices)
   // demo-p-001 Event T-Shirt (Black)
