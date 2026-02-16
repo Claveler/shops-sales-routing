@@ -389,24 +389,23 @@
  * the top to ~(14.1%, 100%) at the bottom — angle ≈ 133°.
  * Mathematically the glare line sits at ~43.56% along the 133° gradient.
  *
- * Two stacked layers:
- *   1) A slow, wide fade from transparent → 30% white, ending at the line.
- *      Hard-clipped to transparent on the right side of the line.
- *   2) (same gradient direction, same line position)
- *
- * This decouples the sharp right edge from the gradual left fade.
+ * The gradient fades in very gradually from the left edge, reaching peak
+ * brightness at the glare line, then cuts off sharply on the right.
  */
 .deviceScreenGlare {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 2;
+  z-index: 10000; /* Must be higher than any modal backdrop to stay visible */
   background:
-    /* Layer: slow fade from left, razor-sharp cutoff on the right */
+    /* Gradual fade from left, razor-sharp cutoff on the right */
     linear-gradient(
       133deg,
       transparent 0%,
-      transparent 30%,
+      rgba(255, 255, 255, 0.03) 10%,
+      rgba(255, 255, 255, 0.08) 20%,
+      rgba(255, 255, 255, 0.15) 30%,
+      rgba(255, 255, 255, 0.25) 38%,
       rgba(255, 255, 255, 0.30) 43.6%,
       transparent 43.64%,
       transparent 100%
