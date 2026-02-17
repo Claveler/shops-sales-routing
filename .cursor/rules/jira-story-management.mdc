@@ -13,6 +13,12 @@ Apply these conventions when creating, editing, or syncing user stories with Jir
 - Data models, field names, and state structures in the mockup are for demo purposes only.
 - **Never put mockup implementation details** (field names, state keys, config flags) into user story acceptance criteria.
 
+## Local files vs. Jira
+
+- The `product-management/` folder is **local only** — it lives on the PM's machine and is not shared with the team in its native form.
+- **Never reference local file paths** (e.g., `product-management/analytics-taxonomy.md`) in Jira descriptions, ACs, or DoD lines. The team cannot access them.
+- In Jira, use generic phrasing like "per the agreed analytics taxonomy" instead of pointing to a file path.
+
 ## User story language
 
 - Write at the **Product Manager level**: what the user needs and why.
@@ -46,6 +52,14 @@ Apply these conventions when creating, editing, or syncing user stories with Jir
 - When updating dates, also update the roadmap table in `product-management/workflow-and-conventions.md`.
 - Sprints are two weeks long, starting Feb 23, 2026.
 - **Do NOT set dates on Catalog Integration** (B2BS-863).
+
+## Analytics conventions
+
+- `product-management/analytics-taxonomy.md` defines **what** to track and **why**, organized by behavioral domain.
+- Event names and properties in the taxonomy are **suggestions** — the tech lead reviews and finalizes them before implementation.
+- Analytics requirements are **not** repeated in individual story ACs. Instead, every epic's DoD includes: "Relevant Mixpanel events instrumented per `product-management/analytics-taxonomy.md`."
+- Retroactive tagging of the existing POS is handled by epic **B2BS-947** (POS Analytics Tagging).
+- New features get tagged as part of their own epic via the shared DoD line (DRY).
 
 ## Sync process
 

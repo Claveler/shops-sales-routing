@@ -127,6 +127,7 @@ Every story in this file is considered done when:
 - [ ] Validation and error states implemented for all form inputs
 - [ ] No regression in existing back-office flows
 - [ ] Matches Figma (when linked)
+- [ ] Relevant Mixpanel events instrumented per `product-management/analytics-taxonomy.md`
 
 ---
 

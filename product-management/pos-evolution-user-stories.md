@@ -204,6 +204,7 @@ Every story in this file is considered done when:
 - [ ] All interactive elements meet 44×44px minimum touch targets
 - [ ] No regression in existing POS flows
 - [ ] Matches Figma (when linked)
+- [ ] Relevant Mixpanel events instrumented per `product-management/analytics-taxonomy.md`
 
 ---
 

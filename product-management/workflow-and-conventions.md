@@ -115,6 +115,7 @@ The workflow follows these stages:
 | 3 | Category Navigation & Tile Visuals | B2BS-928 | POS |
 | 4 | Product Variants | B2BS-931 | POS |
 | 5 | Membership Pricing | B2BS-934 | POS |
+| 6 | POS Analytics Tagging | B2BS-947 | POS (retroactive) |
 | 7 | Catalog Integration | B2BS-863 | Back-office (pre-existing) |
 | 8 | Sales Routing | B2BS-938 | Back-office |
 | 9 | Channel Visibility | B2BS-943 | Back-office |
@@ -149,6 +150,7 @@ You can batch multiple epics in parallel (one tool call per epic, all in the sam
 
 | Epic | Key | Start | End | Sprint(s) |
 |------|-----|-------|-----|-----------|
+| POS Analytics Tagging | B2BS-947 | Feb 23 | Mar 20 | S1–S2 |
 | Timeslot Selector Redesign | B2BS-922 | Feb 23 | Mar 06 | S1 |
 | Sales Routings | B2BS-938 | Feb 23 | Mar 20 | S1–S2 |
 | Multi-Cart | B2BS-918 | Mar 09 | Apr 03 | S2–S3 |
@@ -181,6 +183,37 @@ Update the table above **and** the Jira fields together so they stay in sync.
 
 ---
 
+## Analytics Conventions
+
+### Taxonomy document
+
+`product-management/analytics-taxonomy.md` is the single reference for all Mixpanel analytics work on the POS. It defines:
+
+- **What we want to understand and why**, organized by behavioral domain (transaction lifecycle, product interaction, category navigation, timeslot selection, member identification, shift/config, seated events).
+- **Suggested event names and properties** using Fever's `FZ|POS|Section|Action` naming convention — these are proposals for the tech lead to review and finalize, not prescriptive specs.
+- **A changelog-ready table** matching the column structure of Fever's official [Mixpanel Change Log](https://docs.google.com/spreadsheets/d/1K0JNs7mS9YLvSIBxQ6QNZPPIMneWUrXSQ3zgqh_f3Co/edit?gid=261590517#gid=261590517) (FeverZone sheet).
+
+### How analytics fits the DoD
+
+Every POS and back-office epic has a DoD line:
+
+> "Relevant Mixpanel events instrumented per `product-management/analytics-taxonomy.md`."
+
+Developers check the taxonomy doc for their epic's behavioral domains. No event names or properties in individual story ACs — DRY. The taxonomy doc defines *what we want to understand*; the tech lead and squad decide *how* to implement it.
+
+### Retroactive tagging
+
+The existing production POS has never been tagged. Epic **B2BS-947 (POS Analytics Tagging)** covers the retroactive instrumentation. New features are tagged as part of their respective epics via the DoD line.
+
+### Mixpanel Changelog workflow
+
+When a developer implements an event:
+
+1. Reference the taxonomy doc for what to track and the suggested names/properties (as finalized by the tech lead).
+2. After the PR is merged, copy the corresponding row from the taxonomy doc's changelog table into the [Google Sheet](https://docs.google.com/spreadsheets/d/1K0JNs7mS9YLvSIBxQ6QNZPPIMneWUrXSQ3zgqh_f3Co/edit?gid=261590517#gid=261590517), filling in the Date and Links to code columns.
+
+---
+
 ## File Index
 
 | File | Purpose |
@@ -189,6 +222,7 @@ Update the table above **and** the Jira fields together so they stay in sync.
 | `product-management/sales-routing-and-catalog-integration.md` | Back-office product spec |
 | `product-management/pos-evolution-user-stories.md` | POS user stories grouped by epic |
 | `product-management/backoffice-user-stories.md` | Back-office user stories grouped by epic |
+| `product-management/analytics-taxonomy.md` | Mixpanel analytics taxonomy (what to track and why) |
 | `product-management/permissions.md` | Cross-cutting permissions considerations |
 | `product-management/workflow-and-conventions.md` | This file |
 
