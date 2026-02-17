@@ -1,0 +1,55 @@
+---
+description: Conventions for writing, updating, and syncing Jira user stories. Apply on demand when working on user stories or Jira sync tasks.
+alwaysApply: false
+---
+
+# Jira Story Management
+
+Apply these conventions when creating, editing, or syncing user stories with Jira.
+
+## Mockup vs. real product
+
+- This repo (`shop-sales-routing`) is a **mockup**, not the real Fever Zone.
+- Data models, field names, and state structures in the mockup are for demo purposes only.
+- **Never put mockup implementation details** (field names, state keys, config flags) into user story acceptance criteria.
+
+## User story language
+
+- Write at the **Product Manager level**: what the user needs and why.
+- No code references, no data model assumptions, no tech stack specifics in ACs.
+- Tech details are added later by the tech lead.
+
+## Jira formatting
+
+- **Title:** Short descriptive name only (e.g., "Multi-event transactions"). Not full user-story sentence.
+- **Description:** Full "As a… I want… so that…" format, followed by acceptance criteria.
+- **DoD:** Lives at the epic level, not on individual stories.
+- **Descriptions use markdown**; the MCP server converts to ADF.
+
+## Mockup walkthroughs in descriptions
+
+- Reference the Vercel URL: `https://shops-sales-routing.vercel.app/box-office`
+- Acknowledge the pre-populated initial state (cart has items on load).
+- Keep walkthroughs brief (numbered steps).
+
+## Scope boundaries
+
+- Manage only stories/epics we created (POS Evolution, Sales Routing, Channel Visibility).
+- **Do NOT modify** pre-existing Catalog Integration stories (B2BS-289, B2BS-910, B2BS-911, B2BS-912).
+
+## Roadmap / Timeline management
+
+- The Jira Timeline view reads **`customfield_11200`** for start dates and **`duedate`** for end dates.
+- Other date fields (`customfield_11451`, `customfield_11215`) exist but are **not** used by the Timeline — do not rely on them.
+- To set dates, use `editJiraIssue` with `fields: {"customfield_11200": "YYYY-MM-DD", "duedate": "YYYY-MM-DD"}`.
+- Cloud ID: `8387c06f-8d18-40a7-ae38-180b03a43c8a`.
+- When updating dates, also update the roadmap table in `product-management/workflow-and-conventions.md`.
+- Sprints are two weeks long, starting Feb 23, 2026.
+- **Do NOT set dates on Catalog Integration** (B2BS-863).
+
+## Sync process
+
+- `product-management/` markdown files are the **source of truth**.
+- Jira mirrors the markdown. Update markdown first, then sync to Jira.
+- When updating the roadmap, update both `workflow-and-conventions.md` and Jira fields together.
+- See `product-management/workflow-and-conventions.md` for the full pipeline and current roadmap table.

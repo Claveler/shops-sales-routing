@@ -40,6 +40,10 @@ A **Products** section in the Fever Zone left sidebar containing:
 - Partner administrators (Stock Managers, Admins)
 - Sales demos for potential new partners
 
+### Access Control
+
+The Products section is visible to four roles: **Admin**, **Supervisor**, **Operations manager**, and **Shops Stock Manager**. Operations managers have full access to Sales Routing and Channels but view-only access to Catalog Integration. Shops Stock Managers have full access to Catalog Integration but view-only access to Sales Routing. All other roles do not see the Products section. See `product-management/permissions.md` for the full role matrix and scope behavior.
+
 ---
 
 ## 2. Core Concepts

@@ -752,25 +752,32 @@ The Tickets tab uses event-scoped category behavior rather than one fixed global
 
 ## 10. Permissions
 
-### POS Interface Permissions
+> **Full permissions spec**: See `product-management/permissions.md` for the complete role matrix covering both POS actions and back-office Products section access.
 
-- **Access One-Stop Shop POS**: Only authorized front-of-house staff
-- **Process Refunds/Voids**: Restricted to supervisors or managers
-- **Apply Discounts**: Controlled per role (who can apply manual discounts or override prices)
-- **Modify Cart**: Basic staff can add/remove items; trainee roles may have limitations
-- **End of Day Reconciliation**: Restricted to authorized personnel
+### POS Role Mapping
 
-### Stock Management Permissions
+POS actions are governed by the existing **Box Office** section in Fever Zone's Default Roles matrix. The two relevant roles are:
 
-- **View Stock Levels**: All relevant staff
-- **Adjust Stock Levels**: Restricted to inventory managers or authorized back-office staff
-- **Configure Products/SKUs**: Restricted to those who can create, edit, or delete product entries
-- **Manage Inventory Integrations**: System administrators or specific technical roles only
+- **Box office** (cashier): Can access the POS, sell tickets and products, manage the cart, identify members, and start/end their own shift.
+- **Box office supervisor**: All cashier actions plus elevated operations — apply discounts, process refunds/voids, change BO setup/payment device, and end-of-day reconciliation.
 
-### Reporting Permissions
+Admin and Supervisor roles also have full POS access.
 
-- **View Sales Reports**: Role-based access (staff see own sales, managers see team/location, executives see aggregate)
-- **Export Reports**: Restricted
+### Restricted POS Actions
+
+| Action | Box office supervisor+ | Box office (cashier) |
+|--------|----------------------|---------------------|
+| Access POS / sell | ✓ | ✓ |
+| Start / end own shift | ✓ | ✓ |
+| Identify members | ✓ | ✓ |
+| Apply discounts | ✓ | — |
+| Process refunds / voids | ✓ | — |
+| Change BO setup / device | ✓ | — |
+| End-of-day reconciliation | ✓ | — |
+
+### Supervisor PIN Override
+
+On a physical POS, restricted actions use a **supervisor PIN override** pattern: the cashier taps the action, a PIN prompt appears, and a supervisor enters their code to authorize that single operation — no logout/login needed. See `permissions.md` §3 for details.
 
 ---
 
