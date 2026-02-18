@@ -1,0 +1,148 @@
+/* ---- Container ---- */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---- Month pills ---- */
+.monthToggle {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.monthPill {
+  padding: 6px 16px;
+  border: 1.5px solid #E0E0E0;
+  border-radius: 64px;
+  background: #FFFFFF;
+  color: #1A1A1A;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 120ms ease-in-out, color 120ms ease-in-out, border-color 120ms ease-in-out;
+}
+
+.monthPillActive {
+  background: #1A1A1A;
+  border-color: #1A1A1A;
+  color: #FFFFFF;
+}
+
+.monthPill:hover:not(.monthPillActive) {
+  background: #F5F5F5;
+  border-color: #C0C0C0;
+}
+
+:global([data-touch-mode="true"]) .monthPill:hover:not(.monthPillActive) {
+  background: #FFFFFF;
+  border-color: #E0E0E0;
+}
+
+/* ---- Divider between month pills and weekday row ---- */
+.divider {
+  height: 1px;
+  background: #E8EBED;
+}
+
+/* ---- Weekday row ---- */
+.weekdayRow {
+  display: grid;
+  grid-template-columns: repeat(7, 48px);
+  gap: 8px;
+  justify-content: center;
+  text-align: center;
+}
+
+.weekdayCell {
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: #AAAAAA;
+  padding: 2px 0;
+}
+
+/* ---- Day grid ---- */
+.dayGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 48px);
+  gap: 8px;
+  justify-content: center;
+}
+
+.blankCell {
+  width: 48px;
+  height: 48px;
+}
+
+.dayCell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border: 2px solid transparent;
+  background: #FFFFFF;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 120ms ease-in-out, background 120ms ease-in-out;
+}
+
+/* ---- Available day — light blue tint ---- */
+.dayCellAvailable {
+  color: #1A1A1A;
+  background: #E6F4FE;
+}
+
+.dayCellAvailable:hover:not(.dayCellActive) {
+  background: #D6ECFA;
+}
+
+:global([data-touch-mode="true"]) .dayCellAvailable:hover:not(.dayCellActive) {
+  background: #E6F4FE;
+}
+
+/* ---- Disabled day (no sessions) ---- */
+.dayCellDisabled {
+  color: #D5D5D5;
+  cursor: default;
+  background: transparent;
+}
+
+/* ---- Active (selected) day — blue border, white bg, blue text ---- */
+.dayCellActive {
+  border-color: #0079CA;
+  background: #FFFFFF;
+  color: #0079CA;
+}
+
+/* ---- Day number ---- */
+.dayNumber {
+  font-size: 16px;
+  line-height: 20px;
+  font-weight: 400;
+}
+
+.dayCellAvailable .dayNumber {
+  font-weight: 700;
+}
+
+.dayCellActive .dayNumber {
+  font-weight: 700;
+}
+
+/* ---- Confirmed check on non-active day ---- */
+.confirmedCheck {
+  position: absolute;
+  bottom: 4px;
+  font-size: 9px;
+  color: #0079CA;
+}
+

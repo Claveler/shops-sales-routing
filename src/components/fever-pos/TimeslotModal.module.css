@@ -155,8 +155,39 @@
   line-height: 16px;
   font-weight: 600;
   color: #536B75;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
+}
+
+.dateSectionBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  background: transparent;
+  color: #536B75;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  cursor: pointer;
+  padding: 4px 8px 4px 4px;
+  margin: -4px -8px -4px -4px;
+  border-radius: 6px;
+  transition: color 120ms ease-in-out, background 120ms ease-in-out;
+}
+
+.dateSectionBack:hover {
+  color: #0079CA;
+  background: #F0F8FF;
+}
+
+:global([data-touch-mode="true"]) .dateSectionBack:hover {
+  color: #536B75;
+  background: transparent;
+}
+
+.dateSectionBackIcon {
+  font-size: 10px;
 }
 
 .dateStrip {
@@ -178,6 +209,7 @@
 }
 
 .datePill {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -235,8 +267,57 @@
 }
 
 .datePillCheck {
-  font-size: 9px;
-  margin-top: -2px;
+  position: absolute;
+  bottom: 3px;
+  font-size: 8px;
+  color: #0079CA;
+}
+
+/* ---- Calendar toggle button (end of pill strip) ---- */
+.calendarToggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 14px;
+  min-width: 64px;
+  border-radius: 64px;
+  border: 1.5px solid #CCD2D8;
+  background: #FFFFFF;
+  color: #536B75;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: border-color 150ms ease-in-out,
+              background 150ms ease-in-out,
+              color 150ms ease-in-out;
+}
+
+.calendarToggle:hover {
+  border-color: #0079CA;
+  background: #F0F8FF;
+  color: #0079CA;
+}
+
+:global([data-touch-mode="true"]) .calendarToggle:hover {
+  border-color: #CCD2D8;
+  background: #FFFFFF;
+  color: #536B75;
+}
+
+.calendarToggleIcon {
+  font-size: 14px;
+  line-height: 14px;
+}
+
+.calendarToggleCount {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 18px;
 }
 
 /* ---- Timeslot groups ---- */
@@ -258,14 +339,13 @@
   line-height: 16px;
   font-weight: 600;
   color: #536B75;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
 }
 
 .slotGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* ---- Individual timeslot card ---- */
@@ -273,10 +353,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 12px 16px;
-  min-width: 110px;
-  border-radius: 10px;
+  gap: 4px;
+  padding: 10px 20px;
+  min-width: 120px;
+  border-radius: 6px;
   border: 1.5px solid #CCD2D8;
   background: #FFFFFF;
   cursor: pointer;

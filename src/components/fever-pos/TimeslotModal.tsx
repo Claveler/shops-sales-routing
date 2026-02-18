@@ -1,10 +1,12 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faXmark,
   faBuildingColumns,
   faCalendarDay,
+  faCalendarDays,
   faCheck,
+  faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import type { EventTimeslot } from '../../data/feverPosData';
 import {
@@ -15,6 +17,7 @@ import {
   formatDatePill,
   formatDateLong,
 } from '../../data/feverPosData';
+import { MiniCalendar } from './MiniCalendar';
 import styles from './TimeslotModal.module.css';
 
 interface TimeslotModalProps {
@@ -29,6 +32,8 @@ interface TimeslotModalProps {
   onConfirm: (timeslot: EventTimeslot) => void;
   onClose: () => void;
 }
+
+const MAX_VISIBLE_PILLS = 5;
 
 const AVAILABILITY_LABELS: Record<string, string> = {
   available: 'Available',
@@ -67,9 +72,16 @@ export function TimeslotModal({
   // Pending slot selection within the modal (not yet confirmed)
   const [pendingSlotId, setPendingSlotId] = useState<string | null>(null);
 
+  // Calendar view toggle
+  const [showCalendar, setShowCalendar] = useState(false);
+  const dateStripRef = useRef<HTMLDivElement>(null);
+  const timeslotSectionRef = useRef<HTMLDivElement>(null);
+
   // Reset state when modal opens or event changes
   useEffect(() => {
     if (!isOpen) return;
+
+    setShowCalendar(false);
 
     // Pre-select the date of the currently confirmed timeslot, or the first available date
     if (selectedTimeslot && availableDates.includes(selectedTimeslot.date)) {
@@ -92,6 +104,17 @@ export function TimeslotModal({
     [slotsForDate],
   );
 
+  // Show at most MAX_VISIBLE_PILLS in the strip; always include activeDate if it falls outside the window
+  const hasMoreDates = availableDates.length > MAX_VISIBLE_PILLS;
+  const visibleDates = useMemo(() => {
+    if (!hasMoreDates) return availableDates;
+    const first = availableDates.slice(0, MAX_VISIBLE_PILLS);
+    if (activeDate && !first.includes(activeDate) && availableDates.includes(activeDate)) {
+      first[MAX_VISIBLE_PILLS - 1] = activeDate;
+    }
+    return first;
+  }, [availableDates, hasMoreDates, activeDate]);
+
   const handleDateClick = useCallback((date: string) => {
     setActiveDate(date);
     // Keep pending selection only if it belongs to the new date
@@ -101,6 +124,21 @@ export function TimeslotModal({
       return stillValid ? prev : null;
     });
   }, [eventId]);
+
+  const scrollStripToDate = useCallback((date: string) => {
+    if (!dateStripRef.current) return;
+    const pill = dateStripRef.current.querySelector(`[data-date="${date}"]`) as HTMLElement | null;
+    if (pill) {
+      pill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, []);
+
+  const handleCalendarSelect = useCallback((date: string) => {
+    handleDateClick(date);
+    requestAnimationFrame(() => {
+      timeslotSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  }, [handleDateClick]);
 
   const handleSlotClick = useCallback((slot: EventTimeslot) => {
     if (slot.availability === 'sold_out') return;
@@ -166,40 +204,76 @@ export function TimeslotModal({
             </div>
           ) : (
             <>
-              {/* Date pills */}
+              {/* Date selection: pill strip or calendar */}
               <div className={styles.dateSection}>
-                <p className={styles.dateSectionLabel}>Select a date</p>
-                <div className={styles.dateStrip}>
-                  {availableDates.map((date) => {
-                    const isSelected = date === activeDate;
-                    const isConfirmedDate = selectedTimeslot?.date === date;
-                    const pillLabel = formatDatePill(date);
-                    const parts = pillLabel.split(' ');
-                    const dayName = parts[0]; // e.g. "Sat"
-                    const dayNum = parts[1];   // e.g. "15"
+                {showCalendar ? (
+                  <button
+                    type="button"
+                    className={styles.dateSectionBack}
+                    onClick={() => setShowCalendar(false)}
+                  >
+                    <FontAwesomeIcon icon={faArrowLeft} className={styles.dateSectionBackIcon} />
+                    Select a date
+                  </button>
+                ) : (
+                  <p className={styles.dateSectionLabel}>Select a date</p>
+                )}
 
-                    return (
-                      <button
-                        key={date}
-                        type="button"
-                        className={`${styles.datePill} ${isSelected ? styles.datePillSelected : ''}`}
-                        onClick={() => handleDateClick(date)}
-                        aria-pressed={isSelected}
-                        title={formatDateLong(date)}
-                      >
-                        <span className={styles.datePillDay}>{dayName}</span>
-                        <span className={styles.datePillDate}>{dayNum}</span>
-                        {isConfirmedDate && !isSelected && (
-                          <FontAwesomeIcon icon={faCheck} className={styles.datePillCheck} />
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                {showCalendar ? (
+                  <MiniCalendar
+                    availableDates={availableDates}
+                    activeDate={activeDate}
+                    confirmedDate={selectedTimeslot?.date}
+                    onSelectDate={handleCalendarSelect}
+                  />
+                ) : (
+                  <div className={styles.dateStrip} ref={dateStripRef}>
+                    {visibleDates.map((date) => {
+                      const isSelected = date === activeDate;
+                      const isConfirmedDate = selectedTimeslot?.date === date;
+                      const pillLabel = formatDatePill(date);
+                      const parts = pillLabel.split(' ');
+                      const dayName = parts[0];
+                      const dayNum = parts[1];
+
+                      return (
+                        <button
+                          key={date}
+                          type="button"
+                          data-date={date}
+                          className={`${styles.datePill} ${isSelected ? styles.datePillSelected : ''}`}
+                          onClick={() => handleDateClick(date)}
+                          aria-pressed={isSelected}
+                          title={formatDateLong(date)}
+                        >
+                          <span className={styles.datePillDay}>{dayName}</span>
+                          <span className={styles.datePillDate}>{dayNum}</span>
+                          {isConfirmedDate && !isSelected && (
+                            <FontAwesomeIcon icon={faCheck} className={styles.datePillCheck} />
+                          )}
+                        </button>
+                      );
+                    })}
+
+                    {/* Calendar toggle button -- styled to match date pills */}
+                    <button
+                      type="button"
+                      className={styles.calendarToggle}
+                      onClick={() => setShowCalendar(true)}
+                      aria-label={hasMoreDates ? `Browse all ${availableDates.length} dates` : 'Browse all dates'}
+                      title={hasMoreDates ? `${availableDates.length - MAX_VISIBLE_PILLS} more dates…` : 'Browse all dates'}
+                    >
+                      <FontAwesomeIcon icon={faCalendarDays} className={styles.calendarToggleIcon} />
+                      {hasMoreDates && (
+                        <span className={styles.calendarToggleCount}>+{availableDates.length - MAX_VISIBLE_PILLS}</span>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Timeslot groups */}
-              <div className={styles.timeslotSection}>
+              <div className={styles.timeslotSection} ref={timeslotSectionRef}>
                 {activeDate && (
                   <p className={styles.dateSectionLabel}>{formatDateLong(activeDate)}</p>
                 )}

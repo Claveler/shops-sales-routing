@@ -466,22 +466,43 @@ export interface EventSchedule {
 // ---------------------------------------------------------------------------
 
 export const eventSchedules: Record<string, EventSchedule> = {
-  // Taylor Swift — Wed, Fri, Sat evenings
+  // Taylor Swift — Wed, Fri, Sat evenings (extended run: Mar 13 – Apr 10)
   'evt-001': {
     eventId: 'evt-001',
     timeslots: [
+      // Week 1 (Mar 13-15)
       { id: 'ts-001-01', eventId: 'evt-001', date: '2026-03-13', startTime: '19:00', capacity: 200, sold: 142, availability: 'filling' },
       { id: 'ts-001-02', eventId: 'evt-001', date: '2026-03-13', startTime: '21:30', capacity: 200, sold: 48,  availability: 'available' },
       { id: 'ts-001-03', eventId: 'evt-001', date: '2026-03-14', startTime: '19:00', capacity: 200, sold: 190, availability: 'low' },
       { id: 'ts-001-04', eventId: 'evt-001', date: '2026-03-14', startTime: '21:30', capacity: 200, sold: 112, availability: 'filling' },
       { id: 'ts-001-05', eventId: 'evt-001', date: '2026-03-15', startTime: '19:00', capacity: 200, sold: 200, availability: 'sold_out' },
       { id: 'ts-001-06', eventId: 'evt-001', date: '2026-03-15', startTime: '21:30', capacity: 200, sold: 76,  availability: 'available' },
+      // Week 2 (Mar 18-21)
       { id: 'ts-001-07', eventId: 'evt-001', date: '2026-03-18', startTime: '19:00', capacity: 200, sold: 30,  availability: 'available' },
       { id: 'ts-001-08', eventId: 'evt-001', date: '2026-03-18', startTime: '21:30', capacity: 200, sold: 12,  availability: 'available' },
       { id: 'ts-001-09', eventId: 'evt-001', date: '2026-03-20', startTime: '19:00', capacity: 200, sold: 165, availability: 'filling' },
       { id: 'ts-001-10', eventId: 'evt-001', date: '2026-03-20', startTime: '21:30', capacity: 200, sold: 88,  availability: 'available' },
       { id: 'ts-001-11', eventId: 'evt-001', date: '2026-03-21', startTime: '19:00', capacity: 200, sold: 195, availability: 'low' },
       { id: 'ts-001-12', eventId: 'evt-001', date: '2026-03-21', startTime: '21:30', capacity: 200, sold: 150, availability: 'filling' },
+      // Week 3 (Mar 25-28)
+      { id: 'ts-001-13', eventId: 'evt-001', date: '2026-03-25', startTime: '19:00', capacity: 200, sold: 20,  availability: 'available' },
+      { id: 'ts-001-14', eventId: 'evt-001', date: '2026-03-25', startTime: '21:30', capacity: 200, sold: 5,   availability: 'available' },
+      { id: 'ts-001-15', eventId: 'evt-001', date: '2026-03-27', startTime: '19:00', capacity: 200, sold: 60,  availability: 'available' },
+      { id: 'ts-001-16', eventId: 'evt-001', date: '2026-03-27', startTime: '21:30', capacity: 200, sold: 35,  availability: 'available' },
+      { id: 'ts-001-17', eventId: 'evt-001', date: '2026-03-28', startTime: '19:00', capacity: 200, sold: 110, availability: 'filling' },
+      { id: 'ts-001-18', eventId: 'evt-001', date: '2026-03-28', startTime: '21:30', capacity: 200, sold: 45,  availability: 'available' },
+      // Week 4 (Apr 1-4)
+      { id: 'ts-001-19', eventId: 'evt-001', date: '2026-04-01', startTime: '19:00', capacity: 200, sold: 10,  availability: 'available' },
+      { id: 'ts-001-20', eventId: 'evt-001', date: '2026-04-01', startTime: '21:30', capacity: 200, sold: 0,   availability: 'available' },
+      { id: 'ts-001-21', eventId: 'evt-001', date: '2026-04-03', startTime: '19:00', capacity: 200, sold: 25,  availability: 'available' },
+      { id: 'ts-001-22', eventId: 'evt-001', date: '2026-04-03', startTime: '21:30', capacity: 200, sold: 8,   availability: 'available' },
+      { id: 'ts-001-23', eventId: 'evt-001', date: '2026-04-04', startTime: '19:00', capacity: 200, sold: 70,  availability: 'available' },
+      { id: 'ts-001-24', eventId: 'evt-001', date: '2026-04-04', startTime: '21:30', capacity: 200, sold: 15,  availability: 'available' },
+      // Week 5 (Apr 8-10)
+      { id: 'ts-001-25', eventId: 'evt-001', date: '2026-04-08', startTime: '19:00', capacity: 200, sold: 0,   availability: 'available' },
+      { id: 'ts-001-26', eventId: 'evt-001', date: '2026-04-08', startTime: '21:30', capacity: 200, sold: 0,   availability: 'available' },
+      { id: 'ts-001-27', eventId: 'evt-001', date: '2026-04-10', startTime: '19:00', capacity: 200, sold: 0,   availability: 'available' },
+      { id: 'ts-001-28', eventId: 'evt-001', date: '2026-04-10', startTime: '21:30', capacity: 200, sold: 0,   availability: 'available' },
     ],
   },
   // Van Gogh — daily, morning + afternoon sessions
