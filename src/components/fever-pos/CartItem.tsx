@@ -19,9 +19,11 @@ interface CartItemProps {
   onKeyboardOpen?: () => void;
   /** Called when the on-screen keyboard closes */
   onKeyboardClose?: () => void;
+  /** When true, quantity controls are disabled (item belongs to a different timeslot) */
+  isTimeslotMismatch?: boolean;
 }
 
-export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemove, isMemberActive, isDevicePreview, onKeyboardOpen, onKeyboardClose }: CartItemProps) {
+export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemove, isMemberActive, isDevicePreview, onKeyboardOpen, onKeyboardClose, isTimeslotMismatch }: CartItemProps) {
   const isOne = item.quantity <= 1;
   const hasMemberDiscount = isMemberActive && item.originalPrice != null;
   // Seated tickets have fixed quantity of 1 - disable quantity controls
@@ -153,15 +155,15 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
 
       {/* Pill-shaped quantity counter */}
       {isSeatedTicket ? (
-        /* Seated tickets: only show remove button, no quantity controls */
+        /* Seated tickets: fixed qty=1, no controls — deselect via the seating map */
         <div className={styles.pillCounter}>
           <button
-            className={`${styles.pillBtn} ${styles.pillBtnSingle}`}
-            onClick={() => onRemove(item.id)}
+            className={`${styles.pillBtn} ${styles.pillBtnLeft} ${styles.pillBtnDisabled}`}
             type="button"
-            aria-label="Remove seat"
+            aria-label="Remove from seating map"
+            disabled
           >
-            <FontAwesomeIcon icon={faTrashCan} />
+            <FontAwesomeIcon icon={faMinus} />
           </button>
           <span className={`${styles.pillCount} ${styles.pillCountDisabled}`}>
             {item.quantity}
@@ -169,7 +171,7 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
           <button
             className={`${styles.pillBtn} ${styles.pillBtnRight} ${styles.pillBtnDisabled}`}
             type="button"
-            aria-label="Cannot increase quantity for seated tickets"
+            aria-label="Cannot change quantity for seated tickets"
             disabled
           >
             <FontAwesomeIcon icon={faPlus} />
@@ -178,10 +180,11 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
       ) : (
         <div className={styles.pillCounter}>
           <button
-            className={`${styles.pillBtn} ${styles.pillBtnLeft}`}
-            onClick={() => isOne ? onRemove(item.id) : onDecrement(item.id)}
+            className={`${styles.pillBtn} ${styles.pillBtnLeft} ${isTimeslotMismatch ? styles.pillBtnDisabled : ''}`}
+            onClick={() => !isTimeslotMismatch && (isOne ? onRemove(item.id) : onDecrement(item.id))}
             type="button"
             aria-label={isOne ? 'Remove item' : 'Decrease quantity'}
+            disabled={isTimeslotMismatch}
           >
             <FontAwesomeIcon icon={isOne ? faTrashCan : faMinus} />
           </button>
@@ -199,21 +202,22 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
             />
           ) : (
             <span 
-              className={`${styles.pillCount} ${isEditing && isDevicePreview ? styles.pillCountEditing : ''}`}
-              onClick={handleQuantityClick}
+              className={`${styles.pillCount} ${isEditing && isDevicePreview ? styles.pillCountEditing : ''} ${isTimeslotMismatch ? styles.pillCountDisabled : ''}`}
+              onClick={isTimeslotMismatch ? undefined : handleQuantityClick}
               role="button"
-              tabIndex={0}
-              onKeyDown={(e) => e.key === 'Enter' && handleQuantityClick()}
-              aria-label={`Quantity ${item.quantity}, click to edit`}
+              tabIndex={isTimeslotMismatch ? -1 : 0}
+              onKeyDown={(e) => !isTimeslotMismatch && e.key === 'Enter' && handleQuantityClick()}
+              aria-label={`Quantity ${item.quantity}${isTimeslotMismatch ? ' (switch to this timeslot to edit)' : ', click to edit'}`}
             >
               {isEditing && isDevicePreview ? editValue || '0' : item.quantity}
             </span>
           )}
           <button
-            className={`${styles.pillBtn} ${styles.pillBtnRight}`}
-            onClick={() => onIncrement(item.id)}
+            className={`${styles.pillBtn} ${styles.pillBtnRight} ${isTimeslotMismatch ? styles.pillBtnDisabled : ''}`}
+            onClick={() => !isTimeslotMismatch && onIncrement(item.id)}
             type="button"
             aria-label="Increase quantity"
+            disabled={isTimeslotMismatch}
           >
             <FontAwesomeIcon icon={faPlus} />
           </button>

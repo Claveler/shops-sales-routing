@@ -248,13 +248,22 @@
   color: var(--fz-text-primary, #031419);
 }
 
-/* Mismatch warning indicator — shown when active timeslot differs from group's */
+/* Mismatch action — clickable button to switch back to this group's timeslot */
 .timeslotMismatch {
   display: inline-flex;
   align-items: center;
   gap: 3px;
   margin-left: 6px;
   white-space: nowrap;
+  background: none;
+  border: none;
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.timeslotMismatch:hover {
+  background: var(--fz-warning-bg, #fff8e1);
 }
 
 .timeslotMismatchIcon {
@@ -481,6 +490,73 @@
 }
 
 .cardBtn:hover {
+  opacity: 0.9;
+}
+
+/* ---- Confirmation modal ---- */
+
+.confirmOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(6, 35, 44, 0.4);
+}
+
+.confirmModal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 340px;
+  max-width: 90vw;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.confirmTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  color: #06232c;
+}
+
+.confirmText {
+  font-size: 14px;
+  line-height: 20px;
+  color: #536b75;
+  margin: 0 0 20px;
+}
+
+.confirmActions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.confirmCancelBtn,
+.confirmRemoveBtn {
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 64px;
+  cursor: pointer;
+  border: 2px solid #ccd2d8;
+  background: #fff;
+  color: #06232c;
+}
+
+.confirmCancelBtn:hover {
+  border-color: #a7b2ba;
+}
+
+.confirmRemoveBtn {
+  background: #eb0052;
+  color: #fff;
+  border-color: #eb0052;
+}
+
+.confirmRemoveBtn:hover {
   opacity: 0.9;
 }
 

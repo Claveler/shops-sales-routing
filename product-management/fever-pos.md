@@ -255,8 +255,8 @@ The first tab is always the **Tickets & Add-Ons** tab (event-specific, not part 
   - **Cart integration**: confirming a timeslot sets the active timeslot for the event and is used as the default date when creating new ticket groups for that event. Existing cart groups keep their own timeslot — confirming a new timeslot does not overwrite items already in the cart.
   - **Per-event tracking**: each event tracks its own selected timeslot independently; switching the active event in the event selector shows that event's schedule and selection state.
   - **Multi-timeslot cart**: the same event can have **multiple timeslot groups** in the cart. For example, a cashier can sell 2x Zone A tickets for Saturday 9:30 PM, then switch to Wednesday 7:00 PM and sell 3x Zone B tickets — both groups appear in the cart under the same event name, each with its own timeslot header. Cart groups are keyed by a composite `eventId--timeslotId` identifier. Retail items (which have no timeslot) piggyback on the first existing group for their event.
-  - **Timeslot mismatch warning**: when the active timeslot (shown in the pill) differs from a cart group's timeslot for the same event, a small amber "Different timeslot" badge appears on that group's time-slot header. This is informational only — it tells the cashier that adding more tickets now will create a separate group for the active timeslot, not add to this existing group.
-  - **Timeslot required before selling**: tickets and add-ons cannot be added to the cart without a timeslot selected for the active event. Tapping a product tile when no timeslot is selected auto-opens the timeslot modal instead of adding the item. After the cashier confirms a timeslot, the originally tapped product is automatically added to the cart — no need to tap the product again.
+  - **Timeslot navigation**: cart items that belong to a timeslot different from the active one have their increase/decrease buttons disabled (this is already in production). A way should be given to go back to a timeslot that cart items belong to, so the buttons are re-enabled.
+  - **Timeslot preselection**: upon entering the ticketing POS view, a timeslot is preselected (the one closest to the sale date) so the cashier can start selling immediately. If the timeslot is cleared, tapping a product tile auto-opens the timeslot modal as a fallback enforcement gate.
   - **Data model**: `EventTimeslot` (id, eventId, date, startTime, capacity, sold, availability) and `EventSchedule` (eventId, timeslots) in `feverPosData.ts`. `CartEventGroup` uses a composite `id` field (`eventId--timeslotId`) and explicit `eventId` / `timeslotId` fields to support multi-timeslot grouping.
 - **Top-level category behavior varies by event**:
   - some events expose explode-pipe chips (e.g., `General Admission`, `VIP Experience`, `Premium`)
@@ -278,10 +278,10 @@ The first tab is always the **Tickets & Add-Ons** tab (event-specific, not part 
 
 ### Seating Tab + Add-Ons Tab (Seated Events)
 
-Events with assigned seating (e.g., theatre performances, concerts with reserved seats) use a different tab structure than general admission events. Instead of a single "Tickets & Add-Ons" tab, seated events display two separate tabs:
+Events with assigned seating (e.g., theatre performances, concerts with reserved seats) use a different tab structure than general admission events. The tab layout changes from "[Event Name] | Merch" to "[Event Name] | Add-Ons | Merch":
 
 1. **Seating Tab** (first tab, shows event name): Interactive seating map for seat selection
-2. **Add-Ons Tab**: Grid of add-on products (same layout as non-seated events, but tickets are excluded since they're handled via the seating map)
+2. **Add-Ons Tab**: Grid of add-on products (same layout as non-seated events, but seated tickets are excluded since they're handled via the seating map)
 
 The Merch tab remains unchanged regardless of seating configuration.
 
@@ -294,7 +294,6 @@ The seating tab displays an interactive venue map with the following components:
   - **Calendar button**: opens the timeslot selection modal; highlighted when a timeslot is selected
   - **Timeslot pill**: when a timeslot is selected, displays the date/time (e.g., "Sat, Mar 21, 5:00 PM") with an X button to clear
   - **Placeholder text**: when no timeslot is selected, shows "Select a date and time" in italic grey
-  - **Auto-prompt**: when entering the seating tab without a timeslot selected, the timeslot modal automatically opens to prompt the user to select a date/time (since capacity depends on the timeslot)
 
 - **Left sidebar (SeatCategoryFilter)**: 
   - "Assigned seats" counter showing how many seats are currently selected

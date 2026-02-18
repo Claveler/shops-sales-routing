@@ -100,6 +100,24 @@ const MEMBERSHIP_TIER_COLORS: Record<'Gold' | 'Silver' | 'Basic', string> = {
   Basic: '#8B7355',
 };
 
+function findClosestTimeslot(eventId: string): EventTimeslot | undefined {
+  const schedule = eventSchedules[eventId];
+  if (!schedule || schedule.timeslots.length === 0) return undefined;
+  const now = Date.now();
+  let best: EventTimeslot | undefined;
+  let bestDiff = Infinity;
+  for (const ts of schedule.timeslots) {
+    if (ts.availability === 'sold_out') continue;
+    const tsTime = new Date(`${ts.date}T${ts.startTime}`).getTime();
+    const diff = Math.abs(tsTime - now);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = ts;
+    }
+  }
+  return best;
+}
+
 interface FeverPosPageProps {
   /** When true, renders in iMin Swan 1 Pro simulation mode */
   isSimulation?: boolean;
@@ -691,13 +709,6 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
     }
   }, [currentEventHasSeating, activeTab]);
 
-  // Auto-open timeslot modal when entering seating tab without a timeslot selected
-  useEffect(() => {
-    if (activeTab === 'seating' && !selectedTimeslots[ticketsEventId]) {
-      setIsTimeslotModalOpen(true);
-    }
-  }, [activeTab, ticketsEventId, selectedTimeslots]);
-
   useEffect(() => {
     if (activeTab !== 'gift-shop') return;
     if (giftShopPathIds.length > 0) return;
@@ -1116,6 +1127,13 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
     setPendingEventId(eventId);
     setSelectedEventId(eventId);
     setIsEventSelectorOpen(false);
+    // Auto-preselect the closest timeslot if the new event has none selected
+    setSelectedTimeslots((prev) => {
+      if (prev[eventId]) return prev;
+      const closest = findClosestTimeslot(eventId);
+      if (!closest) return prev;
+      return { ...prev, [eventId]: closest };
+    });
   }, []);
 
   const handleToggleEventExpand = useCallback((eventId: string) => {
@@ -1126,6 +1144,14 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
 
   const handleRemoveEvent = useCallback((eventId: string) => {
     setCartEvents((prev) => prev.filter((g) => g.id !== eventId));
+  }, []);
+
+  const handleSwitchTimeslot = useCallback((eventId: string, timeslotId: string) => {
+    const schedule = eventSchedules[eventId];
+    const ts = schedule?.timeslots.find((t) => t.id === timeslotId);
+    if (ts) {
+      setSelectedTimeslots((prev) => ({ ...prev, [eventId]: ts }));
+    }
   }, []);
 
   const handleIncrementItem = useCallback((itemId: string) => {
@@ -1380,6 +1406,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
           activeTimeslots={selectedTimeslots}
           selectedTicketEventId={ticketsEventId}
           isDevicePreview={isDevicePreview}
+          onSwitchTimeslot={handleSwitchTimeslot}
         />
       </div>
 

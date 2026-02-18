@@ -27,19 +27,19 @@ As a cashier, I want to add tickets from different events into the same cart, so
 - Switching the event selector does not clear the cart; new tickets create a new event group.
 - Each event group shows: thumbnail, name, location, collapse/expand chevron, delete button.
 - Single-event mode suppresses group headers for a clean flat layout; the UI transitions smoothly when a second group is added or removed.
+- Confirmation modal is required for group deletion.
 - Retail/merch products always group under the Box Office event regardless of the active event selector.
 - Cart total sums across all groups.
-
-*Open questions:*
-- What happens to the cart when the cashier switches the Box Office setup mid-transaction?
 
 **`B2BS-919` — Multi-timeslot cart**
 As a cashier, I want to sell tickets for different timeslots of the same event in one transaction, so that split groups can pay together.
 
 *Acceptance criteria:*
-- The cart groups items by event and timeslot; the same event can appear multiple times with different timeslot headers.
+- When the timeslots are from the same event, the cart groups items by timeslot.
 - Changing the active timeslot targets new tickets only — existing groups are never moved.
-- An amber "Different timeslot" badge appears on a group header when the active timeslot doesn't match, so the cashier understands new items will create a separate group.
+- A way should be given to go back to a timeslot that cart items belong to, so the increase/decrease buttons are re-enabled.
+
+*Note:* **This is already in prod code:** If a timeslot is active, then the cart items that are not in that timeslot should have the increase/decrease buttons disabled.
 
 **`B2BS-920` — POS configuration widget**
 As a cashier, I want to see and switch my Box Office setup and payment device from the page header, so I don't have to leave the selling interface.
@@ -54,14 +54,12 @@ As a cashier, I want to see and switch my Box Office setup and payment device fr
 As a cashier, I want seated events to automatically split into a Seating tab and a separate Add-Ons tab, so that seat selection (via seats.io) and add-on purchasing are clearly separated.
 
 *Acceptance criteria:*
-- When an event is configured for assigned seating, the tab layout changes from "Tickets & Add-Ons | Merch" to "[Event Name] (Seating) | Add-Ons | Merch".
-- The Seating tab embeds a seats.io widget for interactive seat selection. The POS does not render a custom seating map — it delegates to seats.io.
-- The Add-Ons tab shows the same add-on product grid used in non-seated events, but without tickets (tickets are handled through seat selection).
-- Entering the Seating tab without an active timeslot auto-opens the timeslot selector modal, since seat availability depends on the session.
-- Seats selected in the seats.io widget are added to the cart as individual line items (qty = 1 each) with a seat info badge showing section, row, and seat number.
-- Non-seated events are unaffected — they continue using the single `Tickets & Add-Ons` tab.
+- When an event is configured for assigned seating, the tab layout changes from "[Event Name] | Merch" to "[Event Name] | Add-Ons | Merch".
+- The Add-Ons tab shows the same add-on product grid used in non-seated events, but without seated tickets (tickets are handled through seat selection).
+- Seats selected via the seats.io widget are added to the cart as individual line items (qty = 1 each) with a seat info badge showing section, row, and seat number.
+- Non-seated events are unaffected — they continue using the single "Tickets & Add-Ons" tab.
 
-*Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the POS tab restructuring, add-on separation, and cart integration for seat-specific line items.
+*Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the POS tab restructuring, add-on separation, and cart integration for seat-specific line items. Deletion of cart items is not allowed from the cart; all actions are done from the seats.io integration.
 
 ---
 
@@ -94,10 +92,9 @@ As a cashier, I want to pick a date and timeslot from an on-demand modal with av
 As a cashier, I want the system to require a timeslot before selling tickets, so I never sell without a valid session.
 
 *Acceptance criteria:*
-- Tapping a ticket/add-on tile with no active timeslot opens the modal instead of adding to cart.
-- After confirming a timeslot, the originally tapped product is added automatically.
+- Upon entering the ticketing POS view, a timeslot will be preselected (the one closest to sale date).
 - The calendar button shows a filled/active state when a timeslot is selected.
-- Hidden in Merch tab; equal-width trailing slot reserved to prevent layout shift.
+- Hidden in Merch tab; equal-height trailing slot reserved to prevent layout shift.
 
 ---
 

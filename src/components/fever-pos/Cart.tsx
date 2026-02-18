@@ -34,6 +34,8 @@ interface CartProps {
   selectedTicketEventId?: string;
   /** Whether the POS is in iMin device preview mode — enables on-screen keyboard */
   isDevicePreview?: boolean;
+  /** Switch the active timeslot for an event (used by "Go to timeslot" in cart) */
+  onSwitchTimeslot?: (eventId: string, timeslotId: string) => void;
 }
 
 export function Cart({
@@ -49,7 +51,14 @@ export function Cart({
   activeTimeslots,
   selectedTicketEventId,
   isDevicePreview,
+  onSwitchTimeslot,
 }: CartProps) {
+  // Confirmation modal for group deletion
+  const [pendingDeleteGroupId, setPendingDeleteGroupId] = useState<string | null>(null);
+  const pendingDeleteGroup = pendingDeleteGroupId
+    ? eventGroups.find((g) => g.id === pendingDeleteGroupId) ?? null
+    : null;
+
   // Track whether any cart item has its keyboard open (for adding bottom padding)
   const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
@@ -127,6 +136,7 @@ export function Cart({
             isDevicePreview={isDevicePreview}
             onKeyboardOpen={handleKeyboardOpen}
             onKeyboardClose={handleKeyboardClose}
+            onSwitchTimeslot={onSwitchTimeslot}
           />
         )}
 
@@ -137,7 +147,7 @@ export function Cart({
               key={group.id}
               group={group}
               onToggleExpand={onToggleEventExpand}
-              onRemoveEvent={onRemoveEvent}
+              onRemoveEvent={setPendingDeleteGroupId}
               onIncrementItem={onIncrementItem}
               onDecrementItem={onDecrementItem}
               onSetItemQuantity={onSetItemQuantity}
@@ -147,6 +157,7 @@ export function Cart({
               isDevicePreview={isDevicePreview}
               onKeyboardOpen={handleKeyboardOpen}
               onKeyboardClose={handleKeyboardClose}
+              onSwitchTimeslot={onSwitchTimeslot}
             />
           ))
         }
@@ -180,6 +191,43 @@ export function Cart({
           </div>
         </div>
       )}
+
+      {/* Confirmation modal for group deletion */}
+      {pendingDeleteGroup && (
+        <div className={styles.confirmOverlay} role="presentation" onClick={() => setPendingDeleteGroupId(null)}>
+          <div
+            className={styles.confirmModal}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Confirm removal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className={styles.confirmTitle}>Remove from cart?</p>
+            <p className={styles.confirmText}>
+              All items for <strong>{pendingDeleteGroup.eventName}</strong> ({pendingDeleteGroup.date}) will be removed.
+            </p>
+            <div className={styles.confirmActions}>
+              <button
+                className={styles.confirmCancelBtn}
+                onClick={() => setPendingDeleteGroupId(null)}
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                className={styles.confirmRemoveBtn}
+                onClick={() => {
+                  onRemoveEvent(pendingDeleteGroup.id);
+                  setPendingDeleteGroupId(null);
+                }}
+                type="button"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
@@ -199,6 +247,7 @@ function SingleEventLayout({
   isDevicePreview,
   onKeyboardOpen,
   onKeyboardClose,
+  onSwitchTimeslot,
 }: {
   group: CartEventGroup;
   onIncrementItem: (id: string) => void;
@@ -210,6 +259,7 @@ function SingleEventLayout({
   isDevicePreview?: boolean;
   onKeyboardOpen?: () => void;
   onKeyboardClose?: () => void;
+  onSwitchTimeslot?: (eventId: string, timeslotId: string) => void;
 }) {
   // Derive eventId / timeslotId from the composite id if the explicit fields are missing
   const derivedEventId = group.eventId ?? group.id.split('--')[0];
@@ -229,7 +279,12 @@ function SingleEventLayout({
       {/* Ticket / add-on items with time-slot header */}
       {group.items.length > 0 && (
         <div className={flatTimeSlotClasses}>
-          <TimeSlotHeader date={group.date} location={group.location} isMismatch={isMismatch} />
+          <TimeSlotHeader
+            date={group.date}
+            location={group.location}
+            isMismatch={isMismatch}
+            onSwitchTimeslot={isMismatch && derivedTimeslotId ? () => onSwitchTimeslot?.(derivedEventId, derivedTimeslotId) : undefined}
+          />
           <div className={styles.timeSlotItems}>
             {group.items.map((item) => (
               <CartItem
@@ -243,6 +298,7 @@ function SingleEventLayout({
                 isDevicePreview={isDevicePreview}
                 onKeyboardOpen={onKeyboardOpen}
                 onKeyboardClose={onKeyboardClose}
+                isTimeslotMismatch={isMismatch}
               />
             ))}
           </div>
@@ -292,6 +348,7 @@ function EventGroupCard({
   isDevicePreview,
   onKeyboardOpen,
   onKeyboardClose,
+  onSwitchTimeslot,
 }: {
   group: CartEventGroup;
   onToggleExpand: (eventId: string) => void;
@@ -305,6 +362,7 @@ function EventGroupCard({
   isDevicePreview?: boolean;
   onKeyboardOpen?: () => void;
   onKeyboardClose?: () => void;
+  onSwitchTimeslot?: (eventId: string, timeslotId: string) => void;
 }) {
   // Derive eventId / timeslotId from the composite id if the explicit fields are missing
   // (handles groups created before the multi-timeslot refactor or surviving HMR)
@@ -378,7 +436,12 @@ function EventGroupCard({
           {/* Time-slot section (tickets + add-ons) */}
           {group.items.length > 0 && (
             <div className={timeSlotSectionClasses}>
-              <TimeSlotHeader date={group.date} location={group.location} isMismatch={isMismatch} />
+              <TimeSlotHeader
+                date={group.date}
+                location={group.location}
+                isMismatch={isMismatch}
+                onSwitchTimeslot={isMismatch && derivedTimeslotId ? () => onSwitchTimeslot?.(derivedEventId, derivedTimeslotId) : undefined}
+              />
               <div className={styles.timeSlotItems}>
                 {group.items.map((item) => (
                   <CartItem
@@ -392,6 +455,7 @@ function EventGroupCard({
                     isDevicePreview={isDevicePreview}
                     onKeyboardOpen={onKeyboardOpen}
                     onKeyboardClose={onKeyboardClose}
+                    isTimeslotMismatch={isMismatch}
                   />
                 ))}
               </div>
@@ -434,22 +498,30 @@ function TimeSlotHeader({
   date,
   location,
   isMismatch,
+  onSwitchTimeslot,
 }: {
   date: string;
   location: string;
   /** When true, the active timeslot differs from this group's timeslot */
   isMismatch?: boolean;
+  /** When provided, clicking the mismatch action switches to this group's timeslot */
+  onSwitchTimeslot?: () => void;
 }) {
   return (
     <div className={styles.timeSlotHeader}>
       <div className={styles.timeSlotLeft}>
         <FontAwesomeIcon icon={faTicket} className={styles.timeSlotIcon} />
         <span className={styles.timeSlotText}>{date}</span>
-        {isMismatch && (
-          <span className={styles.timeslotMismatch} title="Active timeslot is different">
+        {isMismatch && onSwitchTimeslot && (
+          <button
+            className={styles.timeslotMismatch}
+            onClick={onSwitchTimeslot}
+            type="button"
+            title="Switch to this timeslot"
+          >
             <FontAwesomeIcon icon={faCircleExclamation} className={styles.timeslotMismatchIcon} />
-            <span className={styles.timeslotMismatchText}>Different timeslot</span>
-          </span>
+            <span className={styles.timeslotMismatchText}>Go to timeslot</span>
+          </button>
         )}
       </div>
       <div className={styles.timeSlotLocation}>
