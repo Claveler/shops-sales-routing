@@ -594,6 +594,32 @@ export function getAvailableDatesForEvent(eventId: string): string[] {
 }
 
 /**
+ * Returns the "best" availability level for each date of an event.
+ * Priority: available > filling > low > sold_out.
+ * If any timeslot on a date is 'available', the date is 'available', etc.
+ */
+const AVAILABILITY_RANK: Record<AvailabilityLevel, number> = {
+  available: 0,
+  filling: 1,
+  low: 2,
+  sold_out: 3,
+};
+
+export function getDateAvailabilityMap(eventId: string): Map<string, AvailabilityLevel> {
+  const schedule = eventSchedules[eventId];
+  if (!schedule) return new Map();
+
+  const map = new Map<string, AvailabilityLevel>();
+  for (const ts of schedule.timeslots) {
+    const current = map.get(ts.date);
+    if (!current || AVAILABILITY_RANK[ts.availability] < AVAILABILITY_RANK[current]) {
+      map.set(ts.date, ts.availability);
+    }
+  }
+  return map;
+}
+
+/**
  * Returns all timeslots for a given event on a specific date.
  */
 export function getTimeslotsForDate(eventId: string, date: string): EventTimeslot[] {

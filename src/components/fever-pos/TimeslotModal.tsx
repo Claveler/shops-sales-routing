@@ -4,13 +4,13 @@ import {
   faXmark,
   faBuildingColumns,
   faCalendarDay,
-  faCalendarDays,
   faCheck,
   faArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import type { EventTimeslot } from '../../data/feverPosData';
 import {
   getAvailableDatesForEvent,
+  getDateAvailabilityMap,
   getTimeslotsForDate,
   groupTimeslotsByTimeOfDay,
   formatTimeslotTime,
@@ -63,6 +63,12 @@ export function TimeslotModal({
   // All dates with sessions for this event
   const availableDates = useMemo(
     () => getAvailableDatesForEvent(eventId),
+    [eventId],
+  );
+
+  // Per-date availability level (best across timeslots)
+  const dateAvailability = useMemo(
+    () => getDateAvailabilityMap(eventId),
     [eventId],
   );
 
@@ -225,53 +231,50 @@ export function TimeslotModal({
                 {showCalendar ? (
                   <MiniCalendar
                     availableDates={availableDates}
+                    dateAvailability={dateAvailability}
                     activeDate={activeDate}
                     confirmedDate={selectedTimeslot?.date}
                     onSelectDate={handleCalendarSelect}
                   />
                 ) : (
-                  <div className={styles.dateStrip} ref={dateStripRef}>
-                    {visibleDates.map((date) => {
-                      const isSelected = date === activeDate;
-                      const isConfirmedDate = selectedTimeslot?.date === date;
-                      const pillLabel = formatDatePill(date);
-                      const parts = pillLabel.split(' ');
-                      const dayName = parts[0];
-                      const dayNum = parts[1];
+                  <>
+                    <div className={styles.dateStrip} ref={dateStripRef}>
+                      {visibleDates.map((date) => {
+                        const isSelected = date === activeDate;
+                        const isConfirmedDate = selectedTimeslot?.date === date;
+                        const pillLabel = formatDatePill(date);
+                        const parts = pillLabel.split(' ');
+                        const dayName = parts[0];
+                        const dayNum = parts[1];
 
-                      return (
-                        <button
-                          key={date}
-                          type="button"
-                          data-date={date}
-                          className={`${styles.datePill} ${isSelected ? styles.datePillSelected : ''}`}
-                          onClick={() => handleDateClick(date)}
-                          aria-pressed={isSelected}
-                          title={formatDateLong(date)}
-                        >
-                          <span className={styles.datePillDay}>{dayName}</span>
-                          <span className={styles.datePillDate}>{dayNum}</span>
-                          {isConfirmedDate && !isSelected && (
-                            <FontAwesomeIcon icon={faCheck} className={styles.datePillCheck} />
-                          )}
-                        </button>
-                      );
-                    })}
+                        return (
+                          <button
+                            key={date}
+                            type="button"
+                            data-date={date}
+                            className={`${styles.datePill} ${isSelected ? styles.datePillSelected : ''}`}
+                            onClick={() => handleDateClick(date)}
+                            aria-pressed={isSelected}
+                            title={formatDateLong(date)}
+                          >
+                            <span className={styles.datePillDay}>{dayName}</span>
+                            <span className={styles.datePillDate}>{dayNum}</span>
+                            {isConfirmedDate && !isSelected && (
+                              <FontAwesomeIcon icon={faCheck} className={styles.datePillCheck} />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
 
-                    {/* Calendar toggle button -- styled to match date pills */}
                     <button
                       type="button"
-                      className={styles.calendarToggle}
+                      className={styles.moreDatesLink}
                       onClick={() => setShowCalendar(true)}
-                      aria-label={hasMoreDates ? `Browse all ${availableDates.length} dates` : 'Browse all dates'}
-                      title={hasMoreDates ? `${availableDates.length - MAX_VISIBLE_PILLS} more dates…` : 'Browse all dates'}
                     >
-                      <FontAwesomeIcon icon={faCalendarDays} className={styles.calendarToggleIcon} />
-                      {hasMoreDates && (
-                        <span className={styles.calendarToggleCount}>+{availableDates.length - MAX_VISIBLE_PILLS}</span>
-                      )}
+                      More dates
                     </button>
-                  </div>
+                  </>
                 )}
               </div>
 

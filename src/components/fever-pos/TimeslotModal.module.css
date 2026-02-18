@@ -273,51 +273,28 @@
   color: #0079CA;
 }
 
-/* ---- Calendar toggle button (end of pill strip) ---- */
-.calendarToggle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 8px 14px;
-  min-width: 64px;
-  border-radius: 64px;
-  border: 1.5px solid #CCD2D8;
-  background: #FFFFFF;
-  color: #536B75;
+/* ---- "More dates" text link below the date strip ---- */
+.moreDatesLink {
+  align-self: flex-end;
+  border: none;
+  background: transparent;
+  color: #0079CA;
   font-size: 13px;
   line-height: 18px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: border-color 150ms ease-in-out,
-              background 150ms ease-in-out,
-              color 150ms ease-in-out;
-}
-
-.calendarToggle:hover {
-  border-color: #0079CA;
-  background: #F0F8FF;
-  color: #0079CA;
-}
-
-:global([data-touch-mode="true"]) .calendarToggle:hover {
-  border-color: #CCD2D8;
-  background: #FFFFFF;
-  color: #536B75;
-}
-
-.calendarToggleIcon {
-  font-size: 14px;
-  line-height: 14px;
-}
-
-.calendarToggleCount {
-  font-size: 11px;
   font-weight: 600;
-  line-height: 18px;
+  cursor: pointer;
+  padding: 8px 4px;
+  margin-top: -4px;
+  border-radius: 4px;
+  transition: background 120ms ease-in-out;
+}
+
+.moreDatesLink:hover {
+  background: #F0F8FF;
+}
+
+:global([data-touch-mode="true"]) .moreDatesLink:hover {
+  background: transparent;
 }
 
 /* ---- Timeslot groups ---- */

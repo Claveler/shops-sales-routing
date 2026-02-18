@@ -1,16 +1,18 @@
 import { useState, useMemo, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck } from '@fortawesome/free-solid-svg-icons';
+import type { AvailabilityLevel } from '../../data/feverPosData';
 import styles from './MiniCalendar.module.css';
 
 interface MiniCalendarProps {
   availableDates: string[];
+  dateAvailability: Map<string, AvailabilityLevel>;
   activeDate: string;
   confirmedDate?: string;
   onSelectDate: (date: string) => void;
 }
 
-const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const WEEKDAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 function toIso(year: number, month: number, day: number): string {
   return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -26,8 +28,14 @@ function formatMonthLabel(year: number, month: number): string {
   return d.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase();
 }
 
+const BAR_STYLE: Partial<Record<AvailabilityLevel, string>> = {
+  filling: styles.barFilling,
+  low: styles.barLow,
+};
+
 export function MiniCalendar({
   availableDates,
+  dateAvailability,
   activeDate,
   confirmedDate,
   onSelectDate,
@@ -56,12 +64,12 @@ export function MiniCalendar({
     setViewMonth(month);
   }, []);
 
-  // Build the grid of day cells (Sunday-start week)
+  // Build the grid of day cells (Monday-start week)
   const dayCells = useMemo(() => {
     const firstOfMonth = new Date(viewYear, viewMonth, 1);
     const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-    // getDay() returns 0=Sun, which is our first column
-    const startDow = firstOfMonth.getDay();
+    // getDay() returns 0=Sun; remap so Mon=0
+    const startDow = (firstOfMonth.getDay() + 6) % 7;
 
     const cells: Array<{ day: number; iso: string } | null> = [];
     for (let i = 0; i < startDow; i++) cells.push(null);
@@ -111,6 +119,8 @@ export function MiniCalendar({
           const hasSession = availableSet.has(cell.iso);
           const isActive = cell.iso === activeDate;
           const isConfirmed = cell.iso === confirmedDate;
+          const avail = dateAvailability.get(cell.iso);
+          const barClass = avail ? BAR_STYLE[avail] : undefined;
 
           const cellClasses = [
             styles.dayCell,
@@ -132,11 +142,29 @@ export function MiniCalendar({
               {isConfirmed && !isActive && (
                 <FontAwesomeIcon icon={faCheck} className={styles.confirmedCheck} />
               )}
+              {barClass && !isConfirmed && (
+                <span className={`${styles.availabilityBar} ${barClass}`} />
+              )}
             </button>
           );
         })}
       </div>
 
+      {/* Availability legend */}
+      <div className={styles.legend}>
+        <span className={styles.legendItem}>
+          <span className={`${styles.legendBar} ${styles.barFilling}`} />
+          Filling up
+        </span>
+        <span className={styles.legendItem}>
+          <span className={`${styles.legendBar} ${styles.barLow}`} />
+          Low availability
+        </span>
+        <span className={styles.legendItem}>
+          <span className={styles.legendSoldOut} />
+          Sold out
+        </span>
+      </div>
     </div>
   );
 }
