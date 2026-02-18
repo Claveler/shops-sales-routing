@@ -13,7 +13,7 @@
 /* ---- Modal card ---- */
 .modal {
   width: min(600px, 100%);
-  max-height: min(90vh, 680px);
+  max-height: 92vh;
   display: flex;
   flex-direction: column;
   border-radius: 16px;

@@ -80,8 +80,27 @@ export function TimeslotModal({
 
   // Calendar view toggle
   const [showCalendar, setShowCalendar] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const dateSectionRef = useRef<HTMLDivElement>(null);
   const dateStripRef = useRef<HTMLDivElement>(null);
   const timeslotSectionRef = useRef<HTMLDivElement>(null);
+
+  // Lock content height to just the dateSection when the calendar is open
+  useEffect(() => {
+    if (showCalendar && dateSectionRef.current && contentRef.current) {
+      requestAnimationFrame(() => {
+        if (!dateSectionRef.current || !contentRef.current) return;
+        const h = dateSectionRef.current.offsetHeight;
+        const paddingTop = 16; // matches .content padding-top
+        contentRef.current.style.height = `${h + paddingTop}px`;
+        contentRef.current.style.flex = 'none';
+        contentRef.current.scrollTop = 0;
+      });
+    } else if (!showCalendar && contentRef.current) {
+      contentRef.current.style.height = '';
+      contentRef.current.style.flex = '';
+    }
+  }, [showCalendar]);
 
   // Reset state when modal opens or event changes
   useEffect(() => {
@@ -202,7 +221,7 @@ export function TimeslotModal({
         </div>
 
         {/* Scrollable content */}
-        <div className={styles.content}>
+        <div className={styles.content} ref={contentRef}>
           {availableDates.length === 0 ? (
             <div className={styles.emptyState}>
               <FontAwesomeIcon icon={faCalendarDay} className={styles.emptyIcon} />
@@ -211,7 +230,7 @@ export function TimeslotModal({
           ) : (
             <>
               {/* Date selection: pill strip or calendar */}
-              <div className={styles.dateSection}>
+              <div className={styles.dateSection} ref={dateSectionRef}>
                 {showCalendar ? (
                   <button
                     type="button"
@@ -270,7 +289,12 @@ export function TimeslotModal({
                     <button
                       type="button"
                       className={styles.moreDatesLink}
-                      onClick={() => setShowCalendar(true)}
+                      onClick={() => {
+                        setShowCalendar(true);
+                        requestAnimationFrame(() => {
+                          contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                        });
+                      }}
                     >
                       More dates
                     </button>
