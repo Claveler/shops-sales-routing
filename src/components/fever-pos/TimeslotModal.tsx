@@ -210,7 +210,10 @@ export function TimeslotModal({
                   <button
                     type="button"
                     className={styles.dateSectionBack}
-                    onClick={() => setShowCalendar(false)}
+                    onClick={() => {
+                      setShowCalendar(false);
+                      requestAnimationFrame(() => scrollStripToDate(activeDate));
+                    }}
                   >
                     <FontAwesomeIcon icon={faArrowLeft} className={styles.dateSectionBackIcon} />
                     Select a date
