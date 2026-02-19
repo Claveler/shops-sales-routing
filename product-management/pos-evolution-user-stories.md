@@ -56,8 +56,10 @@ As a cashier, I want to see and switch my Box Office setup and payment device fr
 
 *Acceptance criteria:*
 
-_Remove config from cart header:_
+_Cart header cleanup:_
 - The old BO setup name, venue, and device selector row is removed from the cart header. Configuration now lives exclusively in the hamburger menu (below).
+- The resulting cart header shows "Cart" title on the left and "Clear all" link (red text) on the right.
+- When the cart is empty, the header is hidden and an empty state is shown (receipt icon + "The cart is empty").
 
 _Hamburger menu:_
 - Hamburger icon (☰) sits at the far right of the page header, after the user avatar.
@@ -80,26 +82,22 @@ _Link device modal:_
 **`B2BS-962` — Cart panel visual redesign**
 As a cashier, I want an updated cart layout with modernized controls and clearer information hierarchy, so the cart is easier to read and faster to operate.
 
-*Prerequisite:* B2BS-920 (config moves to hamburger menu) — the simplified cart header depends on the old config row being removed first.
+*Prerequisite:* B2BS-920 (config moves to hamburger menu and cart header is simplified).
 
 *Already implemented (baseline):*
-- Timeslot row shows ticket icon + date/time on the left, location-dot icon + venue on the right (replaces old flat "Tickets" label).
-- Quantity controls use a pill-shaped container with circular +/− buttons (blue filled) and centered count.
+- Timeslot row shows ticket icon + date/time on the left, location-dot icon + venue on the right (replaces old "Tickets" label + date format).
+- Cash (outlined, wallet icon) and Card (filled blue, card icon) split payment buttons.
+- "Select discount type" blue link (currently with gear icon).
 
 *What's new (scope of this story):*
 
-_Header area:_
-- Cart header shows "Cart" title on the left and "Clear all" link (red text) on the right. The old setup/venue/device row is gone (handled by B2BS-920).
-- Cart header is hidden when the cart is empty; empty state shows receipt icon + "The cart is empty".
-
 _Cart item cards:_
+- Quantity controls redesigned as a pill-shaped container (bordered capsule, `rounded-200px`) wrapping circular trash/plus buttons + centered count. Replaces the current standalone buttons + rectangular input field.
 - Booking fee is shown below the price when applicable (e.g., "+ €0.60 booking fee").
 
 _Footer:_
 - Total row shows "Total (N items)" with item count, not just "Total".
-- "Select discount type" link is blue text (no gear icon), right-aligned below the total amount.
-- Two payment buttons side-by-side: Cash (outlined, wallet icon) and Card (filled blue, card icon).
-- Replaces the old single "Pay" button.
+- "Select discount type" link drops the gear icon (blue text only).
 
 **`B2BS-924` — Seated event tab layout and add-on separation**
 As a cashier, I want seated events to automatically split into a Seating tab and a separate Add-Ons tab, so that seat selection (via seats.io) and add-on purchasing are clearly separated.
