@@ -853,12 +853,13 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
 
   // ---- Cart handlers ----
 
-  // Handler for adding seated tickets from the seating map
+  // Handler for adding seated tickets from the seating map.
+  // Groups seats by tier+type: if a cart item with the same productId exists,
+  // the new seat is appended to its seatInfoList instead of creating a new row.
   const handleAddSeatedTicketToCart = useCallback((item: Omit<CartItemData, 'id'>) => {
     const targetEvent = activeSelectedEvent;
     const activeTimeslot = selectedTimeslots[ticketsEventId];
 
-    // Gate: require a timeslot before adding seated tickets
     if (!activeTimeslot) {
       setIsTimeslotModalOpen(true);
       return;
@@ -872,7 +873,10 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
 
       const updatedGroups = prev.map((g) => ({
         ...g,
-        items: g.items.map((i) => ({ ...i })),
+        items: g.items.map((i) => ({
+          ...i,
+          seatInfoList: i.seatInfoList ? [...i.seatInfoList] : undefined,
+        })),
         retailItems: g.retailItems.map((i) => ({ ...i })),
       }));
 
@@ -896,16 +900,44 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
 
       const targetGroup = updatedGroups[groupIndex];
 
-      // Add the seated ticket item
-      targetGroup.items.push({
-        id: `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-        ...item,
-      });
+      // Try to merge into an existing item with the same productId (tier+type key)
+      const existingItem = targetGroup.items.find((i) => i.productId === item.productId);
+
+      if (existingItem && existingItem.seatInfoList && item.seatInfoList?.length) {
+        existingItem.seatInfoList.push(...item.seatInfoList);
+        existingItem.quantity = existingItem.seatInfoList.length;
+      } else {
+        targetGroup.items.push({
+          id: `ci-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          ...item,
+        });
+      }
 
       targetGroup.isExpanded = true;
       return updatedGroups;
     });
   }, [activeSelectedEvent, selectedTimeslots, ticketsEventId]);
+
+  // Handler for removing a single seat from the cart when deselected on the seating map.
+  // Finds the cart item containing the seat, removes the entry, and deletes the item if empty.
+  const handleRemoveSeatedTicket = useCallback((seatId: string) => {
+    setCartEvents((prev) =>
+      prev
+        .map((g) => ({
+          ...g,
+          items: g.items
+            .map((i) => {
+              if (!i.seatInfoList) return i;
+              const filtered = i.seatInfoList.filter((s) => s.seatId !== seatId);
+              if (filtered.length === i.seatInfoList.length) return i;
+              return { ...i, seatInfoList: filtered, quantity: filtered.length };
+            })
+            .filter((i) => !i.seatInfoList || i.seatInfoList.length > 0),
+          retailItems: [...g.retailItems],
+        }))
+        .filter((g) => g.items.length > 0 || g.retailItems.length > 0)
+    );
+  }, []);
 
   const handleAddToCart = useCallback((product: Product) => {
     if (product.id.startsWith('cat-')) {
@@ -1368,6 +1400,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
                   key={ticketsEventId}
                   seatingConfig={seatingConfig}
                   onAddToCart={handleAddSeatedTicketToCart}
+                  onRemoveSeatedTicket={handleRemoveSeatedTicket}
                   eventId={ticketsEventId}
                   timeslotLabel={
                     selectedTimeslots[ticketsEventId]

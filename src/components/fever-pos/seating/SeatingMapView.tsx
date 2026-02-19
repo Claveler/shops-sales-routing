@@ -16,6 +16,8 @@ import styles from './SeatingMapView.module.css';
 interface SeatingMapViewProps {
   seatingConfig: SeatingConfig;
   onAddToCart: (item: Omit<CartItemData, 'id'>) => void;
+  /** Called when a seat is deselected on the map, to remove it from the cart */
+  onRemoveSeatedTicket?: (seatId: string) => void;
   eventId: string;
   /** Label for the selected timeslot (e.g., "Sat, Mar 21, 7:30 PM") */
   timeslotLabel?: string;
@@ -30,6 +32,7 @@ interface SeatingMapViewProps {
 export function SeatingMapView({
   seatingConfig,
   onAddToCart,
+  onRemoveSeatedTicket,
   eventId: _eventId,
   timeslotLabel,
   onCalendarClick,
@@ -90,14 +93,14 @@ export function SeatingMapView({
   // Seating chart callbacks
   const chartCallbacks: SeatingChartCallbacks = useMemo(() => ({
     onSeatSelected: (seat: SeatInfo) => {
-      // Open the ticket type selection modal
       setPendingSeat(seat);
     },
     onSeatDeselected: (seatId: string) => {
       setSelectedSeats(prev => prev.filter(s => s.id !== seatId));
+      onRemoveSeatedTicket?.(seatId);
     },
     onClearSelection: handleClearSelection,
-  }), [handleClearSelection]);
+  }), [handleClearSelection, onRemoveSeatedTicket]);
 
   // Handle ticket type selection from modal
   const handleSelectTicket = useCallback((seat: SeatInfo, ticketType: TicketType) => {
@@ -111,25 +114,22 @@ export function SeatingMapView({
       ? tier.name.replace('General Admission', 'General Admission Adult')
       : tier.name.replace('General Admission', 'General Admission Child');
 
-    // Add to cart
     onAddToCart({
-      productId: `seat-${seat.id}-${ticketType}`,
+      productId: `seated-${seat.tierId}-${ticketType}`,
       name: ticketName,
       price,
       quantity: 1,
       bookingFee: fee,
-      seatInfo: {
+      seatTier: tier.name,
+      seatInfoList: [{
+        seatId: seat.id,
         section: seat.section,
         row: seat.row,
         seat: seat.seat,
-        tier: tier.name,
-      },
+      }],
     });
 
-    // Mark seat as selected
     setSelectedSeats(prev => [...prev, seat]);
-    
-    // Close modal
     setPendingSeat(null);
   }, [getTier, onAddToCart]);
 

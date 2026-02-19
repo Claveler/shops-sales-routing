@@ -40,13 +40,22 @@ export interface CartItemData {
   bookingFee?: number;
   variantId?: string;       // which variant was selected
   variantLabel?: string;    // e.g. "L" — for display in cart
-  /** Seat information for assigned seating events */
+  /** @deprecated Use seatInfoList for new seated items */
   seatInfo?: {
-    section: string;        // e.g. "Door 2 - Section 200"
-    row: string;            // e.g. "P"
-    seat: string;           // e.g. "25"
-    tier: string;           // e.g. "General Admission - Tier 6"
+    section: string;
+    row: string;
+    seat: string;
+    tier: string;
   };
+  /** Grouped seat references for assigned seating events (one item per tier+type) */
+  seatInfoList?: {
+    seatId: string;         // unique ID for removal (maps to SeatInfo.id)
+    section: string;        // e.g. "Door 4 - Section 102"
+    row: string;            // e.g. "B"
+    seat: string;           // e.g. "G3"
+  }[];
+  /** Tier name for seated items (e.g. "General Admission - Tier 5") */
+  seatTier?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -336,31 +345,29 @@ export const initialCartEvents: CartEventGroup[] = [
     items: [
       {
         id: 'ci-hz-1',
-        productId: 'hz-seat-1',
+        productId: 'seated-tier-1-adult',
         name: 'General Admission Adult - Tier 1',
         price: 50.00,
-        quantity: 1,
+        quantity: 3,
         bookingFee: 7.50,
-        seatInfo: {
-          section: 'Balcony Left',
-          row: 'B',
-          seat: '6',
-          tier: 'General Admission - Tier 1',
-        },
+        seatTier: 'General Admission - Tier 1',
+        seatInfoList: [
+          { seatId: 'mock-b6', section: 'Balcony Left', row: 'B', seat: '6' },
+          { seatId: 'mock-b7', section: 'Balcony Left', row: 'B', seat: '7' },
+          { seatId: 'mock-c3', section: 'Balcony Left', row: 'C', seat: '3' },
+        ],
       },
       {
         id: 'ci-hz-2',
-        productId: 'hz-seat-2',
+        productId: 'seated-tier-1-child',
         name: 'General Admission Child - Tier 1',
         price: 40.00,
         quantity: 1,
         bookingFee: 6.00,
-        seatInfo: {
-          section: 'Balcony Left',
-          row: 'B',
-          seat: '11',
-          tier: 'General Admission - Tier 1',
-        },
+        seatTier: 'General Admission - Tier 1',
+        seatInfoList: [
+          { seatId: 'mock-b11', section: 'Balcony Left', row: 'B', seat: '11' },
+        ],
       },
     ],
     retailItems: [],

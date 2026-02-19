@@ -26,8 +26,7 @@ interface CartItemProps {
 export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemove, isMemberActive, isDevicePreview, onKeyboardOpen, onKeyboardClose, isTimeslotMismatch }: CartItemProps) {
   const isOne = item.quantity <= 1;
   const hasMemberDiscount = isMemberActive && item.originalPrice != null;
-  // Seated tickets have fixed quantity of 1 - disable quantity controls
-  const isSeatedTicket = Boolean(item.seatInfo);
+  const isSeatedTicket = Boolean(item.seatInfoList?.length);
   
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(String(item.quantity));
@@ -124,18 +123,19 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
   return (
     <div ref={cartItemRef} className={`${styles.cartItem} ${isTimeslotMismatch ? styles.cartItemDisabled : ''}`}>
       <div className={styles.itemInfo}>
-        <p className={styles.itemName}>{item.name}</p>
+        <p className={isSeatedTicket ? styles.seatItemName : styles.itemName}>{item.name}</p>
         {item.variantLabel && (
           <span className={styles.variantLabel}>{item.variantLabel}</span>
         )}
-        {/* Seat information for assigned seating tickets */}
-        {item.seatInfo && (
-          <div className={styles.seatInfo}>
-            <span className={styles.seatSection}>{item.seatInfo.section}</span>
-            <span className={styles.seatDetails}>
-              Row {item.seatInfo.row}, Seat {item.seatInfo.seat}
-            </span>
-          </div>
+        {/* Seat reference list for grouped seated tickets */}
+        {isSeatedTicket && item.seatInfoList && (
+          <ul className={styles.seatList}>
+            {item.seatInfoList.map((s) => (
+              <li key={s.seatId} className={styles.seatRef}>
+                {s.row}{s.seat} ({s.section})
+              </li>
+            ))}
+          </ul>
         )}
         <div className={styles.priceRow}>
           {hasMemberDiscount ? (
@@ -153,29 +153,11 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
         )}
       </div>
 
-      {/* Pill-shaped quantity counter */}
+      {/* Seats badge for grouped seated tickets */}
       {isSeatedTicket ? (
-        /* Seated tickets: fixed qty=1, no controls — deselect via the seating map */
-        <div className={styles.pillCounter}>
-          <button
-            className={`${styles.pillBtn} ${styles.pillBtnLeft} ${styles.pillBtnDisabled}`}
-            type="button"
-            aria-label="Remove from seating map"
-            disabled
-          >
-            <FontAwesomeIcon icon={faMinus} />
-          </button>
-          <span className={`${styles.pillCount} ${styles.pillCountDisabled}`}>
-            {item.quantity}
-          </span>
-          <button
-            className={`${styles.pillBtn} ${styles.pillBtnRight} ${styles.pillBtnDisabled}`}
-            type="button"
-            aria-label="Cannot change quantity for seated tickets"
-            disabled
-          >
-            <FontAwesomeIcon icon={faPlus} />
-          </button>
+        <div className={styles.seatsBadge}>
+          <span className={styles.seatsBadgeLabel}>Seats</span>
+          <span className={styles.seatsBadgeCount}>{item.seatInfoList!.length}</span>
         </div>
       ) : (
         <div className={styles.pillCounter}>
