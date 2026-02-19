@@ -28,6 +28,14 @@ Venues with multiple attractions lose revenue when visitors must complete separa
 As a cashier, I want to add tickets from different events into the same cart, so that visitors buying entry to multiple attractions can pay in one transaction.
 
 *Acceptance criteria:*
+
+_Event tab:_
+- The first tab (event tab) has a fixed width of 300px.
+- A list icon (☰) appears at the far right of the event tab, but only when the BO setup has more than one plan to sell.
+- Tapping the list icon opens the event selector.
+- The event name uses a marquee animation for long names: 1s delay after load or event change, scrolls right-to-left to reveal the full name, pauses 3s at the end, then scrolls back left-to-right.
+
+_Cart grouping:_
 - Switching the event selector does not clear the cart; new tickets create a new event group.
 - Each event group shows: thumbnail, name, location, collapse/expand chevron, delete button.
 - Single-event mode suppresses group headers for a clean flat layout; the UI transitions smoothly when a second group is added or removed.
