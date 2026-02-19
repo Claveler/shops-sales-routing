@@ -48,7 +48,7 @@ export function Cart({
   onClearAll,
   isMemberActive,
   activeTimeslots,
-  selectedTicketEventId,
+  selectedTicketEventId: _selectedTicketEventId,
   isDevicePreview,
   onSwitchTimeslot,
 }: CartProps) {
