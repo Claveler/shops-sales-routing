@@ -48,7 +48,10 @@ export function useMarquee({ text, autoPlay = true }: UseMarqueeOptions): UseMar
   const canAnimate = overflowPx > 0 && !prefersReducedMotion;
 
   const marqueeDurationSec = useMemo(() => {
-    return Math.min(6, Math.max(3, overflowPx / 45 + 2.6));
+    // Pablo's spec: 30% scroll-left, 40% pause (3s), 30% scroll-back.
+    // scrollTime = overflow / 50 (clamped 1–3s). total = 3s_pause / 0.4
+    const scrollTime = Math.min(3, Math.max(1, overflowPx / 50));
+    return scrollTime / 0.3;
   }, [overflowPx]);
 
   // ---- Measure overflow ----
@@ -86,6 +89,11 @@ export function useMarquee({ text, autoPlay = true }: UseMarqueeOptions): UseMar
     if (measureRef.current) ro.observe(measureRef.current);
     return () => ro.disconnect();
   }, [measureOverflow, text]);
+
+  // ---- Reset auto-play when text changes (e.g. event switch) ----
+  useEffect(() => {
+    hasAutoPlayedRef.current = false;
+  }, [text]);
 
   // ---- Auto-play once ----
   useEffect(() => {
@@ -125,6 +133,7 @@ export function useMarquee({ text, autoPlay = true }: UseMarqueeOptions): UseMar
     () => ({
       '--marquee-shift': `-${overflowPx}px`,
       '--marquee-duration': `${marqueeDurationSec.toFixed(2)}s`,
+      '--marquee-delay': '1s',
     } as CSSProperties),
     [overflowPx, marqueeDurationSec],
   );

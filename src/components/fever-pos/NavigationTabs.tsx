@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import type { KeyboardEvent, MouseEvent } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faGift, faPenToSquare, faCartPlus } from '@fortawesome/free-solid-svg-icons';
+import { faGift, faList, faCartPlus } from '@fortawesome/free-solid-svg-icons';
 import { useMarquee } from './useMarquee';
 import styles from './NavigationTabs.module.css';
 
@@ -15,6 +15,8 @@ interface NavigationTabsProps {
   onEditEvent?: () => void;
   /** When true, shows Seating + Add-Ons tabs instead of Tickets & Add-Ons */
   eventHasSeating?: boolean;
+  /** When true, shows the change-event icon (list icon) on the event tab */
+  hasMultiplePlans?: boolean;
 }
 
 export function NavigationTabs({
@@ -24,6 +26,7 @@ export function NavigationTabs({
   eventImageUrl,
   onEditEvent,
   eventHasSeating = false,
+  hasMultiplePlans = true,
 }: NavigationTabsProps) {
   const {
     viewportRef,
@@ -99,16 +102,18 @@ export function NavigationTabs({
               {eventName}
             </span>
           </div>
-          <span
-            className={styles.editButton}
-            role="button"
-            tabIndex={0}
-            aria-label="Change event"
-            onClick={handleEditClick}
-            onKeyDown={handleEditKeyDown}
-          >
-            <FontAwesomeIcon icon={faPenToSquare} className={styles.editIcon} />
-          </span>
+          {hasMultiplePlans && (
+            <span
+              className={styles.editButton}
+              role="button"
+              tabIndex={0}
+              aria-label="Change event"
+              onClick={handleEditClick}
+              onKeyDown={handleEditKeyDown}
+            >
+              <FontAwesomeIcon icon={faList} className={styles.editIcon} />
+            </span>
+          )}
         </div>
       </button>
 

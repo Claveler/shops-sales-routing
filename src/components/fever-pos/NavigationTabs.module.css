@@ -57,8 +57,11 @@
 }
 
 .eventTab {
-  min-width: 250px;
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
   padding: 8px 12px;
+  overflow: hidden;
 }
 
 .standardTab {
@@ -82,6 +85,8 @@
   align-items: center;
   gap: 8px;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .eventImage {
@@ -102,7 +107,6 @@
 
 .eventNameViewport {
   position: relative;
-  max-width: 160px;
   overflow: hidden;
   min-width: 0;
   flex: 1;
@@ -126,7 +130,9 @@
   font-size: var(--fz-font-size-sm, 14px);
   font-weight: var(--fz-font-weight-semibold, 600);
   color: var(--fz-primary-600, #0079CA);
-  animation: marquee-scroll var(--marquee-duration, 2.8s) ease-in-out 1;
+  animation: marquee-scroll var(--marquee-duration, 7s) ease-in-out 1;
+  animation-delay: var(--marquee-delay, 1s);
+  animation-fill-mode: backwards;
   will-change: transform;
 }
 
@@ -154,6 +160,7 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+  margin-left: auto;
   border: none;
   padding: 0;
   background: transparent;
@@ -165,10 +172,7 @@
   0% {
     transform: translateX(0);
   }
-  15% {
-    transform: translateX(0);
-  }
-  45% {
+  30% {
     transform: translateX(var(--marquee-shift, -40px));
   }
   70% {
