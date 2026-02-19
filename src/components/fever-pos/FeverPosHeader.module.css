@@ -541,303 +541,310 @@
   cursor: not-allowed;
 }
 
-/* ---- Combined POS Configuration Dropdown ---- */
-.configFieldWrap {
+/* ---- Hamburger Menu ---- */
+.hamburgerWrap {
   position: relative;
 }
 
-.configField {
-  position: relative;
-  display: flex;
-  align-items: center;
-  height: 48px;
-  background: var(--fz-bg-card, #ffffff);
-  border-radius: var(--fz-border-radius, 8px);
-  box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
-  cursor: pointer;
-  transition: box-shadow var(--fz-transition-fast, 150ms ease-in-out);
-  flex-shrink: 0;
-  overflow: hidden;
-}
-
-/* Hover disabled in touch mode (iMin simulation) */
-:global([data-touch-mode="true"]) .configField:hover {
-  box-shadow: 0 2px 8px rgba(24, 54, 66, 0.08);
-}
-
-.configField:hover {
-  box-shadow: 0 2px 12px rgba(24, 54, 66, 0.14);
-}
-
-.configFieldOpen {
-  box-shadow: 0 2px 12px rgba(0, 137, 227, 0.2);
-}
-
-.configFieldIconWrap {
+.hamburgerButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  align-self: stretch;
-  padding: 0 14px;
-  background: #F2F3F3;
-  border-right: 1px solid #E3E6E8;
+  width: 2.75rem;
+  height: 2.75rem;
+  background: transparent;
+  border: none;
+  color: var(--fz-text-inverse, #fff);
+  font-size: 1.25rem;
+  border-radius: var(--fz-border-radius, 8px);
+  cursor: pointer;
+  transition: background-color var(--fz-transition-base, 200ms ease-in-out);
 }
 
-.configFieldIcon {
-  font-size: 16px;
-  color: var(--fz-text-primary, #031419);
-  flex-shrink: 0;
+:global([data-touch-mode="true"]) .hamburgerButton:hover {
+  background-color: transparent;
 }
 
-.configFieldInner {
+.hamburgerButton:hover {
+  background-color: var(--fz-neutral-800, #0c3644);
+}
+
+/* Popover card */
+.hamburgerPopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 332px;
+  background: #FFFFFF;
+  border: 1px solid #CCD2D8;
+  border-radius: 8px;
+  box-shadow: 0 24px 24px rgba(0, 70, 121, 0.2);
+  padding: 16px;
+  z-index: 200;
   display: flex;
   flex-direction: column;
-  flex: 1;
-  gap: 1px;
-  justify-content: center;
-  min-width: 0;
-  padding: 0 36px 0 12px;
+  gap: 4px;
 }
 
-.configFieldLabel {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
-  font-size: 11px;
-  font-weight: var(--fz-font-weight-semibold, 600);
-  color: var(--fz-text-secondary, #536b75);
-  line-height: 14px;
-  white-space: nowrap;
-  text-align: left;
-}
-
-.configFieldVenueIcon {
-  font-size: 10px;
-  color: var(--fz-text-secondary, #536b75);
-}
-
-.configFieldOpen .configFieldLabel {
-  color: var(--fz-primary-600, #0079CA);
-}
-
-.configFieldValue {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
-  font-size: 13px;
-  font-weight: var(--fz-font-weight-regular, 400);
-  color: var(--fz-text-primary, #06232c);
-  line-height: 18px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.configFieldSetup {
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.configFieldSeparator {
-  color: var(--fz-text-disabled, #a7b2ba);
-  flex-shrink: 0;
-}
-
-.configFieldDevice {
-  color: var(--fz-text-secondary, #536b75);
-  font-size: 12px;
-}
-
-.configFieldChevron {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 12px;
-  color: var(--fz-text-secondary, #536b75);
-  transition: transform 200ms ease;
-}
-
-.configFieldChevronOpen {
-  transform: translateY(-50%) rotate(180deg);
-}
-
-/* Combined dropdown panel */
-.configDropdown {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  min-width: 320px;
-  max-height: 420px;
-  overflow-y: auto;
-  background: var(--fz-bg-card, #ffffff);
-  border: 1px solid var(--fz-border-color, #ccd2d8);
-  border-radius: var(--fz-border-radius, 8px);
-  box-shadow: 0 4px 16px rgba(24, 54, 66, 0.12);
-  z-index: 100;
-}
-
-/* Section within dropdown */
-.configSection {
-  border-bottom: 1px solid var(--fz-border-color, #ccd2d8);
-}
-
-.configSection:last-child {
-  border-bottom: none;
-}
-
-.configSectionHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 12px 8px;
-  background: var(--fz-bg-card, #ffffff);
-}
-
-.configSectionIcon {
-  font-size: 14px;
-  color: var(--fz-primary-600, #0079CA);
-}
-
-.configSectionTitle {
-  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
-  font-size: 11px;
-  font-weight: var(--fz-font-weight-bold, 700);
-  color: var(--fz-text-secondary, #536b75);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.configSectionContent {
-  padding-bottom: 8px;
-}
-
-/* Venue group (reused from before) */
-.setupVenueGroup {
-  /* No border between venues within section */
-}
-
-.setupVenueHeader {
+/* Menu item row */
+.popoverItem {
   display: flex;
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 8px 12px;
-  background: var(--fz-bg-subtle, #f6f7f7);
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background-color 150ms ease;
-}
-
-.setupVenueChevron {
-  font-size: 10px;
-  color: var(--fz-text-secondary, #536b75);
-  width: 12px;
-  flex-shrink: 0;
-}
-
-.setupVenueName {
-  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
-  font-size: 13px;
-  font-weight: var(--fz-font-weight-semibold, 600);
-  color: var(--fz-text-primary, #06232c);
-  line-height: 18px;
-}
-
-/* Setup list within a venue */
-.setupList {
-  list-style: none;
-  margin: 0;
-  padding: 4px 0;
-}
-
-.setupItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  padding: 8px 12px 8px 32px;
+  padding: 12px 0;
   background: transparent;
   border: none;
+  border-radius: 8px;
   cursor: pointer;
   text-align: left;
   transition: background-color 150ms ease;
 }
 
-.setupItemSelected {
-  background: rgba(0, 121, 202, 0.08);
-}
-
-.setupItemName {
-  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
-  font-size: 14px;
-  font-weight: var(--fz-font-weight-regular, 400);
-  color: var(--fz-text-primary, #06232c);
-  line-height: 20px;
-}
-
-.setupItemCheck {
-  font-size: 14px;
-  color: var(--fz-primary-600, #0079CA);
-  flex-shrink: 0;
-}
-
-/* Device list */
-.deviceList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.deviceItem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-  padding: 8px 12px;
+:global([data-touch-mode="true"]) .popoverItem:hover {
   background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-  transition: background-color 150ms ease;
 }
 
-.deviceItemSelected {
-  background: rgba(0, 121, 202, 0.08);
+.popoverItem:hover {
+  background: #F6F7F7;
 }
 
-.deviceItemName {
-  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+.popoverItemIcon {
+  width: 16px;
   font-size: 14px;
-  font-weight: var(--fz-font-weight-regular, 400);
-  color: var(--fz-text-primary, #06232c);
-  line-height: 20px;
-  font-variant-numeric: tabular-nums;
-}
-
-.deviceItemCheck {
-  font-size: 14px;
-  color: var(--fz-primary-600, #0079CA);
+  color: var(--fz-text-primary, #031419);
   flex-shrink: 0;
-}
-
-.deviceEmptyState {
-  padding: 16px 12px;
   text-align: center;
 }
 
-.deviceEmptyState span {
+.popoverItemContent {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.popoverItemLabel {
   font-family: var(--fz-font-family, 'Montserrat', sans-serif);
-  font-size: 13px;
-  font-weight: var(--fz-font-weight-regular, 400);
-  color: var(--fz-text-muted, #536B75);
-  font-style: italic;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: var(--fz-text-primary, #031419);
+}
+
+.popoverItemSub {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--fz-text-secondary, #536B75);
+}
+
+/* Info box (grey pill showing current setup) */
+.popoverInfoBox {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: #F2F3F3;
+  border-radius: 8px;
+  padding: 8px 16px;
+}
+
+.popoverInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.popoverInfoIcon {
+  width: 16px;
+  font-size: 12px;
+  color: var(--fz-text-secondary, #536B75);
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.popoverInfoText {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16px;
+  color: var(--fz-text-secondary, #536B75);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popoverDivider {
+  height: 1px;
+  background: #CCD2D8;
+  margin: 4px 0;
+}
+
+/* ---- Setup Wizard Modal ---- */
+.setupWizardModal {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 720px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.setupWizardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 24px 16px;
+}
+
+.setupWizardTitle {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 20px;
+  font-weight: 600;
+  color: #031419;
+  margin: 0;
+}
+
+.setupWizardClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid #CCD2D8;
+  border-radius: 50%;
+  font-size: 16px;
+  color: #536B75;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+  flex-shrink: 0;
+}
+
+:global([data-touch-mode="true"]) .setupWizardClose:hover {
+  background: transparent;
+}
+
+.setupWizardClose:hover {
+  background: #F2F3F3;
+}
+
+.setupWizardGreeting {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 18px;
+  font-weight: 600;
+  color: #031419;
+  padding: 0 24px;
+}
+
+.setupWizardSubtitle {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  color: #536B75;
+  margin: 4px 0 0;
+  padding: 0 24px;
+}
+
+.setupWizardBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.setupWizardStepLabel {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: #031419;
+  margin: 0 0 12px;
+}
+
+.setupWizardSearchWrap {
+  position: relative;
+  margin-bottom: 16px;
+  border: 2px solid #0079CA;
+  border-radius: 8px;
+  padding: 22px 12px 8px 40px;
+  background: #FFFFFF;
+}
+
+.setupWizardSearchIcon {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  font-size: 14px;
+  color: #536B75;
+}
+
+.setupWizardSearchLabel {
+  position: absolute;
+  top: 6px;
+  left: 40px;
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  color: #0079CA;
+}
+
+.setupWizardSearchInput {
+  width: 100%;
+  border: none;
+  outline: none;
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  color: #031419;
+  background: transparent;
+}
+
+.setupWizardSearchInput::placeholder {
+  color: #A7B2BA;
+}
+
+.setupWizardGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.setupWizardCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 120px;
+  max-width: 180px;
+  padding: 14px 16px;
+  border: 1px solid #CCD2D8;
+  border-radius: 8px;
+  background: #FFFFFF;
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  color: #031419;
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+:global([data-touch-mode="true"]) .setupWizardCard:hover {
+  border-color: #CCD2D8;
+  background: #FFFFFF;
+}
+
+.setupWizardCard:hover {
+  border-color: #0079CA;
+  background: #F6FBFF;
+}
+
+.setupWizardCardSelected {
+  border-color: #0079CA;
+  color: #0079CA;
+  background: #FFFFFF;
+  font-weight: 500;
 }
 
 .userMenu {
@@ -896,4 +903,161 @@
   font-size: 1.75rem;
   line-height: 1.25;
   color: var(--fz-text-inverse, #fff);
+}
+
+/* ---- Link Device Modal ---- */
+.linkDeviceModal {
+  background: #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+.linkDeviceSubtitle {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 14px;
+  font-weight: 400;
+  color: #536B75;
+  margin: 0;
+  padding: 0 24px 8px;
+  line-height: 20px;
+}
+
+.linkDeviceSubtitle strong {
+  font-weight: 600;
+  color: #031419;
+}
+
+.linkDeviceBody {
+  padding: 16px 24px 24px;
+}
+
+.linkDeviceList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.linkDeviceCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #CCD2D8;
+  border-radius: 8px;
+  background: #FFFFFF;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+:global([data-touch-mode="true"]) .linkDeviceCard:hover {
+  border-color: #CCD2D8;
+  background: #FFFFFF;
+}
+
+.linkDeviceCard:hover {
+  border-color: #0079CA;
+  background: #F6FBFF;
+}
+
+.linkDeviceCardSelected {
+  border-color: #0079CA;
+  background: #E6F4FF;
+}
+
+:global([data-touch-mode="true"]) .linkDeviceCardSelected:hover {
+  border-color: #0079CA;
+  background: #E6F4FF;
+}
+
+.linkDeviceCardSelected:hover {
+  background: #D6EDFF;
+}
+
+.linkDeviceCardIcon {
+  font-size: 18px;
+  color: #536B75;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.linkDeviceCardIconSelected {
+  color: #0079CA;
+}
+
+.linkDeviceCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.linkDeviceCardId {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: #031419;
+  line-height: 20px;
+  font-variant-numeric: tabular-nums;
+}
+
+.linkDeviceCardName {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 12px;
+  font-weight: 400;
+  color: #536B75;
+  line-height: 16px;
+}
+
+.linkDeviceCardBadge {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  color: #0079CA;
+  background: #E6F4FF;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.linkDeviceCardSelected .linkDeviceCardBadge {
+  background: #CCE7F9;
+}
+
+.linkDeviceEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+.linkDeviceEmptyIcon {
+  font-size: 32px;
+  color: #A7B2BA;
+}
+
+.linkDeviceEmptyText {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: #031419;
+  margin: 0;
+}
+
+.linkDeviceEmptyHint {
+  font-family: var(--fz-font-family, 'Montserrat', sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  color: #536B75;
+  margin: 0;
 }

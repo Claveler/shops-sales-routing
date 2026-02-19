@@ -1,7 +1,7 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
-import { faBars, faPlay, faStop, faUserCircle, faTabletScreenButton, faChevronDown, faChevronRight, faMobileRetro, faCashRegister, faCheck, faGear, faLandmarkDome } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPlay, faStop, faUserCircle, faTabletScreenButton, faChevronDown, faGear, faXmark, faMagnifyingGlass, faMobileScreenButton, faShareNodes, faArrowRightFromBracket, faBuildingColumns, faLocationDot } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './FeverPosHeader.module.css';
 import feverLogo from '../../assets/fever-logo.svg';
@@ -215,6 +215,202 @@ function StartShiftModal({ cashRegisters, onStartShift, onClose }: StartShiftMod
   );
 }
 
+/* ---- Setup Wizard Modal ---- */
+
+interface SetupWizardModalProps {
+  venues: Venue[];
+  selectedSetupId?: string | null;
+  onSelectSetup: (setupId: string, venueId: string) => void;
+  onClose: () => void;
+}
+
+function SetupWizardModal({ venues, selectedSetupId, onSelectSetup, onClose }: SetupWizardModalProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [pickedVenueId, setPickedVenueId] = useState<string | null>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Pre-select the venue containing the current setup
+  useEffect(() => {
+    if (selectedSetupId) {
+      const venueWithSetup = venues.find((v) =>
+        v.setups.some((s) => s.id === selectedSetupId),
+      );
+      if (venueWithSetup) setPickedVenueId(venueWithSetup.id);
+    }
+  }, [selectedSetupId, venues]);
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose();
+    }
+  };
+
+  const filteredVenues = useMemo(() => {
+    if (!searchQuery.trim()) return venues;
+    const q = searchQuery.toLowerCase();
+    return venues.filter((v) => v.name.toLowerCase().includes(q));
+  }, [venues, searchQuery]);
+
+  const pickedVenue = venues.find((v) => v.id === pickedVenueId);
+  const currentSetupName = venues
+    .flatMap((v) => v.setups)
+    .find((s) => s.id === selectedSetupId)?.name ?? 'Default';
+
+  return (
+    <div className={styles.modalBackdrop} onClick={handleBackdropClick}>
+      <div className={styles.setupWizardModal} ref={modalRef} role="dialog" aria-labelledby="setup-wizard-title">
+        <div className={styles.setupWizardHeader}>
+          <h2 id="setup-wizard-title" className={styles.setupWizardTitle}>
+            Select Your Setup - {currentSetupName}
+          </h2>
+          <button type="button" className={styles.setupWizardClose} onClick={onClose} aria-label="Close">
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
+        </div>
+
+        <div className={styles.setupWizardGreeting}>
+          <span>👋</span> Hello Andres Clavel,
+        </div>
+        <p className={styles.setupWizardSubtitle}>Please select where you're working from today.</p>
+
+        <div className={styles.setupWizardBody}>
+          <p className={styles.setupWizardStepLabel}>First, let's select the venue</p>
+
+          <div className={styles.setupWizardSearchWrap}>
+            <FontAwesomeIcon icon={faMagnifyingGlass} className={styles.setupWizardSearchIcon} />
+            <input
+              type="text"
+              className={styles.setupWizardSearchInput}
+              placeholder="Write the venue name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <span className={styles.setupWizardSearchLabel}>Search venues</span>
+          </div>
+
+          <div className={styles.setupWizardGrid}>
+            {filteredVenues.map((venue) => (
+              <button
+                key={venue.id}
+                type="button"
+                className={`${styles.setupWizardCard} ${venue.id === pickedVenueId ? styles.setupWizardCardSelected : ''}`}
+                onClick={() => setPickedVenueId(venue.id)}
+              >
+                {venue.name}
+              </button>
+            ))}
+          </div>
+
+          {pickedVenue && (
+            <>
+              <p className={styles.setupWizardStepLabel}>And now, select your setup</p>
+              <div className={styles.setupWizardGrid}>
+                {pickedVenue.setups.map((setup) => (
+                  <button
+                    key={setup.id}
+                    type="button"
+                    className={`${styles.setupWizardCard} ${setup.id === selectedSetupId ? styles.setupWizardCardSelected : ''}`}
+                    onClick={() => onSelectSetup(setup.id, pickedVenue.id)}
+                  >
+                    {setup.name}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---- Link Device Modal ---- */
+
+interface LinkDeviceModalProps {
+  paymentDevices: PaymentDevice[];
+  linkedDeviceId?: string | null;
+  linkedDeviceIds?: string[];
+  setupName: string;
+  onSelectDevice: (deviceId: string) => void;
+  onClose: () => void;
+}
+
+function LinkDeviceModal({
+  paymentDevices,
+  linkedDeviceId,
+  linkedDeviceIds,
+  setupName,
+  onSelectDevice,
+  onClose,
+}: LinkDeviceModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  const availableDevices = linkedDeviceIds !== undefined
+    ? paymentDevices.filter((d) => linkedDeviceIds.includes(d.id))
+    : paymentDevices;
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+      onClose();
+    }
+  };
+
+  return (
+    <div className={styles.modalBackdrop} onClick={handleBackdropClick}>
+      <div className={styles.linkDeviceModal} ref={modalRef} role="dialog" aria-labelledby="link-device-title">
+        <div className={styles.setupWizardHeader}>
+          <h2 id="link-device-title" className={styles.setupWizardTitle}>
+            Link Payment Device
+          </h2>
+          <button type="button" className={styles.setupWizardClose} onClick={onClose} aria-label="Close">
+            <FontAwesomeIcon icon={faXmark} />
+          </button>
+        </div>
+
+        <p className={styles.linkDeviceSubtitle}>
+          Select the Adyen terminal linked to <strong>{setupName}</strong>.
+        </p>
+
+        <div className={styles.linkDeviceBody}>
+          {availableDevices.length === 0 ? (
+            <div className={styles.linkDeviceEmpty}>
+              <FontAwesomeIcon icon={faMobileScreenButton} className={styles.linkDeviceEmptyIcon} />
+              <p className={styles.linkDeviceEmptyText}>No payment devices are linked to this setup.</p>
+              <p className={styles.linkDeviceEmptyHint}>Contact your administrator to configure devices.</p>
+            </div>
+          ) : (
+            <div className={styles.linkDeviceList}>
+              {availableDevices.map((device) => {
+                const isSelected = device.id === linkedDeviceId;
+                return (
+                  <button
+                    key={device.id}
+                    type="button"
+                    className={`${styles.linkDeviceCard} ${isSelected ? styles.linkDeviceCardSelected : ''}`}
+                    onClick={() => onSelectDevice(device.id)}
+                  >
+                    <FontAwesomeIcon
+                      icon={faMobileScreenButton}
+                      className={`${styles.linkDeviceCardIcon} ${isSelected ? styles.linkDeviceCardIconSelected : ''}`}
+                    />
+                    <div className={styles.linkDeviceCardInfo}>
+                      <span className={styles.linkDeviceCardId}>{device.id}</span>
+                      <span className={styles.linkDeviceCardName}>{device.name}</span>
+                    </div>
+                    {isSelected && (
+                      <span className={styles.linkDeviceCardBadge}>Connected</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function FeverPosHeader({
   isDevicePreview = false,
   onToggleDevicePreview,
@@ -232,10 +428,15 @@ export function FeverPosHeader({
   const navigate = useNavigate();
   const [dateStr, setDateStr] = useState(() => formatHeaderDate(new Date()));
 
-  // Combined config dropdown state
-  const [isConfigDropdownOpen, setIsConfigDropdownOpen] = useState(false);
-  const [expandedVenueId, setExpandedVenueId] = useState<string | null>(null);
-  const configDropdownRef = useRef<HTMLDivElement>(null);
+  // Hamburger popover state
+  const [isHamburgerOpen, setIsHamburgerOpen] = useState(false);
+  const hamburgerRef = useRef<HTMLDivElement>(null);
+
+  // Setup wizard modal state
+  const [isSetupWizardOpen, setIsSetupWizardOpen] = useState(false);
+
+  // Link device modal state
+  const [isLinkDeviceOpen, setIsLinkDeviceOpen] = useState(false);
 
   // Start Shift modal state
   const [isStartShiftModalOpen, setIsStartShiftModalOpen] = useState(false);
@@ -247,65 +448,26 @@ export function FeverPosHeader({
     return () => window.clearInterval(timerId);
   }, []);
 
-  // Close dropdown when clicking outside
+  // Close hamburger popover on outside click
   useEffect(() => {
-    if (!isConfigDropdownOpen) return;
+    if (!isHamburgerOpen) return;
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (configDropdownRef.current && !configDropdownRef.current.contains(e.target as Node)) {
-        setIsConfigDropdownOpen(false);
+      if (hamburgerRef.current && !hamburgerRef.current.contains(e.target as Node)) {
+        setIsHamburgerOpen(false);
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isConfigDropdownOpen]);
+  }, [isHamburgerOpen]);
 
   // Find the selected setup and its venue for display
   const selectedSetup = venues
     .flatMap((v) => v.setups.map((s) => ({ ...s, venueName: v.name, venueId: v.id })))
     .find((s) => s.id === selectedSetupId);
 
-  // Filter payment devices to only those linked to the selected setup
-  // If linkedDeviceIds is defined (even if empty), filter to those devices
-  // If linkedDeviceIds is undefined, show all devices (legacy/unconfigured setups)
-  const availableDevices = selectedSetup?.linkedDeviceIds !== undefined
-    ? paymentDevices.filter((d) => selectedSetup.linkedDeviceIds!.includes(d.id))
-    : paymentDevices;
-
-  // Find the selected device for display (must be in available devices)
-  const selectedDevice = availableDevices.find((d) => d.id === linkedDeviceId);
-
-  // Auto-expand the venue containing the selected setup when dropdown opens
-  useEffect(() => {
-    if (isConfigDropdownOpen && selectedSetup && !expandedVenueId) {
-      setExpandedVenueId(selectedSetup.venueId);
-    }
-  }, [isConfigDropdownOpen, selectedSetup, expandedVenueId]);
-
-  const handleToggleVenue = (venueId: string) => {
-    setExpandedVenueId((prev) => (prev === venueId ? null : venueId));
-  };
-
-  const handleSelectSetup = (setupId: string, venueId: string) => {
-    onSelectSetup?.(setupId, venueId);
-    // Don't close - let user also select device if needed
-  };
-
-  const handleSelectDevice = (deviceId: string) => {
-    onSelectDevice?.(deviceId);
-    // Don't close - let user also change setup if needed
-  };
-
-  // Build compact summary for the button
-  const venueSummary = selectedSetup ? selectedSetup.venueName : 'Select venue';
-  const setupSummary = selectedSetup ? selectedSetup.name : 'No setup';
-  const hasNoLinkedDevices = selectedSetup && availableDevices.length === 0;
-  const deviceSummary = selectedDevice
-    ? truncateDeviceId(selectedDevice.id)
-    : hasNoLinkedDevices
-      ? 'No devices linked'
-      : 'No device';
+  const selectedDevice = paymentDevices.find((d) => d.id === linkedDeviceId);
 
   return (
     <header className={styles.header}>
@@ -346,126 +508,6 @@ export function FeverPosHeader({
       </div>
 
       <div className={styles.trailSide}>
-        {/* Combined POS Configuration dropdown */}
-        <div className={styles.configFieldWrap} ref={configDropdownRef}>
-          <button
-            className={`${styles.configField} ${isConfigDropdownOpen ? styles.configFieldOpen : ''}`}
-            type="button"
-            onClick={() => setIsConfigDropdownOpen((prev) => !prev)}
-            aria-label="POS Configuration"
-            aria-expanded={isConfigDropdownOpen}
-            aria-haspopup="dialog"
-          >
-            <div className={styles.configFieldIconWrap}>
-              <FontAwesomeIcon icon={faGear} className={styles.configFieldIcon} />
-            </div>
-            <div className={styles.configFieldInner}>
-              <span className={styles.configFieldLabel}>
-                <FontAwesomeIcon icon={faLandmarkDome} className={styles.configFieldVenueIcon} />
-                {venueSummary}
-              </span>
-              <span className={styles.configFieldValue}>
-                <span className={styles.configFieldSetup}>{setupSummary}</span>
-                <span className={styles.configFieldSeparator}>•</span>
-                <span className={styles.configFieldDevice}>{deviceSummary}</span>
-              </span>
-            </div>
-            <FontAwesomeIcon
-              icon={faChevronDown}
-              className={`${styles.configFieldChevron} ${isConfigDropdownOpen ? styles.configFieldChevronOpen : ''}`}
-            />
-          </button>
-
-          {isConfigDropdownOpen && (
-            <div className={styles.configDropdown} role="dialog" aria-label="POS Configuration">
-              {/* Section 1: Box Office Setup */}
-              <div className={styles.configSection}>
-                <div className={styles.configSectionHeader}>
-                  <FontAwesomeIcon icon={faCashRegister} className={styles.configSectionIcon} />
-                  <span className={styles.configSectionTitle}>Box Office Setup</span>
-                </div>
-                <div className={styles.configSectionContent}>
-                  {venues.map((venue) => {
-                    const isExpanded = expandedVenueId === venue.id;
-                    return (
-                      <div key={venue.id} className={styles.setupVenueGroup}>
-                        <button
-                          type="button"
-                          className={styles.setupVenueHeader}
-                          onClick={() => handleToggleVenue(venue.id)}
-                          aria-expanded={isExpanded}
-                        >
-                          <FontAwesomeIcon
-                            icon={isExpanded ? faChevronDown : faChevronRight}
-                            className={styles.setupVenueChevron}
-                          />
-                          <span className={styles.setupVenueName}>{venue.name}</span>
-                        </button>
-                        {isExpanded && (
-                          <ul className={styles.setupList}>
-                            {venue.setups.map((setup) => {
-                              const isSelected = setup.id === selectedSetupId;
-                              return (
-                                <li key={setup.id} role="option" aria-selected={isSelected}>
-                                  <button
-                                    type="button"
-                                    className={`${styles.setupItem} ${isSelected ? styles.setupItemSelected : ''}`}
-                                    onClick={() => handleSelectSetup(setup.id, venue.id)}
-                                  >
-                                    <span className={styles.setupItemName}>{setup.name}</span>
-                                    {isSelected && (
-                                      <FontAwesomeIcon icon={faCheck} className={styles.setupItemCheck} />
-                                    )}
-                                  </button>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Section 2: Payment Device */}
-              <div className={styles.configSection}>
-                <div className={styles.configSectionHeader}>
-                  <FontAwesomeIcon icon={faMobileRetro} className={styles.configSectionIcon} />
-                  <span className={styles.configSectionTitle}>Payment Device</span>
-                </div>
-                <div className={styles.configSectionContent}>
-                  {availableDevices.length > 0 ? (
-                    <ul className={styles.deviceList}>
-                      {availableDevices.map((device) => {
-                        const isSelected = device.id === linkedDeviceId;
-                        return (
-                          <li key={device.id} role="option" aria-selected={isSelected}>
-                            <button
-                              type="button"
-                              className={`${styles.deviceItem} ${isSelected ? styles.deviceItemSelected : ''}`}
-                              onClick={() => handleSelectDevice(device.id)}
-                            >
-                              <span className={styles.deviceItemName}>{device.name}</span>
-                              {isSelected && (
-                                <FontAwesomeIcon icon={faCheck} className={styles.deviceItemCheck} />
-                              )}
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  ) : (
-                    <div className={styles.deviceEmptyState}>
-                      <span>No payment devices linked to this setup</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
         <div className={styles.shiftWidget}>
           <div className={styles.dateTime}>
             <FontAwesomeIcon icon={faClock} className={styles.clockIcon} />
@@ -518,7 +560,111 @@ export function FeverPosHeader({
             <FontAwesomeIcon icon={faUserCircle} className={styles.userIcon} />
           </button>
         </div>
+
+        {/* Hamburger menu */}
+        <div className={styles.hamburgerWrap} ref={hamburgerRef}>
+          <button
+            className={styles.hamburgerButton}
+            type="button"
+            onClick={() => setIsHamburgerOpen((prev) => !prev)}
+            aria-label="Menu"
+            aria-expanded={isHamburgerOpen}
+            aria-haspopup="menu"
+          >
+            <FontAwesomeIcon icon={faBars} />
+          </button>
+
+          {isHamburgerOpen && (
+            <div className={styles.hamburgerPopover} role="menu">
+              <button
+                type="button"
+                className={styles.popoverItem}
+                role="menuitem"
+                onClick={() => {
+                  setIsHamburgerOpen(false);
+                  setIsSetupWizardOpen(true);
+                }}
+              >
+                <FontAwesomeIcon icon={faGear} className={styles.popoverItemIcon} />
+                <span className={styles.popoverItemLabel}>Change setup</span>
+              </button>
+
+              <div className={styles.popoverInfoBox}>
+                <div className={styles.popoverInfoRow}>
+                  <FontAwesomeIcon icon={faBuildingColumns} className={styles.popoverInfoIcon} />
+                  <span className={styles.popoverInfoText}>
+                    {selectedSetup?.venueName ?? 'No venue'}
+                  </span>
+                </div>
+                <div className={styles.popoverInfoRow}>
+                  <FontAwesomeIcon icon={faLocationDot} className={styles.popoverInfoIcon} />
+                  <span className={styles.popoverInfoText}>
+                    {selectedSetup?.name ?? 'No setup selected'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                className={styles.popoverItem}
+                role="menuitem"
+                onClick={() => {
+                  setIsHamburgerOpen(false);
+                  setIsLinkDeviceOpen(true);
+                }}
+              >
+                <FontAwesomeIcon icon={faMobileScreenButton} className={styles.popoverItemIcon} />
+                <div className={styles.popoverItemContent}>
+                  <span className={styles.popoverItemLabel}>Link device</span>
+                  {selectedDevice && (
+                    <span className={styles.popoverItemSub}>{selectedDevice.id}</span>
+                  )}
+                </div>
+              </button>
+
+              <div className={styles.popoverDivider} />
+
+              <button type="button" className={styles.popoverItem} role="menuitem">
+                <FontAwesomeIcon icon={faShareNodes} className={styles.popoverItemIcon} />
+                <span className={styles.popoverItemLabel}>Get universal share link</span>
+              </button>
+
+              <button type="button" className={styles.popoverItem} role="menuitem">
+                <FontAwesomeIcon icon={faArrowRightFromBracket} className={styles.popoverItemIcon} />
+                <span className={styles.popoverItemLabel}>Log out</span>
+              </button>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* Setup Wizard Modal */}
+      {isSetupWizardOpen && (
+        <SetupWizardModal
+          venues={venues}
+          selectedSetupId={selectedSetupId}
+          onSelectSetup={(setupId, venueId) => {
+            onSelectSetup?.(setupId, venueId);
+            setIsSetupWizardOpen(false);
+          }}
+          onClose={() => setIsSetupWizardOpen(false)}
+        />
+      )}
+
+      {/* Link Device Modal */}
+      {isLinkDeviceOpen && (
+        <LinkDeviceModal
+          paymentDevices={paymentDevices}
+          linkedDeviceId={linkedDeviceId}
+          linkedDeviceIds={selectedSetup?.linkedDeviceIds}
+          setupName={selectedSetup?.name ?? 'No setup'}
+          onSelectDevice={(deviceId) => {
+            onSelectDevice?.(deviceId);
+            setIsLinkDeviceOpen(false);
+          }}
+          onClose={() => setIsLinkDeviceOpen(false)}
+        />
+      )}
     </header>
   );
 }
