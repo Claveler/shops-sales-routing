@@ -155,7 +155,7 @@ The permanent sidebar calendar wastes horizontal space on the POS's already-cons
 ### User Stories
 
 **`B2BS-921` — Timeslot selector modal**
-As a cashier, I want to pick a date and timeslot from an on-demand modal with availability indicators and a calendar fallback for multi-week events, so the tile grid keeps full width when I'm not scheduling and I can quickly browse any date.
+As a cashier, I want to pick a date and timeslot from an on-demand modal with availability indicators and a calendar fallback for multi-week events, so the tile grid keeps full width when I'm not scheduling, I can quickly browse any date, and a valid timeslot is always selected before selling tickets.
 
 *Acceptance criteria:*
 
@@ -193,13 +193,18 @@ _Footer:_
 - "Today" button (calendar icon, tertiary style) on the left jumps to today's date (or the nearest future available date).
 - "Confirm selection" primary button on the right; disabled until a timeslot is selected.
 
-**`B2BS-923` — Timeslot enforcement**
-As a cashier, I want the system to require a timeslot before selling tickets, so I never sell without a valid session.
-
-*Acceptance criteria:*
-- Upon entering the ticketing POS view, a timeslot will be preselected (the one closest to sale date).
-- The calendar button shows a filled/active state when a timeslot is selected.
+_Default behavior:_
+- Upon entering the ticketing POS view, a timeslot is preselected (the one closest to the sale date).
+- The timeslot pill shows a filled/active state when a timeslot is selected.
 - Hidden in Merch tab; equal-height trailing slot reserved to prevent layout shift.
+
+---
+*Mockup walkthrough:*
+1. Open [shops-sales-routing.vercel.app/box-office](https://shops-sales-routing.vercel.app/box-office). The POS loads with a pre-populated cart and a default timeslot already selected (shown in the pill at the top-right of the category filter area).
+2. Click the timeslot pill to open the selector modal. The date strip shows available dates with availability bars; the first timeslot group is expanded.
+3. Click "More dates" to switch to the calendar view. Available dates appear in black text; unavailable dates in grey; today has a yellow background.
+4. Select a different date, then pick a timeslot chip and click "Confirm selection". The pill updates to reflect the new choice.
+5. Switch to the "Merch" tab — the timeslot pill disappears. Switch back to a ticketing tab — it reappears.
 
 ---
 
