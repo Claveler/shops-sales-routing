@@ -52,14 +52,6 @@ interface FeverPosHeaderProps {
   onEndShift?: () => void;
 }
 
-/** Truncate device ID to show prefix and last 4 chars */
-function truncateDeviceId(id: string): string {
-  if (id.length <= 12) return id;
-  const prefix = id.split('-')[0] || id.slice(0, 4);
-  const suffix = id.slice(-4);
-  return `${prefix}-…${suffix}`;
-}
-
 function formatHeaderDate(date: Date): string {
   const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
