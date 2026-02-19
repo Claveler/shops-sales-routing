@@ -2,7 +2,7 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
 }
 
 /* ---- Month pills ---- */
@@ -11,6 +11,7 @@
   gap: 8px;
   flex-wrap: wrap;
   justify-content: center;
+  padding-bottom: 8px;
 }
 
 .monthPill {
@@ -52,9 +53,7 @@
 /* ---- Weekday row ---- */
 .weekdayRow {
   display: grid;
-  grid-template-columns: repeat(7, 48px);
-  gap: 8px;
-  justify-content: center;
+  grid-template-columns: repeat(7, 1fr);
   text-align: center;
 }
 
@@ -63,21 +62,20 @@
   line-height: 16px;
   font-weight: 600;
   color: #AAAAAA;
-  padding: 2px 0;
+  padding: 8px 0;
   letter-spacing: 0.3px;
 }
 
 /* ---- Day grid ---- */
 .dayGrid {
   display: grid;
-  grid-template-columns: repeat(7, 48px);
-  gap: 8px;
-  justify-content: center;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 56px);
 }
 
 .blankCell {
-  width: 48px;
-  height: 48px;
+  height: 56px;
+  margin: 4px;
 }
 
 .dayCell {
@@ -86,8 +84,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 48px;
   height: 48px;
+  margin: 4px;
   border: 2px solid transparent;
   background: #FFFFFF;
   border-radius: 4px;
@@ -150,7 +148,7 @@
 /* ---- Per-date availability underline bar ---- */
 .availabilityBar {
   position: absolute;
-  bottom: 5px;
+  bottom: 8px;
   width: 16px;
   height: 2px;
   border-radius: 1px;
@@ -167,44 +165,40 @@
 /* ---- Legend below calendar grid ---- */
 .legend {
   display: flex;
-  gap: 16px;
-  justify-content: center;
-  font-size: 11px;
-  line-height: 14px;
-  color: #536B75;
-  padding-top: 4px;
+  gap: 12px;
+  align-items: center;
+  padding-top: 8px;
 }
 
 .legendItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.legendLabelLow {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #DF7B00;
+}
+
+.legendLabelSoldOut {
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+  color: #536B75;
 }
 
 .legendBar {
-  width: 12px;
+  width: 16px;
   height: 2px;
   border-radius: 1px;
   flex-shrink: 0;
 }
 
-.legendSoldOut {
-  width: 10px;
-  height: 10px;
-  border: 1.5px solid #A7B2BA;
-  border-radius: 50%;
-  flex-shrink: 0;
-  position: relative;
-}
-
-.legendSoldOut::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -1px;
-  right: -1px;
-  height: 1.5px;
+.barSoldOut {
   background: #A7B2BA;
-  transform: rotate(-45deg);
 }
 

@@ -102,8 +102,6 @@ export function MiniCalendar({
         })}
       </div>
 
-      <div className={styles.divider} />
-
       {/* Weekday row */}
       <div className={styles.weekdayRow}>
         {WEEKDAYS.map((wd, i) => (
@@ -153,16 +151,12 @@ export function MiniCalendar({
       {/* Availability legend */}
       <div className={styles.legend}>
         <span className={styles.legendItem}>
-          <span className={`${styles.legendBar} ${styles.barFilling}`} />
-          Filling up
-        </span>
-        <span className={styles.legendItem}>
+          <span className={styles.legendLabelLow}>Low availability</span>
           <span className={`${styles.legendBar} ${styles.barLow}`} />
-          Low availability
         </span>
         <span className={styles.legendItem}>
-          <span className={styles.legendSoldOut} />
-          Sold out
+          <span className={styles.legendLabelSoldOut}>Sold out</span>
+          <span className={`${styles.legendBar} ${styles.barSoldOut}`} />
         </span>
       </div>
     </div>
