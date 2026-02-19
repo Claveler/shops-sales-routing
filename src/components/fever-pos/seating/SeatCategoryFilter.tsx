@@ -45,15 +45,6 @@ export function SeatCategoryFilter({
           <span className={styles.assignedLabel}>Assigned seats</span>
           <span className={styles.assignedCount}>{selectedSeatCount}</span>
         </div>
-        {selectedSeatCount > 0 && (
-          <button
-            className={styles.clearButton}
-            onClick={onClearSelection}
-            type="button"
-          >
-            Clear selection
-          </button>
-        )}
       </div>
 
       {/* Filter info */}

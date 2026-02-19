@@ -12,11 +12,23 @@
   height: 100%;
 }
 
-.backButton {
+.chartToolbar {
   position: absolute;
-  top: 12px;
+  top: 8px;
   left: 12px;
+  right: 12px;
   z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.chartToolbar > * {
+  pointer-events: auto;
+}
+
+.backButton {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -35,6 +47,20 @@
 .backButton:hover {
   background: #F6F7F7;
   border-color: #0079CA;
+}
+
+.clearSelectionButton {
+  font-size: 12px;
+  font-weight: 500;
+  color: #0079CA;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.clearSelectionButton:hover {
+  text-decoration: underline;
 }
 
 /* Stage styling */

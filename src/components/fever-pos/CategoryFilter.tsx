@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faChevronRight, faCrown, faHouse, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar, faChevronRight, faCrown, faHouse } from '@fortawesome/free-solid-svg-icons';
 import type { Category } from '../../data/feverPosData';
 import styles from './CategoryFilter.module.css';
 
@@ -97,16 +97,8 @@ export function CategoryFilter({
         {onCalendarClick ? (
           timeslotLabel ? (
             <div className={styles.timeslotPill} role="button" tabIndex={0} onClick={onCalendarClick}>
-              <FontAwesomeIcon icon={faCalendar} className={styles.timeslotPillIcon} />
               <span className={styles.timeslotPillLabel}>{timeslotLabel}</span>
-              <button
-                type="button"
-                className={styles.timeslotPillClose}
-                aria-label="Clear timeslot"
-                onClick={(e) => { e.stopPropagation(); onClearTimeslot?.(); }}
-              >
-                <FontAwesomeIcon icon={faXmark} />
-              </button>
+              <FontAwesomeIcon icon={faCalendar} className={styles.timeslotPillIcon} />
             </div>
           ) : (
             <button

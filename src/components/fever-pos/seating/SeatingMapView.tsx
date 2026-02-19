@@ -5,7 +5,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendar, faXmark } from '@fortawesome/free-solid-svg-icons';
+import { faCalendar } from '@fortawesome/free-solid-svg-icons';
 import type { SeatingConfig, CartItemData } from '../../../data/feverPosData';
 import type { SeatInfo, SeatingChartCallbacks } from './types';
 import { MockSeatingChart } from './MockSeatingChart';
@@ -18,6 +18,10 @@ interface SeatingMapViewProps {
   onAddToCart: (item: Omit<CartItemData, 'id'>) => void;
   /** Called when a seat is deselected on the map, to remove it from the cart */
   onRemoveSeatedTicket?: (seatId: string) => void;
+  /** Called when "Clear selection" is pressed, to remove all seated items from the cart */
+  onClearAllSeatedTickets?: () => void;
+  /** Whether the cart already contains seated items for this event (e.g. from mock data) */
+  hasSeatedCartItems?: boolean;
   eventId: string;
   /** Label for the selected timeslot (e.g., "Sat, Mar 21, 7:30 PM") */
   timeslotLabel?: string;
@@ -33,6 +37,8 @@ export function SeatingMapView({
   seatingConfig,
   onAddToCart,
   onRemoveSeatedTicket,
+  onClearAllSeatedTickets,
+  hasSeatedCartItems = false,
   eventId: _eventId,
   timeslotLabel,
   onCalendarClick,
@@ -85,10 +91,11 @@ export function SeatingMapView({
     setVisibleTierIds([]);
   }, []);
 
-  // Clear all selected seats
+  // Clear all selected seats (local state + cart)
   const handleClearSelection = useCallback(() => {
     setSelectedSeats([]);
-  }, []);
+    onClearAllSeatedTickets?.();
+  }, [onClearAllSeatedTickets]);
 
   // Seating chart callbacks
   const chartCallbacks: SeatingChartCallbacks = useMemo(() => ({
@@ -111,10 +118,13 @@ export function SeatingMapView({
     const price = isAdult ? tier.adultPrice : tier.childPrice;
     const fee = isAdult ? tier.adultFee : tier.childFee;
     const typeLabel = isAdult ? 'Adult' : 'Child';
+    const ticketName = isAdult
+      ? tier.name.replace('General Admission', 'General Admission Adult')
+      : tier.name.replace('General Admission', 'General Admission Child');
 
     onAddToCart({
-      productId: `seated-${seat.tierId}`,
-      name: tier.name,
+      productId: `seated-${seat.tierId}-${ticketType}`,
+      name: ticketName,
       price,
       quantity: 1,
       bookingFee: fee,
@@ -162,16 +172,8 @@ export function SeatingMapView({
           {onCalendarClick && (
             hasTimeslot ? (
               <div className={styles.timeslotPill} role="button" tabIndex={0} onClick={onCalendarClick}>
-                <FontAwesomeIcon icon={faCalendar} className={styles.timeslotPillIcon} />
                 <span className={styles.timeslotPillLabel}>{timeslotLabel}</span>
-                <button
-                  type="button"
-                  className={styles.timeslotPillClose}
-                  aria-label="Clear timeslot"
-                  onClick={(e) => { e.stopPropagation(); onClearTimeslot?.(); }}
-                >
-                  <FontAwesomeIcon icon={faXmark} />
-                </button>
+                <FontAwesomeIcon icon={faCalendar} className={styles.timeslotPillIcon} />
               </div>
             ) : (
               <button
@@ -194,6 +196,8 @@ export function SeatingMapView({
             visibleTierIds={visibleTierIds}
             callbacks={chartCallbacks}
             disableHover={isDevicePreview}
+            onClearSelection={handleClearSelection}
+            showClearSelection={selectedSeats.length > 0 || hasSeatedCartItems}
           />
 
           {/* Ticket selection modal - positioned within chart area */}

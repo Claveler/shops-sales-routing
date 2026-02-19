@@ -26,6 +26,8 @@ interface CartProps {
   onSetItemQuantity: (itemId: string, quantity: number) => void;
   onRemoveItem: (itemId: string) => void;
   onClearAll: () => void;
+  /** When true, hides the "Clear all" button (seated events manage items via the seating map) */
+  hideClearAll?: boolean;
   isMemberActive?: boolean;
   /** Currently active timeslot per event — used to show mismatch warnings */
   activeTimeslots?: Record<string, EventTimeslot>;
@@ -46,6 +48,7 @@ export function Cart({
   onSetItemQuantity,
   onRemoveItem,
   onClearAll,
+  hideClearAll,
   isMemberActive,
   activeTimeslots,
   selectedTicketEventId: _selectedTicketEventId,
@@ -106,9 +109,11 @@ export function Cart({
       {hasItems && (
         <div className={styles.cartHeader}>
           <h2 className={styles.cartTitle}>Cart</h2>
-          <button className={styles.clearAll} onClick={onClearAll} type="button">
-            Clear all
-          </button>
+          {!hideClearAll && (
+            <button className={styles.clearAll} onClick={onClearAll} type="button">
+              Clear all
+            </button>
+          )}
         </div>
       )}
 

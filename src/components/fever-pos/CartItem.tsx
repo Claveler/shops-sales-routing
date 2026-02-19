@@ -132,39 +132,24 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
           <ul className={styles.seatList}>
             {item.seatInfoList.map((s) => (
               <li key={s.seatId} className={styles.seatRef}>
-                {s.row}{s.seat} ({s.section}) · {s.ticketType}
+                {s.row}{s.seat} ({s.section})
               </li>
             ))}
           </ul>
         )}
-        {isSeatedTicket && item.seatInfoList ? (
-          <div className={styles.seatedPriceBlock}>
-            <span className={styles.price}>
-              {formatPrice(item.seatInfoList.reduce((sum, s) => sum + s.unitPrice, 0))}
-            </span>
-            {item.seatInfoList.some((s) => s.bookingFee && s.bookingFee > 0) && (
-              <p className={styles.bookingFee}>
-                + {formatPrice(item.seatInfoList.reduce((sum, s) => sum + (s.bookingFee ?? 0), 0))} booking fee
-              </p>
-            )}
-          </div>
-        ) : (
-          <>
-            <div className={styles.priceRow}>
-              {hasMemberDiscount ? (
-                <>
-                  <span className={styles.originalPrice}>{formatPrice(item.originalPrice!)}</span>
-                  <span className={styles.price}>{formatPrice(item.price)}</span>
-                  <FontAwesomeIcon icon={faCrown} className={styles.crownIcon} />
-                </>
-              ) : (
-                <span className={styles.price}>{formatPrice(item.price)}</span>
-              )}
-            </div>
-            {item.bookingFee !== undefined && item.bookingFee > 0 && (
-              <p className={styles.bookingFee}>+ {formatPrice(item.bookingFee)} booking fee</p>
-            )}
-          </>
+        <div className={styles.priceRow}>
+          {hasMemberDiscount ? (
+            <>
+              <span className={styles.originalPrice}>{formatPrice(item.originalPrice!)}</span>
+              <span className={styles.price}>{formatPrice(item.price)}</span>
+              <FontAwesomeIcon icon={faCrown} className={styles.crownIcon} />
+            </>
+          ) : (
+            <span className={styles.price}>{formatPrice(item.price)}</span>
+          )}
+        </div>
+        {item.bookingFee !== undefined && item.bookingFee > 0 && (
+          <p className={styles.bookingFee}>+ {formatPrice(item.bookingFee)} booking fee</p>
         )}
       </div>
 

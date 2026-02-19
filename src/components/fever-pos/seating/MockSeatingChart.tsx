@@ -27,13 +27,20 @@ interface HoveredItem {
   y: number;
 }
 
+interface MockSeatingChartProps extends SeatingChartProps {
+  onClearSelection?: () => void;
+  showClearSelection?: boolean;
+}
+
 export function MockSeatingChart({
   tiers,
   selectedSeats,
   visibleTierIds,
   callbacks,
   disableHover = false,
-}: SeatingChartProps) {
+  onClearSelection,
+  showClearSelection = false,
+}: MockSeatingChartProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('overview');
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [hoveredItem, setHoveredItem] = useState<HoveredItem | null>(null);
@@ -180,15 +187,29 @@ export function MockSeatingChart({
 
   return (
     <div className={styles.container}>
-      {viewMode === 'section' && (
-        <button
-          className={styles.backButton}
-          onClick={handleBackClick}
-          type="button"
-        >
-          ← Back to overview
-        </button>
-      )}
+      {/* Toolbar row: back button + clear selection on same line */}
+      <div className={styles.chartToolbar}>
+        {viewMode === 'section' ? (
+          <button
+            className={styles.backButton}
+            onClick={handleBackClick}
+            type="button"
+          >
+            ← Back to overview
+          </button>
+        ) : (
+          <div />
+        )}
+        {showClearSelection && onClearSelection && (
+          <button
+            className={styles.clearSelectionButton}
+            onClick={onClearSelection}
+            type="button"
+          >
+            Clear selection
+          </button>
+        )}
+      </div>
 
       <svg
         className={styles.chart}

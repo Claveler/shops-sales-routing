@@ -651,6 +651,12 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
     [ticketsEventId]
   );
 
+  // Whether the current seated event already has seated items in the cart
+  const hasSeatedCartItems = useMemo(() => {
+    const group = cartEvents.find((g) => g.eventId === ticketsEventId);
+    return Boolean(group?.items.some((i) => i.seatInfoList && i.seatInfoList.length > 0));
+  }, [cartEvents, ticketsEventId]);
+
   // Get seating configuration for seated events
   const seatingConfig = useMemo(
     () => getSeatingConfigForEvent(ticketsEventId),
@@ -854,8 +860,8 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
   // ---- Cart handlers ----
 
   // Handler for adding seated tickets from the seating map.
-  // Groups seats by tier: if a cart item with the same productId exists,
-  // the new seat is appended to its seatInfoList instead of creating a new row.
+  // Groups seats by ticket type (tier + adult/child): if a cart item with the
+  // same productId exists, the new seat is appended to its seatInfoList.
   const handleAddSeatedTicketToCart = useCallback((item: Omit<CartItemData, 'id'>) => {
     const targetEvent = activeSelectedEvent;
     const activeTimeslot = selectedTimeslots[ticketsEventId];
@@ -900,7 +906,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
 
       const targetGroup = updatedGroups[groupIndex];
 
-      // Try to merge into an existing item with the same productId (tier key)
+      // Try to merge into an existing item with the same productId (ticket type key)
       const existingItem = targetGroup.items.find((i) => i.productId === item.productId);
 
       if (existingItem && existingItem.seatInfoList && item.seatInfoList?.length) {
@@ -933,6 +939,19 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
               return { ...i, seatInfoList: filtered, quantity: filtered.length };
             })
             .filter((i) => !i.seatInfoList || i.seatInfoList.length > 0),
+          retailItems: [...g.retailItems],
+        }))
+        .filter((g) => g.items.length > 0 || g.retailItems.length > 0)
+    );
+  }, []);
+
+  // Clear all seated ticket items from the cart (triggered by "Clear selection" on the seating map)
+  const handleClearAllSeatedTickets = useCallback(() => {
+    setCartEvents((prev) =>
+      prev
+        .map((g) => ({
+          ...g,
+          items: g.items.filter((i) => !i.seatInfoList || i.seatInfoList.length === 0),
           retailItems: [...g.retailItems],
         }))
         .filter((g) => g.items.length > 0 || g.retailItems.length > 0)
@@ -1401,6 +1420,8 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
                   seatingConfig={seatingConfig}
                   onAddToCart={handleAddSeatedTicketToCart}
                   onRemoveSeatedTicket={handleRemoveSeatedTicket}
+                  onClearAllSeatedTickets={handleClearAllSeatedTickets}
+                  hasSeatedCartItems={hasSeatedCartItems}
                   eventId={ticketsEventId}
                   timeslotLabel={
                     selectedTimeslots[ticketsEventId]
@@ -1435,6 +1456,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
           onSetItemQuantity={handleSetItemQuantity}
           onRemoveItem={handleRemoveItem}
           onClearAll={handleClearAll}
+          hideClearAll={currentEventHasSeating}
           isMemberActive={isMemberActive}
           activeTimeslots={selectedTimeslots}
           selectedTicketEventId={ticketsEventId}

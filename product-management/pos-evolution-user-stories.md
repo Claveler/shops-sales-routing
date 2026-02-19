@@ -34,7 +34,7 @@ _Tickets & Add-Ons tab:_
 - A list icon (☰) appears at the far right of the tab, but only when the BO setup has more than one plan to sell and the tab is active.
 - Tapping the list icon opens the event selector.
 - The event name uses a marquee animation for long names: 1s delay after load or event change, scrolls right-to-left to reveal the full name, pauses 3s at the end, then scrolls back left-to-right.
-- For seated events, this tab splits into a Seating tab + a separate Add-Ons tab (see B2BS-924).
+- For seated events, this tab splits into a Seating tab + a separate Add-Ons tab (see B2BS-924 for the tab rename and seated cart item redesign).
 
 _Cart grouping:_
 - Switching the event selector does not clear the cart; new tickets create a new event group.
@@ -109,26 +109,30 @@ _Footer:_
 - "Select discount type" link drops the gear icon (blue text only).
 
 **`B2BS-924` — Seated event tab layout and add-on separation**
-As a cashier, I want seated events to automatically split into a Seating tab and a separate Add-Ons tab, so that seat selection (via seats.io) and add-on purchasing are clearly separated.
+As a cashier, I want seated events to have a clearly separated Add-Ons tab and a redesigned cart layout for seat-specific items, so that the purchasing flow for seated events is intuitive and consistent with the seats.io integration.
 
-*Acceptance criteria:*
-
-_Tab layout:_
-- For non-seated events, the Tickets & Add-Ons tab remains a single tab showing the event name. No change.
-- When an event is configured for assigned seating, the Tickets & Add-Ons tab splits: the first tab becomes "Seating" (showing the seats.io widget) and a new "Add-Ons" tab appears between it and Merch.
+*Already implemented (baseline):*
+- For seated events, the Tickets & Add-Ons tab splits: a "Seating" tab shows the seats.io widget, and a separate "Add-Ons" tab appears between it and Merch.
 - The Add-Ons tab shows the same add-on product grid used in non-seated events, but without seated tickets (tickets are handled through seat selection).
+- The timeslot pill appears inside the seating tab above the seats.io widget (see B2BS-921).
+- For non-seated events, the Tickets & Add-Ons tab remains a single tab. No change.
+
+*What's new (scope of this story):*
+
+_Add-Ons tab:_
+- For seated events, any ticket type that does not require seat allocation is moved out of the seating tab into its own independent tab, labelled "Add-Ons". This covers add-on products (the most common case), though there may be marginal exceptions such as non-seated upgrade passes.
 
 _Seated cart items:_
-- Seats of the same tier are grouped into a single cart item, regardless of ticket type (Adult/Child).
-- The cart item title is the tier name (e.g., "General Admission - Tier 1").
-- Individual seat references are listed below the title, each showing the seat ID, section, and ticket type (e.g., "B6 (Balcony Left) · Adult").
+- Seats of the same ticket type (same tier + Adult/Child) are grouped into a single cart item.
+- The cart item title is the ticket type name (e.g., "General Admission Adult - Tier 1").
+- Individual seat references are listed below the title, each showing the seat ID and section (e.g., "B6 (Balcony Left)").
 - A "Seats" badge on the right side shows the count of seats in that group, replacing the quantity pill controls used for non-seated items.
-- Price and booking fee are shown as totals across all seats in the group (Adult and Child seats may have different unit prices).
-- Selecting a new seat of the same tier on the map increments the existing cart item instead of creating a new row.
+- Price and booking fee are shown per unit (all seats in a group share the same price).
+- Selecting a new seat of the same ticket type on the map increments the existing cart item instead of creating a new row.
 - Deselecting a seat on the map removes that specific seat from the group; if the last seat is removed, the cart item is deleted.
-- Quantity cannot be changed from the cart directly; all seat management is done through the seating map.
+- Quantity cannot be changed from the cart directly; all seat management is done through the seating map. Since seats.io owns seat selection and provides its own "Clear selection" action, all add/remove/clear actions happen on the map — the cart "Clear all" button is hidden for seated events.
 
-*Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the POS tab restructuring, add-on separation, and cart integration for seat-specific line items.
+*Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the tab rename, cart item redesign for seat-specific line items, and the read-only cart behavior that follows from seats.io owning seat management.
 
 ---
 
@@ -154,6 +158,12 @@ The permanent sidebar calendar wastes horizontal space on the POS's already-cons
 As a cashier, I want to pick a date and timeslot from an on-demand modal with availability indicators and a calendar fallback for multi-week events, so the tile grid keeps full width when I'm not scheduling and I can quickly browse any date.
 
 *Acceptance criteria:*
+
+_Timeslot pill (trigger):_
+- A pill-shaped indicator sits inline with the category filter chips, right-aligned.
+- Shows the formatted date/time of the selected timeslot (e.g., "Fri, Mar 27, 7:30 PM") with a calendar icon on the right edge of the pill.
+- Tapping the pill opens the timeslot selector modal (described below).
+- For seated events, the pill appears above the seats.io widget in the same inline position.
 
 _Date strip:_
 - Horizontal date strip showing rectangular date cards (only dates with sessions); first available date pre-selected.
