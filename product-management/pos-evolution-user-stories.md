@@ -16,7 +16,7 @@ These user stories describe the evolutionary improvements to the Fever POS, buil
 
 ### Context
 
-The current cart supports a single event and a single timeslot per transaction, with the Box Office setup and Adyen device selectors embedded in the cart header. The redesign introduces event grouping, multi-timeslot support, and relocates the configuration widget to the page header to free up cart space for the richer group structure.
+The cart already supports multi-timeslot transactions (items from different timeslots of the same event in one cart) and the timeslot selector has been redesigned as an on-demand modal. The Box Office setup and Adyen device selectors are still embedded in the cart header. This epic's remaining scope is multi-event grouping (items from different events in one cart), relocating the configuration widget to the page header, and the cart panel visual overhaul.
 
 ### Why
 
@@ -38,31 +38,29 @@ As a cashier, I want to add tickets from different events into the same cart, so
 **`B2BS-919` — Multi-timeslot cart**
 As a cashier, I want to sell tickets for different timeslots of the same event in one transaction, so that split groups can pay together.
 
-*Acceptance criteria:*
-
-_Flat layout:_
-- When all groups in the cart belong to the same event (even across multiple timeslots), the cart uses a flat layout — no collapsible event headers.
+*Already implemented (baseline):*
+- Multi-timeslot grouping: items from different timeslots of the same event appear in the same cart, grouped by timeslot in a flat layout (no collapsible event headers).
 - Each timeslot section has a header showing ticket icon + formatted date/time.
 - Venue/location is shown on timeslot headers only when the cart contains items from more than one distinct venue; hidden otherwise.
+- Changing the active timeslot targets new tickets only — existing groups are never moved.
+- Quantity controls on items in a non-active timeslot are disabled.
 
-_Inactive timeslot (disabled state):_
-- Timeslot sections whose timeslot differs from the currently active one are rendered in a grey container (light grey background, rounded corners, 8px padding).
-- Cart items inside an inactive section have grey backgrounds, subtle text color, and disabled (grey) quantity buttons.
+*What's new (scope of this story):*
+- Inactive timeslot sections are rendered in a grey container (light grey background `#fafbfb`, rounded corners, 8px padding).
+- Cart items inside an inactive section have grey backgrounds (`#f6f7f7`), subtle text color (`#536b75`), and disabled (grey) quantity buttons — matching the Figma disabled-item treatment.
 - An "Activate time slot" blue link appears below the items in the disabled container.
 - Clicking the link or anywhere inside the disabled container switches the active timeslot to that group's timeslot, re-enabling quantity controls.
-
-_General:_
-- Changing the active timeslot targets new tickets only — existing groups are never moved.
-
-*Note:* **This is already in prod code:** If a timeslot is active, then the cart items that are not in that timeslot should have the increase/decrease buttons disabled.
 
 **`B2BS-920` — POS configuration widget (hamburger menu)**
 As a cashier, I want to see and switch my Box Office setup and payment device from a header menu, so I don't have to leave the selling interface.
 
 *Acceptance criteria:*
 
+_Remove config from cart header:_
+- The old BO setup name, venue, and device selector row is removed from the cart header. Configuration now lives exclusively in the hamburger menu (below).
+
 _Hamburger menu:_
-- Hamburger icon (☰) sits at the far right of the header, after the user avatar.
+- Hamburger icon (☰) sits at the far right of the page header, after the user avatar.
 - Tapping opens a popover anchored to the icon with the following items in order: "Change setup" (gear icon), an info box showing the current venue (building icon) and setup (cash-register icon), "Link device" (mobile icon) with the linked device ID as subtitle, a divider, "Get universal share link" (share icon), and "Log out" (arrow-right-from-bracket icon).
 - Popover closes on outside click.
 
@@ -82,21 +80,19 @@ _Link device modal:_
 **`B2BS-962` — Cart panel visual redesign**
 As a cashier, I want an updated cart layout with modernized controls and clearer information hierarchy, so the cart is easier to read and faster to operate.
 
-*Context:* This story covers **visual/styling changes** to the cart panel. Functional changes like relocating the BO setup and payment device selectors to the page header are covered by B2BS-920 (POS configuration widget).
+*Prerequisite:* B2BS-920 (config moves to hamburger menu) — the simplified cart header depends on the old config row being removed first.
 
-*Acceptance criteria:*
+*Already implemented (baseline):*
+- Timeslot row shows ticket icon + date/time on the left, location-dot icon + venue on the right (replaces old flat "Tickets" label).
+- Quantity controls use a pill-shaped container with circular +/− buttons (blue filled) and centered count.
+
+*What's new (scope of this story):*
 
 _Header area:_
-- Cart header shows "Cart" title on the left and "Clear all" link (red text) on the right.
-- The old setup name + venue header row is removed (setup/device config moves to page header per B2BS-920).
+- Cart header shows "Cart" title on the left and "Clear all" link (red text) on the right. The old setup/venue/device row is gone (handled by B2BS-920).
 - Cart header is hidden when the cart is empty; empty state shows receipt icon + "The cart is empty".
 
-_Timeslot row:_
-- Timeslot row shows ticket icon + date/time on the left, location-dot icon + venue on the right.
-- Replaces the old flat "Tickets" label + date format.
-
 _Cart item cards:_
-- Quantity controls use a pill-shaped container with circular +/− buttons (blue filled) and centered count.
 - Booking fee is shown below the price when applicable (e.g., "+ €0.60 booking fee").
 
 _Footer:_
