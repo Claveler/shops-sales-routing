@@ -161,10 +161,6 @@ export function MiniCalendar({
           <span className={styles.legendLabelLow}>Low availability</span>
           <span className={`${styles.legendBar} ${styles.barLow}`} />
         </span>
-        <span className={styles.legendItem}>
-          <span className={styles.legendLabelSoldOut}>Sold out</span>
-          <span className={`${styles.legendBar} ${styles.barSoldOut}`} />
-        </span>
       </div>
     </div>
   );

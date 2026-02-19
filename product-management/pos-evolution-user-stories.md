@@ -177,7 +177,7 @@ _Calendar view ("More dates"):_
 - Tapping "More dates" replaces the date strip + timeslots with a full month-view calendar. The modal title changes to "More dates" and a back chevron appears in the header.
 - The calendar uses a Monday-start week with three-letter weekday labels (MON–SUN). Dates with available sessions show black text (no colored background); the selected date has a blue border. Dates without sessions show grey text and are non-interactive. Today's date has a warm yellow background. Month navigation is via pill-shaped month toggle buttons.
 - Calendar grid always renders 6 rows so the modal height stays stable across months.
-- Availability underline bars in the calendar: dates with constrained availability show a short colored underline bar beneath the date number — amber for filling, red for low availability. A legend below the grid explains the bar colors.
+- Availability underline bars in the calendar: dates with constrained availability show a short colored underline bar beneath the date number — amber for filling, red for low availability. A "Low availability" legend below the grid explains the bar colors (no "Sold out" legend in the calendar — sold-out status is conveyed at the timeslot chip level, not the date level).
 - Selecting a date from the calendar closes the calendar and returns to the date strip + timeslots view with the chosen date active.
 - Tapping the back chevron returns to the date strip without changing the selection. The active date card scrolls into view on return.
 - The footer (Today + Confirm selection) is hidden while the calendar is open.
