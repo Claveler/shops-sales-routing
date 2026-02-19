@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faClock } from '@fortawesome/free-regular-svg-icons';
-import { faBars, faPlay, faStop, faUserCircle, faTabletScreenButton, faChevronDown, faGear, faXmark, faMagnifyingGlass, faMobileScreenButton, faShareNodes, faArrowRightFromBracket, faBuildingColumns, faLocationDot } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faPlay, faStop, faUserCircle, faTabletScreenButton, faChevronDown, faGear, faXmark, faMagnifyingGlass, faMobileScreenButton, faShareNodes, faArrowRightFromBracket, faBuildingColumns, faCashRegister } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 import styles from './FeverPosHeader.module.css';
 import feverLogo from '../../assets/fever-logo.svg';
@@ -589,7 +589,7 @@ export function FeverPosHeader({
                   </span>
                 </div>
                 <div className={styles.popoverInfoRow}>
-                  <FontAwesomeIcon icon={faLocationDot} className={styles.popoverInfoIcon} />
+                  <FontAwesomeIcon icon={faCashRegister} className={styles.popoverInfoIcon} />
                   <span className={styles.popoverInfoText}>
                     {selectedSetup?.name ?? 'No setup selected'}
                   </span>
