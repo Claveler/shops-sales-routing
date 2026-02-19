@@ -40,6 +40,10 @@ Cleanup task: remove the legacy stock management screen from Events > Inventory 
 
 Sales routings make physical products available for sale at events through selected channels. Each routing ties 1:1 to an event and defines which channels sell the products, which warehouses supply stock, and how channels map to warehouses. The wizard guides ops users through this multi-step configuration.
 
+### Why
+
+Today, making physical products available at events requires manual internal engineering work — entering IDs, creating database records, configuring channel mappings by hand. Self-service routing lets ops users configure distribution without engineering involvement.
+
 ### User Stories
 
 **`B2BS-937` — Browse sales routings**
@@ -88,10 +92,14 @@ As an ops user, I want to edit an existing routing's warehouses, channels, mappi
 
 After a sales routing is created, ops users need granular control over which products appear in each channel — for example, hiding seasonal items from the marketplace while keeping them visible at the Box Office.
 
+### Why
+
+Without per-channel visibility control, product distribution is all-or-nothing — there is no way to hide seasonal items from the marketplace while keeping them visible at the Box Office.
+
 ### User Stories
 
 **`B2BS-942` — Filter by routing and channel**
-As an ops user, I want to pick a city, event, and channel to load the product visibility grid, so I can work with the right routing context.
+As an ops user, I want to pick a city, event, and channel to load the product visibility grid, so I don't accidentally edit visibility for the wrong event or channel.
 
 *Acceptance criteria:*
 - City dropdown filters to cities with events that have sales routings.

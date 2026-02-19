@@ -247,7 +247,7 @@
 .datePillDate {
   font-size: 14px;
   line-height: 20px;
-  font-weight: 600;
+  font-weight: 400;
   color: #031419;
   text-align: center;
   white-space: nowrap;
@@ -255,6 +255,7 @@
 
 .datePillSelected .datePillDate {
   color: #0079CA;
+  font-weight: 600;
 }
 
 /* ---- Availability bar under date pill ---- */

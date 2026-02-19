@@ -28,9 +28,34 @@ Apply these conventions when creating, editing, or syncing user stories with Jir
 ## Jira formatting
 
 - **Title:** Short descriptive name only (e.g., "Multi-event transactions"). Not full user-story sentence.
-- **Description:** Full "As a… I want… so that…" format, followed by acceptance criteria.
+- **Story description:** "As a… I want… so that…" format, followed by acceptance criteria. Stories do not get a separate "Why" — the "so that" clause must carry the motivation (answer "what goes wrong if we don't build this?"). The epic-level Why provides broader business context.
+- **Epic description:** Context (`### Context`), **Why** (`### Why`, mandatory — why this group of stories, why this sequence), Figma table (designer updates status), mockup reference, stories list, suggested analytics events, DoD checklist. See `workflow-and-conventions.md` for full structure.
+- **Design tasks:** Story type with `[DESIGN]` prefix, one per epic, owned by the designer. Sits alongside dev stories as a peer, not a subtask.
 - **DoD:** Lives at the epic level, not on individual stories.
-- **Descriptions use markdown**; the MCP server converts to ADF.
+- **Descriptions use markdown** when sent through the MCP server (it converts to ADF). When using `acli`, descriptions must be **Atlassian Document Format (ADF) JSON** — see "acli (Atlassian CLI)" section below.
+
+### Links to other issues
+
+Use markdown link syntax with the full Jira URL:
+```
+[B2BS-920](https://feverup.atlassian.net/browse/B2BS-920)
+```
+Do NOT use plain text like `B2BS-920` — it won't render as a clickable link.
+
+### User mentions
+
+Use Jira wiki mention syntax with the account ID:
+```
+[~accountid:712020:cad11526-b0ee-439c-8f58-bd790e994206]
+```
+Do NOT use plain text like `@Pablo Rubio` — it won't notify the user.
+
+### Team account IDs
+
+| Name | Role | Account ID |
+|------|------|------------|
+| Andrés Clavel | Product Manager | `712020:78fa4307-e42a-4357-90ee-df00c41a1500` |
+| Pablo Rubio Retolaza | Product Designer | `712020:cad11526-b0ee-439c-8f58-bd790e994206` |
 
 ## Mockup walkthroughs in descriptions
 
@@ -42,6 +67,86 @@ Apply these conventions when creating, editing, or syncing user stories with Jir
 
 - Manage only stories/epics we created (POS Evolution, Sales Routing, Channel Visibility).
 - **Do NOT modify** pre-existing Catalog Integration stories (B2BS-289, B2BS-910, B2BS-911, B2BS-912).
+
+## Tools for Jira operations — MCP vs. acli vs. REST API
+
+Three tools are available. Each has different formatting behavior — using the wrong one produces broken descriptions.
+
+### MCP (`user-Atlassian-MCP-Server-*`)
+
+Accepts **markdown**; the server converts it to ADF automatically.
+
+| Task | Tool |
+|------|------|
+| Create issues | `createJiraIssue` |
+| Edit fields (summary, description, dates, parent/epic link) | `editJiraIssue` |
+| Search issues | `searchJiraIssuesUsingJql` |
+| Transition status | `transitionJiraIssue` |
+| Read issue details | `getJiraIssue` |
+| Look up user account IDs | `lookupJiraAccountId` |
+| Add basic comments (no mentions needed) | `addCommentToJiraIssue` |
+
+`editJiraIssue` correctly converts markdown descriptions to ADF. Prefer it over `createJiraIssue` for descriptions — create first, then edit to fix formatting if needed.
+
+### acli (Atlassian CLI)
+
+**Does NOT convert markdown.** Descriptions must be **ADF JSON**.
+
+- Use `acli jira workitem view <KEY>` to read issue details.
+- Use `acli jira workitem edit --from-json <file.json> --yes` to update descriptions. The JSON file must contain an ADF `description` object. Generate it with `--generate-json` for the template.
+- **NEVER use `--description` or `--description-file` with markdown** — Jira will display the raw markdown syntax (asterisks, underscores, brackets) as literal text.
+
+Build ADF programmatically (e.g., with a Node.js script) to construct the `doc → paragraph/heading/bulletList/table/rule` tree. Common ADF node types:
+
+| ADF node | Purpose |
+|----------|---------|
+| `heading` (attrs: level) | Section headings (`### Context` → level 3) |
+| `paragraph` | Body text, can contain inline marks |
+| `bulletList` / `orderedList` | Lists of `listItem` nodes |
+| `table` | Tables with `tableRow`, `tableHeader`, `tableCell` |
+| `rule` | Horizontal divider |
+| Inline marks: `strong`, `em`, `link`, `code` | Bold, italic, hyperlink, monospace |
+
+### Direct REST API (`/rest/api/3/` or `/rest/agile/1.0/`)
+
+For tasks that neither MCP nor acli can handle correctly:
+
+| Task | Why others fail | API endpoint |
+|------|----------------|-------------|
+| **@mentions in comments** | MCP escapes mention syntax; acli has no comment-with-mention command | `PUT /rest/api/3/issue/{key}/comment/{id}` with ADF `mention` node |
+| **Smart Links (inline cards)** | MCP produces plain `link` marks, not `inlineCard` nodes | `PUT /rest/api/3/issue/{key}` with ADF `inlineCard` node |
+| **Backlog reordering** | No MCP/acli tool for ranking | `PUT /rest/agile/1.0/issue/rank` with `rankAfterIssue` / `rankBeforeIssue` |
+| **Any raw ADF manipulation** | When precise control over Atlassian Document Format is needed | Standard issue/comment endpoints with ADF JSON body |
+
+### Decision table — which tool to use
+
+| Scenario | Tool | Description format |
+|----------|------|--------------------|
+| MCP Server is available and connected | MCP `editJiraIssue` | Markdown |
+| MCP Server is not available / not connected | `acli --from-json` | ADF JSON |
+| Need @mentions, Smart Links, or backlog ranking | REST API | ADF JSON |
+
+**Always check which tools are available before writing descriptions.** If the MCP server is not connected (no `user-Atlassian-MCP-Server-*` tools listed), fall back to `acli` with ADF JSON.
+
+### REST API auth
+
+- **Method:** Basic auth — `base64(email:api_token)`
+- **Token:** Must be passed as a script argument at runtime. Never hardcode in scripts or commit to git.
+- **Base URL:** `https://feverup.atlassian.net`
+
+### ADF patterns for common needs
+
+**Mention node** (triggers notification):
+```json
+{"type": "mention", "attrs": {"id": "712020:account-id-here", "text": "@Display Name", "accessLevel": ""}}
+```
+
+**Inline card / Smart Link** (renders as rich Jira card):
+```json
+{"type": "inlineCard", "attrs": {"url": "https://feverup.atlassian.net/browse/B2BS-123"}}
+```
+
+Use `lookupJiraAccountId` to find additional account IDs.
 
 ## Roadmap / Timeline management
 

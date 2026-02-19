@@ -1,0 +1,28 @@
+---
+description: Cross-squad context for the PM working across Museums and Shops squads
+alwaysApply: true
+---
+
+# Squad Context
+
+Andres Clavel is the Product Manager for two squads in the Fever organization:
+
+- **Museums squad** — building a Donor Management Platform (CRM for museum fundraising). Mockup repo: `patron-profile`. Jira project: MSM.
+- **Shops squad** — building POS and back-office capabilities for Fever shops. Mockup repo: `shop-sales-routing`. Jira project: B2BS.
+
+Both squads share **Pablo Rubio Retolaza** as Product Designer (`712020:cad11526-b0ee-439c-8f58-bd790e994206`).
+
+This repo belongs to the **Museums** squad.
+
+Fever Zone is the partner-facing back-office of Fever. It is where the Donor Management Platform and the POS and its related back-office capabilities live.
+
+## Cross-squad conventions
+
+Both squads follow the same conventions documented in each repo's `product-management/workflow-and-conventions.md`:
+
+- Epic description structure: Context, Why, Figma table, Mockup reference, Stories, DoD
+- Design tasks: Story type with `[DESIGN]` prefix, one per epic, owned by Pablo
+- MCP vs. REST API boundaries for Jira automation
+- Markdown as source of truth, Jira as mirror
+
+When making convention changes, consider whether the change should be applied to both repos to keep them aligned.

@@ -18,6 +18,10 @@ These user stories describe the evolutionary improvements to the Fever POS, buil
 
 The current cart supports a single event and a single timeslot per transaction, with the Box Office setup and Adyen device selectors embedded in the cart header. The redesign introduces event grouping, multi-timeslot support, and relocates the configuration widget to the page header to free up cart space for the richer group structure.
 
+### Why
+
+Venues with multiple attractions lose revenue when visitors must complete separate transactions per event. Multi-cart lets cashiers bundle everything into one checkout, reducing queue time and increasing average transaction value.
+
 ### User Stories
 
 **`B2BS-917` — Multi-event transactions**
@@ -50,6 +54,32 @@ As a cashier, I want to see and switch my Box Office setup and payment device fr
 - Changing setup cascades to re-filter devices; if the current device is invalid, the first valid one is auto-selected (or cleared).
 - Dropdown stays open during selections; closes on outside click.
 
+**`B2BS-962` — Cart panel visual redesign**
+As a cashier, I want an updated cart layout with modernized controls and clearer information hierarchy, so the cart is easier to read and faster to operate.
+
+*Context:* This story covers **visual/styling changes** to the cart panel. Functional changes like relocating the BO setup and payment device selectors to the page header are covered by B2BS-920 (POS configuration widget).
+
+*Acceptance criteria:*
+
+_Header area:_
+- Cart header shows "Cart" title on the left and "Clear all" link (red text) on the right.
+- The old setup name + venue header row is removed (setup/device config moves to page header per B2BS-920).
+- Cart header is hidden when the cart is empty; empty state shows receipt icon + "The cart is empty".
+
+_Timeslot row:_
+- Timeslot row shows ticket icon + date/time on the left, location-dot icon + venue on the right.
+- Replaces the old flat "Tickets" label + date format.
+
+_Cart item cards:_
+- Quantity controls use a pill-shaped container with circular +/− buttons (blue filled) and centered count.
+- Booking fee is shown below the price when applicable (e.g., "+ €0.60 booking fee").
+
+_Footer:_
+- Total row shows "Total (N items)" with item count, not just "Total".
+- "Select discount type" link is blue text (no gear icon), right-aligned below the total amount.
+- Two payment buttons side-by-side: Cash (outlined, wallet icon) and Card (filled blue, card icon).
+- Replaces the old single "Pay" button.
+
 **`B2BS-924` — Seated event tab layout and add-on separation**
 As a cashier, I want seated events to automatically split into a Seating tab and a separate Add-Ons tab, so that seat selection (via seats.io) and add-on purchasing are clearly separated.
 
@@ -69,24 +99,49 @@ As a cashier, I want seated events to automatically split into a Seating tab and
 
 | Status | Figma |
 |--------|-------|
-| Not started | _Pending — @Pablo Rubio to add link when ready for dev_ |
+| Ready for dev | [Timeslot selector modal](https://www.figma.com/design/YHaH7icLUALRpKvvl9S8xE/One-Stop-Shop?node-id=21345-165781) |
 
 ### Context
 
 The current timeslot picker is a permanent left-sidebar panel consuming horizontal space. The redesign replaces it with an on-demand modal, giving the tile grid full width.
 
+### Why
+
+The permanent sidebar calendar wastes horizontal space on the POS's already-constrained touch screen. Moving timeslot selection to an on-demand modal gives the product grid full width, making it faster for cashiers to find and sell products.
+
 ### User Stories
 
 **`B2BS-921` — Timeslot selector modal**
-As a cashier, I want to pick a date and timeslot from an on-demand modal with availability indicators, so the tile grid keeps full width when I'm not scheduling.
+As a cashier, I want to pick a date and timeslot from an on-demand modal with availability indicators and a calendar fallback for multi-week events, so the tile grid keeps full width when I'm not scheduling and I can quickly browse any date.
 
 *Acceptance criteria:*
-- Horizontal date pill strip (only dates with sessions); first available date pre-selected.
-- Timeslot cards grouped by time-of-day; groups with no slots hidden.
-- Availability indicators: Available (green), Filling up (amber + remaining count), Almost gone (red + remaining count), Sold out (grey, disabled).
-- Event context banner at the top (thumbnail, name, venue, city).
-- Two-step selection: tap highlights (blue border) → "Confirm selection" button applies.
-- Previously confirmed slot shows "Selected" label; date pill shows checkmark.
+
+_Date strip:_
+- Horizontal date strip showing rectangular date cards (only dates with sessions); first available date pre-selected.
+- Each date card shows: day abbreviation (or "TODAY"), date + month (e.g., "31 Jan"), and an availability underline bar when applicable (amber for filling, red for low availability, grey for sold out).
+- At most 5 date cards visible at once. A "More dates" underlined link sits inline to the right of the strip, opening the calendar view.
+- If the active date falls outside the visible 5 cards, it replaces the last card so the selection is always visible.
+- An availability legend appears above the date strip: "Low availability" (amber bar) and "Sold out" (grey bar).
+- The date strip, divider, and timeslots are wrapped in a light grey block container.
+
+_Calendar view ("More dates"):_
+- Tapping "More dates" replaces the date strip + timeslots with a full month-view calendar. The modal title changes to "More dates" and a back chevron appears in the header.
+- The calendar uses a Monday-start week with three-letter weekday labels (MON–SUN). Dates with available sessions have a light blue background; the selected date has a blue border. Dates without sessions are greyed out. Month navigation is via pill-shaped month toggle buttons.
+- Calendar grid always renders 6 rows so the modal height stays stable across months.
+- Availability underline bars in the calendar: dates with constrained availability show a short colored underline bar beneath the date number — amber for filling, red for low availability. A legend below the grid explains the bar colors.
+- Selecting a date from the calendar closes the calendar and returns to the date strip + timeslots view with the chosen date active.
+- Tapping the back chevron returns to the date strip without changing the selection. The active date card scrolls into view on return.
+- The footer (Today + Confirm selection) is hidden while the calendar is open.
+
+_Timeslot selection:_
+- Timeslot chips grouped by time-of-day (Morning / Afternoon / Evening); groups with no slots are hidden.
+- Each group heading combines the full date and period, e.g., "Thursday, January 31 - Evening".
+- Timeslot chip visual states: available = white background with time only; filling = blue tint + amber border + dot + remaining count; low availability = blue tint + red border + dot + remaining count; sold out = grey background, "Sold out" text, disabled.
+- Two-step selection: tapping a chip highlights it → "Confirm selection" button applies the choice.
+
+_Footer:_
+- "Today" button (calendar icon, tertiary style) on the left jumps to today's date (or the nearest future available date).
+- "Confirm selection" primary button on the right; disabled until a timeslot is selected.
 
 **`B2BS-923` — Timeslot enforcement**
 As a cashier, I want the system to require a timeslot before selling tickets, so I never sell without a valid session.
@@ -104,10 +159,14 @@ As a cashier, I want the system to require a timeslot before selling tickets, so
 
 Today category chips are flat filters and all tiles are text-only. The evolution standardizes explode pipes as first-level chip selectors (across Tickets and Merch), category tiles for deeper navigation, and adds product thumbnails for faster visual recognition.
 
+### Why
+
+Flat text-only tiles and simple category chips slow cashiers down when the catalog grows. Visual hierarchy (images, drillable categories) is needed for partners with large product catalogs to keep checkout speed acceptable.
+
 ### User Stories
 
 **`B2BS-927` — Explode pipes and category tiles**
-As a cashier, I want first-level categories as chip pills and deeper categories as purple tiles in the grid, so I can filter quickly and drill down visually.
+As a cashier, I want first-level categories as chip pills and deeper categories as purple tiles in the grid, so I can find products fast in large catalogs instead of scrolling through a flat list.
 
 *Acceptance criteria:*
 - Tickets tab: explode pipe chips vary by event (some events have them, others don't).
@@ -134,6 +193,10 @@ As a cashier, I want product tiles to show a thumbnail image when available, so 
 
 Today each tile is one product at one price. Products with size or color variants need a selection step before adding to cart, without cluttering the grid with one tile per variant.
 
+### Why
+
+Partners selling sized/colored merchandise today need a separate tile per variant, cluttering the grid. A variant picker keeps the grid clean while still surfacing all options at point of sale.
+
 ### User Stories
 
 **`B2BS-930` — Variant tile and picker**
@@ -146,7 +209,7 @@ As a cashier, I want variant products to show "from" pricing and open a picker o
 - Selecting a pill adds to cart and closes the picker; clicking outside or Escape dismisses without adding.
 
 **`B2BS-932` — Variants in the cart**
-As a cashier, I want each variant to appear as a separate cart line with a size/color label, so each variant is tracked with its own quantity.
+As a cashier, I want each variant to appear as a separate cart line with a size/color label, so the receipt is accurate and stock decrements per variant instead of per parent product.
 
 *Acceptance criteria:*
 - Each variant is a distinct cart line with a grey variant-label pill below the product name.
@@ -160,6 +223,10 @@ As a cashier, I want each variant to appear as a separate cart line with a size/
 ### Context
 
 The POS today shows standard pricing for all visitors. Partners with membership programs need cashiers to identify members and see tiered pricing applied across tiles, categories, and the cart — including retroactive application mid-transaction.
+
+### Why
+
+Partners with membership programs currently have no way to honor member pricing at the POS, forcing manual workarounds or losing the member value proposition at the point of sale.
 
 ### User Stories
 
