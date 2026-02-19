@@ -46,6 +46,11 @@ export function MiniCalendar({
 
   const availableSet = useMemo(() => new Set(availableDates), [availableDates]);
 
+  const todayIso = useMemo(() => {
+    const now = new Date();
+    return toIso(now.getFullYear(), now.getMonth(), now.getDate());
+  }, []);
+
   // Determine which months have available dates (for the pill toggle)
   const availableMonths = useMemo(() => {
     const months = new Map<string, { year: number; month: number }>();
@@ -117,6 +122,7 @@ export function MiniCalendar({
           const hasSession = availableSet.has(cell.iso);
           const isActive = cell.iso === activeDate;
           const isConfirmed = cell.iso === confirmedDate;
+          const isToday = cell.iso === todayIso;
           const avail = dateAvailability.get(cell.iso);
           const barClass = avail ? BAR_STYLE[avail] : undefined;
 
@@ -124,6 +130,7 @@ export function MiniCalendar({
             styles.dayCell,
             hasSession ? styles.dayCellAvailable : styles.dayCellDisabled,
             isActive ? styles.dayCellActive : '',
+            isToday && !isActive ? styles.dayCellToday : '',
           ].filter(Boolean).join(' ');
 
           return (

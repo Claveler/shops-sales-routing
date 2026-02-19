@@ -4,6 +4,8 @@ import {
   faXmark,
   faCalendarDay,
   faChevronLeft,
+  faChevronUp,
+  faChevronDown,
 } from '@fortawesome/free-solid-svg-icons';
 import type { EventTimeslot, AvailabilityLevel } from '../../data/feverPosData';
 import {
@@ -109,6 +111,23 @@ export function TimeslotModal({
     () => groupTimeslotsByTimeOfDay(slotsForDate),
     [slotsForDate],
   );
+
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (groups.length > 0) {
+      setExpandedGroups(new Set([groups[0].timeOfDay]));
+    }
+  }, [groups]);
+
+  const toggleGroup = useCallback((timeOfDay: string) => {
+    setExpandedGroups((prev) => {
+      const next = new Set(prev);
+      if (next.has(timeOfDay)) next.delete(timeOfDay);
+      else next.add(timeOfDay);
+      return next;
+    });
+  }, []);
 
   const hasMoreDates = availableDates.length > MAX_VISIBLE_PILLS;
   const visibleDates = useMemo(() => {
@@ -277,54 +296,73 @@ export function TimeslotModal({
 
               {/* Timeslot groups */}
               <div className={styles.timeslotSection} ref={timeslotSectionRef}>
-                {groups.map((group) => (
-                  <div key={group.timeOfDay} className={styles.timeslotGroup}>
-                    <p className={styles.groupLabel}>
-                      {formatDateLong(activeDate)} - {group.label}
-                    </p>
-                    <div className={styles.slotGrid}>
-                      {group.slots.map((slot) => {
-                        const isSoldOut = slot.availability === 'sold_out';
-                        const isFilling = slot.availability === 'filling';
-                        const isLow = slot.availability === 'low';
-                        const isPending = pendingSlotId === slot.id;
-                        const remaining = slot.capacity - slot.sold;
+                {groups.map((group) => {
+                  const isExpanded = expandedGroups.has(group.timeOfDay);
+                  return (
+                    <div key={group.timeOfDay} className={styles.timeslotGroup}>
+                      <button
+                        type="button"
+                        className={styles.groupHeader}
+                        onClick={() => toggleGroup(group.timeOfDay)}
+                        aria-expanded={isExpanded}
+                      >
+                        <span className={styles.groupLabel}>
+                          {formatDateLong(activeDate)} - {group.label}
+                        </span>
+                        <span className={styles.groupTimeRange}>
+                          {group.timeRange}
+                        </span>
+                        <FontAwesomeIcon
+                          icon={isExpanded ? faChevronUp : faChevronDown}
+                          className={styles.groupChevron}
+                        />
+                      </button>
+                      {isExpanded && (
+                        <div className={styles.slotGrid}>
+                          {group.slots.map((slot) => {
+                            const isSoldOut = slot.availability === 'sold_out';
+                            const isFilling = slot.availability === 'filling';
+                            const isLow = slot.availability === 'low';
+                            const isPending = pendingSlotId === slot.id;
+                            const remaining = slot.capacity - slot.sold;
 
-                        const cardClasses = [
-                          styles.slotCard,
-                          isFilling ? styles.slotCardFilling : '',
-                          isLow ? styles.slotCardLow : '',
-                          isSoldOut ? styles.slotCardSoldOut : '',
-                          isPending ? styles.slotCardSelected : '',
-                        ].filter(Boolean).join(' ');
+                            const cardClasses = [
+                              styles.slotCard,
+                              isFilling ? styles.slotCardFilling : '',
+                              isLow ? styles.slotCardLow : '',
+                              isSoldOut ? styles.slotCardSoldOut : '',
+                              isPending ? styles.slotCardSelected : '',
+                            ].filter(Boolean).join(' ');
 
-                        return (
-                          <button
-                            key={slot.id}
-                            type="button"
-                            className={cardClasses}
-                            onClick={() => handleSlotClick(slot)}
-                            disabled={isSoldOut}
-                            aria-pressed={isPending}
-                          >
-                            <span className={styles.slotTime}>
-                              {formatTimeslotTime(slot.startTime)}
-                            </span>
-                            {(isFilling || isLow) && (
-                              <span className={`${styles.slotInfo} ${isFilling ? styles.slotInfoFilling : styles.slotInfoLow}`}>
-                                <span className={styles.slotInfoDot} />
-                                <span className={styles.slotInfoCount}>{remaining} left</span>
-                              </span>
-                            )}
-                            {isSoldOut && (
-                              <span className={styles.slotInfoSoldOut}>Sold out</span>
-                            )}
-                          </button>
-                        );
-                      })}
+                            return (
+                              <button
+                                key={slot.id}
+                                type="button"
+                                className={cardClasses}
+                                onClick={() => handleSlotClick(slot)}
+                                disabled={isSoldOut}
+                                aria-pressed={isPending}
+                              >
+                                <span className={styles.slotTime}>
+                                  {formatTimeslotTime(slot.startTime)}
+                                </span>
+                                {(isFilling || isLow) && (
+                                  <span className={`${styles.slotInfo} ${isFilling ? styles.slotInfoFilling : styles.slotInfoLow}`}>
+                                    <span className={styles.slotInfoDot} />
+                                    <span className={styles.slotInfoCount}>{remaining} left</span>
+                                  </span>
+                                )}
+                                {isSoldOut && (
+                                  <span className={styles.slotInfoSoldOut}>Sold out</span>
+                                )}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

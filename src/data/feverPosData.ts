@@ -635,6 +635,7 @@ export type TimeOfDay = 'morning' | 'afternoon' | 'evening';
 export interface TimeslotGroup {
   label: string;
   timeOfDay: TimeOfDay;
+  timeRange: string;
   slots: EventTimeslot[];
 }
 
@@ -655,9 +656,9 @@ export function groupTimeslotsByTimeOfDay(timeslots: EventTimeslot[]): TimeslotG
   }
 
   const groups: TimeslotGroup[] = [];
-  if (morning.length > 0) groups.push({ label: 'Morning', timeOfDay: 'morning', slots: morning });
-  if (afternoon.length > 0) groups.push({ label: 'Afternoon', timeOfDay: 'afternoon', slots: afternoon });
-  if (evening.length > 0) groups.push({ label: 'Evening', timeOfDay: 'evening', slots: evening });
+  if (morning.length > 0) groups.push({ label: 'Morning', timeOfDay: 'morning', timeRange: '7:00 AM to 2:59 PM', slots: morning });
+  if (afternoon.length > 0) groups.push({ label: 'Afternoon', timeOfDay: 'afternoon', timeRange: '3:00 PM to 6:59 PM', slots: afternoon });
+  if (evening.length > 0) groups.push({ label: 'Evening', timeOfDay: 'evening', timeRange: '7:00 PM to 9:59 PM', slots: evening });
   return groups;
 }
 

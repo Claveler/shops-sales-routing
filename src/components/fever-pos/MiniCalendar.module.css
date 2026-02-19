@@ -94,25 +94,38 @@
   transition: border-color 120ms ease-in-out, background 120ms ease-in-out;
 }
 
-/* ---- Available day — light blue tint ---- */
+/* ---- Available day — black text, no background ---- */
 .dayCellAvailable {
   color: #1A1A1A;
-  background: #E6F4FE;
+  background: #FFFFFF;
 }
 
-.dayCellAvailable:hover:not(.dayCellActive) {
-  background: #D6ECFA;
+.dayCellAvailable:hover:not(.dayCellActive):not(.dayCellToday) {
+  background: #F5F5F5;
 }
 
-:global([data-touch-mode="true"]) .dayCellAvailable:hover:not(.dayCellActive) {
-  background: #E6F4FE;
+:global([data-touch-mode="true"]) .dayCellAvailable:hover:not(.dayCellActive):not(.dayCellToday) {
+  background: #FFFFFF;
 }
 
-/* ---- Disabled day (no sessions) ---- */
+/* ---- Disabled day (no sessions) — grey text ---- */
 .dayCellDisabled {
-  color: #D5D5D5;
+  color: #C0C0C0;
   cursor: default;
   background: transparent;
+}
+
+/* ---- Today's date — warm yellow background ---- */
+.dayCellToday {
+  background: #FFF3D0;
+}
+
+.dayCellToday:hover:not(.dayCellActive) {
+  background: #FFEBAD;
+}
+
+:global([data-touch-mode="true"]) .dayCellToday:hover:not(.dayCellActive) {
+  background: #FFF3D0;
 }
 
 /* ---- Active (selected) day — blue border, white bg, blue text ---- */

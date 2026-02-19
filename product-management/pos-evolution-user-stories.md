@@ -175,7 +175,7 @@ _Date strip:_
 
 _Calendar view ("More dates"):_
 - Tapping "More dates" replaces the date strip + timeslots with a full month-view calendar. The modal title changes to "More dates" and a back chevron appears in the header.
-- The calendar uses a Monday-start week with three-letter weekday labels (MON–SUN). Dates with available sessions have a light blue background; the selected date has a blue border. Dates without sessions are greyed out. Month navigation is via pill-shaped month toggle buttons.
+- The calendar uses a Monday-start week with three-letter weekday labels (MON–SUN). Dates with available sessions show black text (no colored background); the selected date has a blue border. Dates without sessions show grey text and are non-interactive. Today's date has a warm yellow background. Month navigation is via pill-shaped month toggle buttons.
 - Calendar grid always renders 6 rows so the modal height stays stable across months.
 - Availability underline bars in the calendar: dates with constrained availability show a short colored underline bar beneath the date number — amber for filling, red for low availability. A legend below the grid explains the bar colors.
 - Selecting a date from the calendar closes the calendar and returns to the date strip + timeslots view with the chosen date active.
@@ -184,7 +184,8 @@ _Calendar view ("More dates"):_
 
 _Timeslot selection:_
 - Timeslot chips grouped by time-of-day (Morning / Afternoon / Evening); groups with no slots are hidden.
-- Each group heading combines the full date and period, e.g., "Thursday, January 31 - Evening".
+- Each group heading combines the full date and period, e.g., "Thursday, January 31 - Evening", followed by a time range in lighter text (e.g., "7:00 AM to 2:59 PM" for Morning, "3:00 PM to 6:59 PM" for Afternoon, "7:00 PM to 9:59 PM" for Evening).
+- Groups are collapsible accordion sections. A chevron on the right of each heading toggles expand/collapse. Only the first group with available slots is expanded by default; the rest are collapsed.
 - Timeslot chip visual states: available = white background with time only; filling = blue tint + amber border + dot + remaining count; low availability = blue tint + red border + dot + remaining count; sold out = grey background, "Sold out" text, disabled.
 - Two-step selection: tapping a chip highlights it → "Confirm selection" button applies the choice.
 
