@@ -112,12 +112,23 @@ _Footer:_
 As a cashier, I want seated events to automatically split into a Seating tab and a separate Add-Ons tab, so that seat selection (via seats.io) and add-on purchasing are clearly separated.
 
 *Acceptance criteria:*
+
+_Tab layout:_
 - For non-seated events, the Tickets & Add-Ons tab remains a single tab showing the event name. No change.
 - When an event is configured for assigned seating, the Tickets & Add-Ons tab splits: the first tab becomes "Seating" (showing the seats.io widget) and a new "Add-Ons" tab appears between it and Merch.
 - The Add-Ons tab shows the same add-on product grid used in non-seated events, but without seated tickets (tickets are handled through seat selection).
-- Seats selected via the seats.io widget are added to the cart as individual line items (qty = 1 each) with a seat info badge showing section, row, and seat number.
 
-*Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the POS tab restructuring, add-on separation, and cart integration for seat-specific line items. Deletion of cart items is not allowed from the cart; all actions are done from the seats.io integration.
+_Seated cart items:_
+- Seats of the same tier are grouped into a single cart item, regardless of ticket type (Adult/Child).
+- The cart item title is the tier name (e.g., "General Admission - Tier 1").
+- Individual seat references are listed below the title, each showing the seat ID, section, and ticket type (e.g., "B6 (Balcony Left) · Adult").
+- A "Seats" badge on the right side shows the count of seats in that group, replacing the quantity pill controls used for non-seated items.
+- Price and booking fee are shown as totals across all seats in the group (Adult and Child seats may have different unit prices).
+- Selecting a new seat of the same tier on the map increments the existing cart item instead of creating a new row.
+- Deselecting a seat on the map removes that specific seat from the group; if the last seat is removed, the cart item is deleted.
+- Quantity cannot be changed from the cart directly; all seat management is done through the seating map.
+
+*Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the POS tab restructuring, add-on separation, and cart integration for seat-specific line items.
 
 ---
 

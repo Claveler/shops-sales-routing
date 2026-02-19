@@ -110,13 +110,11 @@ export function SeatingMapView({
     const isAdult = ticketType === 'adult';
     const price = isAdult ? tier.adultPrice : tier.childPrice;
     const fee = isAdult ? tier.adultFee : tier.childFee;
-    const ticketName = isAdult
-      ? tier.name.replace('General Admission', 'General Admission Adult')
-      : tier.name.replace('General Admission', 'General Admission Child');
+    const typeLabel = isAdult ? 'Adult' : 'Child';
 
     onAddToCart({
-      productId: `seated-${seat.tierId}-${ticketType}`,
-      name: ticketName,
+      productId: `seated-${seat.tierId}`,
+      name: tier.name,
       price,
       quantity: 1,
       bookingFee: fee,
@@ -126,6 +124,9 @@ export function SeatingMapView({
         section: seat.section,
         row: seat.row,
         seat: seat.seat,
+        ticketType: typeLabel,
+        unitPrice: price,
+        bookingFee: fee,
       }],
     });
 

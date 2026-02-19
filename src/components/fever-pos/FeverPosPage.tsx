@@ -854,7 +854,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
   // ---- Cart handlers ----
 
   // Handler for adding seated tickets from the seating map.
-  // Groups seats by tier+type: if a cart item with the same productId exists,
+  // Groups seats by tier: if a cart item with the same productId exists,
   // the new seat is appended to its seatInfoList instead of creating a new row.
   const handleAddSeatedTicketToCart = useCallback((item: Omit<CartItemData, 'id'>) => {
     const targetEvent = activeSelectedEvent;
@@ -900,7 +900,7 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
 
       const targetGroup = updatedGroups[groupIndex];
 
-      // Try to merge into an existing item with the same productId (tier+type key)
+      // Try to merge into an existing item with the same productId (tier key)
       const existingItem = targetGroup.items.find((i) => i.productId === item.productId);
 
       if (existingItem && existingItem.seatInfoList && item.seatInfoList?.length) {

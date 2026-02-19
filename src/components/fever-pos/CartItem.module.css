@@ -76,6 +76,11 @@
   left: 0;
 }
 
+/* Seated price block (total across all seats) */
+.seatedPriceBlock {
+  margin-top: 4px;
+}
+
 /* Seats badge (replaces pill counter for seated items) */
 .seatsBadge {
   display: flex;

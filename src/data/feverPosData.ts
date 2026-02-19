@@ -47,12 +47,15 @@ export interface CartItemData {
     seat: string;
     tier: string;
   };
-  /** Grouped seat references for assigned seating events (one item per tier+type) */
+  /** Grouped seat references for assigned seating events (one item per tier) */
   seatInfoList?: {
     seatId: string;         // unique ID for removal (maps to SeatInfo.id)
     section: string;        // e.g. "Door 4 - Section 102"
     row: string;            // e.g. "B"
     seat: string;           // e.g. "G3"
+    ticketType: string;     // e.g. "Adult" or "Child"
+    unitPrice: number;      // per-seat price (Adult and Child may differ)
+    bookingFee?: number;    // per-seat booking fee
   }[];
   /** Tier name for seated items (e.g. "General Admission - Tier 5") */
   seatTier?: string;
@@ -345,28 +348,16 @@ export const initialCartEvents: CartEventGroup[] = [
     items: [
       {
         id: 'ci-hz-1',
-        productId: 'seated-tier-1-adult',
-        name: 'General Admission Adult - Tier 1',
+        productId: 'seated-tier-1',
+        name: 'General Admission - Tier 1',
         price: 50.00,
         quantity: 3,
         bookingFee: 7.50,
         seatTier: 'General Admission - Tier 1',
         seatInfoList: [
-          { seatId: 'mock-b6', section: 'Balcony Left', row: 'B', seat: '6' },
-          { seatId: 'mock-b7', section: 'Balcony Left', row: 'B', seat: '7' },
-          { seatId: 'mock-c3', section: 'Balcony Left', row: 'C', seat: '3' },
-        ],
-      },
-      {
-        id: 'ci-hz-2',
-        productId: 'seated-tier-1-child',
-        name: 'General Admission Child - Tier 1',
-        price: 40.00,
-        quantity: 1,
-        bookingFee: 6.00,
-        seatTier: 'General Admission - Tier 1',
-        seatInfoList: [
-          { seatId: 'mock-b11', section: 'Balcony Left', row: 'B', seat: '11' },
+          { seatId: 'mock-b6', section: 'Balcony Left', row: 'B', seat: '6', ticketType: 'Adult', unitPrice: 50.00, bookingFee: 7.50 },
+          { seatId: 'mock-b7', section: 'Balcony Left', row: 'B', seat: '7', ticketType: 'Adult', unitPrice: 50.00, bookingFee: 7.50 },
+          { seatId: 'mock-b11', section: 'Balcony Left', row: 'B', seat: '11', ticketType: 'Child', unitPrice: 40.00, bookingFee: 6.00 },
         ],
       },
     ],
