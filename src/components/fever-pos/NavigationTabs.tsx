@@ -102,7 +102,7 @@ export function NavigationTabs({
               {eventName}
             </span>
           </div>
-          {hasMultiplePlans && (
+          {hasMultiplePlans && isFirstTabActive && (
             <span
               className={styles.editButton}
               role="button"

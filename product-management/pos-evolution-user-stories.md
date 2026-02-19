@@ -29,11 +29,12 @@ As a cashier, I want to add tickets from different events into the same cart, so
 
 *Acceptance criteria:*
 
-_Event tab:_
-- The first tab (event tab) has a fixed width of 300px.
-- A list icon (☰) appears at the far right of the event tab, but only when the BO setup has more than one plan to sell.
+_Tickets & Add-Ons tab:_
+- The Tickets & Add-Ons tab (first tab, shows the event name) has a fixed width of 300px.
+- A list icon (☰) appears at the far right of the tab, but only when the BO setup has more than one plan to sell and the tab is active.
 - Tapping the list icon opens the event selector.
 - The event name uses a marquee animation for long names: 1s delay after load or event change, scrolls right-to-left to reveal the full name, pauses 3s at the end, then scrolls back left-to-right.
+- For seated events, this tab splits into a Seating tab + a separate Add-Ons tab (see B2BS-924).
 
 _Cart grouping:_
 - Switching the event selector does not clear the cart; new tickets create a new event group.
@@ -111,10 +112,10 @@ _Footer:_
 As a cashier, I want seated events to automatically split into a Seating tab and a separate Add-Ons tab, so that seat selection (via seats.io) and add-on purchasing are clearly separated.
 
 *Acceptance criteria:*
-- When an event is configured for assigned seating, the tab layout changes from "[Event Name] | Merch" to "[Event Name] | Add-Ons | Merch".
+- For non-seated events, the Tickets & Add-Ons tab remains a single tab showing the event name. No change.
+- When an event is configured for assigned seating, the Tickets & Add-Ons tab splits: the first tab becomes "Seating" (showing the seats.io widget) and a new "Add-Ons" tab appears between it and Merch.
 - The Add-Ons tab shows the same add-on product grid used in non-seated events, but without seated tickets (tickets are handled through seat selection).
 - Seats selected via the seats.io widget are added to the cart as individual line items (qty = 1 each) with a seat info badge showing section, row, and seat number.
-- Non-seated events are unaffected — they continue using the single "Tickets & Add-Ons" tab.
 
 *Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the POS tab restructuring, add-on separation, and cart integration for seat-specific line items. Deletion of cart items is not allowed from the cart; all actions are done from the seats.io integration.
 
@@ -196,7 +197,7 @@ Flat text-only tiles and simple category chips slow cashiers down when the catal
 As a cashier, I want first-level categories as chip pills and deeper categories as purple tiles in the grid, so I can find products fast in large catalogs instead of scrolling through a flat list.
 
 *Acceptance criteria:*
-- Tickets tab: explode pipe chips vary by event (some events have them, others don't).
+- Tickets & Add-Ons tab: explode pipe chips vary by event (some events have them, others don't).
 - Merch tab: root always shows explode pipes for top-level categories.
 - Active chip has blue border; inactive chips neutral.
 - Category tiles (level 2+): purple stripe, stacked-boxes icon, no price.
