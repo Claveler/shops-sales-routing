@@ -24,7 +24,7 @@ export function SeatCategoryFilter({
   onToggleTier,
   onShowAllTiers: _onShowAllTiers,
   selectedSeatCount,
-  onClearSelection,
+  onClearSelection: _onClearSelection,
 }: SeatCategoryFilterProps) {
   // Reserved for future use
   void _onShowAllTiers;

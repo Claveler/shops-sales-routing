@@ -42,7 +42,7 @@ export function SeatingMapView({
   eventId: _eventId,
   timeslotLabel,
   onCalendarClick,
-  onClearTimeslot,
+  onClearTimeslot: _onClearTimeslot,
   isDevicePreview = false,
 }: SeatingMapViewProps) {
   // Reserved for future use (e.g., fetching seat availability per event)

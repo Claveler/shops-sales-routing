@@ -30,7 +30,7 @@ export function CategoryFilter({
   activeCategoryId,
   onCategoryChange,
   onCalendarClick,
-  onClearTimeslot,
+  onClearTimeslot: _onClearTimeslot,
   timeslotLabel,
   showBreadcrumbs = false,
   breadcrumbs = [],
