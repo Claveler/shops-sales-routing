@@ -206,20 +206,31 @@
   color: #fff;
 }
 
+/* Disabled state for items in an inactive timeslot */
+.cartItemDisabled {
+  background: #f6f7f7;
+  border-color: var(--fz-border-color, #ccd2d8);
+}
+
+.cartItemDisabled .itemName,
+.cartItemDisabled .price,
+.cartItemDisabled .bookingFee {
+  color: var(--fz-text-secondary, #536b75);
+}
+
 .pillBtnDisabled {
-  background: #E5E7EB;
-  color: #9CA3AF;
+  background: #f2f3f3;
+  color: #536b75;
   cursor: not-allowed;
-  opacity: 0.6;
 }
 
 .pillBtnDisabled:hover {
-  opacity: 0.6;
+  opacity: 1;
 }
 
 .pillCountDisabled {
   cursor: default;
-  color: var(--fz-text-tertiary, #8496a1);
+  color: var(--fz-text-secondary, #536b75);
 }
 
 .pillCountDisabled:hover {

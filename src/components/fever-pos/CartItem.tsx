@@ -122,7 +122,7 @@ export function CartItem({ item, onIncrement, onDecrement, onSetQuantity, onRemo
   };
 
   return (
-    <div ref={cartItemRef} className={styles.cartItem}>
+    <div ref={cartItemRef} className={`${styles.cartItem} ${isTimeslotMismatch ? styles.cartItemDisabled : ''}`}>
       <div className={styles.itemInfo}>
         <p className={styles.itemName}>{item.name}</p>
         {item.variantLabel && (

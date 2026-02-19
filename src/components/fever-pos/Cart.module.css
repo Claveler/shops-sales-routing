@@ -113,10 +113,11 @@
   overflow: hidden;
 }
 
-/* Amber tint on the ticket/timeslot section only — retail products stay neutral */
+/* Grey tint on inactive (non-active) timeslot section */
 .timeSlotSectionMismatch {
-  background: var(--fz-warning-bg, #fff8e1);
+  background: #fafbfb;
   border-radius: 8px;
+  cursor: pointer;
 }
 
 /* ---- Event header row ---- */
@@ -248,34 +249,21 @@
   color: var(--fz-text-primary, #031419);
 }
 
-/* Mismatch action — clickable button to switch back to this group's timeslot */
-.timeslotMismatch {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  margin-left: 6px;
-  white-space: nowrap;
+/* "Activate time slot" link shown below items in an inactive timeslot container */
+.activateTimeslotLink {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  color: var(--fz-primary-600, #0079CA);
   background: none;
   border: none;
-  padding: 2px 6px;
-  border-radius: 4px;
   cursor: pointer;
+  padding: 4px;
+  align-self: center;
 }
 
-.timeslotMismatch:hover {
-  background: var(--fz-warning-bg, #fff8e1);
-}
-
-.timeslotMismatchIcon {
-  font-size: 10px;
-  color: var(--fz-warning-icon, #e6a700);
-}
-
-.timeslotMismatchText {
-  font-size: 10px;
-  line-height: 14px;
-  font-weight: 500;
-  color: var(--fz-warning-text, #b38600);
+.activateTimeslotLink:hover {
+  text-decoration: underline;
 }
 
 .timeSlotLocation {
@@ -348,10 +336,10 @@
 }
 
 .flatTimeSlotMismatch {
-  background: var(--fz-warning-bg, #fff8e1);
-  border: 1px solid var(--fz-warning-border, #ffe082);
+  background: #fafbfb;
   border-radius: 8px;
-  padding: 12px;
+  padding: 8px;
+  cursor: pointer;
 }
 
 .flatProductsSection {

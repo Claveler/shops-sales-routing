@@ -39,20 +39,45 @@ As a cashier, I want to add tickets from different events into the same cart, so
 As a cashier, I want to sell tickets for different timeslots of the same event in one transaction, so that split groups can pay together.
 
 *Acceptance criteria:*
-- When the timeslots are from the same event, the cart groups items by timeslot.
+
+_Flat layout:_
+- When all groups in the cart belong to the same event (even across multiple timeslots), the cart uses a flat layout — no collapsible event headers.
+- Each timeslot section has a header showing ticket icon + formatted date/time.
+- Venue/location is shown on timeslot headers only when the cart contains items from more than one distinct venue; hidden otherwise.
+
+_Inactive timeslot (disabled state):_
+- Timeslot sections whose timeslot differs from the currently active one are rendered in a grey container (light grey background, rounded corners, 8px padding).
+- Cart items inside an inactive section have grey backgrounds, subtle text color, and disabled (grey) quantity buttons.
+- An "Activate time slot" blue link appears below the items in the disabled container.
+- Clicking the link or anywhere inside the disabled container switches the active timeslot to that group's timeslot, re-enabling quantity controls.
+
+_General:_
 - Changing the active timeslot targets new tickets only — existing groups are never moved.
-- A way should be given to go back to a timeslot that cart items belong to, so the increase/decrease buttons are re-enabled.
 
 *Note:* **This is already in prod code:** If a timeslot is active, then the cart items that are not in that timeslot should have the increase/decrease buttons disabled.
 
-**`B2BS-920` — POS configuration widget**
-As a cashier, I want to see and switch my Box Office setup and payment device from the page header, so I don't have to leave the selling interface.
+**`B2BS-920` — POS configuration widget (hamburger menu)**
+As a cashier, I want to see and switch my Box Office setup and payment device from a header menu, so I don't have to leave the selling interface.
 
 *Acceptance criteria:*
-- Widget in the header trail shows: venue name (label), setup name + truncated device ID (value), gear icon.
-- Dropdown has two sections: Box Office Setup (accordion by venue, one expanded at a time) and Payment Device (filtered to the selected setup's linked devices).
+
+_Hamburger menu:_
+- Hamburger icon (☰) sits at the far right of the header, after the user avatar.
+- Tapping opens a popover anchored to the icon with the following items in order: "Change setup" (gear icon), an info box showing the current venue (building icon) and setup (cash-register icon), "Link device" (mobile icon) with the linked device ID as subtitle, a divider, "Get universal share link" (share icon), and "Log out" (arrow-right-from-bracket icon).
+- Popover closes on outside click.
+
+_Change setup modal:_
+- "Change setup" opens a full-screen modal titled "Select Your Setup — {current setup name}".
+- Step 1: venue grid with search input; selecting a venue highlights it and reveals step 2.
+- Step 2: setup grid filtered to the selected venue; selecting a setup confirms and closes the modal.
 - Changing setup cascades to re-filter devices; if the current device is invalid, the first valid one is auto-selected (or cleared).
-- Dropdown stays open during selections; closes on outside click.
+
+_Link device modal:_
+- "Link device" opens a modal titled "Link Payment Device".
+- Shows a list of Adyen terminals linked to the current setup; each card shows device ID and device name.
+- The currently linked device is highlighted with a "Connected" badge.
+- Selecting a different device updates the link and closes the modal.
+- Empty state shown if no devices are linked to the setup.
 
 **`B2BS-962` — Cart panel visual redesign**
 As a cashier, I want an updated cart layout with modernized controls and clearer information hierarchy, so the cart is easier to read and faster to operate.

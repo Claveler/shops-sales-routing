@@ -10,7 +10,6 @@ import {
   faWallet,
   faCreditCard,
   faReceipt,
-  faCircleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { CartItem } from './CartItem';
 import { MarqueeText } from './MarqueeText';
@@ -34,7 +33,7 @@ interface CartProps {
   selectedTicketEventId?: string;
   /** Whether the POS is in iMin device preview mode — enables on-screen keyboard */
   isDevicePreview?: boolean;
-  /** Switch the active timeslot for an event (used by "Go to timeslot" in cart) */
+  /** Switch the active timeslot for an event (used by "Activate time slot" in cart) */
   onSwitchTimeslot?: (eventId: string, timeslotId: string) => void;
 }
 
@@ -92,13 +91,14 @@ export function Cart({
 
   const hasItems = totalItems > 0;
   
-  // Show grouped view if there are multiple events OR if the single event in cart
-  // is different from the currently selected ticket event (to make it clear the cart
-  // contains items from a different event)
-  const cartHasDifferentEvent = eventGroups.length === 1 && 
-    selectedTicketEventId && 
-    eventGroups[0].eventId !== selectedTicketEventId;
-  const useGroupedView = eventGroups.length > 1 || cartHasDifferentEvent;
+  // Multi-timeslot for the same event uses flat layout (no event headers).
+  // Grouped layout only when the cart contains items from different events.
+  const allSameEvent = eventGroups.length > 0 &&
+    new Set(eventGroups.map(g => g.eventId)).size === 1;
+  const useGroupedView = !allSameEvent && eventGroups.length > 1;
+
+  // Determine whether venue should be shown on timeslot headers (only when multiple venues)
+  const hasMultipleVenues = new Set(eventGroups.map(g => g.location)).size > 1;
 
   return (
     <aside className={styles.cart}>
@@ -123,10 +123,10 @@ export function Cart({
           </div>
         )}
 
-        {/* Single event: flat layout, no event header */}
+        {/* Single event (possibly multi-timeslot): flat layout, no event header */}
         {hasItems && !useGroupedView && (
-          <SingleEventLayout
-            group={eventGroups[0]}
+          <FlatLayout
+            groups={eventGroups}
             onIncrementItem={onIncrementItem}
             onDecrementItem={onDecrementItem}
             onSetItemQuantity={onSetItemQuantity}
@@ -137,6 +137,7 @@ export function Cart({
             onKeyboardOpen={handleKeyboardOpen}
             onKeyboardClose={handleKeyboardClose}
             onSwitchTimeslot={onSwitchTimeslot}
+            showVenue={hasMultipleVenues}
           />
         )}
 
@@ -233,11 +234,11 @@ export function Cart({
 }
 
 /* ------------------------------------------------------------------ */
-/* Single-event flat layout                                           */
+/* Flat layout (single event, possibly multi-timeslot)                */
 /* ------------------------------------------------------------------ */
 
-function SingleEventLayout({
-  group,
+function FlatLayout({
+  groups,
   onIncrementItem,
   onDecrementItem,
   onSetItemQuantity,
@@ -248,8 +249,9 @@ function SingleEventLayout({
   onKeyboardOpen,
   onKeyboardClose,
   onSwitchTimeslot,
+  showVenue,
 }: {
-  group: CartEventGroup;
+  groups: CartEventGroup[];
   onIncrementItem: (id: string) => void;
   onDecrementItem: (id: string) => void;
   onSetItemQuantity: (id: string, quantity: number) => void;
@@ -260,57 +262,79 @@ function SingleEventLayout({
   onKeyboardOpen?: () => void;
   onKeyboardClose?: () => void;
   onSwitchTimeslot?: (eventId: string, timeslotId: string) => void;
+  showVenue: boolean;
 }) {
-  // Derive eventId / timeslotId from the composite id if the explicit fields are missing
-  const derivedEventId = group.eventId ?? group.id.split('--')[0];
-  const derivedTimeslotId = group.timeslotId ?? (group.id.includes('--') ? group.id.split('--')[1] : undefined);
-
-  // Determine if the active timeslot differs from this group's timeslot
-  const activeTs = activeTimeslots?.[derivedEventId];
-  const isMismatch = !!(derivedTimeslotId && activeTs && activeTs.id !== derivedTimeslotId);
-
-  const flatTimeSlotClasses = [
-    styles.flatTimeSlot,
-    isMismatch ? styles.flatTimeSlotMismatch : '',
-  ].filter(Boolean).join(' ');
+  // Collect all retail items across groups (shown once at the bottom)
+  const allRetailItems = groups.flatMap(g => g.retailItems);
 
   return (
     <div className={styles.flatItems}>
-      {/* Ticket / add-on items with time-slot header */}
-      {group.items.length > 0 && (
-        <div className={flatTimeSlotClasses}>
-          <TimeSlotHeader
-            date={group.date}
-            location={group.location}
-            isMismatch={isMismatch}
-            onSwitchTimeslot={isMismatch && derivedTimeslotId ? () => onSwitchTimeslot?.(derivedEventId, derivedTimeslotId) : undefined}
-          />
-          <div className={styles.timeSlotItems}>
-            {group.items.map((item) => (
-              <CartItem
-                key={item.id}
-                item={item}
-                onIncrement={onIncrementItem}
-                onDecrement={onDecrementItem}
-                onSetQuantity={onSetItemQuantity}
-                onRemove={onRemoveItem}
-                isMemberActive={isMemberActive}
-                isDevicePreview={isDevicePreview}
-                onKeyboardOpen={onKeyboardOpen}
-                onKeyboardClose={onKeyboardClose}
-                isTimeslotMismatch={isMismatch}
-              />
-            ))}
-          </div>
-        </div>
-      )}
+      {groups.map((group) => {
+        const derivedEventId = group.eventId ?? group.id.split('--')[0];
+        const derivedTimeslotId = group.timeslotId ?? (group.id.includes('--') ? group.id.split('--')[1] : undefined);
+        const activeTs = activeTimeslots?.[derivedEventId];
+        const isMismatch = !!(derivedTimeslotId && activeTs && activeTs.id !== derivedTimeslotId);
 
-      {/* Retail products */}
-      {group.retailItems.length > 0 && (
+        if (group.items.length === 0) return null;
+
+        const flatTimeSlotClasses = [
+          styles.flatTimeSlot,
+          isMismatch ? styles.flatTimeSlotMismatch : '',
+        ].filter(Boolean).join(' ');
+
+        const handleActivate = isMismatch && derivedTimeslotId
+          ? () => onSwitchTimeslot?.(derivedEventId, derivedTimeslotId)
+          : undefined;
+
+        return (
+          <div
+            key={group.id}
+            className={flatTimeSlotClasses}
+            onClick={isMismatch ? handleActivate : undefined}
+            role={isMismatch ? 'button' : undefined}
+            tabIndex={isMismatch ? 0 : undefined}
+          >
+            <TimeSlotHeader
+              date={group.date}
+              location={group.location}
+              showVenue={showVenue}
+            />
+            <div className={styles.timeSlotItems}>
+              {group.items.map((item) => (
+                <CartItem
+                  key={item.id}
+                  item={item}
+                  onIncrement={onIncrementItem}
+                  onDecrement={onDecrementItem}
+                  onSetQuantity={onSetItemQuantity}
+                  onRemove={onRemoveItem}
+                  isMemberActive={isMemberActive}
+                  isDevicePreview={isDevicePreview}
+                  onKeyboardOpen={onKeyboardOpen}
+                  onKeyboardClose={onKeyboardClose}
+                  isTimeslotMismatch={isMismatch}
+                />
+              ))}
+            </div>
+            {isMismatch && handleActivate && (
+              <button
+                className={styles.activateTimeslotLink}
+                onClick={(e) => { e.stopPropagation(); handleActivate(); }}
+                type="button"
+              >
+                Activate time slot
+              </button>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Retail products (aggregated, shown once) */}
+      {allRetailItems.length > 0 && (
         <div className={styles.flatProductsSection}>
           <ProductsSubHeader />
           <div className={styles.timeSlotItems}>
-            {group.retailItems.map((item) => (
+            {allRetailItems.map((item) => (
               <CartItem
                 key={item.id}
                 item={item}
@@ -435,12 +459,16 @@ function EventGroupCard({
         <div className={styles.eventBody}>
           {/* Time-slot section (tickets + add-ons) */}
           {group.items.length > 0 && (
-            <div className={timeSlotSectionClasses}>
+            <div
+              className={timeSlotSectionClasses}
+              onClick={isMismatch && derivedTimeslotId ? () => onSwitchTimeslot?.(derivedEventId, derivedTimeslotId) : undefined}
+              role={isMismatch ? 'button' : undefined}
+              tabIndex={isMismatch ? 0 : undefined}
+            >
               <TimeSlotHeader
                 date={group.date}
                 location={group.location}
-                isMismatch={isMismatch}
-                onSwitchTimeslot={isMismatch && derivedTimeslotId ? () => onSwitchTimeslot?.(derivedEventId, derivedTimeslotId) : undefined}
+                showVenue
               />
               <div className={styles.timeSlotItems}>
                 {group.items.map((item) => (
@@ -459,6 +487,15 @@ function EventGroupCard({
                   />
                 ))}
               </div>
+              {isMismatch && derivedTimeslotId && (
+                <button
+                  className={styles.activateTimeslotLink}
+                  onClick={(e) => { e.stopPropagation(); onSwitchTimeslot?.(derivedEventId, derivedTimeslotId); }}
+                  type="button"
+                >
+                  Activate time slot
+                </button>
+              )}
             </div>
           )}
 
@@ -497,37 +534,24 @@ function EventGroupCard({
 function TimeSlotHeader({
   date,
   location,
-  isMismatch,
-  onSwitchTimeslot,
+  showVenue = true,
 }: {
   date: string;
   location: string;
-  /** When true, the active timeslot differs from this group's timeslot */
-  isMismatch?: boolean;
-  /** When provided, clicking the mismatch action switches to this group's timeslot */
-  onSwitchTimeslot?: () => void;
+  showVenue?: boolean;
 }) {
   return (
     <div className={styles.timeSlotHeader}>
       <div className={styles.timeSlotLeft}>
         <FontAwesomeIcon icon={faTicket} className={styles.timeSlotIcon} />
         <span className={styles.timeSlotText}>{date}</span>
-        {isMismatch && onSwitchTimeslot && (
-          <button
-            className={styles.timeslotMismatch}
-            onClick={onSwitchTimeslot}
-            type="button"
-            title="Switch to this timeslot"
-          >
-            <FontAwesomeIcon icon={faCircleExclamation} className={styles.timeslotMismatchIcon} />
-            <span className={styles.timeslotMismatchText}>Go to timeslot</span>
-          </button>
-        )}
       </div>
-      <div className={styles.timeSlotLocation}>
-        <FontAwesomeIcon icon={faLocationDot} className={styles.timeSlotLocationIcon} />
-        <span className={styles.timeSlotLocationText}>{location}</span>
-      </div>
+      {showVenue && (
+        <div className={styles.timeSlotLocation}>
+          <FontAwesomeIcon icon={faLocationDot} className={styles.timeSlotLocationIcon} />
+          <span className={styles.timeSlotLocationText}>{location}</span>
+        </div>
+      )}
     </div>
   );
 }
