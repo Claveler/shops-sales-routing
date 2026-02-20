@@ -193,7 +193,7 @@ _Calendar view ("More dates"):_
 _Timeslot selection:_
 - Timeslot chips grouped by time-of-day (Morning / Afternoon / Evening); groups with no slots are hidden.
 - Each group heading combines the full date and period, e.g., "Thursday, January 31 - Evening", followed by a time range in lighter text (e.g., "7:00 AM to 2:59 PM" for Morning, "3:00 PM to 6:59 PM" for Afternoon, "7:00 PM to 9:59 PM" for Evening).
-- Groups are collapsible accordion sections. A chevron on the right of each heading toggles expand/collapse. Only the first group with available slots is expanded by default; the rest are collapsed.
+- Groups are collapsible accordion sections (exclusive — only one group open at a time). A chevron on the right of each heading toggles expand/collapse. By default the group whose earliest available slot is closest to the current time is expanded; the rest are collapsed. Expanding a different group automatically collapses the previous one.
 - Timeslot chip visual states: available = white background with grey border; filling = white background + orange dot + remaining count; low availability = white background + red dot + remaining count; selected = light blue background + blue border; sold out = grey background, "Sold out" text, disabled.
 - Two-step selection: tapping a chip highlights it → "Confirm selection" button applies the choice.
 

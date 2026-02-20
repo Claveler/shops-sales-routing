@@ -107,21 +107,26 @@ export function TimeslotModal({
     [slotsForDate],
   );
 
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set());
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
 
   useEffect(() => {
-    if (groups.length > 0) {
-      setExpandedGroups(new Set([groups[0].timeOfDay]));
+    if (groups.length === 0) { setExpandedGroup(null); return; }
+    const nowMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+    let bestGroup = groups[0].timeOfDay;
+    let bestDelta = Infinity;
+    for (const g of groups) {
+      for (const s of g.slots) {
+        if (s.availability === 'sold_out') continue;
+        const [h, m] = s.startTime.split(':').map(Number);
+        const delta = Math.abs(h * 60 + m - nowMinutes);
+        if (delta < bestDelta) { bestDelta = delta; bestGroup = g.timeOfDay; }
+      }
     }
+    setExpandedGroup(bestGroup);
   }, [groups]);
 
   const toggleGroup = useCallback((timeOfDay: string) => {
-    setExpandedGroups((prev) => {
-      const next = new Set(prev);
-      if (next.has(timeOfDay)) next.delete(timeOfDay);
-      else next.add(timeOfDay);
-      return next;
-    });
+    setExpandedGroup((prev) => (prev === timeOfDay ? null : timeOfDay));
   }, []);
 
   const hasMoreDates = availableDates.length > MAX_VISIBLE_PILLS;
@@ -280,7 +285,7 @@ export function TimeslotModal({
               {/* Timeslot groups */}
               <div className={styles.timeslotSection} ref={timeslotSectionRef}>
                 {groups.map((group) => {
-                  const isExpanded = expandedGroups.has(group.timeOfDay);
+                  const isExpanded = expandedGroup === group.timeOfDay;
                   return (
                     <div key={group.timeOfDay} className={styles.timeslotGroup}>
                       <button
