@@ -130,7 +130,7 @@ _Seated cart items:_
 - Price and booking fee are shown per unit (all seats in a group share the same price).
 - Selecting a new seat of the same ticket type on the map increments the existing cart item instead of creating a new row.
 - Deselecting a seat on the map removes that specific seat from the group; if the last seat is removed, the cart item is deleted.
-- Quantity cannot be changed from the cart directly; all seat management is done through the seating map. Since seats.io owns seat selection and provides its own "Clear selection" action, all add/remove/clear actions happen on the map — the cart "Clear all" button is hidden for seated events.
+- Quantity cannot be changed from the cart directly; all seat management is done through the seating map. The cart "Clear all" button remains available for seated events as a convenience shortcut, in addition to the "Clear selection" action on the map.
 
 *Note:* The seating map itself is provided by a **seats.io integration**. This story covers only the tab rename, cart item redesign for seat-specific line items, and the read-only cart behavior that follows from seats.io owning seat management.
 
