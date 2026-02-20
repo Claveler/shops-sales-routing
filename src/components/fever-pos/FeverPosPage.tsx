@@ -515,7 +515,8 @@ export function FeverPosPage({ isSimulation = false }: FeverPosPageProps) {
         name: event.name,
         venue: event.venue,
         imageUrl: getEventThumbnailById(event.id),
-      }));
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }, [salesRoutings]);
 
   const availableCities = useMemo(
