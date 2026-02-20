@@ -167,7 +167,7 @@ Stories do **not** get a separate "Why" section — the "so that" clause is the 
 
 Design tasks track the designer's deliverables for an epic.
 
-- Created as **Story** issue type linked to the parent epic (same level as dev stories), with a `[DESIGN]` prefix in the title (e.g., "[DESIGN] Multi-Cart screens").
+- Created as **Task** issue type with the `prod-design` label, linked to the parent epic (same level as dev stories), with a `[DESIGN]` prefix in the title (e.g., "[DESIGN] Multi-Cart screens").
 - **One design task per epic** (covering all stories in that epic), unless the epic is large enough to warrant per-story design tasks.
 - The designer (Pablo Rubio Retolaza) owns these tasks and updates the Figma status table in the epic description when designs are ready.
 - Design tasks are **not** subtasks of dev stories — they sit alongside them in the epic as peers, because design work often spans multiple stories.

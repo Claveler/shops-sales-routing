@@ -30,7 +30,7 @@ Apply these conventions when creating, editing, or syncing user stories with Jir
 - **Title:** Short descriptive name only (e.g., "Multi-event transactions"). Not full user-story sentence.
 - **Story description:** "As a… I want… so that…" format, followed by acceptance criteria. Stories do not get a separate "Why" — the "so that" clause must carry the motivation (answer "what goes wrong if we don't build this?"). The epic-level Why provides broader business context.
 - **Epic description:** Context (`### Context`), **Why** (`### Why`, mandatory — why this group of stories, why this sequence), Figma table (designer updates status), mockup reference, stories list, suggested analytics events, DoD checklist. See `workflow-and-conventions.md` for full structure.
-- **Design tasks:** Story type with `[DESIGN]` prefix, one per epic, owned by the designer. Sits alongside dev stories as a peer, not a subtask.
+- **Design tasks:** **Task** type with `[DESIGN]` prefix and `prod-design` label, one per epic, owned by the designer. Sits alongside dev stories as a peer in the epic, not a subtask.
 - **DoD:** Lives at the epic level, not on individual stories.
 - **Descriptions use markdown** when sent through the MCP server (it converts to ADF). When using `acli`, descriptions must be **Atlassian Document Format (ADF) JSON** — see "acli (Atlassian CLI)" section below.
 

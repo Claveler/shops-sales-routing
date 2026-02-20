@@ -2,10 +2,10 @@ import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faXmark,
-  faCalendarDay,
   faChevronLeft,
   faChevronUp,
   faChevronDown,
+  faCalendarDay,
 } from '@fortawesome/free-solid-svg-icons';
 import type { EventTimeslot, AvailabilityLevel } from '../../data/feverPosData';
 import {
@@ -54,11 +54,6 @@ function formatPillDate(isoDate: string): string {
   const day = d.getDate();
   const month = d.toLocaleDateString('en-US', { month: 'short' });
   return `${day} ${month}`;
-}
-
-function getTodayIso(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
 const PILL_BAR_CLASS: Partial<Record<AvailabilityLevel, string>> = {
@@ -172,18 +167,6 @@ export function TimeslotModal({
     const slot = slotsForDate.find((ts) => ts.id === pendingSlotId);
     if (slot) onConfirm(slot);
   }, [pendingSlotId, slotsForDate, onConfirm]);
-
-  const handleTodayClick = useCallback(() => {
-    const today = getTodayIso();
-    const target = availableDates.includes(today)
-      ? today
-      : availableDates.find((d) => d >= today) ?? availableDates[0];
-    if (!target) return;
-
-    handleDateClick(target);
-    if (showCalendar) setShowCalendar(false);
-    requestAnimationFrame(() => scrollStripToDate(target));
-  }, [availableDates, handleDateClick, showCalendar, scrollStripToDate]);
 
   if (!isOpen) return null;
 
@@ -371,14 +354,6 @@ export function TimeslotModal({
         {/* Footer */}
         {availableDates.length > 0 && !showCalendar && (
           <div className={styles.footer}>
-            <button
-              type="button"
-              className={styles.todayButton}
-              onClick={handleTodayClick}
-            >
-              <FontAwesomeIcon icon={faCalendarDay} className={styles.todayButtonIcon} />
-              Today
-            </button>
             <button
               type="button"
               className={styles.confirmButton}

@@ -383,26 +383,26 @@
               box-shadow 150ms ease-in-out;
 }
 
-.slotCard:hover:not(.slotCardSelected):not(.slotCardSoldOut):not(.slotCardFilling):not(.slotCardLow) {
+.slotCard:hover:not(.slotCardSelected):not(.slotCardSoldOut) {
   border-color: #A7B2BA;
   box-shadow: 0 2px 6px rgba(0, 70, 121, 0.08);
 }
 
-:global([data-touch-mode="true"]) .slotCard:hover:not(.slotCardSelected):not(.slotCardSoldOut):not(.slotCardFilling):not(.slotCardLow) {
+:global([data-touch-mode="true"]) .slotCard:hover:not(.slotCardSelected):not(.slotCardSoldOut) {
   border-color: #CCD2D8;
   box-shadow: none;
 }
 
-/* Filling (warning): blue tint + orange border */
+/* Filling (warning): standard border, dot + count provide the signal */
 .slotCardFilling {
-  background: #E6F4FF;
-  border-color: #DF7B00;
+  background: #FFFFFF;
+  border-color: #CCD2D8;
 }
 
-/* Low availability (danger): blue tint + red border */
+/* Low availability (danger): standard border, dot + count provide the signal */
 .slotCardLow {
-  background: #E6F4FF;
-  border-color: #EB0052;
+  background: #FFFFFF;
+  border-color: #CCD2D8;
 }
 
 /* Sold out: gray background + disabled */
@@ -412,9 +412,10 @@
   cursor: not-allowed;
 }
 
-/* User-selected: blue ring overlaid on any base style */
+/* User-selected: light blue background + blue border */
 .slotCardSelected {
-  box-shadow: inset 0 0 0 2px #0079CA;
+  background: #E6F4FF;
+  border-color: #0079CA;
 }
 
 .slotTime {
@@ -481,42 +482,10 @@
 /* ---- Footer ---- */
 .footer {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding-top: 16px;
   flex-shrink: 0;
-}
-
-/* ---- "Today" tertiary button ---- */
-.todayButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  height: 48px;
-  min-width: 112px;
-  padding: 0 24px;
-  font-size: 16px;
-  line-height: 24px;
-  font-weight: 600;
-  color: #031419;
-  background: transparent;
-  border: none;
-  border-radius: 64px;
-  cursor: pointer;
-  transition: background 150ms ease-in-out;
-}
-
-.todayButton:hover {
-  background: rgba(0, 0, 0, 0.04);
-}
-
-:global([data-touch-mode="true"]) .todayButton:hover {
-  background: transparent;
-}
-
-.todayButtonIcon {
-  font-size: 16px;
 }
 
 /* ---- "Confirm selection" primary button ---- */

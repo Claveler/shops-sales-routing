@@ -88,8 +88,8 @@ _Link device modal:_
 - Selecting a different device updates the link and closes the modal.
 - Empty state shown if no devices are linked to the setup.
 
-**`B2BS-962` — Cart panel visual redesign**
-As a cashier, I want an updated cart layout with modernized controls and clearer information hierarchy, so the cart is easier to read and faster to operate.
+**`B2BS-962` — Selling interface visual redesign**
+As a cashier, I want an updated selling interface with folder-like tab navigation and modernized cart controls, so the POS feels polished and the visual hierarchy is clearer.
 
 *Prerequisite:* B2BS-920 (config moves to hamburger menu and cart header is simplified).
 
@@ -99,6 +99,14 @@ As a cashier, I want an updated cart layout with modernized controls and clearer
 - "Select discount type" blue link (currently with gear icon).
 
 *What's new (scope of this story):*
+
+_Folder-like tab navigation:_
+- The active tab is visually connected to the content panel below, creating a folder-style container. The content panel has its own top border; the active tab overlaps it with a white bottom border, producing a seamless folder cut-out effect.
+- When the first tab is active, the content panel's top-left corner is square (flush with the tab); otherwise all top corners are rounded.
+- Page background `#F8F9F9`; folder surface (active tab + content panel) `#FFFFFF`.
+- All nav tabs share a consistent 48px rail height across active and inactive states.
+- The connected tab+panel block is inset with horizontal and bottom padding so it does not touch the outer viewport edges.
+- Only the event tab uses an expanded active width; Merch keeps a compact active width.
 
 _Cart item cards:_
 - Quantity controls redesigned as a pill-shaped container (bordered capsule, `rounded-200px`) wrapping circular trash/plus buttons + centered count. Replaces the current standalone buttons + rectangular input field.
@@ -180,18 +188,17 @@ _Calendar view ("More dates"):_
 - Availability underline bars in the calendar: dates with constrained availability show a short colored underline bar beneath the date number — amber for filling, red for low availability. A "Low availability" legend below the grid explains the bar colors (no "Sold out" legend in the calendar — sold-out status is conveyed at the timeslot chip level, not the date level).
 - Selecting a date from the calendar closes the calendar and returns to the date strip + timeslots view with the chosen date active.
 - Tapping the back chevron returns to the date strip without changing the selection. The active date card scrolls into view on return.
-- The footer (Today + Confirm selection) is hidden while the calendar is open.
+- The footer (Confirm selection) is hidden while the calendar is open.
 
 _Timeslot selection:_
 - Timeslot chips grouped by time-of-day (Morning / Afternoon / Evening); groups with no slots are hidden.
 - Each group heading combines the full date and period, e.g., "Thursday, January 31 - Evening", followed by a time range in lighter text (e.g., "7:00 AM to 2:59 PM" for Morning, "3:00 PM to 6:59 PM" for Afternoon, "7:00 PM to 9:59 PM" for Evening).
 - Groups are collapsible accordion sections. A chevron on the right of each heading toggles expand/collapse. Only the first group with available slots is expanded by default; the rest are collapsed.
-- Timeslot chip visual states: available = white background with time only; filling = blue tint + amber border + dot + remaining count; low availability = blue tint + red border + dot + remaining count; sold out = grey background, "Sold out" text, disabled.
+- Timeslot chip visual states: available = white background with grey border; filling = white background + orange dot + remaining count; low availability = white background + red dot + remaining count; selected = light blue background + blue border; sold out = grey background, "Sold out" text, disabled.
 - Two-step selection: tapping a chip highlights it → "Confirm selection" button applies the choice.
 
 _Footer:_
-- "Today" button (calendar icon, tertiary style) on the left jumps to today's date (or the nearest future available date).
-- "Confirm selection" primary button on the right; disabled until a timeslot is selected.
+- "Confirm selection" primary button, centered; disabled until a timeslot is selected.
 
 _Default behavior:_
 - Upon entering the ticketing POS view, a timeslot is preselected (the one closest to the sale date).
@@ -244,9 +251,22 @@ As a cashier, I want product tiles to show a thumbnail image when available, so 
 
 ## Epic 4 — Product Variants `B2BS-931`
 
+### Design
+
+| Screen / Flow | Figma | Status |
+|---|---|---|
+| POS variant tile & picker | — | Not started |
+| POS search results | — | Not started |
+| Fever marketplace listing | — | Not started |
+| Catalog integration product list | — | Not started |
+| Orders validation screen | — | Not started |
+| Dual-screen POS cart (customer-facing) | — | Not started |
+
+*@Pablo Rubio — update this table when designs are ready.*
+
 ### Context
 
-Today each tile is one product at one price. Products with size or color variants need a selection step before adding to cart, without cluttering the grid with one tile per variant.
+Today each tile is one product at one price. Products with size or color variants need a selection step before adding to cart, without cluttering the grid with one tile per variant. Variants are a cross-cutting concern: beyond the POS tile grid, they also appear in POS search results, the Fever marketplace listing, the catalog integration product list view, the orders validation screen, and the customer-facing dual-screen POS cart. Each surface needs its own design treatment.
 
 ### Why
 
